@@ -4,9 +4,11 @@
 export interface SceneryGroup {
     readonly objects: SceneryPlaceObject[],
     readonly size: CoordsXY,
+    name?: string,
 }
 
-export function getSceneryPlaceObjects(tile: Tile, offset: CoordsXY): SceneryPlaceObject[] {
+export function getSceneryPlaceObjects(x: number, y: number, offset: CoordsXY): SceneryPlaceObject[] {
+    let tile: Tile = map.getTile(x / 32, y / 32);
     let objects: SceneryPlaceObject[] = [];
     tile.elements.forEach((_, idx) => {
         switch (tile.elements[idx].type) {
@@ -108,7 +110,8 @@ function getBanner(tile: Tile, offset: CoordsXY, idx: number): BannerPlaceObject
     let element: BannerElement = <BannerElement><BaseTileElement>tile.elements[idx];
     let args: BannerPlaceArgs = {
         ...getSceneryPlaceArgs(tile, offset, idx),
-        direction: (<any>element).direction,
+        z: (element.baseHeight - 2) * 8,
+        direction: tile.data[idx * 16 + 6],
         primaryColour: (<any>element).primaryColour,
     };
     return {
@@ -124,7 +127,7 @@ function getFootpathScenery(tile: Tile, offset: CoordsXY, idx: number): Footpath
         ...getSceneryPlaceArgs(tile, offset, idx),
     };
     return {
-        type: "footpath_scenery",
+        type: "footpath_addition",
         placeAction: "footpathsceneryplace",
         placeArgs: args,
     }

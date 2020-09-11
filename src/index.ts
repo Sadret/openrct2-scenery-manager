@@ -11,6 +11,10 @@ registerPlugin({
     type: 'remote',
     licence: 'MIT',
     main: () => {
+        if (ui === undefined) {
+            console.log("[clipboard] Loading cancelled: game runs in headless mode.");
+            return;
+        }
         ui.registerMenuItem("Clipboard", function() {
             showWindow();
         });

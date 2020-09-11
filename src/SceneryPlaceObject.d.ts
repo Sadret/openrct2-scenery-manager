@@ -1,6 +1,7 @@
 /// <reference path="./SceneryPlaceArgs.d.ts" />
 
-type SceneryType = "footpath" | "small_scenery" | "wall" | "large_scenery" | "banner" | "footpath_scenery";
+// maybe change to openrct2.d.ts -> ObjectType
+type SceneryType = "footpath" | "small_scenery" | "wall" | "large_scenery" | "banner" | "footpath_addition";
 type SceneryPlaceAction = "footpathplace" | "smallsceneryplace" | "wallplace" | "largesceneryplace" | "bannerplace" | "footpathsceneryplace";
 
 interface SceneryPlaceObject {
@@ -40,7 +41,7 @@ interface BannerPlaceObject extends SceneryPlaceObject {
 }
 
 interface FootpathSceneryPlaceObject extends SceneryPlaceObject {
-    readonly type: "footpath_scenery",
+    readonly type: "footpath_addition",
     readonly placeAction: "footpathsceneryplace",
     readonly placeArgs: FootpathSceneryPlaceArgs,
 }
