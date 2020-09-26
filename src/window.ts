@@ -1,5 +1,4 @@
 /// <reference path="./../../openrct2.d.ts" />
-/// <reference path="./SceneryPlaceObject.d.ts" />
 
 import Oui from "./OliUI";
 import * as CoordUtils from "./CoordUtils";

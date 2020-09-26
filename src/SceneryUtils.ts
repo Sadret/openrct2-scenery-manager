@@ -1,23 +1,44 @@
 /// <reference path="./../../openrct2.d.ts" />
-/// <reference path="./SceneryPlaceObject.d.ts" />
+/// <reference path="./SceneryActionObject.d.ts" />
+
+/*
+ * INTERFACE DEFINITION
+ */
 
 export interface SceneryGroup {
-    readonly objects: SceneryPlaceObject[],
+    readonly objects: SceneryActionObject[],
     readonly size: CoordsXY,
     name?: string,
 }
 
-let diagonally: number[] = [0x5, 0x7, 0xA, 0xB, 0xD, 0xE,];
+/*
+ * TRANSFORMATION METHODS
+ */
 
-// move offset here
-// create math lib on SceneryGroup
-export function rotate(group: SceneryGroup): SceneryGroup {
+export function translate(group: SceneryGroup, offset: CoordsXY): SceneryGroup {
     return {
+        ...group,
+        objects: group.objects.map(object => ({
+            ...object,
+            args: {
+                ...object.args,
+                x: object.args.x + offset.x,
+                y: object.args.y + offset.y,
+            },
+        })),
+    };
+}
+
+export function rotate(group: SceneryGroup, rotation: number): SceneryGroup {
+    if (rotation % 4 == 0)
+        return group;
+    return rotate({
+        ...group,
         objects: group.objects.map(object => {
             let args: any = {
-                ...object.placeArgs,
-                x: object.placeArgs.y,
-                y: group.size.x - object.placeArgs.x,
+                ...object.args,
+                x: object.args.y,
+                y: group.size.x - object.args.x,
             };
             if (args.direction !== undefined) {
                 args.direction++;
@@ -35,25 +56,23 @@ export function rotate(group: SceneryGroup): SceneryGroup {
                 args.slope = (((args.slope ^ (1 << 2)) + 1) % 4) | (1 << 2);
             }
             return {
-                type: object.type,
-                placeAction: object.placeAction,
-                placeArgs: args,
-            }
+                ...object,
+                args: args,
+            };
         }),
-        size: {
-            x: group.size.y,
-            y: group.size.x,
-        },
-        name: "rotation of " + group.name,
-    };
+    }, rotation - 1);
 }
-export function mirror(group: SceneryGroup): SceneryGroup {
+
+export function mirror(group: SceneryGroup, mirror: boolean): SceneryGroup {
     // mirror_scenery(): /src/openrct2/ride/TrackDesign.cpp
+    if (!mirror)
+        return group;
     return {
+        ...group,
         objects: group.objects.map(object => {
             let args: any = {
-                ...object.placeArgs,
-                y: group.size.y - object.placeArgs.y,
+                ...object.args,
+                y: group.size.y - object.args.y,
             };
             switch (object.type) {
                 case "footpath":
@@ -63,7 +82,7 @@ export function mirror(group: SceneryGroup): SceneryGroup {
                         args.slope ^= (1 << 1);
                     break;
                 case "small_scenery":
-                    if ((<SmallSceneryPlaceObject>object).diagonal) {
+                    if ((<SmallSceneryActionObject>object).diagonal) {
                         args.direction ^= (1 << 0);
                         // if (fountain)
                         //     args.quadrant ^= (1 << 0);
@@ -87,19 +106,24 @@ export function mirror(group: SceneryGroup): SceneryGroup {
                     break;
             }
             return {
-                type: object.type,
-                placeAction: object.placeAction,
-                placeArgs: args,
+                ...object,
+                args: args,
             };
         }),
-        size: group.size,
-        name: "rotation of " + group.name,
     };
 }
 
-export function getSceneryPlaceObjects(x: number, y: number, offset: CoordsXY): SceneryPlaceObject[] {
+/*
+ * COPY PASTE REMOVE METHODS
+ */
+
+/*
+ * ACTIONOBJECT CREATION
+ */
+
+export function getSceneryActionObjects(x: number, y: number, offset: CoordsXY): SceneryActionObject[] {
     let tile: Tile = map.getTile(x / 32, y / 32);
-    let objects: SceneryPlaceObject[] = [];
+    let objects: SceneryActionObject[] = [];
     tile.elements.forEach((_, idx) => {
         switch (tile.elements[idx].type) {
             case "footpath":
@@ -125,7 +149,7 @@ export function getSceneryPlaceObjects(x: number, y: number, offset: CoordsXY): 
     return objects;
 }
 
-function getSceneryPlaceArgs(tile: Tile, offset: CoordsXY, idx: number): SceneryPlaceArgs {
+function getSceneryActionArgs(tile: Tile, offset: CoordsXY, idx: number): SceneryActionArgs {
     let element: BaseTileElement = tile.elements[idx];
     return {
         x: tile.x * 32 - offset.x,
@@ -135,27 +159,27 @@ function getSceneryPlaceArgs(tile: Tile, offset: CoordsXY, idx: number): Scenery
     }
 }
 
-function getFootpath(tile: Tile, offset: CoordsXY, idx: number): FootpathPlaceObject {
+function getFootpath(tile: Tile, offset: CoordsXY, idx: number): FootpathActionObject {
     let element: FootpathElement = <FootpathElement>tile.elements[idx];
-    let args: FootpathPlaceArgs = {
-        ...getSceneryPlaceArgs(tile, offset, idx),
+    let args: FootpathActionArgs = {
+        ...getSceneryActionArgs(tile, offset, idx),
         direction: element.direction,
         slope: (tile.data[idx * 16 + 0x9] & 1) * (tile.data[idx * 16 + 0xA] | (1 << 2)),
     };
-    console.log(args.slope);
     return {
         type: "footpath",
         placeAction: "footpathplace",
-        placeArgs: args,
+        removeAction: "footpathremove",
+        args: args,
     }
 }
 
-function getSmallScenery(tile: Tile, offset: CoordsXY, idx: number): SmallSceneryPlaceObject {
+function getSmallScenery(tile: Tile, offset: CoordsXY, idx: number): SmallSceneryActionObject {
     let element: SmallSceneryElement = <SmallSceneryElement><BaseTileElement>tile.elements[idx];
-    let args: SmallSceneryPlaceArgs = {
-        ...getSceneryPlaceArgs(tile, offset, idx),
+    let args: SmallSceneryActionArgs = {
+        ...getSceneryActionArgs(tile, offset, idx),
         direction: element.direction,
-        quadrant: (getFirstSetBit(tile.data[idx * 16 + 1]) + 2) % 4,
+        quadrant: (tile.data[idx * 16 + 0] >> 6) & 3,
         primaryColour: element.primaryColour,
         secondaryColour: element.secondaryColour,
     };
@@ -163,15 +187,16 @@ function getSmallScenery(tile: Tile, offset: CoordsXY, idx: number): SmallScener
     return {
         type: "small_scenery",
         placeAction: "smallsceneryplace",
-        placeArgs: args,
-        diagonal: diagonally.indexOf(occupiedQuadrants) !== -1,
+        removeAction: "smallsceneryremove",
+        args: args,
+        diagonal: [0x5, 0x7, 0xA, 0xB, 0xD, 0xE].indexOf(occupiedQuadrants) !== -1,
     }
 }
 
-function getWall(tile: Tile, offset: CoordsXY, idx: number): WallPlaceObject {
+function getWall(tile: Tile, offset: CoordsXY, idx: number): WallActionObject {
     let element: WallElement = <WallElement><BaseTileElement>tile.elements[idx];
-    let args: WallPlaceArgs = {
-        ...getSceneryPlaceArgs(tile, offset, idx),
+    let args: WallActionArgs = {
+        ...getSceneryActionArgs(tile, offset, idx),
         direction: element.direction,
         edge: tile.data[idx * 16 + 0] % 4,
         primaryColour: tile.data[idx * 16 + 6],
@@ -181,14 +206,15 @@ function getWall(tile: Tile, offset: CoordsXY, idx: number): WallPlaceObject {
     return {
         type: "wall",
         placeAction: "wallplace",
-        placeArgs: args,
+        removeAction: "wallremove",
+        args: args,
     }
 }
 
-function getLargeScenery(tile: Tile, offset: CoordsXY, idx: number): LargeSceneryPlaceObject {
+function getLargeScenery(tile: Tile, offset: CoordsXY, idx: number): LargeSceneryActionObject {
     let element: LargeSceneryElement = <LargeSceneryElement><BaseTileElement>tile.elements[idx];
-    let args: LargeSceneryPlaceArgs = {
-        ...getSceneryPlaceArgs(tile, offset, idx),
+    let args: LargeSceneryActionArgs = {
+        ...getSceneryActionArgs(tile, offset, idx),
         direction: (<any>element).direction,
         primaryColour: element.primaryColour,
         secondaryColour: element.secondaryColour,
@@ -197,14 +223,15 @@ function getLargeScenery(tile: Tile, offset: CoordsXY, idx: number): LargeScener
     return {
         type: "large_scenery",
         placeAction: "largesceneryplace",
-        placeArgs: args,
+        removeAction: "largesceneryremove",
+        args: args,
     }
 }
 
-function getBanner(tile: Tile, offset: CoordsXY, idx: number): BannerPlaceObject {
+function getBanner(tile: Tile, offset: CoordsXY, idx: number): BannerActionObject {
     let element: BannerElement = <BannerElement><BaseTileElement>tile.elements[idx];
-    let args: BannerPlaceArgs = {
-        ...getSceneryPlaceArgs(tile, offset, idx),
+    let args: BannerActionArgs = {
+        ...getSceneryActionArgs(tile, offset, idx),
         z: (element.baseHeight - 2) * 8,
         direction: tile.data[idx * 16 + 6],
         primaryColour: (<any>element).primaryColour,
@@ -212,34 +239,20 @@ function getBanner(tile: Tile, offset: CoordsXY, idx: number): BannerPlaceObject
     return {
         type: "banner",
         placeAction: "bannerplace",
-        placeArgs: args,
+        removeAction: "bannerremove",
+        args: args,
     }
 }
 
-function getFootpathScenery(tile: Tile, offset: CoordsXY, idx: number): FootpathSceneryPlaceObject {
+function getFootpathScenery(tile: Tile, offset: CoordsXY, idx: number): FootpathSceneryActionObject {
     let element: FootpathElement = <FootpathElement>tile.elements[idx];
-    let args: FootpathSceneryPlaceArgs = {
-        ...getSceneryPlaceArgs(tile, offset, idx),
+    let args: FootpathSceneryActionArgs = {
+        ...getSceneryActionArgs(tile, offset, idx),
     };
     return {
         type: "footpath_addition",
         placeAction: "footpathsceneryplace",
-        placeArgs: args,
+        removeAction: "footpathsceneryremove",
+        args: args,
     }
-}
-
-export function offset(args: SceneryPlaceArgs, offset: CoordsXY): SceneryPlaceArgs {
-    return {
-        ...args,
-        x: args.x + offset.x,
-        y: args.y + offset.y,
-    }
-}
-
-function getFirstSetBit(n: number) {
-    for (let i = 0; n != 0; i++ , n >>= 1) {
-        if ((n & 1) == 1)
-            return i;
-    }
-    return undefined;
 }

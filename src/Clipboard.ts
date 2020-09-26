@@ -26,10 +26,10 @@ function setActive(row: number): void {
     if (getActive() !== undefined)
         getActive().objects.forEach(object => {
             groupElementList.addItem([
-                context.getObject(<ObjectType>object.type, object.placeArgs.object).name,
-                String(object.placeArgs.x / 32),
-                String(object.placeArgs.y / 32),
-                String(object.placeArgs.z / 8),
+                context.getObject(<ObjectType>object.type, object.args.object).name,
+                String(object.args.x / 32),
+                String(object.args.y / 32),
+                String(object.args.z / 8),
             ]);
         })
 }
@@ -104,13 +104,13 @@ export function copy() {
         ui.showError("Can't copy area...", "Nothing selected!");
         return;
     }
-    let objects: SceneryPlaceObject[] = [];
+    let objects: SceneryActionObject[] = [];
     let start: CoordsXY = ui.tileSelection.range.leftTop;
     let end: CoordsXY = ui.tileSelection.range.rightBottom;
     let size: CoordsXY = CoordUtils.getSize(ui.tileSelection.range);
     for (let x = start.x; x <= end.x; x += 32)
         for (let y = start.y; y <= end.y; y += 32)
-            objects = objects.concat(SceneryUtils.getSceneryPlaceObjects(x, y, start));
+            objects = objects.concat(SceneryUtils.getSceneryActionObjects(x, y, start));
     add({
         objects: objects,
         size: size,
@@ -134,36 +134,28 @@ export function paste(offset: CoordsXY, ghost: boolean = false): SceneryGroup {
         return;
     }
     let group: SceneryGroup = getActive() || groups[groups.length - 1];
-    if (mirrored)
-        group = SceneryUtils.mirror(group);
-    for (let i = 0; i < rotation; i++)
-        group = SceneryUtils.rotate(group);
+    group = SceneryUtils.mirror(group, mirrored);
+    group = SceneryUtils.rotate(group, rotation);
+    group = SceneryUtils.translate(group, offset);
     let result: SceneryGroup = {
         name: "_ghost",
         objects: [],
         size: group.size,
     }
     group.objects.forEach(object => {
-        let args: SceneryPlaceArgs = SceneryUtils.offset(object.placeArgs, offset);
+        let args: SceneryActionArgs = object.args;
         (<any>args).ghost = ghost;
         context.executeAction(object.placeAction, args, res => {
-            // console.log(res, args);
             if (res.error === 0)
-                result.objects.push({
-                    type: object.type,
-                    placeAction: object.placeAction,
-                    placeArgs: args,
-                });
+                result.objects.push(object);
         });
     });
     return result;
 }
 
 export function remove(group: SceneryGroup) {
-    if (group.objects.length === 0)
-        return;
     group.objects.forEach(object => {
-        context.executeAction(object.placeAction.replace("place", "remove"), object.placeArgs, (res) => { return; console.log(res, object.placeArgs); });
+        context.executeAction(object.removeAction, object.args, () => { });
     });
 }
 

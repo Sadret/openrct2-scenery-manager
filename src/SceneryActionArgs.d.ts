@@ -1,23 +1,23 @@
-interface SceneryPlaceArgs {
+interface SceneryActionArgs {
     readonly x: number,
     readonly y: number,
     readonly z: number,
     readonly object: number,
 }
 
-interface FootpathPlaceArgs extends SceneryPlaceArgs {
+interface FootpathActionArgs extends SceneryActionArgs {
     readonly direction: number,
     readonly slope: number,
 }
 
-interface SmallSceneryPlaceArgs extends SceneryPlaceArgs {
+interface SmallSceneryActionArgs extends SceneryActionArgs {
     readonly direction: number,
     readonly quadrant: number,
     readonly primaryColour: number,
     readonly secondaryColour: number,
 }
 
-interface WallPlaceArgs extends SceneryPlaceArgs {
+interface WallActionArgs extends SceneryActionArgs {
     readonly direction: number,
     readonly edge: number,
     readonly primaryColour: number,
@@ -25,16 +25,16 @@ interface WallPlaceArgs extends SceneryPlaceArgs {
     readonly tertiaryColour: number,
 }
 
-interface LargeSceneryPlaceArgs extends SceneryPlaceArgs {
+interface LargeSceneryActionArgs extends SceneryActionArgs {
     readonly direction: number,
     readonly primaryColour: number,
     readonly secondaryColour: number,
 }
 
-interface BannerPlaceArgs extends SceneryPlaceArgs {
+interface BannerActionArgs extends SceneryActionArgs {
     readonly direction: number,
     readonly primaryColour: number,
 }
 
-interface FootpathSceneryPlaceArgs extends SceneryPlaceArgs {
+interface FootpathSceneryActionArgs extends SceneryActionArgs {
 }
