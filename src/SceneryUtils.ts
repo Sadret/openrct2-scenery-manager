@@ -7,6 +7,96 @@ export interface SceneryGroup {
     name?: string,
 }
 
+let diagonally: number[] = [0x5, 0x7, 0xA, 0xB, 0xD, 0xE,];
+
+// move offset here
+// create math lib on SceneryGroup
+export function rotate(group: SceneryGroup): SceneryGroup {
+    return {
+        objects: group.objects.map(object => {
+            let args: any = {
+                ...object.placeArgs,
+                x: object.placeArgs.y,
+                y: group.size.x - object.placeArgs.x,
+            };
+            if (args.direction !== undefined) {
+                args.direction++;
+                args.direction %= 4;
+            }
+            if (args.edge !== undefined) {
+                args.edge++;
+                args.edge %= 4;
+            }
+            if (args.quadrant !== undefined) {
+                args.quadrant++;
+                args.quadrant %= 4;
+            }
+            if (args.slope !== undefined && args.slope !== 0) {
+                args.slope = (((args.slope ^ (1 << 2)) + 1) % 4) | (1 << 2);
+            }
+            return {
+                type: object.type,
+                placeAction: object.placeAction,
+                placeArgs: args,
+            }
+        }),
+        size: {
+            x: group.size.y,
+            y: group.size.x,
+        },
+        name: "rotation of " + group.name,
+    };
+}
+export function mirror(group: SceneryGroup): SceneryGroup {
+    // mirror_scenery(): /src/openrct2/ride/TrackDesign.cpp
+    return {
+        objects: group.objects.map(object => {
+            let args: any = {
+                ...object.placeArgs,
+                y: group.size.y - object.placeArgs.y,
+            };
+            switch (object.type) {
+                case "footpath":
+                    if (args.direction & (1 << 0))
+                        args.direction ^= (1 << 1);
+                    if (args.slope & (1 << 0))
+                        args.slope ^= (1 << 1);
+                    break;
+                case "small_scenery":
+                    if ((<SmallSceneryPlaceObject>object).diagonal) {
+                        args.direction ^= (1 << 0);
+                        // if (fountain)
+                        //     args.quadrant ^= (1 << 0);
+                        break;
+                    }
+                    if (args.direction & (1 << 0))
+                        args.direction ^= (1 << 1);
+                    args.quadrant ^= (1 << 0);
+                    break;
+                case "wall":
+                    if (args.direction & (1 << 0))
+                        args.direction ^= (1 << 1);
+                    if (args.edge & (1 << 0))
+                        args.edge ^= (1 << 1);
+                    break;
+                case "large_scenery":
+                    break;
+                case "banner":
+                    break;
+                case "footpath_addition":
+                    break;
+            }
+            return {
+                type: object.type,
+                placeAction: object.placeAction,
+                placeArgs: args,
+            };
+        }),
+        size: group.size,
+        name: "rotation of " + group.name,
+    };
+}
+
 export function getSceneryPlaceObjects(x: number, y: number, offset: CoordsXY): SceneryPlaceObject[] {
     let tile: Tile = map.getTile(x / 32, y / 32);
     let objects: SceneryPlaceObject[] = [];
@@ -31,7 +121,7 @@ export function getSceneryPlaceObjects(x: number, y: number, offset: CoordsXY): 
             default:
                 break;
         }
-    })
+    });
     return objects;
 }
 
@@ -50,8 +140,9 @@ function getFootpath(tile: Tile, offset: CoordsXY, idx: number): FootpathPlaceOb
     let args: FootpathPlaceArgs = {
         ...getSceneryPlaceArgs(tile, offset, idx),
         direction: element.direction,
-        slope: (<any>element).slope,
+        slope: (tile.data[idx * 16 + 0x9] & 1) * (tile.data[idx * 16 + 0xA] | (1 << 2)),
     };
+    console.log(args.slope);
     return {
         type: "footpath",
         placeAction: "footpathplace",
@@ -68,10 +159,12 @@ function getSmallScenery(tile: Tile, offset: CoordsXY, idx: number): SmallScener
         primaryColour: element.primaryColour,
         secondaryColour: element.secondaryColour,
     };
+    let occupiedQuadrants = tile.data[idx * 16 + 1] & 0xF;
     return {
         type: "small_scenery",
         placeAction: "smallsceneryplace",
         placeArgs: args,
+        diagonal: diagonally.indexOf(occupiedQuadrants) !== -1,
     }
 }
 
@@ -79,6 +172,7 @@ function getWall(tile: Tile, offset: CoordsXY, idx: number): WallPlaceObject {
     let element: WallElement = <WallElement><BaseTileElement>tile.elements[idx];
     let args: WallPlaceArgs = {
         ...getSceneryPlaceArgs(tile, offset, idx),
+        direction: element.direction,
         edge: tile.data[idx * 16 + 0] % 4,
         primaryColour: tile.data[idx * 16 + 6],
         secondaryColour: tile.data[idx * 16 + 7],
@@ -99,6 +193,7 @@ function getLargeScenery(tile: Tile, offset: CoordsXY, idx: number): LargeScener
         primaryColour: element.primaryColour,
         secondaryColour: element.secondaryColour,
     };
+    console.log(args);
     return {
         type: "large_scenery",
         placeAction: "largesceneryplace",

@@ -4,6 +4,7 @@
 import Oui from "./OliUI";
 import * as CoordUtils from "./CoordUtils";
 import * as Clipboard from "./Clipboard";
+import { SceneryGroup } from "./SceneryUtils";
 
 export default showWindow;
 
@@ -51,6 +52,29 @@ function showWindow(): void {
             return;
         }
 
+        let ghost: SceneryGroup = undefined;
+        function removeGhost() {
+            if (ghost !== undefined)
+                Clipboard.remove(ghost);
+            ghost = undefined;
+        }
+        function placeGhost(coords: CoordsXY) {
+            removeGhost();
+            if (coords.x * coords.y === 0)
+                return;
+            ghost = Clipboard.paste(coords, true);
+        }
+
+        // let coords: CoordsXY = undefined;
+        // function update(e: ToolEventArgs) {
+        //     if (coords === undefined || coords.x !== e.mapCoords.x || coords.y !== e.mapCoords.y) {
+        //         if (coords !== undefined)
+        //             Clipboard.remove(coords);
+        //
+        //         coords = e.mapCoords;
+        //         Clipboard.paste(coords);
+        //     }
+        // }
         ui.activateTool({
             id: "clipboard-area-paste",
             cursor: "cross_hair",
@@ -58,23 +82,37 @@ function showWindow(): void {
                 ui.mainViewport.visibilityFlags |= 1 << 7;
             },
             onDown: e => {
+                removeGhost();
                 Clipboard.paste(e.mapCoords);
+                // update(e);
+                // coords = undefined;
             },
             onMove: e => {
+                placeGhost(e.mapCoords);
+                // update(e);
                 ui.tileSelection.range = CoordUtils.startSizeToMapRange(e.mapCoords, Clipboard.getSize());
             },
             onUp: () => {
             },
             onFinish: () => {
+                // if (coords !== undefined)
+                //     Clipboard.remove(coords);
+                //
+                removeGhost();
                 ui.tileSelection.range = undefined;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
             },
         });
     });
 
+    const clipboard_rotate = new Oui.Widgets.Button("rotate", Clipboard.rotate);
+    const clipboard_mirror = new Oui.Widgets.Button("mirror", Clipboard.mirror);
+
     window.addChild(area_select);
     window.addChild(area_copy);
     window.addChild(area_paste);
+    window.addChild(clipboard_rotate);
+    window.addChild(clipboard_mirror);
     window.addChild(Clipboard.widget);
     window.open();
 }

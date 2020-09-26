@@ -18,6 +18,7 @@ interface SmallSceneryPlaceArgs extends SceneryPlaceArgs {
 }
 
 interface WallPlaceArgs extends SceneryPlaceArgs {
+    readonly direction: number,
     readonly edge: number,
     readonly primaryColour: number,
     readonly secondaryColour: number,

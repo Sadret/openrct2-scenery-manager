@@ -20,6 +20,7 @@ interface SmallSceneryPlaceObject extends SceneryPlaceObject {
     readonly type: "small_scenery",
     readonly placeAction: "smallsceneryplace",
     readonly placeArgs: SmallSceneryPlaceArgs,
+    readonly diagonal: boolean,
 }
 
 interface WallPlaceObject extends SceneryPlaceObject {

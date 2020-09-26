@@ -27,9 +27,9 @@ function setActive(row: number): void {
         getActive().objects.forEach(object => {
             groupElementList.addItem([
                 context.getObject(<ObjectType>object.type, object.placeArgs.object).name,
-                String(object.placeArgs.x),
-                String(object.placeArgs.y),
-                String(object.placeArgs.z),
+                String(object.placeArgs.x / 32),
+                String(object.placeArgs.y / 32),
+                String(object.placeArgs.z / 8),
             ]);
         })
 }
@@ -53,7 +53,7 @@ function deleteGroup() {
 export const widget = new Oui.GroupBox("Clipboard");
 
 const groupList = new Oui.Widgets.ListView(); {
-    groupList.setColumns(["name", "w", "h", "size"]);
+    groupList.setColumns(["name", "w", "l", "size"]);
     let columns = groupList.getColumns();
     columns[0].setRatioWidth(5);
     columns[1].setRatioWidth(1);
@@ -117,18 +117,62 @@ export function copy() {
     });
 }
 
-export function paste(offset: CoordsXY) {
+let rotation: number = 0;
+export function rotate(): void {
+    rotation++;
+    rotation %= 4;
+}
+
+let mirrored: boolean = false;
+export function mirror(): void {
+    mirrored = !mirrored;
+}
+
+export function paste(offset: CoordsXY, ghost: boolean = false): SceneryGroup {
     if (groups.length === 0) {
         ui.showError("Can't paste area...", "Clipboard is empty!");
         return;
     }
     let group: SceneryGroup = getActive() || groups[groups.length - 1];
+    if (mirrored)
+        group = SceneryUtils.mirror(group);
+    for (let i = 0; i < rotation; i++)
+        group = SceneryUtils.rotate(group);
+    let result: SceneryGroup = {
+        name: "_ghost",
+        objects: [],
+        size: group.size,
+    }
     group.objects.forEach(object => {
-        // console.log(object, offset(object.placeArgs, e.mapCoords));
-        context.executeAction(object.placeAction, SceneryUtils.offset(object.placeArgs, offset), () => { });
+        let args: SceneryPlaceArgs = SceneryUtils.offset(object.placeArgs, offset);
+        (<any>args).ghost = ghost;
+        context.executeAction(object.placeAction, args, res => {
+            // console.log(res, args);
+            if (res.error === 0)
+                result.objects.push({
+                    type: object.type,
+                    placeAction: object.placeAction,
+                    placeArgs: args,
+                });
+        });
+    });
+    return result;
+}
+
+export function remove(group: SceneryGroup) {
+    if (group.objects.length === 0)
+        return;
+    group.objects.forEach(object => {
+        context.executeAction(object.placeAction.replace("place", "remove"), object.placeArgs, (res) => { return; console.log(res, object.placeArgs); });
     });
 }
 
 export function getSize(): CoordsXY {
-    return getActive() ?.size || groups[groups.length - 1] ?.size;
+    let size: CoordsXY = getActive() ?.size || groups[groups.length - 1] ?.size;
+    if (rotation % 2 === 1)
+        size = {
+            x: size.y,
+            y: size.x,
+        };
+    return size;
 }
