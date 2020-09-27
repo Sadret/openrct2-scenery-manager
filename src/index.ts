@@ -2,6 +2,17 @@
 
 import showWindow from "./window";
 
+declare global {
+    interface Array<T> {
+        reverseForEach(callback: (currentValue: T, index?: number, array?: T) => void): void;
+    }
+}
+
+Array.prototype.reverseForEach = function(callback) {
+    for (let idx = this.length - 1; idx >= 0; idx--)
+        callback(this[idx], idx, this);
+}
+
 registerPlugin({
     name: 'clipboard',
     version: '0.0.0',

@@ -20,13 +20,16 @@ function add(group: SceneryGroup): void {
 function setActive(row: number): void {
     activeRow = row;
     groupListButtons.setIsDisabled(getActive() === undefined);
-    // nameButton.setIsDisabled(getActive() === undefined);
-    // deleteButton.setIsDisabled(getActive() === undefined);
     groupElementList.getItems().length = 0;
     if (getActive() !== undefined)
         getActive().objects.forEach(object => {
+            let idx = object.args.object;
+            if (object.type === "footpath_addition")
+                idx--;
+            if (object.type === "footpath")
+                idx &= ~(1 << 7);
             groupElementList.addItem([
-                context.getObject(<ObjectType>object.type, object.args.object).name,
+                context.getObject(<ObjectType>object.type, idx).name,
                 String(object.args.x / 32),
                 String(object.args.y / 32),
                 String(object.args.z / 8),
@@ -154,8 +157,14 @@ export function paste(offset: CoordsXY, ghost: boolean = false): SceneryGroup {
 }
 
 export function remove(group: SceneryGroup) {
-    group.objects.forEach(object => {
-        context.executeAction(object.removeAction, object.args, () => { });
+    group.objects.reverseForEach(object => {
+        if (object.type === "banner")
+            context.executeAction(object.removeAction, {
+                ...object.args,
+                z: object.args.z + 16,
+            }, () => { });
+        else
+            context.executeAction(object.removeAction, object.args, () => { });
     });
 }
 

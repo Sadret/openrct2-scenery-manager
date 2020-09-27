@@ -60,6 +60,10 @@ export function rotate(group: SceneryGroup, rotation: number): SceneryGroup {
                 args: args,
             };
         }),
+        size: {
+            x: group.size.y,
+            y: group.size.x,
+        },
     }, rotation - 1);
 }
 
@@ -101,6 +105,8 @@ export function mirror(group: SceneryGroup, mirror: boolean): SceneryGroup {
                 case "large_scenery":
                     break;
                 case "banner":
+                    if (args.direction & (1 << 0))
+                        args.direction ^= (1 << 1);
                     break;
                 case "footpath_addition":
                     break;
@@ -128,7 +134,9 @@ export function getSceneryActionObjects(x: number, y: number, offset: CoordsXY):
         switch (tile.elements[idx].type) {
             case "footpath":
                 objects.push(getFootpath(tile, offset, idx));
-                // objects.push(getFootpathScenery(tile, offset, idx));
+                let addition: FootpathSceneryActionObject = getFootpathScenery(tile, offset, idx);
+                if (addition !== undefined)
+                    objects.push(addition);
                 break;
             case "small_scenery":
                 objects.push(getSmallScenery(tile, offset, idx));
@@ -165,6 +173,7 @@ function getFootpath(tile: Tile, offset: CoordsXY, idx: number): FootpathActionO
         ...getSceneryActionArgs(tile, offset, idx),
         direction: element.direction,
         slope: (tile.data[idx * 16 + 0x9] & 1) * (tile.data[idx * 16 + 0xA] | (1 << 2)),
+        object: (tile.data[idx * 16 + 0x0] & (1 << 0)) << 7 | tile.data[idx * 16 + 0x4],
     };
     return {
         type: "footpath",
@@ -219,7 +228,6 @@ function getLargeScenery(tile: Tile, offset: CoordsXY, idx: number): LargeScener
         primaryColour: element.primaryColour,
         secondaryColour: element.secondaryColour,
     };
-    console.log(args);
     return {
         type: "large_scenery",
         placeAction: "largesceneryplace",
@@ -246,8 +254,11 @@ function getBanner(tile: Tile, offset: CoordsXY, idx: number): BannerActionObjec
 
 function getFootpathScenery(tile: Tile, offset: CoordsXY, idx: number): FootpathSceneryActionObject {
     let element: FootpathElement = <FootpathElement>tile.elements[idx];
+    if (tile.data[idx * 16 + 0x7] === 0)
+        return undefined;
     let args: FootpathSceneryActionArgs = {
         ...getSceneryActionArgs(tile, offset, idx),
+        object: tile.data[idx * 16 + 0x7],
     };
     return {
         type: "footpath_addition",
