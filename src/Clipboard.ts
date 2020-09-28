@@ -1,4 +1,4 @@
-import { SceneryGroup } from "./SceneryUtils";
+import { SceneryGroup, SceneryFilter } from "./SceneryUtils";
 import * as SceneryUtils from "./SceneryUtils";
 import * as CoordUtils from "./CoordUtils";
 import Oui from "./OliUI";
@@ -102,7 +102,7 @@ const groupElementList = new Oui.Widgets.ListView(); {
     widget.addChild(groupElementList);
 }
 
-export function copy() {
+export function copy(filter: SceneryFilter) {
     if (ui.tileSelection.range === null) {
         ui.showError("Can't copy area...", "Nothing selected!");
         return;
@@ -111,12 +111,15 @@ export function copy() {
     let start: CoordsXY = ui.tileSelection.range.leftTop;
     let end: CoordsXY = ui.tileSelection.range.rightBottom;
     let size: CoordsXY = CoordUtils.getSize(ui.tileSelection.range);
+
     for (let x = start.x; x <= end.x; x += 32)
         for (let y = start.y; y <= end.y; y += 32)
-            objects = objects.concat(SceneryUtils.getSceneryActionObjects(x, y, start));
+            objects = objects.concat(SceneryUtils.getSceneryActionObjects(x, y, start, filter));
+
     add({
         objects: objects,
         size: size,
+        surfaceHeight: getMedianSurfaceHeight(start, size),
     });
 }
 
@@ -131,21 +134,31 @@ export function mirror(): void {
     mirrored = !mirrored;
 }
 
-export function paste(offset: CoordsXY, ghost: boolean = false): SceneryGroup {
+export function paste(offset: CoordsXY, filter: SceneryFilter, ghost: boolean = false): SceneryGroup {
     if (groups.length === 0) {
         ui.showError("Can't paste area...", "Clipboard is empty!");
         return;
     }
+
     let group: SceneryGroup = getActive() || groups[groups.length - 1];
+    let deltaZ = filter.height;
+    if (!filter.absolute)
+        deltaZ += getMedianSurfaceHeight(offset, group.size) - group.surfaceHeight;
+
     group = SceneryUtils.mirror(group, mirrored);
     group = SceneryUtils.rotate(group, rotation);
-    group = SceneryUtils.translate(group, offset);
+    group = SceneryUtils.translate(group, { ...offset, z: deltaZ * 8 });
+
     let result: SceneryGroup = {
         name: "_ghost",
         objects: [],
         size: group.size,
+        surfaceHeight: undefined,
     }
+
     group.objects.forEach(object => {
+        if (!filter[object.type])
+            return;
         let args: SceneryActionArgs = object.args;
         (<any>args).ghost = ghost;
         context.executeAction(object.placeAction, args, res => {
@@ -176,4 +189,16 @@ export function getSize(): CoordsXY {
             y: size.x,
         };
     return size;
+}
+
+function getMedianSurfaceHeight(start: CoordsXY, size: CoordsXY): number {
+    const heights: number[] = [];
+    for (let x: number = 0; x <= size.x; x += 32)
+        for (let y: number = 0; y <= size.y; y += 32) {
+            const surface: TileElement = SceneryUtils.getSurface(start.x + x, start.y + y);
+            if (surface !== undefined)
+                heights.push(surface.baseHeight);
+        }
+    heights.sort();
+    return heights[Math.floor(heights.length / 2)];
 }

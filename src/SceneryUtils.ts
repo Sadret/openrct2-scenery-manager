@@ -8,14 +8,26 @@
 export interface SceneryGroup {
     readonly objects: SceneryActionObject[],
     readonly size: CoordsXY,
+    readonly surfaceHeight: number,
     name?: string,
+}
+
+export interface SceneryFilter {
+    footpath: boolean;
+    small_scenery: boolean;
+    wall: boolean;
+    large_scenery: boolean;
+    banner: boolean;
+    footpath_addition: boolean;
+    absolute: boolean;
+    height: number;
 }
 
 /*
  * TRANSFORMATION METHODS
  */
 
-export function translate(group: SceneryGroup, offset: CoordsXY): SceneryGroup {
+export function translate(group: SceneryGroup, offset: CoordsXYZ): SceneryGroup {
     return {
         ...group,
         objects: group.objects.map(object => ({
@@ -24,6 +36,7 @@ export function translate(group: SceneryGroup, offset: CoordsXY): SceneryGroup {
                 ...object.args,
                 x: object.args.x + offset.x,
                 y: object.args.y + offset.y,
+                z: object.args.z + offset.z,
             },
         })),
     };
@@ -127,28 +140,35 @@ export function mirror(group: SceneryGroup, mirror: boolean): SceneryGroup {
  * ACTIONOBJECT CREATION
  */
 
-export function getSceneryActionObjects(x: number, y: number, offset: CoordsXY): SceneryActionObject[] {
+export function getSceneryActionObjects(x: number, y: number, offset: CoordsXY, filter: SceneryFilter): SceneryActionObject[] {
     let tile: Tile = map.getTile(x / 32, y / 32);
     let objects: SceneryActionObject[] = [];
     tile.elements.forEach((_, idx) => {
         switch (tile.elements[idx].type) {
             case "footpath":
-                objects.push(getFootpath(tile, offset, idx));
-                let addition: FootpathSceneryActionObject = getFootpathScenery(tile, offset, idx);
-                if (addition !== undefined)
-                    objects.push(addition);
+                if (filter.footpath)
+                    objects.push(getFootpath(tile, offset, idx));
+                if (filter.footpath_addition) {
+                    let addition: FootpathSceneryActionObject = getFootpathScenery(tile, offset, idx);
+                    if (addition !== undefined)
+                        objects.push(addition);
+                }
                 break;
             case "small_scenery":
-                objects.push(getSmallScenery(tile, offset, idx));
+                if (filter.small_scenery)
+                    objects.push(getSmallScenery(tile, offset, idx));
                 break;
             case "wall":
-                objects.push(getWall(tile, offset, idx));
+                if (filter.wall)
+                    objects.push(getWall(tile, offset, idx));
                 break;
             case "large_scenery":
-                objects.push(getLargeScenery(tile, offset, idx));
+                if (filter.large_scenery)
+                    objects.push(getLargeScenery(tile, offset, idx));
                 break;
             case "banner":
-                objects.push(getBanner(tile, offset, idx));
+                if (filter.banner)
+                    objects.push(getBanner(tile, offset, idx));
                 break;
             default:
                 break;
@@ -266,4 +286,15 @@ function getFootpathScenery(tile: Tile, offset: CoordsXY, idx: number): Footpath
         removeAction: "footpathsceneryremove",
         args: args,
     }
+}
+
+/*
+ * UTILITY METHODS
+ */
+
+export function getSurface(x: number, y: number): SurfaceElement {
+    for (let element of map.getTile(x / 32, y / 32).elements)
+        if (element.type === "surface")
+            return <SurfaceElement>element;
+    return undefined;
 }
