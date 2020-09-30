@@ -2,6 +2,7 @@ import { SceneryGroup, SceneryFilter } from "./SceneryUtils";
 import * as SceneryUtils from "./SceneryUtils";
 import * as CoordUtils from "./CoordUtils";
 import Oui from "./OliUI";
+import * as Library from "./Library";
 
 let groups: SceneryGroup[] = [];
 let activeRow: number = undefined;
@@ -70,18 +71,22 @@ const groupList = new Oui.Widgets.ListView(); {
 }
 
 const groupListButtons = new Oui.HorizontalBox(); {
-    const nameButton = new Oui.Widgets.Button("Name scenery group", () => ui.showTextInput({
+    const nameButton = new Oui.Widgets.Button("Name", () => ui.showTextInput({
         title: "Scenery group name",
         description: "Enter a new name for this scenery group",
         initialValue: getActive().name,
         callback: setName,
     }));
-    nameButton.setRelativeWidth(50);
+    nameButton.setRelativeWidth(30);
     groupListButtons.addChild(nameButton);
 
-    const deleteButton = new Oui.Widgets.Button("Delete scenery group", deleteGroup);
-    deleteButton.setRelativeWidth(50);
+    const deleteButton = new Oui.Widgets.Button("Delete", deleteGroup);
+    deleteButton.setRelativeWidth(30);
     groupListButtons.addChild(deleteButton);
+
+    const saveButton = new Oui.Widgets.Button("Save to library", () => Library.save(getActive()));
+    saveButton.setRelativeWidth(40);
+    groupListButtons.addChild(saveButton);
 
     groupListButtons.setIsDisabled(true);
     groupListButtons.setPadding(0, 0, 0, 0);

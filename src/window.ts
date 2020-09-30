@@ -3,6 +3,7 @@
 import Oui from "./OliUI";
 import * as CoordUtils from "./CoordUtils";
 import * as Clipboard from "./Clipboard";
+import * as Library from "./Library";
 import { SceneryGroup, SceneryFilter } from "./SceneryUtils";
 
 export default showWindow;
@@ -10,6 +11,7 @@ export default showWindow;
 function showWindow(): void {
     const window = new Oui.Window("clipboard", "Clipboard");
     window.setWidth(256);
+    window.setHorizontalResize(true, 256, 512);
 
     const area_select = new Oui.Widgets.Button("Select area", () => {
         let start = undefined;
@@ -159,5 +161,6 @@ function showWindow(): void {
     window.addChild(clipboard_rotate);
     window.addChild(clipboard_mirror);
     window.addChild(Clipboard.widget);
+    window.addChild(Library.widget);
     window.open();
 }
