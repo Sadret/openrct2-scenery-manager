@@ -1,209 +1,97 @@
-import { SceneryGroup, SceneryFilter } from "./SceneryUtils";
-import * as SceneryUtils from "./SceneryUtils";
-import * as CoordUtils from "./CoordUtils";
 import Oui from "./OliUI";
+import * as CopyPaste from "./CopyPaste";
 import * as Library from "./Library";
+import { SceneryGroup } from "./SceneryUtils";
 
-let groups: SceneryGroup[] = [];
-let activeRow: number = undefined;
+class GroupView {
+    readonly widget: any = new Oui.Widgets.ListView();
+    readonly groups: SceneryGroup[] = [];
+    selectedIdx: number = undefined;
 
-function add(group: SceneryGroup): void {
-    groups.push(group);
-    groupList.addItem([
-        group.name === undefined ? "unnamed" : group.name,
-        String((group.size.x / 32) + 1),
-        String((group.size.y / 32) + 1),
-        String(group.objects.length),
-    ]);
-    setActive(groups.length - 1);
-}
+    constructor() {
+        this.widget.setHeight(128);
+        this.widget.setColumns(["Name", "Width", "Length", "Size"]);
+        let columns = this.widget.getColumns();
+        columns[0].setRatioWidth(3);
+        columns[1].setRatioWidth(1);
+        columns[2].setRatioWidth(1);
+        columns[3].setRatioWidth(1);
+        this.widget.setCanSelect(true);
+        this.widget.setOnClick((row: number) => this.setSelected(row));
+    }
 
-function setActive(row: number): void {
-    activeRow = row;
-    groupListButtons.setIsDisabled(getActive() === undefined);
-    groupElementList.getItems().length = 0;
-    if (getActive() !== undefined)
-        getActive().objects.forEach(object => {
-            let idx = object.args.object;
-            if (object.type === "footpath_addition")
-                idx--;
-            if (object.type === "footpath")
-                idx &= ~(1 << 7);
-            groupElementList.addItem([
-                context.getObject(<ObjectType>object.type, idx).name,
-                String(object.args.x / 32),
-                String(object.args.y / 32),
-                String(object.args.z / 8),
-            ]);
-        })
-}
+    setSelected(selectedIdx: number): void {
+        this.selectedIdx = selectedIdx;
+        const row = this.selectedIdx === undefined ? -1 : this.selectedIdx;
+        if (this.widget.getSelectedCell().row !== row) {
+            this.widget.setSelectedCell(row);
+            this.widget.requestRefresh();
+        }
+        CopyPaste.pasteGroup(this.selectedIdx === undefined ? undefined : this.groups[this.selectedIdx]);
+        hbox.setIsDisabled(selectedIdx === undefined);
+    }
 
-function getActive(): SceneryGroup {
-    return groups[activeRow];
-}
+    add(group: SceneryGroup): void {
+        this.groups.unshift(group);
+        this.widget.getItems().unshift([
+            group.name === undefined ? "unnamed" : group.name,
+            String(group.size.x / 32 + 1),
+            String(group.size.y / 32 + 1),
+            String(group.objects.length),
+        ]);
+        this.setSelected(0);
+        this.widget.requestRefresh();
+    }
 
-function setName(name: string): void {
-    getActive().name = name;
-    groupList.getItems()[activeRow][0] = name;
-    groupList.requestRefresh();
-}
+    setName(): void {
+        ui.showTextInput({
+            title: "Scenery group name",
+            description: "Enter a new name for this scenery group",
+            callback: name => {
+                this.groups[this.selectedIdx].name = name;
+                this.widget.getItems()[this.selectedIdx][0] = name;
+                this.widget.requestRefresh();
+            },
+        });
+    }
 
-function deleteGroup() {
-    groups.splice(activeRow, 1);
-    groupList.removeItem(activeRow);
-    setActive(undefined);
+    remove(): void {
+        this.groups.splice(this.selectedIdx, 1);
+        this.widget.getItems().splice(this.selectedIdx, 1);
+        this.widget.requestRefresh();
+        this.setSelected(undefined);
+    }
+
+    save(): void {
+        Library.save(this.groups[this.selectedIdx]);
+    }
 }
 
 export const widget = new Oui.GroupBox("Clipboard");
 
-const groupList = new Oui.Widgets.ListView(); {
-    groupList.setColumns(["name", "w", "l", "size"]);
-    let columns = groupList.getColumns();
-    columns[0].setRatioWidth(5);
-    columns[1].setRatioWidth(1);
-    columns[2].setRatioWidth(1);
-    columns[3].setRatioWidth(1);
-    groupList.setCanSelect(true);
-    groupList.setOnClick(row => setActive(row));
+const groupView: GroupView = new GroupView();
+widget.addChild(groupView.widget);
 
-    widget.addChild(new Oui.Widgets.Label("Scenery groups:"));
-    widget.addChild(groupList);
-}
-
-const groupListButtons = new Oui.HorizontalBox(); {
-    const nameButton = new Oui.Widgets.Button("Name", () => ui.showTextInput({
-        title: "Scenery group name",
-        description: "Enter a new name for this scenery group",
-        initialValue: getActive().name,
-        callback: setName,
-    }));
+const hbox = new Oui.HorizontalBox(); {
+    const nameButton = new Oui.Widgets.Button("Name", () => groupView.setName());
     nameButton.setRelativeWidth(30);
-    groupListButtons.addChild(nameButton);
+    hbox.addChild(nameButton);
 
-    const deleteButton = new Oui.Widgets.Button("Delete", deleteGroup);
+    const deleteButton = new Oui.Widgets.Button("Delete", () => groupView.remove());
     deleteButton.setRelativeWidth(30);
-    groupListButtons.addChild(deleteButton);
+    hbox.addChild(deleteButton);
 
-    const saveButton = new Oui.Widgets.Button("Save to library", () => Library.save(getActive()));
+    const saveButton = new Oui.Widgets.Button("Save to library", () => groupView.save());
     saveButton.setRelativeWidth(40);
-    groupListButtons.addChild(saveButton);
+    hbox.addChild(saveButton);
 
-    groupListButtons.setIsDisabled(true);
-    groupListButtons.setPadding(0, 0, 0, 0);
-    groupListButtons.setMargins(0, 0, 0, 0);
-    widget.addChild(groupListButtons);
+    hbox.setIsDisabled(true);
+    hbox.setPadding(0, 0, 0, 0);
+    hbox.setMargins(0, 0, 0, 0);
+
+    widget.addChild(hbox);
 }
 
-const groupElementList = new Oui.Widgets.ListView(); {
-    groupElementList.setColumns(["name", "x", "y", "z"]);
-    let columns = groupElementList.getColumns();
-    columns[0].setRatioWidth(5);
-    columns[1].setRatioWidth(1);
-    columns[2].setRatioWidth(1);
-    columns[3].setRatioWidth(1);
-    groupElementList.setIsDisabled(true);
-
-    widget.addChild(new Oui.Widgets.Label("Scenery group elements:"));
-    widget.addChild(groupElementList);
-}
-
-export function copy(filter: SceneryFilter) {
-    if (ui.tileSelection.range === null) {
-        ui.showError("Can't copy area...", "Nothing selected!");
-        return;
-    }
-    let objects: SceneryActionObject[] = [];
-    let start: CoordsXY = ui.tileSelection.range.leftTop;
-    let end: CoordsXY = ui.tileSelection.range.rightBottom;
-    let size: CoordsXY = CoordUtils.getSize(ui.tileSelection.range);
-
-    for (let x = start.x; x <= end.x; x += 32)
-        for (let y = start.y; y <= end.y; y += 32)
-            objects = objects.concat(SceneryUtils.getSceneryActionObjects(x, y, start, filter));
-
-    add({
-        objects: objects,
-        size: size,
-        surfaceHeight: getMedianSurfaceHeight(start, size),
-    });
-}
-
-let rotation: number = 0;
-export function rotate(): void {
-    rotation++;
-    rotation %= 4;
-}
-
-let mirrored: boolean = false;
-export function mirror(): void {
-    mirrored = !mirrored;
-}
-
-export function paste(offset: CoordsXY, filter: SceneryFilter, ghost: boolean = false): SceneryGroup {
-    if (groups.length === 0) {
-        ui.showError("Can't paste area...", "Clipboard is empty!");
-        return;
-    }
-
-    let group: SceneryGroup = getActive() || groups[groups.length - 1];
-    let deltaZ = filter.height;
-    if (!filter.absolute)
-        deltaZ += getMedianSurfaceHeight(offset, group.size) - group.surfaceHeight;
-
-    group = SceneryUtils.mirror(group, mirrored);
-    group = SceneryUtils.rotate(group, rotation);
-    group = SceneryUtils.translate(group, { ...offset, z: deltaZ * 8 });
-
-    let result: SceneryGroup = {
-        name: "_ghost",
-        objects: [],
-        size: group.size,
-        surfaceHeight: undefined,
-    }
-
-    group.objects.forEach(object => {
-        if (!filter[object.type])
-            return;
-        let args: SceneryActionArgs = object.args;
-        (<any>args).ghost = ghost;
-        context.executeAction(object.placeAction, args, res => {
-            if (res.error === 0)
-                result.objects.push(object);
-        });
-    });
-    return result;
-}
-
-export function remove(group: SceneryGroup) {
-    group.objects.reverseForEach(object => {
-        if (object.type === "banner")
-            context.executeAction(object.removeAction, {
-                ...object.args,
-                z: object.args.z + 16,
-            }, () => { });
-        else
-            context.executeAction(object.removeAction, object.args, () => { });
-    });
-}
-
-export function getSize(): CoordsXY {
-    let size: CoordsXY = getActive() ?.size || groups[groups.length - 1] ?.size;
-    if (rotation % 2 === 1)
-        size = {
-            x: size.y,
-            y: size.x,
-        };
-    return size;
-}
-
-function getMedianSurfaceHeight(start: CoordsXY, size: CoordsXY): number {
-    const heights: number[] = [];
-    for (let x: number = 0; x <= size.x; x += 32)
-        for (let y: number = 0; y <= size.y; y += 32) {
-            const surface: TileElement = SceneryUtils.getSurface(start.x + x, start.y + y);
-            if (surface !== undefined)
-                heights.push(surface.baseHeight);
-        }
-    heights.sort();
-    return heights[Math.floor(heights.length / 2)];
+export function add(group: SceneryGroup): void {
+    groupView.add(group);
 }

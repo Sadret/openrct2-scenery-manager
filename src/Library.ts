@@ -1,6 +1,7 @@
 import Oui from "./OliUI";
-import { SceneryGroup } from "./SceneryUtils";
 import * as Config from "./Config";
+import * as CopyPaste from "./CopyPaste";
+import { SceneryGroup } from "./SceneryUtils";
 import { Folder, File } from "./Config";
 
 class FolderView {
@@ -14,7 +15,7 @@ class FolderView {
     onReload: () => void = undefined;
 
     constructor() {
-        this.widget = new Oui.Widgets.ListView();
+        this.widget.setHeight(128);
         this.widget.setColumns(["Name", "Width", "Length", "Size"]);
         let columns = this.widget.getColumns();
         columns[0].setRatioWidth(3);
@@ -84,10 +85,9 @@ class FolderView {
     }
 
     reload(): void {
-        this.widget._items.length = 0;
         this.items.length = 0;
+        this.widget._items.length = 0;
         this.widget.requestRefresh();
-
 
         const folder: Folder = this.getFolder();
         if (folder === undefined)
@@ -108,7 +108,12 @@ class FolderView {
         for (let key in folder.files) {
             let child: File = folder.files[key];
             let group: SceneryGroup = (child.content);
-            this.widget.addItem([group.name, String(group.size.x), String(group.size.y), String(group.objects.length)]);
+            this.widget.addItem([
+                group.name,
+                String(group.size.x / 32 + 1),
+                String(group.size.y / 32 + 1),
+                String(group.objects.length),
+            ]);
             this.items.push(child);
         }
 
@@ -149,6 +154,7 @@ widget.addChild(currentPath);
 const folderView: FolderView = new FolderView();
 widget.addChild(folderView.widget);
 folderView.setOnReload(() => currentPath.setText(folderView.getPath()));
+folderView.setOnFileSelect((file: File) => CopyPaste.pasteGroup(file.content));
 
 widget.addChild(new Oui.Widgets.TextButton("Add new folder", () => folderView.addFolder()));
 

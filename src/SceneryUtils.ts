@@ -1,6 +1,9 @@
 /// <reference path="./../../openrct2.d.ts" />
 /// <reference path="./SceneryActionObject.d.ts" />
 
+import * as CoordUtils from "./CoordUtils";
+import { Options } from "./Options";
+
 /*
  * INTERFACE DEFINITION
  */
@@ -19,15 +22,13 @@ export interface SceneryFilter {
     large_scenery: boolean;
     banner: boolean;
     footpath_addition: boolean;
-    absolute: boolean;
-    height: number;
 }
 
 /*
  * TRANSFORMATION METHODS
  */
 
-export function translate(group: SceneryGroup, offset: CoordsXYZ): SceneryGroup {
+function translate(group: SceneryGroup, offset: CoordsXYZ): SceneryGroup {
     return {
         ...group,
         objects: group.objects.map(object => ({
@@ -42,7 +43,7 @@ export function translate(group: SceneryGroup, offset: CoordsXYZ): SceneryGroup 
     };
 }
 
-export function rotate(group: SceneryGroup, rotation: number): SceneryGroup {
+function rotate(group: SceneryGroup, rotation: number): SceneryGroup {
     if (rotation % 4 == 0)
         return group;
     return rotate({
@@ -54,8 +55,10 @@ export function rotate(group: SceneryGroup, rotation: number): SceneryGroup {
                 y: group.size.x - object.args.x,
             };
             if (args.direction !== undefined) {
-                args.direction++;
-                args.direction %= 4;
+                if (args.direction !== 0xFF) {
+                    args.direction++;
+                    args.direction %= 4;
+                }
             }
             if (args.edge !== undefined) {
                 args.edge++;
@@ -80,7 +83,7 @@ export function rotate(group: SceneryGroup, rotation: number): SceneryGroup {
     }, rotation - 1);
 }
 
-export function mirror(group: SceneryGroup, mirror: boolean): SceneryGroup {
+function mirror(group: SceneryGroup, mirror: boolean): SceneryGroup {
     // mirror_scenery(): /src/openrct2/ride/TrackDesign.cpp
     if (!mirror)
         return group;
@@ -93,8 +96,9 @@ export function mirror(group: SceneryGroup, mirror: boolean): SceneryGroup {
             };
             switch (object.type) {
                 case "footpath":
-                    if (args.direction & (1 << 0))
-                        args.direction ^= (1 << 1);
+                    // no direction change
+                    // if (args.direction & (1 << 0))
+                    //     args.direction ^= (1 << 1);
                     if (args.slope & (1 << 0))
                         args.slope ^= (1 << 1);
                     break;
@@ -136,11 +140,70 @@ export function mirror(group: SceneryGroup, mirror: boolean): SceneryGroup {
  * COPY PASTE REMOVE METHODS
  */
 
+export function copy(range: MapRange, filter: SceneryFilter): SceneryGroup {
+    const objects: SceneryActionObject[] = [];
+
+    const start: CoordsXY = range.leftTop;
+    const end: CoordsXY = range.rightBottom;
+    const size: CoordsXY = CoordUtils.getSize(ui.tileSelection.range);
+
+    for (let x = start.x; x <= end.x; x += 32)
+        for (let y = start.y; y <= end.y; y += 32)
+            objects.push(...getSceneryActionObjects(x, y, start, filter));
+
+    return {
+        objects: objects,
+        size: size,
+        surfaceHeight: getMedianSurfaceHeight(start, size),
+    };
+}
+
+export function paste(group: SceneryGroup, offset: CoordsXY, options: Options): SceneryGroup {
+    let deltaZ = options.height;
+    if (!options.absolute)
+        deltaZ += getMedianSurfaceHeight(offset, group.size) - group.surfaceHeight;
+
+    group = mirror(group, options.mirrored);
+    group = rotate(group, options.rotation);
+    group = translate(group, { ...offset, z: deltaZ * 8 });
+
+    let result: SceneryGroup = {
+        name: "_ghost",
+        objects: [],
+        size: group.size,
+        surfaceHeight: undefined,
+    }
+
+    group.objects.forEach(object => {
+        if (!options.filter[object.type])
+            return;
+        let args: SceneryActionArgs = object.args;
+        (<any>args).ghost = options.ghost;
+        context.executeAction(object.placeAction, args, res => {
+            if (res.error === 0)
+                result.objects.push(object);
+        });
+    });
+    return result;
+}
+
+export function remove(group: SceneryGroup) {
+    group.objects.reverseForEach((object: SceneryActionObject) => {
+        if (object.type === "banner")
+            context.executeAction(object.removeAction, {
+                ...object.args,
+                z: object.args.z + 16,
+            }, () => { });
+        else
+            context.executeAction(object.removeAction, object.args, () => { });
+    });
+}
+
 /*
  * ACTIONOBJECT CREATION
  */
 
-export function getSceneryActionObjects(x: number, y: number, offset: CoordsXY, filter: SceneryFilter): SceneryActionObject[] {
+function getSceneryActionObjects(x: number, y: number, offset: CoordsXY, filter: SceneryFilter): SceneryActionObject[] {
     let tile: Tile = map.getTile(x / 32, y / 32);
     let objects: SceneryActionObject[] = [];
     tile.elements.forEach((_, idx) => {
@@ -191,7 +254,7 @@ function getFootpath(tile: Tile, offset: CoordsXY, idx: number): FootpathActionO
     let element: FootpathElement = <FootpathElement>tile.elements[idx];
     let args: FootpathActionArgs = {
         ...getSceneryActionArgs(tile, offset, idx),
-        direction: element.direction,
+        direction: 0xFF, // otherwise, it removes walls in that direction
         slope: (tile.data[idx * 16 + 0x9] & 1) * (tile.data[idx * 16 + 0xA] | (1 << 2)),
         object: (tile.data[idx * 16 + 0x0] & (1 << 0)) << 7 | tile.data[idx * 16 + 0x4],
     };
@@ -292,9 +355,21 @@ function getFootpathScenery(tile: Tile, offset: CoordsXY, idx: number): Footpath
  * UTILITY METHODS
  */
 
-export function getSurface(x: number, y: number): SurfaceElement {
+function getSurface(x: number, y: number): SurfaceElement {
     for (let element of map.getTile(x / 32, y / 32).elements)
         if (element.type === "surface")
             return <SurfaceElement>element;
     return undefined;
+}
+
+function getMedianSurfaceHeight(start: CoordsXY, size: CoordsXY): number {
+    const heights: number[] = [];
+    for (let x: number = 0; x <= size.x; x += 32)
+        for (let y: number = 0; y <= size.y; y += 32) {
+            const surface: TileElement = getSurface(start.x + x, start.y + y);
+            if (surface !== undefined)
+                heights.push(surface.baseHeight);
+        }
+    heights.sort();
+    return heights[Math.floor(heights.length / 2)];
 }
