@@ -24,6 +24,7 @@ interface SmallSceneryActionObject extends SceneryActionObject {
     readonly placeAction: "smallsceneryplace",
     readonly removeAction: "smallsceneryremove",
     readonly diagonal: boolean,
+    readonly half: boolean,
 }
 
 interface WallActionObject extends SceneryActionObject {

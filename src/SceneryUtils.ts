@@ -65,8 +65,10 @@ function rotate(group: SceneryGroup, rotation: number): SceneryGroup {
                 args.edge %= 4;
             }
             if (args.quadrant !== undefined) {
-                args.quadrant++;
-                args.quadrant %= 4;
+                if (object.type !== "small_scenery" || !((<SmallSceneryActionObject>object).half || (<SmallSceneryActionObject>object).diagonal)) {
+                    args.quadrant++;
+                    args.quadrant %= 4;
+                }
             }
             if (args.slope !== undefined && args.slope !== 0) {
                 args.slope = (((args.slope ^ (1 << 2)) + 1) % 4) | (1 << 2);
@@ -111,7 +113,8 @@ function mirror(group: SceneryGroup, mirror: boolean): SceneryGroup {
                     }
                     if (args.direction & (1 << 0))
                         args.direction ^= (1 << 1);
-                    args.quadrant ^= (1 << 0);
+                    if (!(<SmallSceneryActionObject>object).half)
+                        args.quadrant ^= (1 << 0);
                     break;
                 case "wall":
                     if (args.direction & (1 << 0))
@@ -287,7 +290,8 @@ function getSmallScenery(tile: Tile, offset: CoordsXY, idx: number): SmallScener
         placeAction: "smallsceneryplace",
         removeAction: "smallsceneryremove",
         args: args,
-        diagonal: [0x5, 0x7, 0xA, 0xB, 0xD, 0xE].indexOf(occupiedQuadrants) !== -1,
+        diagonal: [0x5, 0x7, 0xA, 0xB, 0xD, 0xE,].indexOf(occupiedQuadrants) !== -1,
+        half: [0x3, 0x6, 0x9, 0xC,].indexOf(occupiedQuadrants) !== -1,
     }
 }
 
