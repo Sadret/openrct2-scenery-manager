@@ -1,4 +1,5 @@
 interface SceneryActionArgs {
+    readonly flags: number,
     readonly x: number,
     readonly y: number,
     readonly z: number,

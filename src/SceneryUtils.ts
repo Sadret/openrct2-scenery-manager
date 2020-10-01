@@ -177,11 +177,16 @@ export function paste(group: SceneryGroup, offset: CoordsXY, options: Options): 
     group.objects.forEach(object => {
         if (!options.filter[object.type])
             return;
-        let args: SceneryActionArgs = object.args;
-        (<any>args).ghost = options.ghost;
-        context.executeAction(object.placeAction, args, res => {
+        let placedObject: SceneryActionObject = {
+            ...object,
+            args: {
+                ...object.args,
+                flags: options.ghost ? 72 : 0,
+            },
+        };
+        context.executeAction(placedObject.placeAction, placedObject.args, res => {
             if (res.error === 0)
-                result.objects.push(object);
+                result.objects.push(placedObject);
         });
     });
     return result;
@@ -243,6 +248,7 @@ function getSceneryActionObjects(x: number, y: number, offset: CoordsXY, filter:
 function getSceneryActionArgs(tile: Tile, offset: CoordsXY, idx: number): SceneryActionArgs {
     let element: BaseTileElement = tile.elements[idx];
     return {
+        flags: 0,
         x: tile.x * 32 - offset.x,
         y: tile.y * 32 - offset.y,
         z: element.baseHeight * 8,
