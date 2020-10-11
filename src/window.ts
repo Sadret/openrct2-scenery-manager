@@ -9,6 +9,8 @@ import * as Library from "./Library";
 export default showWindow;
 
 function showWindow(): void {
+    Library.init();
+
     const window = new Oui.Window("clipboard", "Clipboard");
     window.setWidth(384);
 

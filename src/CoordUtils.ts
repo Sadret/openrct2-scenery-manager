@@ -37,3 +37,10 @@ export function sub(u: CoordsXY, v: CoordsXY): CoordsXY {
         y: u.y - v.y,
     };
 }
+export function equals(u: CoordsXY, v: CoordsXY): boolean {
+    if (u === undefined && v === undefined)
+        return true;
+    if (u === undefined || v === undefined)
+        return false;
+    return u.x === v.x && u.y === v.y;
+}

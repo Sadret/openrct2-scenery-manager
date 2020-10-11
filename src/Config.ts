@@ -2,7 +2,6 @@
 
 const namespace: string = "Clipboard";
 const configPrefix: string = namespace + ".";
-export const root: Folder = getRoot();
 
 export function has(key: string): boolean {
     return context.sharedStorage.has(configPrefix + key);
@@ -16,7 +15,7 @@ export function set<T>(key: string, value: T) {
     context.sharedStorage.set(configPrefix + key, value);
 }
 
-function getRoot(): Folder {
+export function getRoot(): Folder {
     if (!has("data"))
         set<Folder>("data", {
             name: "root",
@@ -24,10 +23,7 @@ function getRoot(): Folder {
             folders: {},
             files: {},
         });
-    else
-        console.log("data found");
-
-    return get("data");
+    return get<Folder>("data");
 }
 
 export interface File {

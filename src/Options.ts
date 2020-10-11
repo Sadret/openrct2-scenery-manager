@@ -51,8 +51,7 @@ widget.setMargins(0, 0, 0, 0);
 
     let getRotationLabel = () => "Rotation: " + (options.rotation === 0 ? "none" : (options.rotation * 90 + " degree"));
     const rotation = new Oui.Widgets.TextButton(getRotationLabel(), () => {
-        options.rotation++;
-        options.rotation %= 4;
+        options.rotation = (options.rotation + 1) & 3;
         rotation.setText(getRotationLabel());
     });
     vbox.addChild(rotation);

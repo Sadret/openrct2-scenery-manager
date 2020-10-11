@@ -3,7 +3,6 @@ import * as CoordUtils from "./CoordUtils";
 import * as Options from "./Options";
 import * as Clipboard from "./Clipboard";
 import * as SceneryUtils from "./SceneryUtils";
-import { SceneryGroup } from "./SceneryUtils";
 
 function selectArea(): void {
     let start = undefined;
@@ -44,39 +43,46 @@ function copyArea(): void {
         Clipboard.add(SceneryUtils.copy(ui.tileSelection.range, Options.options.filter));
 }
 
-export function pasteGroup(group: SceneryGroup): void {
-    if (group === undefined)
+export function pasteTemplate(template: SceneryTemplate): void {
+    if (template === undefined)
         if (ui.tool)
             return ui.tool.cancel();
         else
             return;
 
-    let ghost: SceneryGroup = undefined;
+    if (template.data.find(data => SceneryUtils.getObject(data) === undefined) !== undefined)
+        return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
+
+    let ghost: SceneryRemoveArgs[] = undefined;
+    let ghostCoords: CoordsXY = undefined;
     function removeGhost() {
         if (ghost !== undefined)
             SceneryUtils.remove(ghost);
         ghost = undefined;
     }
     function placeGhost(offset: CoordsXY) {
+        if (CoordUtils.equals(offset, ghostCoords))
+            return;
         removeGhost();
         if (offset.x * offset.y === 0)
             return;
-        ghost = SceneryUtils.paste(group, offset, { ...Options.options, ghost: true, });
+        ghost = SceneryUtils.paste(template, offset, { ...Options.options, ghost: true, });
+        ghostCoords = offset;
     }
 
     ui.activateTool({
-        id: "clipboard-group-paste",
+        id: "clipboard-template-paste",
         cursor: "cross_hair",
         onStart: () => {
             ui.mainViewport.visibilityFlags |= 1 << 7;
         },
         onDown: e => {
             removeGhost();
-            SceneryUtils.paste(group, e.mapCoords, Options.options);
+            SceneryUtils.paste(template, e.mapCoords, Options.options);
         },
         onMove: e => {
             placeGhost(e.mapCoords);
-            ui.tileSelection.range = CoordUtils.startSizeToMapRange(e.mapCoords, getSize(group));
+            ui.tileSelection.range = CoordUtils.startSizeToMapRange(e.mapCoords, getSize(template));
         },
         onUp: () => {
         },
@@ -104,8 +110,8 @@ export const widget = new Oui.GroupBox("Copy & Paste");
     area_copy.setRelativeWidth(50);
 }
 
-function getSize(group: SceneryGroup) {
-    let size: CoordsXY = group.size;
+function getSize(template: SceneryTemplate) {
+    let size: CoordsXY = template.size;
     if (Options.options.rotation % 2 === 1)
         size = {
             x: size.y,
