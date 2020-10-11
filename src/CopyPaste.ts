@@ -21,9 +21,9 @@ function selectArea(): void {
         onMove: e => {
             if (drag) {
                 end = e.mapCoords;
-                ui.tileSelection.range = CoordUtils.startEndToMapRange(start, end);
+                ui.tileSelection.range = CoordUtils.span(start, end);
             } else if (start === undefined) {
-                ui.tileSelection.range = CoordUtils.startEndToMapRange(e.mapCoords, e.mapCoords);
+                ui.tileSelection.range = CoordUtils.span(e.mapCoords, e.mapCoords);
             }
         },
         onUp: () => {
@@ -60,7 +60,8 @@ export function pasteTemplate(template: SceneryTemplate): void {
             SceneryUtils.remove(ghost);
         ghost = undefined;
     }
-    function placeGhost(offset: CoordsXY) {
+    function placeGhost() {
+        let offset = ui.tileSelection.range.leftTop;
         if (CoordUtils.equals(offset, ghostCoords))
             return;
         removeGhost();
@@ -76,13 +77,13 @@ export function pasteTemplate(template: SceneryTemplate): void {
         onStart: () => {
             ui.mainViewport.visibilityFlags |= 1 << 7;
         },
-        onDown: e => {
+        onDown: () => {
             removeGhost();
-            SceneryUtils.paste(template, e.mapCoords, Options.options);
+            SceneryUtils.paste(template, ui.tileSelection.range.leftTop, Options.options);
         },
         onMove: e => {
-            placeGhost(e.mapCoords);
-            ui.tileSelection.range = CoordUtils.startSizeToMapRange(e.mapCoords, getSize(template));
+            ui.tileSelection.range = CoordUtils.centered(e.mapCoords, getSize(template));
+            placeGhost();
         },
         onUp: () => {
         },
