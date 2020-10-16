@@ -45,6 +45,7 @@ registerPlugin({
         window.addChild(Options.widget);
         window.addChild(Clipboard.widget);
         window.addChild(Library.widget);
+        window.setOnClose(() => CopyPaste.cancel());
 
         // add menu item
         ui.registerMenuItem("Clipboard", () => window.open());

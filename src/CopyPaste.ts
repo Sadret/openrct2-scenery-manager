@@ -43,12 +43,15 @@ function copyArea(): void {
         Clipboard.add(SceneryUtils.copy(ui.tileSelection.range, Options.options.filter));
 }
 
+export function cancel(): void {
+    if (ui.tool)
+        return ui.tool.cancel();
+}
+
 export function pasteTemplate(template: SceneryTemplate): void {
+    cancel();
     if (template === undefined)
-        if (ui.tool)
-            return ui.tool.cancel();
-        else
-            return;
+        return;
 
     if (template.data.find(data => SceneryUtils.getObject(data) === undefined) !== undefined)
         return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
