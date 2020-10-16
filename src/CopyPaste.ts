@@ -4,10 +4,11 @@ import * as Options from "./Options";
 import * as Clipboard from "./Clipboard";
 import * as SceneryUtils from "./SceneryUtils";
 
-function selectArea(): void {
+function selectArea(onCancel: () => void): void {
     let start = undefined;
     let end = undefined;
     let drag = false;
+
     ui.activateTool({
         id: "clipboard-area-select",
         cursor: "cross_hair",
@@ -32,6 +33,7 @@ function selectArea(): void {
         onFinish: () => {
             ui.tileSelection.range = undefined;
             ui.mainViewport.visibilityFlags &= ~(1 << 7);
+            onCancel();
         },
     });
 }
@@ -43,17 +45,12 @@ function copyArea(): void {
         Clipboard.add(SceneryUtils.copy(ui.tileSelection.range, Options.options.filter));
 }
 
-export function cancel(): void {
-    if (ui.tool)
-        return ui.tool.cancel();
-}
-
 export function pasteTemplate(template: SceneryTemplate): void {
-    cancel();
+    if (ui.tool)
+        ui.tool.cancel();
     if (template === undefined)
         return;
-
-    if (template.data.find(data => SceneryUtils.getObject(data) === undefined) !== undefined)
+    if (template.data.find((data: SceneryData) => SceneryUtils.getObject(data) === undefined) !== undefined)
         return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
 
     let ghost: SceneryRemoveArgs[] = undefined;
@@ -105,7 +102,13 @@ export const widget = new Oui.GroupBox("Copy & Paste");
     hbox.setMargins(0, 0, 0, 0);
     widget.addChild(hbox);
 
-    const area_select = new Oui.Widgets.TextButton("Select area", selectArea);
+    const area_select = new Oui.Widgets.TextButton("Select area", () => {
+        area_select.setIsPressed(!area_select.isPressed());
+        if (area_select.isPressed())
+            selectArea(() => area_select.setIsPressed(false));
+        else if (ui.tool)
+            ui.tool.cancel();
+    });
     hbox.addChild(area_select);
     area_select.setRelativeWidth(50);
 
