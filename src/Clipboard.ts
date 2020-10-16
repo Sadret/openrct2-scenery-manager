@@ -1,6 +1,7 @@
 import Oui from "./OliUI";
 import * as CopyPaste from "./CopyPaste";
 import * as Library from "./Library";
+import * as UiUtils from "./UiUtils";
 
 class TemplateView {
     readonly widget: any = new Oui.Widgets.ListView();
@@ -76,7 +77,12 @@ const hbox = new Oui.HorizontalBox(); {
     nameButton.setRelativeWidth(30);
     hbox.addChild(nameButton);
 
-    const deleteButton = new Oui.Widgets.Button("Delete", () => templateView.remove());
+    const deleteButton = new Oui.Widgets.Button("Delete", () => UiUtils.showConfirm(
+        "Delete scenery template",
+        ["Are you sure you want to delete this scenery", "template?"],
+        confirmed => { if (confirmed) templateView.remove() },
+        "Delete",
+    ));
     deleteButton.setRelativeWidth(30);
     hbox.addChild(deleteButton);
 
