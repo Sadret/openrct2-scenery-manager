@@ -1,6 +1,10 @@
 /// <reference path="./../../openrct2.d.ts" />
 
-import showWindow from "./window";
+import Oui from "./OliUI";
+import * as CopyPaste from "./CopyPaste";
+import * as Options from "./Options";
+import * as Clipboard from "./Clipboard";
+import * as Library from "./Library";
 
 declare global {
     interface Array<T> {
@@ -21,16 +25,28 @@ Array.prototype.find = function(callback) {
 }
 
 registerPlugin({
-    name: 'clipboard',
-    version: '0.0.0',
-    authors: ['Sadret'],
-    type: 'remote',
-    licence: 'MIT',
+    name: "clipboard",
+    version: "0.0.0",
+    authors: ["Sadret"],
+    type: "remote",
+    licence: "MIT",
     main: () => {
-        if (ui === undefined) {
-            console.log("[clipboard] Loading cancelled: game runs in headless mode.");
-            return;
-        }
-        ui.registerMenuItem("Clipboard", showWindow);
+        // check if ui is available
+        if (ui === undefined)
+            return console.log("[clipboard] Loading cancelled: game runs in headless mode.");
+
+        // init modules
+        Library.init();
+
+        // create window
+        const window = new Oui.Window("clipboard", "Clipboard");
+        window.setWidth(384);
+        window.addChild(CopyPaste.widget);
+        window.addChild(Options.widget);
+        window.addChild(Clipboard.widget);
+        window.addChild(Library.widget);
+
+        // add menu item
+        ui.registerMenuItem("Clipboard", () => window.open());
     },
 });
