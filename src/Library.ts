@@ -2,33 +2,46 @@
 
 import Oui from "./OliUI";
 import * as CopyPaste from "./CopyPaste";
+import * as LibraryManager from "./LibraryManager";
+import * as Config from "./Config";
 import { FolderView } from "./FolderView";
-import { File } from "./Config";
+import { File } from "./FileSystem";
+
 
 export const widget = new Oui.GroupBox("Library");
-
-export function init(): void {
-    folderView.init();
-}
 
 const currentPath = new Oui.Widgets.Label("");
 widget.addChild(currentPath);
 
-const folderView: FolderView = new FolderView(["Name", "Width", "Length", "Size"], [3, 1, 1, 1]);
-widget.addChild(folderView.widget);
-folderView.setOnReload(() => currentPath.setText(folderView.getPath()));
-folderView.setOnFileSelect((file: File) => CopyPaste.pasteTemplate(file.content));
-folderView.setGetFileInfo((file: File) => {
-    let group: SceneryTemplate = (file.content);
-    return [
-        group.name,
-        String(group.size.x / 32 + 1),
-        String(group.size.y / 32 + 1),
-        String(group.data.length),
-    ];
-});
+const folderView: FolderView = new class extends FolderView {
+    constructor() {
+        super(Config.getLibrary());
+    }
 
-widget.addChild(new Oui.Widgets.TextButton("Add new folder", () => folderView.addFolder()));
+    onReload() {
+        currentPath.setText(this.getPath());
+    }
+
+    onFileSelect(file: File) {
+        CopyPaste.pasteTemplate(file.content);
+    }
+}();
+widget.addChild(folderView.widget);
+
+const hbox = new Oui.HorizontalBox(); {
+    const addFolderButton = new Oui.Widgets.TextButton("Add new folder", () => folderView.addFolder());
+    addFolderButton.setRelativeWidth(50);
+    hbox.addChild(addFolderButton);
+
+    const manageLibraryButton = new Oui.Widgets.TextButton("Manage Library", () => LibraryManager.open());
+    manageLibraryButton.setRelativeWidth(50);
+    hbox.addChild(manageLibraryButton);
+
+    hbox.setPadding(0, 0, 0, 0);
+    hbox.setMargins(0, 0, 0, 0);
+
+    widget.addChild(hbox);
+}
 
 export function save(template: SceneryTemplate) {
     if (template.name === undefined)

@@ -35,9 +35,6 @@ registerPlugin({
         if (ui === undefined)
             return console.log("[clipboard] Loading cancelled: game runs in headless mode.");
 
-        // init modules
-        Library.init();
-
         // create window
         const window = new Oui.Window("clipboard", "Clipboard");
         window.setWidth(384);

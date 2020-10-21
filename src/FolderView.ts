@@ -1,44 +1,32 @@
-import * as Config from "./Config";
 import Oui from "./OliUI";
-import { Folder, File } from "./Config";
+import { Folder, File, FileSystem } from "./FileSystem";
 
 export class FolderView {
-    readonly widget: any = new Oui.Widgets.ListView();
+    readonly widget: any;;
     readonly folderStack: Folder[] = [];
     readonly items: (Folder | File)[] = [];
+    readonly fileSystem: FileSystem;
 
-    onParentSelect: () => void = undefined;
-    onFolderSelect: (folder: Folder) => void = undefined;
-    onFileSelect: (file: File) => void = undefined;
-    onReload: () => void = undefined;
-
-    getRootInfo: () => string[] = undefined;
-    getFolderInfo: (folder: Folder) => string[] = undefined;
-    getFileInfo: (file: File) => string[] = undefined;
-
-    constructor(columnNames: string[], columnRatios: number[]) {
+    constructor(fileSystem: FileSystem) {
+        this.fileSystem = fileSystem;
+        this.widget = new Oui.Widgets.ListView();
         this.widget.setHeight(128);
-        this.widget.setColumns(columnNames);
+        this.widget.setColumns(["Name", "Width", "Length", "Size"]);
         let columns = this.widget.getColumns();
-        for (let idx = 0; idx < columnNames.length; idx++)
-            columns[idx].setRatioWidth(columnRatios[idx]);
+        for (let idx = 0; idx < 4; idx++)
+            columns[idx].setRatioWidth([3, 1, 1, 1][idx]);
         this.widget.setCanSelect(true);
         this.widget.setOnClick((row: number) => {
             let item: (Folder | File) = this.items[row];
             if (item === undefined)
-                if (this.onParentSelect === undefined)
-                    this.goUp();
-                else
-                    this.onParentSelect();
+                this.onParentSelect();
             else if ((<any>item).content === undefined)
-                if (this.onFolderSelect === undefined)
-                    this.goDown(<Folder>item);
-                else
-                    this.onFolderSelect(<Folder>item);
+                this.onFolderSelect(<Folder>item);
             else
-                if (this.onFileSelect !== undefined)
-                    this.onFileSelect(<File>item);
+                this.onFileSelect(<File>item);
         });
+        this.folderStack.push(fileSystem.getRoot());
+        this.reload();
     }
 
     getFolder(): Folder {
@@ -55,37 +43,15 @@ export class FolderView {
         return path;
     }
 
-    setOnParentSelect(callback: () => void): void {
-        this.onParentSelect = callback;
+    onParentSelect() {
+        this.goUp();
     }
 
-    setOnFolderSelect(callback: (folder: Folder) => void): void {
-        this.onFolderSelect = callback;
+    onFolderSelect(folder: Folder) {
+        this.goDown(folder);
     }
 
-    setOnFileSelect(callback: (file: File) => void): void {
-        this.onFileSelect = callback;
-    }
-
-    setOnReload(callback: () => void, executeNow: boolean = true): void {
-        this.onReload = callback;
-        if (executeNow)
-            callback();
-    }
-
-    setGetRootInfo(callback: () => string[]): void {
-        this.getFolderInfo = callback;
-        this.reload();
-    }
-
-    setGetFolderInfo(callback: (folder: Folder) => string[]): void {
-        this.getFolderInfo = callback;
-        this.reload();
-    }
-
-    setGetFileInfo(callback: (file: File) => string[]): void {
-        this.getFileInfo = callback;
-        this.reload();
+    onFileSelect(file: File) {
     }
 
     goUp(): void {
@@ -106,11 +72,6 @@ export class FolderView {
         this.widget.addItem(info);
     }
 
-    init(): void {
-        this.folderStack.push(Config.getRoot());
-        this.reload();
-    }
-
     reload(): void {
         this.items.length = 0;
         this.widget._items.length = 0;
@@ -122,33 +83,33 @@ export class FolderView {
 
         const parent: Folder = this.getParent();
         if (parent !== undefined) {
-            if (this.getRootInfo === undefined)
-                this.addEmptyItem("../");
-            else
-                this.widget.addItem(this.getRootInfo());
+            this.addEmptyItem("../");
             this.items.push(undefined);
         }
 
         for (let key in folder.folders) {
             let child: Folder = folder.folders[key];
-            if (this.getFolderInfo === undefined)
-                this.addEmptyItem(child.name + "/");
-            else
-                this.widget.addItem(this.getFolderInfo(child));
+            this.addEmptyItem(child.name + "/");
             this.items.push(child);
         }
 
         for (let key in folder.files) {
             let child: File = folder.files[key];
-            if (this.getFileInfo === undefined)
-                this.addEmptyItem(child.name);
-            else
-                this.widget.addItem(this.getFileInfo(child));
+            let template: SceneryTemplate = child.content;
+            this.widget.addItem([
+                template.name,
+                String(template.size.x / 32 + 1),
+                String(template.size.y / 32 + 1),
+                String(template.data.length),
+            ]);
             this.items.push(child);
         }
 
-        if (this.onReload !== undefined)
-            this.onReload();
+        this.onReload();
+    }
+
+    onReload(): void {
+
     }
 
     addFolder() {
@@ -156,22 +117,18 @@ export class FolderView {
             title: "Folder name",
             description: "Enter a name for the new folder:",
             callback: name => {
-                if (Config.hasFolder(this.getFolder(), name))
-                    ui.showError("Can't create new folder...", "Folder with this name already exists.");
-                else {
-                    Config.addFolder(this.getFolder(), name);
-                    this.reload();
-                }
+                if (this.fileSystem.hasFolder(this.getFolder(), name))
+                    return ui.showError("Can't create new folder...", "Folder with this name already exists.");
+                this.fileSystem.addFolder(this.getFolder(), name);
+                this.reload();
             },
         });
     }
 
     addFile(name: string, content: any): void {
-        if (Config.hasFile(this.getFolder(), name))
-            ui.showError("Can't create new file...", "File with this name already exists.");
-        else {
-            Config.addFile(this.getFolder(), name, content);
-            this.reload();
-        }
+        if (this.fileSystem.hasFile(this.getFolder(), name))
+            return ui.showError("Can't create new file...", "File with this name already exists.");
+        this.fileSystem.addFile(this.getFolder(), name, content);
+        this.reload();
     }
 }
