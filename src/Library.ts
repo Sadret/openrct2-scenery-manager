@@ -1,60 +1,93 @@
 /// <reference path="./_Save.d.ts" />
 
 import Oui from "./OliUI";
-import * as CopyPaste from "./CopyPaste";
 import * as LibraryManager from "./LibraryManager";
 import * as Config from "./Config";
 import { FolderView } from "./FolderView";
-import { File } from "./FileSystem";
+import { Window } from "./Window";
 
+class Library {
+    readonly window: Window;
+    readonly widget: any;
 
-export const widget = new Oui.GroupBox("Library");
+    folderView: FolderView;
+    counter: number = 0;
 
-const currentPath = new Oui.Widgets.Label("");
-widget.addChild(currentPath);
-
-const folderView: FolderView = new class extends FolderView {
-    constructor() {
-        super(Config.getLibrary());
+    constructor(window: Window) {
+        this.window = window;
+        this.widget = this.getWidget();
     }
 
-    onReload() {
-        currentPath.setText(this.getPath());
+    getWidget(): any {
+        const copyPaste = this.window.copyPaste;
+
+        const widget = new Oui.GroupBox("Library");
+
+        const currentPath = new Oui.Widgets.Label("");
+        widget.addChild(currentPath);
+
+        const folderView: FolderView = this.folderView = new class extends FolderView {
+            constructor() {
+                super(Config.library.getRoot());
+                Config.library.addListener(() => this.reload());
+            }
+
+            onSelect() {
+                if (this.selected !== undefined && this.selected.isFile())
+                    copyPaste.pasteTemplate(this.selected.getContent());
+                super.onSelect();
+            }
+
+            reload() {
+                super.reload();
+                currentPath.setText("." + this.getPath() + "/");
+            }
+        }();
+        widget.addChild(folderView.widget);
+
+        const hbox = new Oui.HorizontalBox(); {
+            const addFolderButton = new Oui.Widgets.TextButton("Add new folder", () =>
+                ui.showTextInput({
+                    title: "Folder name",
+                    description: "Enter a name for the new folder:",
+                    callback: name => {
+                        if (folderView.path.addFolder(name) === undefined)
+                            return ui.showError("Can't create new folder...", "Folder with this name already exists.");
+                    },
+                })
+            );
+            addFolderButton.setRelativeWidth(50);
+            hbox.addChild(addFolderButton);
+
+            const manageLibraryButton = new Oui.Widgets.TextButton("Manage Library", () => LibraryManager.open());
+            manageLibraryButton.setRelativeWidth(50);
+            hbox.addChild(manageLibraryButton);
+
+            hbox.setPadding(0, 0, 0, 0);
+            hbox.setMargins(0, 0, 0, 0);
+
+            widget.addChild(hbox);
+        }
+
+        return widget;
     }
 
-    onFileSelect(file: File) {
-        CopyPaste.pasteTemplate(file.content);
+    save(template: SceneryTemplate): void {
+        if (template.name === undefined)
+            return ui.showTextInput({
+                title: "Scenery template name",
+                description: "Enter a name for the scenery template:",
+                callback: name => {
+                    this.save({
+                        ...template,
+                        name: name,
+                    });
+                },
+            });
+
+        if (this.folderView.path.addFile<SceneryTemplate>(template.name, template) === undefined)
+            return ui.showError("Can't save scenery template...", "Scenery template with this name already exists.");
+        console.log("saved");
     }
-}();
-widget.addChild(folderView.widget);
-
-const hbox = new Oui.HorizontalBox(); {
-    const addFolderButton = new Oui.Widgets.TextButton("Add new folder", () => folderView.addFolder());
-    addFolderButton.setRelativeWidth(50);
-    hbox.addChild(addFolderButton);
-
-    const manageLibraryButton = new Oui.Widgets.TextButton("Manage Library", () => LibraryManager.open());
-    manageLibraryButton.setRelativeWidth(50);
-    hbox.addChild(manageLibraryButton);
-
-    hbox.setPadding(0, 0, 0, 0);
-    hbox.setMargins(0, 0, 0, 0);
-
-    widget.addChild(hbox);
 }
-
-export function save(template: SceneryTemplate) {
-    if (template.name === undefined)
-        ui.showTextInput({
-            title: "Scenery group name",
-            description: "Enter a name for the scenery group:",
-            callback: name => {
-                save({
-                    ...template,
-                    name: name,
-                });
-            },
-        });
-    else
-        folderView.addFile(template.name, template);
-}
+export default Library;

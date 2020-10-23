@@ -3,19 +3,26 @@
 /// <reference path="./_Save.d.ts" />
 
 import * as CoordUtils from "./CoordUtils";
-import { Options } from "./Options";
 
 /*
  * INTERFACE DEFINITION
  */
 
-export interface SceneryFilter {
+export interface Filter {
     footpath: boolean;
     small_scenery: boolean;
     wall: boolean;
     large_scenery: boolean;
     banner: boolean;
     footpath_addition: boolean;
+}
+
+export interface Options {
+    rotation: number,
+    mirrored: boolean,
+    absolute: boolean;
+    height: number;
+    ghost: boolean;
 }
 
 /*
@@ -116,7 +123,7 @@ function mirror(template: SceneryTemplate, mirror: boolean): SceneryTemplate {
  * COPY PASTE REMOVE METHODS
  */
 
-export function copy(range: MapRange, filter: SceneryFilter): SceneryTemplate {
+export function copy(range: MapRange, filter: Filter): SceneryTemplate {
     const data: SceneryData[] = [];
 
     const start: CoordsXY = range.leftTop;
@@ -134,7 +141,7 @@ export function copy(range: MapRange, filter: SceneryFilter): SceneryTemplate {
     };
 }
 
-export function paste(template: SceneryTemplate, offset: CoordsXY, options: Options): SceneryRemoveArgs[] {
+export function paste(template: SceneryTemplate, offset: CoordsXY, filter: Filter, options: Options): SceneryRemoveArgs[] {
     let deltaZ = options.height;
     if (!options.absolute)
         deltaZ += getMedianSurfaceHeight(offset, template.size) - template.surfaceHeight;
@@ -146,7 +153,7 @@ export function paste(template: SceneryTemplate, offset: CoordsXY, options: Opti
     let result: SceneryRemoveArgs[] = [];
 
     template.data.forEach(data => {
-        if (!options.filter[data.type])
+        if (!filter[data.type])
             return;
         let placeArgs: SceneryPlaceArgs = getPlaceArgs(data, options.ghost ? 72 : 0);
         let removeArgs: SceneryRemoveArgs = getRemoveArgs(data);
@@ -175,7 +182,7 @@ export function remove(data: SceneryRemoveArgs[]) {
  * Data CREATION
  */
 
-function getSceneryData(x: number, y: number, offset: CoordsXY, filter: SceneryFilter): SceneryData[] {
+function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter): SceneryData[] {
     let tile: Tile = map.getTile(x / 32, y / 32);
     let data: SceneryData[] = [];
     tile.elements.forEach((_, idx) => {

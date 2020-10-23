@@ -1,8 +1,6 @@
 /// <reference path="./../../openrct2.d.ts" />
 import Oui from "./OliUI";
 import * as Config from "./Config";
-import { File } from "./FileSystem";
-import * as CopyPaste from "./CopyPaste";
 import { FolderView } from "./FolderView";
 
 export function open(): void {
@@ -17,15 +15,13 @@ export function open(): void {
 
     const folderView: FolderView = new class extends FolderView {
         constructor() {
-            super(Config.getLibrary());
+            super(Config.library.getRoot());
+            Config.library.addListener(() => this.reload());
         }
 
-        onReload() {
-            currentPath.setText(this.getPath());
-        }
-
-        onFileSelect(file: File) {
-            CopyPaste.pasteTemplate(file.content);
+        reload() {
+            super.reload();
+            currentPath.setText("." + this.getPath() + "/");
         }
     }();
     window.addChild(folderView.widget);
