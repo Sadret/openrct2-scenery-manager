@@ -73,21 +73,8 @@ class Library {
     }
 
     save(template: SceneryTemplate): void {
-        if (template.name === undefined)
-            return ui.showTextInput({
-                title: "Scenery template name",
-                description: "Enter a name for the scenery template:",
-                callback: name => {
-                    this.save({
-                        ...template,
-                        name: name,
-                    });
-                },
-            });
-
         if (this.folderView.path.addFile<SceneryTemplate>(template.name, template) === undefined)
             return ui.showError("Can't save scenery template...", "Scenery template with this name already exists.");
-        console.log("saved");
     }
 }
 export default Library;

@@ -37,5 +37,6 @@ registerPlugin({
 
         // add menu item
         ui.registerMenuItem("Clipboard", () => window.open());
+        window.open();
     },
 });

@@ -51,6 +51,9 @@ class Clipboard {
                     let template: SceneryTemplate = newFile.getContent<SceneryTemplate>();
                     template.name = newFile.getName();
                     newFile.setContent(template);
+
+                    this.folderView.select(newFile);
+                    this.folderView.reload();
                 },
             })
         });
@@ -90,6 +93,9 @@ class Clipboard {
 
         if (file === undefined)
             return this.add(template);
+
+        this.folderView.select(file);
+        this.folderView.reload();
     }
 }
 export default Clipboard;

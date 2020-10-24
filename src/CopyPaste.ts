@@ -116,6 +116,9 @@ class CopyPaste {
                 SceneryUtils.paste(template, ui.tileSelection.range.leftTop, this.window.settings.filter, this.window.settings.options);
             },
             onMove: e => {
+                if (e.mapCoords.x * e.mapCoords.y === 0)
+                    return ui.tileSelection.range = undefined;
+
                 ui.tileSelection.range = CoordUtils.centered(e.mapCoords, this.getSize(template));
                 placeGhost();
             },

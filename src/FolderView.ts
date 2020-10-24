@@ -21,10 +21,7 @@ export class FolderView {
         for (let idx = 0; idx < 4; idx++)
             columns[idx].setRatioWidth([3, 1, 1, 1][idx]);
         this.widget.setCanSelect(true);
-        this.widget.setOnClick((row: number) => {
-            this.selected = this.items[row];
-            this.onSelect();
-        });
+        this.widget.setOnClick((row: number) => this.select(this.items[row]));
 
         this.reload();
     }
@@ -33,7 +30,12 @@ export class FolderView {
         return this.path.getPath();
     }
 
-    onSelect() {
+    select(file: File): void {
+        this.selected = file;
+        this.onSelect();
+    }
+
+    onSelect(): void {
         if (this.selected === undefined)
             return this.goUp();
         if (this.selected.isFolder())
@@ -54,6 +56,8 @@ export class FolderView {
     }
 
     addItem(item: File, info: string[]) {
+        if (this.selected !== undefined && item.name === this.selected.name)
+            this.widget.setSelectedCell(this.items.length);
         this.items.push(item);
         this.widget.addItem(info);
     }
@@ -61,6 +65,7 @@ export class FolderView {
     reload(): void {
         this.items.length = 0;
         this.widget._items.length = 0;
+        this.widget.setSelectedCell(-1);
         this.widget.requestRefresh();
 
         if (!this.path.isFolder())

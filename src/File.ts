@@ -38,7 +38,7 @@ export class File {
     }
 
     getPath(): string { return this.path; };
-    getName(): string { return this.name; };
+    getName(): string { return decode(this.name); };
     getParent(): File {
         if (this.parent === undefined) return undefined;
         else return new File(this.fs, this.parent);
@@ -52,6 +52,7 @@ export class File {
     getContent<T>(): T { return this.fs.getContent(this); };
 
     addFolder(name: string): File {
+        name = encode(name);
         const file: File = new File(this.fs, this.path + "/" + name);
         if (this.fs.createFolder(file))
             return file;
@@ -59,6 +60,7 @@ export class File {
             return undefined;
     };
     addFile<T>(name: string, content: T): File {
+        name = encode(name);
         const file: File = new File(this.fs, this.path + "/" + name);
         if (this.fs.createFile<T>(file, content))
             return file;
@@ -67,6 +69,7 @@ export class File {
     };
 
     rename(name: string): File {
+        name = encode(name);
         if (this.parent === undefined)
             return undefined;
         if (this.name === name)
@@ -87,4 +90,25 @@ export class File {
     setContent<T>(content: T): boolean { return this.fs.setContent(this, content); };
 
     delete(): boolean { return this.fs.delete(this); };
+}
+
+// forbidden chars: . (dot), / (forward slash)
+// escape char (see above): \ (backslash)
+
+function esc(char: string): string {
+    return "\\" + char;
+}
+
+export function encode(text: string): string {
+    text = text.replace(esc(""), esc(esc("")));
+    text = text.replace(".", esc("d"));
+    text = text.replace("/", esc("s"));
+    return text;
+}
+
+export function decode(text: string): string {
+    text = text.replace(esc("s"), "/");
+    text = text.replace(esc("d"), ".");
+    text = text.replace(esc(esc("")), esc(""));
+    return text;
 }
