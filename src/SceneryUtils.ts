@@ -156,10 +156,12 @@ export function paste(template: SceneryTemplate, offset: CoordsXY, filter: Filte
         if (!filter[data.type])
             return;
         let placeArgs: SceneryPlaceArgs = getPlaceArgs(data, options.ghost ? 72 : 0);
-        let removeArgs: SceneryRemoveArgs = getRemoveArgs(data);
-        context.executeAction(getPlaceAction(data.type), placeArgs, res => {
-            if (res.error === 0)
-                result.push(removeArgs);
+        context.queryAction(getPlaceAction(data.type), placeArgs, queryResult => {
+            if (queryResult.error === 0)
+                context.executeAction(getPlaceAction(data.type), placeArgs, executeResult => {
+                    if (executeResult.error === 0)
+                        result.push(getRemoveArgs(data));
+                });
         });
     });
     return result;
