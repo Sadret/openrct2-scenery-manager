@@ -64,7 +64,7 @@ class CopyPaste {
                 drag = false;
             },
             onFinish: () => {
-                ui.tileSelection.range = undefined;
+                ui.tileSelection.range = null;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
                 onCancel();
             },
@@ -78,7 +78,7 @@ class CopyPaste {
             this.window.clipboard.add(SceneryUtils.copy(ui.tileSelection.range, this.window.settings.filter));
     }
 
-    pasteTemplate(template: SceneryTemplate): void {
+    pasteTemplate(template: SceneryTemplate, onCancel: () => void): void {
         if (ui.tool)
             ui.tool.cancel();
         if (template === undefined)
@@ -95,6 +95,8 @@ class CopyPaste {
         }
         const settings = this.window.settings;
         function placeGhost() {
+            if (ui.tileSelection.range === null)
+                return removeGhost();
             let offset = ui.tileSelection.range.leftTop;
             if (CoordUtils.equals(offset, ghostCoords))
                 return;
@@ -117,17 +119,18 @@ class CopyPaste {
             },
             onMove: e => {
                 if (e.mapCoords.x * e.mapCoords.y === 0)
-                    return ui.tileSelection.range = undefined;
-
-                ui.tileSelection.range = CoordUtils.centered(e.mapCoords, this.getSize(template));
+                    ui.tileSelection.range = null;
+                else
+                    ui.tileSelection.range = CoordUtils.centered(e.mapCoords, this.getSize(template));
                 placeGhost();
             },
             onUp: () => {
             },
             onFinish: () => {
                 removeGhost();
-                ui.tileSelection.range = undefined;
+                ui.tileSelection.range = null;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
+                onCancel();
             },
         });
     }

@@ -32,9 +32,14 @@ class Library {
                 Config.library.addListener(() => this.reload());
             }
 
+            onDeselect(): void {
+                if (this.selected !== undefined && this.selected.isFile() && ui.tool)
+                    ui.tool.cancel();
+            }
+
             onSelect() {
                 if (this.selected !== undefined && this.selected.isFile())
-                    copyPaste.pasteTemplate(this.selected.getContent());
+                    copyPaste.pasteTemplate(this.selected.getContent(), () => this.select(undefined));
                 super.onSelect();
             }
 

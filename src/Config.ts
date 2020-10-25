@@ -5,17 +5,14 @@ const namespace: string = "Clipboard";
 const configPrefix: string = namespace + ".";
 
 export function has(key: string): boolean {
-    console.log("has", configPrefix + key, context.sharedStorage.has(configPrefix + key));
     return context.sharedStorage.has(configPrefix + key);
 }
 
 export function get<T>(key: string): T {
-    console.log("get", configPrefix + key);
     return context.sharedStorage.get(configPrefix + key);
 }
 
 export function set<T>(key: string, value: T): void {
-    console.log("set", configPrefix + key);
     context.sharedStorage.set(configPrefix + key, value);
 }
 

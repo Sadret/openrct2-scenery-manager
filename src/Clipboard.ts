@@ -23,16 +23,22 @@ class Clipboard {
         const widget = new Oui.GroupBox("Clipboard");
 
         const hbox = new Oui.HorizontalBox();
+
         this.folderView = new class extends FolderView {
             constructor() {
                 super(Config.clipboard.getRoot());
                 Config.clipboard.addListener(() => this.reload());
             }
 
+            onDeselect(): void {
+                if (this.selected !== undefined && this.selected.isFile() && ui.tool)
+                    ui.tool.cancel();
+            }
+
             onSelect(): void {
                 hbox.setIsDisabled(this.selected === undefined);
                 if (this.selected !== undefined && this.selected.isFile())
-                    copyPaste.pasteTemplate(this.selected.getContent());
+                    copyPaste.pasteTemplate(this.selected.getContent(), () => this.select(undefined));
                 super.onSelect();
             }
         }();

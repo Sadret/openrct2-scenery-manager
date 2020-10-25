@@ -30,34 +30,35 @@ export class FolderView {
         return this.path.getPath();
     }
 
-    select(file: File): void {
+    select(file: File, reload = true): void {
+        this.onDeselect();
         this.selected = file;
         this.onSelect();
+        if (reload)
+            this.reloadSelected();
+    }
+
+    onDeselect(): void {
+
     }
 
     onSelect(): void {
         if (this.selected === undefined)
-            return this.goUp();
+            return;
         if (this.selected.isFolder())
-            return this.goDown(this.selected);
+            return this.open(this.selected);
         // if file do nothing
     }
 
-    goUp(): void {
-        this.path = this.path.getParent();
-        this.selected = undefined;
-        this.reload();
-    }
-
-    goDown(file: File): void {
+    open(file: File): void {
+        if (!file.isFolder())
+            return;
         this.path = file;
-        this.selected = undefined;
+        this.select(undefined, false);
         this.reload();
     }
 
     addItem(item: File, info: string[]) {
-        if (this.selected !== undefined && item.name === this.selected.name)
-            this.widget.setSelectedCell(this.items.length);
         this.items.push(item);
         this.widget.addItem(info);
     }
@@ -65,14 +66,13 @@ export class FolderView {
     reload(): void {
         this.items.length = 0;
         this.widget._items.length = 0;
-        this.widget.setSelectedCell(-1);
         this.widget.requestRefresh();
 
         if (!this.path.isFolder())
-            return this.goUp();
+            return this.open(this.path.getParent());
 
         if (this.path.getParent() !== undefined)
-            this.addItem(undefined, ["../", "", "", ""]);
+            this.addItem(this.path.getParent(), ["../", "", "", ""]);
 
         this.path.getFiles().filter((file: File) =>
             file.isFolder()
@@ -94,5 +94,22 @@ export class FolderView {
                     String(template.data.length),
                 ]);
         });
+        this.reloadSelected();
+    }
+
+    reloadSelected(): void {
+        this.widget.setSelectedCell(-1);
+        this.widget.requestRefresh();
+
+        if (this.selected === undefined)
+            return;
+        for (let row = 0; row < this.items.length; row++) {
+            let item: File = this.items[row];
+            if (item === undefined)
+                continue;
+            if (item.path === this.selected.path)
+                return this.widget.setSelectedCell(row);
+        }
+        this.select(undefined, false);
     }
 }
