@@ -21,8 +21,10 @@ class Clipboard {
         const copyPaste = this.window.copyPaste;
 
         const widget = new Oui.GroupBox("Clipboard");
-
-        const hbox = new Oui.HorizontalBox();
+        const btnBox = new Oui.HorizontalBox();
+        const fileBtnBox = new Oui.HorizontalBox();
+        fileBtnBox.setRelativeWidth(70);
+        btnBox.addChild(fileBtnBox);
 
         this.folderView = new class extends FolderView {
             constructor() {
@@ -36,7 +38,7 @@ class Clipboard {
             }
 
             onSelect(): void {
-                hbox.setIsDisabled(this.selected === undefined);
+                fileBtnBox.setIsDisabled(this.selected === undefined);
                 if (this.selected !== undefined && this.selected.isFile())
                     copyPaste.pasteTemplate(this.selected.getContent(), () => this.select(undefined));
                 super.onSelect();
@@ -64,7 +66,7 @@ class Clipboard {
             })
         });
         nameButton.setRelativeWidth(30);
-        hbox.addChild(nameButton);
+        fileBtnBox.addChild(nameButton);
 
         const deleteButton = new Oui.Widgets.Button("Delete", () => {
             const file: File = this.folderView.selected;
@@ -76,19 +78,33 @@ class Clipboard {
             );
         });
         deleteButton.setRelativeWidth(30);
-        hbox.addChild(deleteButton);
+        fileBtnBox.addChild(deleteButton);
 
         const saveButton = new Oui.Widgets.Button("Save to library", () =>
             this.window.library.save(this.folderView.selected.getContent<SceneryTemplate>())
         );
         saveButton.setRelativeWidth(40);
-        hbox.addChild(saveButton);
+        fileBtnBox.addChild(saveButton);
 
-        hbox.setIsDisabled(true);
-        hbox.setPadding(0, 0, 0, 0);
-        hbox.setMargins(0, 0, 0, 0);
+        const clearButton = new Oui.Widgets.Button("Clear clipboard", () => {
+            UiUtils.showConfirm(
+                "Clear clipboard",
+                ["Are you sure you want to clear the clipboard?"],
+                confirmed => { if (confirmed) this.folderView.items.map(x => x).forEach((file: File) => file.delete()); },
+                "Clear clipboard",
+            );
+        });
+        clearButton.setRelativeWidth(30);
+        btnBox.addChild(clearButton);
 
-        widget.addChild(hbox);
+        fileBtnBox.setIsDisabled(true);
+        fileBtnBox.setPadding(0, 0, 0, 0);
+        fileBtnBox.setMargins(0, 0, 0, 0);
+
+        btnBox.setPadding(0, 0, 0, 0);
+        btnBox.setMargins(0, 0, 0, 0);
+
+        widget.addChild(btnBox);
 
         return widget;
     }
