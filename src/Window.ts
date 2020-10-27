@@ -57,7 +57,7 @@ export class Window {
             window.addGroupBox("Yy", groupBox);
         }
         window.addLabel("Yy");
-        window.addViewport({
+        window.addViewport(64, {
             left: 0,
             top: 0,
             right: 0,
@@ -68,7 +68,7 @@ export class Window {
             getCentrePosition: () => undefined,
             moveTo: () => { },
             scrollTo: () => { },
-        }, 64);
+        });
         window.addLabel("Yy");
         {
             const hbox: BoxBuilder = window.getHBox([1, 1,]);
@@ -87,11 +87,46 @@ export class Window {
             }
             window.addBox(hbox);
         }
+        window.addLabel("Yy");
+        window.addLabel("Yy");
+        window.addListView(
+            128,
+            [],
+            [],
+            undefined,
+        );
+        window.addListView(
+            128,
+            [],
+            [],
+            undefined,
+        );
 
         ui.openWindow({
             classification: "clipboard",
             x: 500,
             y: 100,
+            width: window.getWidth(),
+            height: window.getHeight(),
+            title: "Clipboard",
+            widgets: window.getWidgets(),
+        });
+    }
+
+    open3(): void {
+        const window: WindowBuilder = new WindowBuilder(384);
+
+        this.copyPaste.build(window);
+        this.settings.build(window);
+        this.clipboard.build(window);
+        this.library.build(window);
+
+        // window.getWidgets().forEach(widget => console.log(widget));
+
+        ui.openWindow({
+            classification: "clipboard",
+            x: (ui.width - window.getWidth()) / 2,
+            y: (ui.height - window.getHeight()) / 2,
             width: window.getWidth(),
             height: window.getHeight(),
             title: "Clipboard",

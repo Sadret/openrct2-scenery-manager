@@ -5,6 +5,7 @@ import * as LibraryManager from "./LibraryManager";
 import * as Config from "./Config";
 import { FolderView } from "./FolderView";
 import { Window } from "./Window";
+import { BoxBuilder } from "./WindowBuilder";
 
 class Library {
     readonly window: Window;
@@ -64,7 +65,7 @@ class Library {
             addFolderButton.setRelativeWidth(50);
             hbox.addChild(addFolderButton);
 
-            const manageLibraryButton = new Oui.Widgets.TextButton("Manage Library", () => LibraryManager.open());
+            const manageLibraryButton = new Oui.Widgets.TextButton("Manage library", () => LibraryManager.open());
             manageLibraryButton.setRelativeWidth(50);
             hbox.addChild(manageLibraryButton);
 
@@ -80,6 +81,36 @@ class Library {
     save(template: SceneryTemplate): void {
         if (this.folderView.path.addFile<SceneryTemplate>(template.name, template) === undefined)
             return ui.showError("Can't save scenery template...", "Scenery template with this name already exists.");
+    }
+
+    build(builder: BoxBuilder): void {
+        const group = builder.getGroupBox();
+        group.addLabel("./");
+        group.addListView(
+            128,
+            [{
+                header: "Name",
+                ratioWidth: 3,
+            }, {
+                header: "Width",
+                ratioWidth: 1,
+            }, {
+                header: "Length",
+                ratioWidth: 1,
+            }, {
+                header: "Size",
+                ratioWidth: 1,
+            }],
+            [],
+            undefined,
+        );
+        {
+            const buttons = group.getHBox([50, 50]);
+            buttons.addTextButton("Add new folder");
+            buttons.addTextButton("Manage library");
+            group.addBox(buttons);
+        }
+        builder.addGroupBox("Clipboard", group);
     }
 }
 export default Library;

@@ -4,6 +4,7 @@ import * as UiUtils from "./UiUtils";
 import { File } from "./File";
 import { FolderView } from "./FolderView";
 import { Window } from "./Window";
+import { BoxBuilder } from "./WindowBuilder";
 
 class Clipboard {
     readonly window: Window;
@@ -118,6 +119,37 @@ class Clipboard {
 
         this.folderView.select(file);
         this.folderView.reload();
+    }
+
+    build(builder: BoxBuilder): void {
+        const group = builder.getGroupBox();
+        group.addListView(
+            128,
+            [{
+                header: "Name",
+                ratioWidth: 3,
+            }, {
+                header: "Width",
+                ratioWidth: 1,
+            }, {
+                header: "Length",
+                ratioWidth: 1,
+            }, {
+                header: "Size",
+                ratioWidth: 1,
+            }],
+            [],
+            undefined,
+        );
+        {
+            const buttons = group.getHBox([30, 30, 40, 40]);
+            buttons.addTextButton("Name");
+            buttons.addTextButton("Delete");
+            buttons.addTextButton("Save to library");
+            buttons.addTextButton("Clear clipboard");
+            group.addBox(buttons);
+        }
+        builder.addGroupBox("Clipboard", group);
     }
 }
 export default Clipboard;

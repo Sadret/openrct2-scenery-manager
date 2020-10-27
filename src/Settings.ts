@@ -1,6 +1,7 @@
 import Oui from "./OliUI";
 import { Filter, Options } from "./SceneryUtils";
 import { Window } from "./Window";
+import { BoxBuilder } from "./WindowBuilder";
 
 class Settings {
     readonly window: Window;
@@ -87,6 +88,29 @@ class Settings {
         }
 
         return widget;
+    }
+
+    build(builder: BoxBuilder): void {
+        const hbox = builder.getHBox([1, 1]);
+        {
+            const group = hbox.getGroupBox();
+            for (let key in this.filter)
+                group.addCheckbox(key);
+            hbox.addGroupBox("Filter", group);
+        } {
+            const group = hbox.getGroupBox();
+            group.addTextButton("Rotation: none");
+            group.addTextButton("Mirrored: no");
+            group.addTextButton("Relative to surface");
+            {
+                const heightOffset = group.getHBox([1, 1]);
+                heightOffset.addLabel("Height offset");
+                heightOffset.addSpinner("0");
+                group.addBox(heightOffset);
+            }
+            hbox.addGroupBox("Options", group);
+        }
+        builder.addBox(hbox);
     }
 }
 export default Settings;

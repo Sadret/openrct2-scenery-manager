@@ -2,6 +2,7 @@ import Oui from "./OliUI";
 import * as CoordUtils from "./CoordUtils";
 import * as SceneryUtils from "./SceneryUtils";
 import { Window } from "./Window";
+import { BoxBuilder } from "./WindowBuilder";
 
 class CopyPaste {
     readonly window: Window;
@@ -143,6 +144,15 @@ class CopyPaste {
                 y: size.x,
             };
         return size;
+    }
+
+    build(builder: BoxBuilder): void {
+        const group = builder.getGroupBox();
+        const hbox = group.getHBox([1, 1]);
+        hbox.addTextButton("Select area");
+        hbox.addTextButton("Copy area");
+        group.addBox(hbox);
+        builder.addGroupBox("Copy & Paste", group);
     }
 }
 export default CopyPaste;

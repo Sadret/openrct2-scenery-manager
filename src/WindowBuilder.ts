@@ -19,7 +19,7 @@ class Margin {
     }
 
     static none: Margin = new Margin(0, 0, 0, 0);
-    static default: Margin = new Margin(2, 2, 2, 2);
+    static default: Margin = Margin.none;//new Margin(2, 2, 2, 2);
 }
 
 export abstract class BoxBuilder {
@@ -54,33 +54,34 @@ export abstract class BoxBuilder {
         };
     }
 
-    abstract getWidgetWidth(): number;
+    abstract peekWidgetWidth(): number;
+    abstract popWidgetWidth(): number;
 
     abstract advanceCursor(widget: Widget, verticalMargin: number): void;
 
-    getVBox(): VBoxBuilder {
+    getVBox(padding?: number): VBoxBuilder {
         return new VBoxBuilder(
             { ...this.cursor },
-            this.getWidgetWidth(),
-            0,
+            this.peekWidgetWidth(),
+            padding,
             Margin.none,
         );
     }
 
-    getHBox(weights: number[]): HBoxBuilder {
+    getHBox(weights: number[], padding?: number): HBoxBuilder {
         return new HBoxBuilder(
-            { ...this.cursor },
-            this.getWidgetWidth(),
-            2,
-            Margin.none,
             weights,
+            { ...this.cursor },
+            this.peekWidgetWidth(),
+            padding,
+            Margin.none,
         );
     }
 
     getGroupBox(): GroupBoxBuilder {
         return new GroupBoxBuilder(
-            { ...this.cursor },
-            this.getWidgetWidth(),
+            { x: this.cursor.x, y: this.cursor.y + 1, },
+            this.peekWidgetWidth(),
             0,
         )
     }
@@ -96,7 +97,7 @@ export abstract class BoxBuilder {
             type: type,
             x: this.cursor.x,
             y: this.cursor.y + marginTop,
-            width: this.getWidgetWidth(),
+            width: this.popWidgetWidth(),
             height: height,
             ...args,
         };
@@ -120,21 +121,20 @@ export abstract class BoxBuilder {
     addCheckbox(
         text: string,
     ): void {
-        this.addWidget("checkbox", 0, 0, 12, {
+        this.addWidget("checkbox", 1, 1, 12, {
             text: text,
             isChecked: false,
-            onChange: () => { },
+            onChange: () => undefined,
         });
     }
 
     addDropdown(
         items: string[],
     ): void {
-        // height = 1 border + (12 font - 1 padding) + 1 border
-        this.addWidget("dropdown", 1, 1, 13, {
+        this.addWidget("dropdown", 0, 0, 14, {
             items: items,
             selectedIndex: 0,
-            onChange: () => { },
+            onChange: () => undefined,
         });
     }
 
@@ -142,7 +142,9 @@ export abstract class BoxBuilder {
         text: string,
         builder: GroupBoxBuilder,
     ): void {
-        this.addWidget("groupbox", 0, 0, builder.getHeight(), {
+        console.log(text, builder.getHeight());
+
+        this.addWidget("groupbox", 1, 0, builder.getHeight(), {
             text: text,
         });
         this.widgets.push(...builder.getWidgets());
@@ -151,39 +153,55 @@ export abstract class BoxBuilder {
     addLabel(
         text: string,
     ): void {
-        this.addWidget("label", 0, 0, 12, {
+        this.addWidget("label", 1, 1, 12, {
             text: text,
         });
     }
 
-    // listview
+    addListView(
+        height: number,
+        columns: ListViewColumn[],
+        items: string[] | ListViewItem[],
+        selectedCell: RowColumn,
+    ): void {
+        this.addWidget("listview", 0, 0, height, {
+            scrollbars: "vertical",
+            isStriped: false,
+            showColumnHeaders: true,
+            columns: columns,
+            items: items,
+            selectedCell: selectedCell,
+            canSelect: true,
+            onHighlight: (item: number, column: number) => undefined,
+            onClick: (item: number, column: number) => undefined,
+        });
+    }
 
     addSpinner(
         text: string,
     ): void {
-        this.addWidget("spinner", 1, 1, 14, {
+        this.addWidget("spinner", 0, 0, 14, {
             text: text,
-            onDecrement: () => { },
-            onIncrement: () => { },
+            onDecrement: () => undefined,
+            onIncrement: () => undefined,
         });
     }
 
     addTextButton(
         text: string,
     ): void {
-        // height = 1 border + (12 font - 1 padding) + 1 border
-        this.addWidget("button", 1, 1, 13, {
+        this.addWidget("button", 0, 0, 14, {
             border: true,
             image: undefined,
             isPressed: false,
             text: text,
-            onClick: () => { },
+            onClick: () => undefined,
         });
     }
 
     addViewport(
-        viewport: Viewport,
         height: number,
+        viewport: Viewport,
     ): void {
         this.addWidget("viewport", 0, 0, height, {
             viewport: viewport,
@@ -207,8 +225,8 @@ class VBoxBuilder extends BoxBuilder {
     constructor(
         position: CoordsXY,
         width: number,
-        padding: number,
-        margin: Margin,
+        padding?: number,
+        margin?: Margin,
     ) {
         super(
             position,
@@ -218,7 +236,11 @@ class VBoxBuilder extends BoxBuilder {
         );
     }
 
-    getWidgetWidth(): number {
+    peekWidgetWidth(): number {
+        return this.innerWidth;
+    }
+
+    popWidgetWidth(): number {
         return this.innerWidth;
     }
 
@@ -233,11 +255,11 @@ class HBoxBuilder extends BoxBuilder {
     readonly widths: number[] = [];
 
     constructor(
+        weights: number[],
         position: CoordsXY,
         width: number,
-        padding: number,
-        margin: Margin,
-        weights: number[],
+        padding?: number,
+        margin?: Margin,
     ) {
         super(
             position,
@@ -246,13 +268,17 @@ class HBoxBuilder extends BoxBuilder {
             margin,
         );
 
-        const availableWidth: number = this.innerWidth - (weights.length - 1) * padding;
+        const availableWidth: number = this.innerWidth - (weights.length - 1) * this.padding;
         const totalWeight: number = weights.reduce((prev: number, current: number, _1, _2) => prev + current);
         const widthPerWeight = availableWidth / totalWeight;
         this.widths = weights.map((weight: number) => widthPerWeight * weight);
     }
 
-    getWidgetWidth(): number {
+    peekWidgetWidth(): number {
+        return this.widths[0];
+    }
+
+    popWidgetWidth(): number {
         return this.widths.shift();
     }
 
@@ -275,7 +301,7 @@ export class WindowBuilder extends VBoxBuilder {
                 15 + Margin.default.top,
                 1 + Margin.default.bottom,
                 1 + Margin.default.left,
-                1 + Margin.default.top,
+                1 + Margin.default.right,
             ),
         );
     }
@@ -292,10 +318,10 @@ class GroupBoxBuilder extends VBoxBuilder {
             width,
             padding,
             new Margin(
-                12 + Margin.default.top,
-                1 + Margin.default.bottom,
-                1 + Margin.default.left,
-                1 + Margin.default.top,
+                13 + Margin.default.top,
+                2 + Margin.default.bottom,
+                2 + Margin.default.left,
+                2 + Margin.default.right,
             ),
         );
     }
