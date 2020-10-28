@@ -1,41 +1,25 @@
 /// <reference path="./_Save.d.ts" />
 
-import Oui from "./OliUI";
 import { File } from "./File";
 
 export class FolderView {
-    readonly widget: any;
-
     path: File;
-    readonly items: File[] = [];
+    readonly files: File[] = [];
 
     selected: File = undefined;
 
     constructor(path: File) {
         this.path = path;
-
-        this.widget = new Oui.Widgets.ListView();
-        this.widget.setHeight(128);
-        this.widget.setColumns(["Name", "Width", "Length", "Size"]);
-        let columns = this.widget.getColumns();
-        for (let idx = 0; idx < 4; idx++)
-            columns[idx].setRatioWidth([3, 1, 1, 1][idx]);
-        this.widget.setCanSelect(true);
-        this.widget.setOnClick((row: number) => this.select(this.items[row]));
-
-        this.reload();
     }
 
     getPath(): string {
         return this.path.getPath();
     }
 
-    select(file: File, reload = true): void {
+    select(file: File): void {
         this.onDeselect();
         this.selected = file;
         this.onSelect();
-        if (reload)
-            this.reloadSelected();
     }
 
     onDeselect(): void {
@@ -54,62 +38,83 @@ export class FolderView {
         if (!file.isFolder())
             return;
         this.path = file;
-        this.select(undefined, false);
-        this.reload();
+        this.select(undefined);
     }
 
-    addItem(item: File, info: string[]) {
-        this.items.push(item);
-        this.widget.addItem(info);
-    }
+    getWidget(): {
+        scrollbars: ScrollbarType;
+        columns: ListViewColumn[];
+        items: ListViewItem[];
+        selectedCell: RowColumn;
+        onClick: (item: number, column: number) => void;
+    } {
+        let selectedRow: number = undefined;
+        const items: ListViewItem[] = [];
 
-    reload(): void {
-        this.items.length = 0;
-        this.widget._items.length = 0;
-        this.widget.requestRefresh();
+        const addItem = (item: File, info: ListViewItem) => {
+            this.files.push(item);
+            items.push(info);
+        };
 
-        if (!this.path.isFolder())
-            return this.open(this.path.getParent());
+        this.files.length = 0;
+
+        while (!this.path.isFolder()) {
+            this.path = this.path.getParent();
+            this.select(undefined);
+        }
 
         if (this.path.getParent() !== undefined)
-            this.addItem(this.path.getParent(), ["../", "", "", ""]);
+            addItem(this.path.getParent(), ["../", "", "", ""]);
 
         this.path.getFiles().filter((file: File) =>
             file.isFolder()
-        ).forEach((file: File) =>
-            this.addItem(file, [file.getName() + "/", "", "", ""])
-        );
+        ).forEach((file: File) => {
+            if (this.selected !== undefined && file.getPath() === this.selected.getPath())
+                selectedRow = items.length;
+            addItem(file, [file.getName() + "/", "", "", ""]);
+        });
 
         this.path.getFiles().filter((file: File) =>
             file.isFile()
         ).forEach((file: File) => {
+            if (this.selected !== undefined && file.getPath() === this.selected.getPath())
+                selectedRow = items.length;
             let template: SceneryTemplate = file.getContent();
             if (template === undefined)
-                this.addItem(file, [file.getName(), "", "", ""]);
+                addItem(file, [file.getName(), "", "", ""]);
             else
-                this.addItem(file, [
+                addItem(file, [
                     template.name,
                     String(template.size.x / 32 + 1),
                     String(template.size.y / 32 + 1),
                     String(template.data.length),
                 ]);
         });
-        this.reloadSelected();
-    }
 
-    reloadSelected(): void {
-        this.widget.setSelectedCell(-1);
-        this.widget.requestRefresh();
+        if (selectedRow === undefined)
+            this.select(undefined);
 
-        if (this.selected === undefined)
-            return;
-        for (let row = 0; row < this.items.length; row++) {
-            let item: File = this.items[row];
-            if (item === undefined)
-                continue;
-            if (item.path === this.selected.path)
-                return this.widget.setSelectedCell(row);
-        }
-        this.select(undefined, false);
+        return {
+            scrollbars: "vertical",
+            columns: [{
+                header: "Name",
+                ratioWidth: 3,
+            }, {
+                header: "Width",
+                ratioWidth: 1,
+            }, {
+                header: "Length",
+                ratioWidth: 1,
+            }, {
+                header: "Size",
+                ratioWidth: 1,
+            }],
+            items: items,
+            selectedCell: {
+                row: selectedRow,
+                column: 0,
+            },
+            onClick: (row: number) => this.select(this.files[row]),
+        };
     }
 }

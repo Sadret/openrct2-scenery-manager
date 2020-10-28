@@ -1,81 +1,41 @@
 /// <reference path="./_Save.d.ts" />
 
-import Oui from "./OliUI";
 import * as LibraryManager from "./LibraryManager";
 import * as Config from "./Config";
 import { FolderView } from "./FolderView";
-import { Window } from "./Window";
+import { SceneryManager } from "./SceneryManager";
 import { BoxBuilder } from "./WindowBuilder";
+import CopyPaste from "./CopyPaste";
 
 class Library {
-    readonly window: Window;
-    readonly widget: any;
+    readonly manager: SceneryManager;
+    readonly folderView: FolderView;
 
-    folderView: FolderView;
     counter: number = 0;
 
-    constructor(window: Window) {
-        this.window = window;
-        this.widget = this.getWidget();
-    }
+    constructor(manager: SceneryManager) {
+        this.manager = manager;
 
-    getWidget(): any {
-        const copyPaste = this.window.copyPaste;
-
-        const widget = new Oui.GroupBox("Library");
-
-        const currentPath = new Oui.Widgets.Label("");
-        widget.addChild(currentPath);
-
-        const folderView: FolderView = this.folderView = new class extends FolderView {
+        const copyPaste: CopyPaste = this.manager.copyPaste;
+        this.folderView = new class extends FolderView {
             constructor() {
                 super(Config.library.getRoot());
-                Config.library.addListener(() => this.reload());
+                Config.library.addListener(() => manager.invalidate());
             }
 
             onDeselect(): void {
                 if (this.selected !== undefined && this.selected.isFile() && ui.tool)
                     ui.tool.cancel();
+                manager.invalidate();
             }
 
             onSelect() {
                 if (this.selected !== undefined && this.selected.isFile())
                     copyPaste.pasteTemplate(this.selected.getContent(), () => this.select(undefined));
                 super.onSelect();
-            }
-
-            reload() {
-                super.reload();
-                currentPath.setText("." + this.getPath() + "/");
+                manager.invalidate();
             }
         }();
-        widget.addChild(folderView.widget);
-
-        const hbox = new Oui.HorizontalBox(); {
-            const addFolderButton = new Oui.Widgets.TextButton("Add new folder", () =>
-                ui.showTextInput({
-                    title: "Folder name",
-                    description: "Enter a name for the new folder:",
-                    callback: name => {
-                        if (folderView.path.addFolder(name) === undefined)
-                            return ui.showError("Can't create new folder...", "Folder with this name already exists.");
-                    },
-                })
-            );
-            addFolderButton.setRelativeWidth(50);
-            hbox.addChild(addFolderButton);
-
-            const manageLibraryButton = new Oui.Widgets.TextButton("Manage library", () => LibraryManager.open());
-            manageLibraryButton.setRelativeWidth(50);
-            hbox.addChild(manageLibraryButton);
-
-            hbox.setPadding(0, 0, 0, 0);
-            hbox.setMargins(0, 0, 0, 0);
-
-            widget.addChild(hbox);
-        }
-
-        return widget;
     }
 
     save(template: SceneryTemplate): void {
@@ -83,34 +43,42 @@ class Library {
             return ui.showError("Can't save scenery template...", "Scenery template with this name already exists.");
     }
 
+    add(): void {
+        ui.showTextInput({
+            title: "Folder name",
+            description: "Enter a name for the new folder:",
+            callback: name => {
+                if (this.folderView.path.addFolder(name) === undefined)
+                    return ui.showError("Can't create new folder...", "Folder with this name already exists.");
+            },
+        });
+    }
+
+    manage(): void {
+        LibraryManager.open();
+    }
+
     build(builder: BoxBuilder): void {
         const group = builder.getGroupBox();
-        group.addLabel("./");
-        group.addListView(
-            128,
-            [{
-                header: "Name",
-                ratioWidth: 3,
-            }, {
-                header: "Width",
-                ratioWidth: 1,
-            }, {
-                header: "Length",
-                ratioWidth: 1,
-            }, {
-                header: "Size",
-                ratioWidth: 1,
-            }],
-            [],
-            undefined,
-        );
+        group.addLabel({
+            text: "." + this.folderView.getPath() + "/",
+        });
+        group.addListView(this.folderView.getWidget(), 128);
         {
             const buttons = group.getHBox([50, 50]);
-            buttons.addTextButton("Add new folder");
-            buttons.addTextButton("Manage library");
+            buttons.addTextButton({
+                text: "Add new folder",
+                onClick: () => this.add(),
+            });
+            buttons.addTextButton({
+                text: "Manage library",
+                onClick: () => this.manage(),
+            });
             group.addBox(buttons);
         }
-        builder.addGroupBox("Library", group);
+        builder.addGroupBox({
+            text: "Library",
+        }, group);
     }
 }
 export default Library;

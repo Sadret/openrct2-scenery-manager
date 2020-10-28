@@ -99,6 +99,11 @@ export abstract class BoxBuilder {
             y: this.cursor.y + marginTop,
             width: this.popWidgetWidth(),
             height: height,
+
+            name: undefined,
+            tooltip: undefined,
+            isDisabled: false,
+
             ...args,
         };
         this.advanceCursor(widget, marginTop + marginBottom);
@@ -118,66 +123,86 @@ export abstract class BoxBuilder {
         this.widgets.push(...builder.getWidgets());
     }
 
-    addCheckbox(
-        text: string,
-    ): void {
+    addCheckbox(args: {
+        name?: string;
+        tooltip?: string;
+        isDisabled?: boolean;
+
+        text: string;
+        isChecked?: boolean;
+        onChange: (isChecked: boolean) => void;
+    }): void {
         this.addWidget("checkbox", 1, 1, 12, {
-            text: text,
             isChecked: false,
-            onChange: () => undefined,
+            ...args,
         });
     }
 
-    addDropdown(
-        items: string[],
-    ): void {
+    addDropdown(args: {
+        name?: string;
+        tooltip?: string;
+        isDisabled?: boolean;
+
+        items: string[];
+        selectedIndex?: number;
+        onChange: (index: number) => void;
+    }): void {
         this.addWidget("dropdown", 0, 0, 14, {
-            items: items,
             selectedIndex: 0,
-            onChange: () => undefined,
+            ...args,
         });
     }
 
-    addGroupBox(
-        text: string,
-        builder: GroupBoxBuilder,
-    ): void {
-        this.addWidget("groupbox", 1, 0, builder.getHeight(), {
-            text: text,
-        });
+    addGroupBox(args: {
+        name?: string;
+        tooltip?: string;
+        isDisabled?: boolean;
+
+        text: string;
+    }, builder: BoxBuilder): void {
+        this.addWidget("groupbox", 1, 0, builder.getHeight(), args);
         this.widgets.push(...builder.getWidgets());
     }
 
-    addLabel(
-        text: string,
-    ): void {
-        this.addWidget("label", 1, 1, 12, {
-            text: text,
-        });
+    addLabel(args: {
+        name?: string;
+        tooltip?: string;
+        isDisabled?: boolean;
+
+        text: string;
+    }): void {
+        this.addWidget("label", 1, 1, 12, args);
     }
 
-    addListView(
-        height: number,
-        columns: ListViewColumn[],
-        items: string[] | ListViewItem[],
-        selectedCell: RowColumn,
-    ): void {
+    addListView(args: {
+        name?: string;
+        tooltip?: string;
+        isDisabled?: boolean;
+
+        scrollbars?: ScrollbarType;
+        isStriped?: boolean;
+        showColumnHeaders?: boolean;
+        columns: ListViewColumn[];
+        items: ListViewItem[];
+        selectedCell?: RowColumn;
+        canSelect?: boolean;
+
+        onHighlight?: (item: number, column: number) => void;
+        onClick?: (item: number, column: number) => void;
+    }, height: number): void {
         this.addWidget("listview", 0, 0, height, {
             scrollbars: "vertical",
             isStriped: false,
             showColumnHeaders: true,
-            columns: columns,
-            items: items,
-            selectedCell: selectedCell,
+            selectedCell: undefined,
             canSelect: true,
-            onHighlight: (item: number, column: number) => undefined,
-            onClick: (item: number, column: number) => undefined,
+            onHighlight: undefined,
+            onClick: undefined,
+            ...args,
         });
     }
 
-    addSpace(
-        height: number = 14,
-    ): void {
+    addSpace(height: number = 14): void {
         this.advanceCursor({
             type: undefined,
             x: undefined,
@@ -187,35 +212,43 @@ export abstract class BoxBuilder {
         }, 0);
     }
 
-    addSpinner(
-        text: string,
-    ): void {
-        this.addWidget("spinner", 0, 0, 14, {
-            text: text,
-            onDecrement: () => undefined,
-            onIncrement: () => undefined,
-        });
+    addSpinner(args: {
+        name?: string;
+        tooltip?: string;
+        isDisabled?: boolean;
+
+        text: string;
+        onDecrement: () => void;
+        onIncrement: () => void;
+    }): void {
+        this.addWidget("spinner", 0, 0, 14, args);
     }
 
-    addTextButton(
-        text: string,
-    ): void {
+    addTextButton(args: {
+        name?: string;
+        tooltip?: string;
+        isDisabled?: boolean;
+
+        isPressed?: boolean;
+        text: string;
+        onClick: () => void;
+    }): void {
         this.addWidget("button", 0, 0, 14, {
+            isPressed: false,
+            ...args,
             border: true,
             image: undefined,
-            isPressed: false,
-            text: text,
-            onClick: () => undefined,
         });
     }
 
-    addViewport(
-        height: number,
-        viewport: Viewport,
-    ): void {
-        this.addWidget("viewport", 0, 0, height, {
-            viewport: viewport,
-        });
+    addViewport(args: {
+        name?: string;
+        tooltip?: string;
+        isDisabled?: boolean;
+
+        viewport: Viewport
+    }, height: number): void {
+        this.addWidget("viewport", 0, 0, height, args);
     }
 
     getWidgets(): Widget[] {

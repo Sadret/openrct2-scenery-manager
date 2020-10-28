@@ -1,6 +1,6 @@
 /// <reference path="./../../openrct2.d.ts" />
 
-import { Window } from "./Window";
+import { SceneryManager } from "./SceneryManager";
 
 declare global {
     interface Array<T> {
@@ -32,14 +32,11 @@ registerPlugin({
         if (ui === undefined)
             return console.log("[clipboard] Loading cancelled: game runs in headless mode.");
 
-        // create window
-        const window: Window = new Window();
+        // create manager
+        const manager: SceneryManager = new SceneryManager();
 
         // add menu item
-        ui.registerMenuItem("Clipboard", () => window.open());
-        window.open();
-
-        // window.open2();
-        window.open3();
+        ui.registerMenuItem("Clipboard", () => manager.open());
+        manager.open();
     },
 });

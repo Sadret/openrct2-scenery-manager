@@ -1,11 +1,9 @@
-import Oui from "./OliUI";
 import { Filter, Options } from "./SceneryUtils";
-import { Window } from "./Window";
+import { SceneryManager } from "./SceneryManager";
 import { BoxBuilder } from "./WindowBuilder";
 
 class Settings {
-    readonly window: Window;
-    readonly widget: any;
+    readonly manager: SceneryManager;
 
     readonly filter: Filter = {
         footpath: true,
@@ -23,94 +21,76 @@ class Settings {
         ghost: false,
     };
 
-    constructor(window: Window) {
-        this.window = window;
-        this.widget = this.getWidget();
-    }
-
-    getWidget() {
-        const widget = new Oui.HorizontalBox();
-        widget.setPadding(0, 0, 0, 0);
-        widget.setMargins(0, 0, 0, 0);
-
-        // FILTER
-        {
-            const vbox = new Oui.GroupBox("Filter");
-            vbox.setRelativeWidth(50);
-            widget.addChild(vbox);
-
-            for (let key in this.filter) {
-                const chckbx = new Oui.Widgets.Checkbox(key, (checked: boolean) => this.filter[key] = checked);
-                chckbx.setChecked(this.filter[key]);
-                vbox.addChild(chckbx);
-            }
-        }
-
-        // OPTIONS
-        {
-            const vbox = new Oui.GroupBox("Options");
-            vbox.setRelativeWidth(50);
-            widget.addChild(vbox);
-
-            let getRotationLabel = () => "Rotation: " + (this.options.rotation === 0 ? "none" : (this.options.rotation * 90 + " degree"));
-            const rotation = new Oui.Widgets.TextButton(getRotationLabel(), () => {
-                this.options.rotation = (this.options.rotation + 1) & 3;
-                rotation.setText(getRotationLabel());
-            });
-            vbox.addChild(rotation);
-
-            let getMirrorLabel = () => "Mirrored: " + (this.options.mirrored ? "yes" : "no");
-            const mirror = new Oui.Widgets.TextButton(getMirrorLabel(), () => {
-                this.options.mirrored = !this.options.mirrored;
-                mirror.setText(getMirrorLabel());
-            });
-            vbox.addChild(mirror);
-
-            let getAbsoluteLabel = () => this.options.absolute ? "Absolute height" : "Relative to surface";
-            const absolute = new Oui.Widgets.TextButton(getAbsoluteLabel(), () => {
-                this.options.absolute = !this.options.absolute;
-                absolute.setText(getAbsoluteLabel());
-            });
-            vbox.addChild(absolute);
-
-            const hbox = new Oui.HorizontalBox();
-            hbox.setPadding(0, 0, 0, 0);
-            hbox.setMargins(0, 0, 0, 0);
-            vbox.addChild(hbox);
-
-            const label = new Oui.Widgets.Label("Height offset:");
-            label.setRelativeWidth(50);
-            hbox.addChild(label);
-
-            const spinner = new Oui.Widgets.Spinner(this.options.height, 1, (value: number) => this.options.height = value);
-            spinner.setRelativeWidth(50);
-            hbox.addChild(spinner);
-        }
-
-        return widget;
+    constructor(manager: SceneryManager) {
+        this.manager = manager;
     }
 
     build(builder: BoxBuilder): void {
+        const rotationLabel: string = "Rotation: " + (this.options.rotation === 0 ? "none" : (this.options.rotation * 90 + " degree"));
+        const mirroredLabel: string = "Mirrored: " + (this.options.mirrored ? "yes" : "no");
+        const absoluteLabel: string = this.options.absolute ? "Absolute height" : "Relative to surface";
+
         const hbox = builder.getHBox([1, 1]);
         {
             const group = hbox.getGroupBox();
             for (let key in this.filter)
-                group.addCheckbox(key);
-            hbox.addGroupBox("Filter", group);
+                group.addCheckbox({
+                    text: key,
+                    isChecked: this.filter[key],
+                    onChange: isChecked => {
+                        this.filter[key] = isChecked;
+                        this.manager.invalidate();
+                    },
+                });
+            hbox.addGroupBox({
+                text: "Filter",
+            }, group);
         } {
             const group = hbox.getGroupBox();
-            group.addTextButton("Rotation: none");
-            group.addTextButton("Mirrored: no");
-            group.addTextButton("Relative to surface");
+            group.addTextButton({
+                text: rotationLabel,
+                onClick: () => {
+                    this.options.rotation = (this.options.rotation + 1) & 3;
+                    this.manager.invalidate();
+                },
+            });
+            group.addTextButton({
+                text: mirroredLabel,
+                onClick: () => {
+                    this.options.mirrored = !this.options.mirrored;
+                    this.manager.invalidate();
+                },
+            });
+            group.addTextButton({
+                text: absoluteLabel,
+                onClick: () => {
+                    this.options.absolute = !this.options.absolute;
+                    this.manager.invalidate();
+                },
+            });
             {
                 const heightOffset = group.getHBox([1, 1]);
-                heightOffset.addLabel("Height offset");
-                heightOffset.addSpinner("0");
+                heightOffset.addLabel({
+                    text: "Height offset",
+                });
+                heightOffset.addSpinner({
+                    text: String(this.options.height),
+                    onDecrement: () => {
+                        this.options.height--;
+                        this.manager.invalidate();
+                    },
+                    onIncrement: () => {
+                        this.options.height++;
+                        this.manager.invalidate();
+                    },
+                });
                 group.addBox(heightOffset);
             }
             group.addSpace();
             group.addSpace();
-            hbox.addGroupBox("Options", group);
+            hbox.addGroupBox({
+                text: "Options",
+            }, group);
         }
         builder.addBox(hbox);
     }

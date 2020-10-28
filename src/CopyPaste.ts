@@ -1,47 +1,22 @@
-import Oui from "./OliUI";
 import * as CoordUtils from "./CoordUtils";
 import * as SceneryUtils from "./SceneryUtils";
-import { Window } from "./Window";
+import { SceneryManager } from "./SceneryManager";
 import { BoxBuilder } from "./WindowBuilder";
 
 class CopyPaste {
-    readonly window: Window;
-    readonly widget: any;
+    readonly manager: SceneryManager;
 
-    constructor(window: Window) {
-        this.window = window;
-        this.widget = this.getWidget();
+    constructor(manager: SceneryManager) {
+        this.manager = manager;
     }
 
-    getWidget() {
-        const widget = new Oui.GroupBox("Copy & Paste");
-
-        const hbox = new Oui.HorizontalBox();
-        hbox.setPadding(0, 0, 0, 0);
-        hbox.setMargins(0, 0, 0, 0);
-        widget.addChild(hbox);
-
-        const area_select = new Oui.Widgets.TextButton("Select area", () => {
-            area_select.setIsPressed(!area_select.isPressed());
-            if (area_select.isPressed())
-                this.selectArea(() => area_select.setIsPressed(false));
-            else if (ui.tool)
-                ui.tool.cancel();
-        });
-        hbox.addChild(area_select);
-        area_select.setRelativeWidth(50);
-
-        const area_copy = new Oui.Widgets.TextButton("Copy area", () => this.copyArea());
-        hbox.addChild(area_copy);
-        area_copy.setRelativeWidth(50);
-
-        return widget;
-    }
-
-    selectArea(onCancel: () => void): void {
+    selectArea(): void {
         let start = undefined;
         let end = undefined;
         let drag = false;
+
+        this.selecting = true;
+        this.manager.invalidate();
 
         ui.activateTool({
             id: "clipboard-area-select",
@@ -67,7 +42,8 @@ class CopyPaste {
             onFinish: () => {
                 ui.tileSelection.range = null;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
-                onCancel();
+                this.selecting = false;
+                this.manager.invalidate();
             },
         });
     }
@@ -76,7 +52,7 @@ class CopyPaste {
         if (ui.tileSelection.range === null)
             ui.showError("Can't copy area...", "Nothing selected!");
         else
-            this.window.clipboard.add(SceneryUtils.copy(ui.tileSelection.range, this.window.settings.filter));
+            this.manager.clipboard.add(SceneryUtils.copy(ui.tileSelection.range, this.manager.settings.filter));
     }
 
     pasteTemplate(template: SceneryTemplate, onCancel: () => void): void {
@@ -94,7 +70,7 @@ class CopyPaste {
                 SceneryUtils.remove(ghost);
             ghost = undefined;
         }
-        const settings = this.window.settings;
+        const settings = this.manager.settings;
         function placeGhost() {
             if (ui.tileSelection.range === null)
                 return removeGhost();
@@ -116,7 +92,7 @@ class CopyPaste {
             },
             onDown: () => {
                 removeGhost();
-                SceneryUtils.paste(template, ui.tileSelection.range.leftTop, this.window.settings.filter, this.window.settings.options);
+                SceneryUtils.paste(template, ui.tileSelection.range.leftTop, this.manager.settings.filter, this.manager.settings.options);
             },
             onMove: e => {
                 if (e.mapCoords.x * e.mapCoords.y === 0)
@@ -138,7 +114,7 @@ class CopyPaste {
 
     getSize(template: SceneryTemplate) {
         let size: CoordsXY = template.size;
-        if (this.window.settings.options.rotation % 2 === 1)
+        if (this.manager.settings.options.rotation % 2 === 1)
             size = {
                 x: size.y,
                 y: size.x,
@@ -146,13 +122,24 @@ class CopyPaste {
         return size;
     }
 
+    selecting: boolean = false;
+
     build(builder: BoxBuilder): void {
         const group = builder.getGroupBox();
         const hbox = group.getHBox([1, 1]);
-        hbox.addTextButton("Select area");
-        hbox.addTextButton("Copy area");
+        hbox.addTextButton({
+            isPressed: this.selecting,
+            text: "Select area",
+            onClick: () => this.selectArea(),
+        });
+        hbox.addTextButton({
+            text: "Copy area",
+            onClick: () => this.copyArea(),
+        });
         group.addBox(hbox);
-        builder.addGroupBox("Copy & Paste", group);
+        builder.addGroupBox({
+            text: "Copy & Paste",
+        }, group);
     }
 }
 export default CopyPaste;
