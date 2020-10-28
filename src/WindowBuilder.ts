@@ -142,8 +142,6 @@ export abstract class BoxBuilder {
         text: string,
         builder: GroupBoxBuilder,
     ): void {
-        console.log(text, builder.getHeight());
-
         this.addWidget("groupbox", 1, 0, builder.getHeight(), {
             text: text,
         });
@@ -270,8 +268,18 @@ class HBoxBuilder extends BoxBuilder {
 
         const availableWidth: number = this.innerWidth - (weights.length - 1) * this.padding;
         const totalWeight: number = weights.reduce((prev: number, current: number, _1, _2) => prev + current);
-        const widthPerWeight = availableWidth / totalWeight;
-        this.widths = weights.map((weight: number) => widthPerWeight * weight);
+        const widthPerWeight: number = availableWidth / totalWeight;
+        const fractionalWidths: number[] = weights.map((weight: number) => widthPerWeight * weight);
+        let carry = 0;
+        console.log(this.width);
+        console.log(fractionalWidths);
+        this.widths = fractionalWidths.map(fraction => {
+            let val = carry + fraction;
+            let width = Math.round(val);
+            carry = val - width;
+            return width;
+        });
+        console.log(this.widths);
     }
 
     peekWidgetWidth(): number {
