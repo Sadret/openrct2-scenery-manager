@@ -110,7 +110,7 @@ class Library {
             buttons.addTextButton("Manage library");
             group.addBox(buttons);
         }
-        builder.addGroupBox("Clipboard", group);
+        builder.addGroupBox("Library", group);
     }
 }
 export default Library;

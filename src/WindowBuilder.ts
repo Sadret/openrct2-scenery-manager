@@ -19,7 +19,7 @@ class Margin {
     }
 
     static none: Margin = new Margin(0, 0, 0, 0);
-    static default: Margin = Margin.none;//new Margin(2, 2, 2, 2);
+    static default: Margin = new Margin(2, 2, 2, 2);
 }
 
 export abstract class BoxBuilder {
@@ -38,7 +38,7 @@ export abstract class BoxBuilder {
     constructor(
         position: CoordsXY = { x: 0, y: 0, },
         width: number = 256,
-        padding: number = 0,
+        padding: number = 2,
         margin: Margin = Margin.none,
     ) {
         this.position = position;
@@ -78,11 +78,11 @@ export abstract class BoxBuilder {
         );
     }
 
-    getGroupBox(): GroupBoxBuilder {
+    getGroupBox(padding?: number): GroupBoxBuilder {
         return new GroupBoxBuilder(
             { x: this.cursor.x, y: this.cursor.y + 1, },
             this.peekWidgetWidth(),
-            0,
+            padding,
         )
     }
 
@@ -244,7 +244,9 @@ class VBoxBuilder extends BoxBuilder {
 
     advanceCursor(widget: Widget, verticalMargin: number): void {
         const height = widget.height + verticalMargin;
-        this.cursor.y += height;
+        this.cursor.y += height + this.padding;
+        if (this.widgets.length > 0)
+            this.height += this.padding;
         this.height += height;
     }
 }
@@ -271,15 +273,12 @@ class HBoxBuilder extends BoxBuilder {
         const widthPerWeight: number = availableWidth / totalWeight;
         const fractionalWidths: number[] = weights.map((weight: number) => widthPerWeight * weight);
         let carry = 0;
-        console.log(this.width);
-        console.log(fractionalWidths);
         this.widths = fractionalWidths.map(fraction => {
             let val = carry + fraction;
             let width = Math.round(val);
             carry = val - width;
             return width;
         });
-        console.log(this.widths);
     }
 
     peekWidgetWidth(): number {
