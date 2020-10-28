@@ -175,6 +175,18 @@ export abstract class BoxBuilder {
         });
     }
 
+    addSpace(
+        height: number = 14,
+    ): void {
+        this.advanceCursor({
+            type: undefined,
+            x: undefined,
+            y: undefined,
+            width: this.popWidgetWidth(),
+            height: height,
+        }, 0);
+    }
+
     addSpinner(
         text: string,
     ): void {

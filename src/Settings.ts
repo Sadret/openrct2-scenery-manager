@@ -108,6 +108,8 @@ class Settings {
                 heightOffset.addSpinner("0");
                 group.addBox(heightOffset);
             }
+            group.addSpace();
+            group.addSpace();
             hbox.addGroupBox("Options", group);
         }
         builder.addBox(hbox);
