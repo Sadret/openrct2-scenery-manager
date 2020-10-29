@@ -12,6 +12,7 @@ export class SceneryManager {
 
     handle: Window = undefined;
     reloadRequested: boolean = false;
+    reloading: boolean = false;
 
     constructor() {
         this.copyPaste = new CopyPaste(this);
@@ -45,7 +46,7 @@ export class SceneryManager {
             title: "Clipboard",
             widgets: window.getWidgets(),
             onUpdate: () => this.update(),
-            // onClose: () => { if (ui.tool) ui.tool.cancel(); },
+            onClose: () => { if (!this.reloading && ui.tool) ui.tool.cancel(); },
         });
     }
 
@@ -57,6 +58,8 @@ export class SceneryManager {
         if (!this.reloadRequested)
             return;
 
+        this.reloading = true;
+
         const x = this.handle.x;
         const y = this.handle.y;
         this.handle.close();
@@ -65,5 +68,6 @@ export class SceneryManager {
         this.open(x, y);
 
         this.reloadRequested = false;
+        this.reloading = false;
     }
 }
