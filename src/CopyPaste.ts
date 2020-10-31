@@ -6,6 +6,8 @@ import { BoxBuilder } from "./WindowBuilder";
 class CopyPaste {
     readonly manager: SceneryManager;
 
+    selecting: boolean = false;
+
     constructor(manager: SceneryManager) {
         this.manager = manager;
     }
@@ -121,8 +123,6 @@ class CopyPaste {
             };
         return size;
     }
-
-    selecting: boolean = false;
 
     build(builder: BoxBuilder): void {
         const group = builder.getGroupBox();
