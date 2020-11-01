@@ -2,7 +2,7 @@ import CopyPaste from "./CopyPaste";
 import Settings from "./Settings";
 import Clipboard from "./Clipboard";
 import Library from "./Library";
-import { WindowBuilder } from "./WindowBuilder";
+import { TabBuilder } from "./WindowBuilder";
 
 export class SceneryManager {
     readonly copyPaste: CopyPaste;
@@ -13,6 +13,7 @@ export class SceneryManager {
     handle: Window = undefined;
     reloadRequested: boolean = false;
     reloading: boolean = false;
+    activeTool: boolean = false;
 
     constructor() {
         this.copyPaste = new CopyPaste(this);
@@ -25,28 +26,36 @@ export class SceneryManager {
         if (this.handle !== undefined)
             return;
 
-        const window: WindowBuilder = new WindowBuilder(384);
+        const main: TabBuilder = new TabBuilder(384);
 
-        this.copyPaste.build(window);
-        this.settings.build(window);
-        this.clipboard.build(window);
-        this.library.build(window);
+        this.copyPaste.build(main);
+        this.settings.build(main);
+        this.clipboard.build(main);
+        this.library.build(main);
 
         if (x === undefined)
-            x = (ui.width - window.getWidth()) / 2;
+            x = (ui.width - main.getWidth()) / 2;
         if (y === undefined)
-            y = (ui.height - window.getHeight()) / 2;
+            y = (ui.height - main.getHeight()) / 2;
 
         this.handle = ui.openWindow({
             classification: "clipboard",
             x: x,
             y: y,
-            width: window.getWidth(),
-            height: window.getHeight(),
+            width: main.getWidth(),
+            height: main.getHeight(),
             title: "Clipboard",
-            widgets: window.getWidgets(),
+            tabs: [{
+                image: 5459,
+                widgets: main.getWidgets(),
+            },],
             onUpdate: () => this.update(),
-            onClose: () => { if (!this.reloading && ui.tool) ui.tool.cancel(); },
+            onClose: () => {
+                if (!this.reloading && this.activeTool) {
+                    ui.tool.cancel();
+                    this.handle == undefined;
+                }
+            },
         });
     }
 

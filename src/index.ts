@@ -38,5 +38,68 @@ registerPlugin({
         // add menu item
         ui.registerMenuItem("Clipboard", () => manager.open());
         manager.open();
+
+        // add menu item
+        ui.registerMenuItem("images", () => images());
     },
 });
+
+import { WindowBuilder } from "./WindowBuilder";
+let idx = 5058;
+let handle = undefined;
+function images(): void {
+    const window: WindowBuilder = new WindowBuilder(512);
+    window.addLabel({ text: String(idx), });
+    window.addLabel({ text: "Yy", });
+    for (let i = 0; i < 8; i++) {
+        const hbox = window.getHBox([1, 1, 1, 1, 1, 1, 1, 1]);
+        for (let j = 0; j < 8; j++)
+            hbox.addImageButton({ image: idx + 8 * i + j, onClick: () => { }, tooltip: String(idx + 8 * i + j) }, 64);
+        window.addBox(hbox);
+    }
+    window.addLabel({ text: "Yy", });
+    window.addTextButton({
+        text: "Prev x 10",
+        onClick: () => {
+            idx -= 560;
+            handle.close();
+            images();
+        },
+    });
+    window.addTextButton({
+        text: "Prev",
+        onClick: () => {
+            idx -= 56;
+            handle.close();
+            images();
+        },
+    });
+    window.addTextButton({
+        text: "Next",
+        onClick: () => {
+            idx += 56;
+            handle.close();
+            images();
+        },
+    });
+    window.addTextButton({
+        text: "Next x 10",
+        onClick: () => {
+            idx += 560;
+            handle.close();
+            images();
+        },
+    });
+
+    handle = ui.openWindow({
+        classification: "clipboard",
+        x: undefined,
+        y: undefined,
+        width: window.getWidth(),
+        height: window.getHeight(),
+        title: "Clipboard",
+        widgets: window.getWidgets(),
+        onUpdate: undefined,
+        onClose: undefined,
+    });
+}

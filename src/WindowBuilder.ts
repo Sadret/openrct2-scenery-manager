@@ -164,6 +164,23 @@ export abstract class BoxBuilder {
         this.widgets.push(...builder.getWidgets());
     }
 
+    addImageButton(args: {
+        name?: string;
+        tooltip?: string;
+        isDisabled?: boolean;
+
+        image: number;
+        isPressed?: boolean;
+        onClick: () => void;
+    }, height: number): void {
+        this.addWidget("button", 0, 0, height, {
+            isPressed: false,
+            ...args,
+            border: false,
+            text: undefined,
+        });
+    }
+
     addLabel(args: {
         name?: string;
         tooltip?: string;
@@ -351,6 +368,24 @@ export class WindowBuilder extends VBoxBuilder {
             undefined,
             new Margin(
                 15 + Margin.default.top,
+                1 + Margin.default.bottom,
+                1 + Margin.default.left,
+                1 + Margin.default.right,
+            ),
+        );
+    }
+}
+
+export class TabBuilder extends VBoxBuilder {
+    constructor(
+        width: number,
+    ) {
+        super(
+            undefined,
+            width,
+            undefined,
+            new Margin(
+                44 + Margin.default.top,
                 1 + Margin.default.bottom,
                 1 + Margin.default.left,
                 1 + Margin.default.right,
