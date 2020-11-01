@@ -17,7 +17,6 @@ class Clipboard {
         this.folderView = new class extends FolderView {
             constructor() {
                 super(Config.clipboard.getRoot());
-                Config.clipboard.addListener(() => manager.invalidate());
             }
 
             onDeselect(): void {

@@ -32,7 +32,6 @@ interface ConfigFile<T> extends ConfigElement {
 
 export class ConfigFileSystem implements FileSystem {
     readonly root: string;
-    readonly listeners: (() => void)[] = [];
 
     constructor(root: string) {
         this.root = root;
@@ -42,10 +41,6 @@ export class ConfigFileSystem implements FileSystem {
         let file: File = new File(this, "");
         this.createFolder(file);
         return file;
-    }
-
-    addListener(listener: () => void) {
-        this.listeners.push(listener);
     }
 
     /*
@@ -62,7 +57,6 @@ export class ConfigFileSystem implements FileSystem {
 
     setData<T extends ConfigElement>(file: File, data: T): void {
         set<T>(this.getKey(file), data);
-        this.listeners.forEach(listener => listener());
     }
 
     /*

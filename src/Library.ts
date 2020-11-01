@@ -1,6 +1,5 @@
 /// <reference path="./_Save.d.ts" />
 
-import * as LibraryManager from "./LibraryManager";
 import * as Config from "./Config";
 import { FolderView } from "./FolderView";
 import { SceneryManager } from "./SceneryManager";
@@ -11,8 +10,6 @@ class Library {
     readonly manager: SceneryManager;
     readonly folderView: FolderView;
 
-    counter: number = 0;
-
     constructor(manager: SceneryManager) {
         this.manager = manager;
 
@@ -20,7 +17,6 @@ class Library {
         this.folderView = new class extends FolderView {
             constructor() {
                 super(Config.library.getRoot());
-                Config.library.addListener(() => manager.invalidate());
             }
 
             onDeselect(): void {
@@ -55,7 +51,9 @@ class Library {
     }
 
     manage(): void {
-        LibraryManager.open();
+        this.manager.libraryManager.folderView.open(this.folderView.path);
+        this.manager.activeTab = SceneryManager.TAB_LIBRARY;
+        this.manager.invalidate();
     }
 
     build(builder: BoxBuilder): void {
