@@ -17,11 +17,8 @@ export class FolderView {
     }
 
     select(file: File): void {
-        if (file === undefined && this.selected === undefined)
+        if (File.equals(file, this.selected))
             return;
-        if (file !== undefined && this.selected !== undefined)
-            if (file.getPath() === this.selected.getPath())
-                return;
 
         this.onDeselect();
         this.selected = file;

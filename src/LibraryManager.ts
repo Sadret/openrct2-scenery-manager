@@ -6,10 +6,6 @@ import { BoxBuilder } from "./WindowBuilder";
 import { File } from "./File";
 
 class LibraryManager {
-    static readonly MODE_DEFAULT: number = 0;
-    static readonly MODE_RENAME: number = 1;
-    static readonly MODE_DELETE: number = 2;
-
     readonly manager: SceneryManager;
     readonly folderView: FolderView;
 
@@ -20,28 +16,29 @@ class LibraryManager {
 
         this.folderView = new FolderView(Config.library.getRoot());
         this.folderView.select = (file: File) => {
-            switch (this.mode) {
-                case LibraryManager.MODE_DEFAULT:
-                    return this.select(file);
-                case LibraryManager.MODE_RENAME:
-                    return this.name(file);
-                case LibraryManager.MODE_DELETE:
-                    return this.delete(file);
-            }
+            if (File.equals(file, this.folderView.selected))
+                if (file !== undefined && file.isFolder())
+                    // file is folder and already selected: open folder
+                    this.folderView.open(file);
+                else
+                    // file is already selected, but not a folder: do nothing
+                    return;
+            else
+                if (file !== undefined && File.equals(file, this.folderView.path.getParent()))
+                    // file is not undefined and equals root: open root
+                    this.folderView.open(file);
+                else
+                    // file is not selected and does not equal root: update selected
+                    this.folderView.selected = file;
+
+            this.manager.invalidate();
         };
     }
 
-    select(file: File): void {
-        if (file === undefined)
+    rename(): void {
+        if (this.folderView.selected === undefined)
             return;
-        if (file.isFolder())
-            this.folderView.open(file);
-        this.manager.invalidate();
-    }
-
-    name(file: File): void {
-        if (file === undefined)
-            return;
+        const file: File = this.folderView.selected;
         const label = file.isFile() ? "file" : "folder";
         const name = file.getName();
         ui.showTextInput({
@@ -50,7 +47,7 @@ class LibraryManager {
             callback: name => {
                 const newFile: File = file.rename(name);
                 if (newFile === undefined)
-                    return ui.showError("Can't rename " + label + "...", label.charAt(0).toUpperCase() + label.slice(1) + " with this name already exists.");
+                    return ui.showError("Can't rename " + label + "...", "File or folder with this name already exists.");
 
                 if (newFile.isFile()) {
                     let template: SceneryTemplate = newFile.getContent<SceneryTemplate>();
@@ -61,12 +58,12 @@ class LibraryManager {
                 this.manager.invalidate();
             },
         });
-        this.mode = LibraryManager.MODE_DEFAULT;
     }
 
-    delete(file: File): void {
-        if (file === undefined)
+    delete(): void {
+        if (this.folderView.selected === undefined)
             return;
+        const file: File = this.folderView.selected;
         const label = file.isFile() ? "file" : "folder";
         const name = file.getName();
         UiUtils.showConfirm(
@@ -79,7 +76,6 @@ class LibraryManager {
             },
             "Delete",
         );
-        this.mode = LibraryManager.MODE_DEFAULT;
     }
 
     build(builder: BoxBuilder): void {
@@ -92,25 +88,13 @@ class LibraryManager {
         }, 256);
         builder.addTextButton({
             text: "Rename file or folder",
-            onClick: () => {
-                if (this.mode === LibraryManager.MODE_RENAME)
-                    this.mode = LibraryManager.MODE_DEFAULT;
-                else
-                    this.mode = LibraryManager.MODE_RENAME;
-                this.manager.invalidate();
-            },
-            isPressed: this.mode === LibraryManager.MODE_RENAME,
+            onClick: () => this.rename(),
+            isDisabled: this.folderView.selected === undefined,
         });
         builder.addTextButton({
             text: "Delete file or folder",
-            onClick: () => {
-                if (this.mode === LibraryManager.MODE_DELETE)
-                    this.mode = LibraryManager.MODE_DEFAULT;
-                else
-                    this.mode = LibraryManager.MODE_DELETE;
-                this.manager.invalidate();
-            },
-            isPressed: this.mode === LibraryManager.MODE_DELETE,
+            onClick: () => this.delete(),
+            isDisabled: this.folderView.selected === undefined,
         });
     }
 }

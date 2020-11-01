@@ -53,7 +53,7 @@ class Clipboard {
             callback: name => {
                 const newFile: File = file.rename(name);
                 if (newFile === undefined)
-                    return ui.showError("Can't rename scenery template...", "Scenery template with this name already exists.");
+                    return ui.showError("Can't rename scenery template...", "File with this name already exists.");
 
                 let template: SceneryTemplate = newFile.getContent<SceneryTemplate>();
                 template.name = newFile.getName();

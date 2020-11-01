@@ -36,7 +36,7 @@ class Library {
 
     save(template: SceneryTemplate): void {
         if (this.folderView.path.addFile<SceneryTemplate>(template.name, template) === undefined)
-            return ui.showError("Can't save scenery template...", "Scenery template with this name already exists.");
+            return ui.showError("Can't save scenery template...", "File or folder with this name already exists.");
     }
 
     add(): void {

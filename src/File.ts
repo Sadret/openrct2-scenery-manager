@@ -37,6 +37,14 @@ export class File {
         }
     }
 
+    static equals(file: File, other: File): boolean {
+        if (file === undefined && other === undefined)
+            return true;
+        if (file === undefined || other === undefined)
+            return false;
+        return file.getPath() === other.getPath();
+    }
+
     getPath(): string { return this.path; };
     getName(): string { return decode(this.name); };
     getParent(): File {
