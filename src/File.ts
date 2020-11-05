@@ -81,20 +81,24 @@ export class File {
         return this.move(this.getParent(), name);
     };
     copy(parent: File, name?: string): File {
-        if (parent === undefined)
+        if (parent === undefined || name === "")
             return undefined;
         if (name === undefined)
             name = this.name;
+        else
+            name = encode(name);
         const file: File = new File(this.fs, parent.path + "/" + name);
         if (this.fs.copy(this, file))
             return file;
         return undefined;
     };
     move(parent: File, name?: string): File {
-        if (parent === undefined)
+        if (parent === undefined || name === "")
             return undefined;
         if (name === undefined)
             name = this.name;
+        else
+            name = encode(name);
         const file: File = new File(this.fs, parent.path + "/" + name);
         if (this.fs.move(this, file))
             return file;
@@ -107,20 +111,24 @@ export class File {
 // forbidden chars: . (dot), / (forward slash)
 // escape char (see above): \ (backslash)
 
-function esc(char: string): string {
+function escape(char: string): string {
     return "\\" + char;
 }
 
+function replaceAll(text: string, search: string, replacement: string): string {
+    return text.split(search).join(replacement);
+}
+
 export function encode(text: string): string {
-    text = text.replace(esc(""), esc(esc("")));
-    text = text.replace(".", esc("d"));
-    text = text.replace("/", esc("s"));
+    text = replaceAll(text, escape(""), escape(escape("")));
+    text = replaceAll(text, ".", escape("d"));
+    text = replaceAll(text, "/", escape("s"));
     return text;
 }
 
 export function decode(text: string): string {
-    text = text.replace(esc("s"), "/");
-    text = text.replace(esc("d"), ".");
-    text = text.replace(esc(esc("")), esc(""));
+    text = replaceAll(text, escape("s"), "/");
+    text = replaceAll(text, escape("d"), ".");
+    text = replaceAll(text, escape(escape("")), escape(""));
     return text;
 }
