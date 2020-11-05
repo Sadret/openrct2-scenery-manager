@@ -17,25 +17,29 @@ export class FolderView {
     }
 
     select(file: File): void {
-        if (File.equals(file, this.selected))
-            return;
-
         this.onDeselect();
-        this.selected = file;
+
+        if (File.equals(file, this.selected))
+            if (file !== undefined && file.isFolder())
+                // file is folder and already selected: open folder
+                this.open(file);
+            else
+                // file is already selected, but not a folder: do nothing
+                return;
+        else
+            if (file !== undefined && File.equals(file, this.path.getParent()))
+                // file is not undefined and equals root: open root
+                this.open(file);
+            else
+                // file is not selected and does not equal root: update selected
+                this.selected = file;
+
         this.onSelect();
     }
 
-    onDeselect(): void {
+    onDeselect(): void { }
 
-    }
-
-    onSelect(): void {
-        if (this.selected === undefined)
-            return;
-        if (this.selected.isFolder())
-            return this.open(this.selected);
-        // if file do nothing
-    }
+    onSelect(): void { }
 
     open(file: File): void {
         if (!file.isFolder())

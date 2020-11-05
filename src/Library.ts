@@ -13,25 +13,22 @@ class Library {
     constructor(manager: SceneryManager) {
         this.manager = manager;
 
-        const copyPaste: CopyPaste = this.manager.copyPaste;
-        this.folderView = new class extends FolderView {
-            constructor() {
-                super(Config.library.getRoot());
-            }
-
-            onDeselect(): void {
-                if (this.selected !== undefined && (!this.selected.exists() || this.selected.isFile()) && ui.tool)
-                    ui.tool.cancel();
-                manager.invalidate();
-            }
-
-            onSelect() {
-                if (this.selected !== undefined && this.selected.isFile())
-                    copyPaste.pasteTemplate(this.selected.getContent(), () => this.select(undefined));
-                super.onSelect();
-                manager.invalidate();
-            }
-        }();
+        this.folderView = new FolderView(Config.library.getRoot());
+        this.folderView.onDeselect = () => {
+            const selected = this.folderView.selected;
+            if (selected !== undefined && (!selected.exists() || selected.isFile()) && ui.tool)
+                ui.tool.cancel();
+            this.manager.invalidate();
+        }
+        this.folderView.onSelect = () => {
+            const selected = this.folderView.selected;
+            if (selected !== undefined && selected.isFile())
+                this.manager.copyPaste.pasteTemplate(
+                    selected.getContent(),
+                    () => this.folderView.select(undefined),
+                );
+            this.manager.invalidate();
+        }
     }
 
     save(name: string, template: SceneryTemplate): void {

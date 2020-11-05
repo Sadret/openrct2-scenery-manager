@@ -16,24 +16,7 @@ class LibraryManager {
         this.manager = manager;
 
         this.folderView = new FolderView(Config.library.getRoot());
-        this.folderView.select = (file: File) => {
-            if (File.equals(file, this.folderView.selected))
-                if (file !== undefined && file.isFolder())
-                    // file is folder and already selected: open folder
-                    this.folderView.open(file);
-                else
-                    // file is already selected, but not a folder: do nothing
-                    return;
-            else
-                if (file !== undefined && File.equals(file, this.folderView.path.getParent()))
-                    // file is not undefined and equals root: open root
-                    this.folderView.open(file);
-                else
-                    // file is not selected and does not equal root: update selected
-                    this.folderView.selected = file;
-
-            this.manager.invalidate();
-        };
+        this.folderView.onSelect = () => this.manager.invalidate();
     }
 
     add(): void {
