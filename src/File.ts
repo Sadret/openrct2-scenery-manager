@@ -9,6 +9,7 @@ export interface FileSystem {
     createFolder(file: File): boolean;
     createFile<T>(file: File, content: T): boolean;
 
+    copy(src: File, dest: File): boolean;
     move(src: File, dest: File): boolean;
     setContent<T>(file: File, content: T): boolean;
 
@@ -77,23 +78,26 @@ export class File {
     };
 
     rename(name: string): File {
-        name = encode(name);
-        if (this.parent === undefined)
+        return this.move(this.getParent(), name);
+    };
+    copy(parent: File, name?: string): File {
+        if (parent === undefined)
             return undefined;
-        if (this.name === name)
-            return undefined;
-        const file: File = new File(this.fs, this.parent + "/" + name);
-        if (this.fs.move(this, file))
+        if (name === undefined)
+            name = this.name;
+        const file: File = new File(this.fs, parent.path + "/" + name);
+        if (this.fs.copy(this, file))
             return file;
         return undefined;
     };
-    move(parent: File): boolean {
+    move(parent: File, name?: string): File {
         if (parent === undefined)
-            return false;
-        if (this.parent === parent.path)
-            return true;
-        const file: File = new File(this.fs, parent.path + "/" + this.name);
-        return this.fs.move(this, file);
+            return undefined;
+        if (name === undefined)
+            name = this.name;
+        const file: File = new File(this.fs, parent.path + "/" + name);
+        if (this.fs.move(this, file))
+            return file;
     };
     setContent<T>(content: T): boolean { return this.fs.setContent(this, content); };
 

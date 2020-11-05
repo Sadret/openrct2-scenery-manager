@@ -34,9 +34,10 @@ class Library {
         }();
     }
 
-    save(template: SceneryTemplate): void {
-        if (this.folderView.path.addFile<SceneryTemplate>(template.name, template) === undefined)
+    save(name: string, template: SceneryTemplate): void {
+        if (this.folderView.path.addFile<SceneryTemplate>(name, template) === undefined)
             return ui.showError("Can't save scenery template...", "File or folder with this name already exists.");
+        this.manager.invalidate();
     }
 
     add(): void {
@@ -46,6 +47,7 @@ class Library {
             callback: name => {
                 if (this.folderView.path.addFolder(name) === undefined)
                     return ui.showError("Can't create new folder...", "Folder with this name already exists.");
+                this.manager.invalidate();
             },
         });
     }

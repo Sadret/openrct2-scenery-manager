@@ -24,7 +24,6 @@ class CopyPaste {
             id: "clipboard-area-select",
             cursor: "cross_hair",
             onStart: () => {
-                console.log("plugin show");
                 this.selecting = true;
                 ui.mainViewport.visibilityFlags |= 1 << 7;
                 this.manager.invalidate();

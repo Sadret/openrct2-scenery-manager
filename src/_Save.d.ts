@@ -14,7 +14,6 @@ interface SceneryTemplate {
     readonly data: SceneryData[],
     readonly size: CoordsXY,
     readonly surfaceHeight: number,
-    name?: string,
 }
 
 /*

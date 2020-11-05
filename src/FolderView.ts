@@ -87,7 +87,7 @@ export class FolderView {
                 addItem(file, [file.getName(), "", "", ""]);
             else
                 addItem(file, [
-                    template.name,
+                    file.getName(),
                     String(template.size.x / 32 + 1),
                     String(template.size.y / 32 + 1),
                     String(template.data.length),

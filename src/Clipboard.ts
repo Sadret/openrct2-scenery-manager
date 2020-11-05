@@ -35,8 +35,8 @@ class Clipboard {
     }
 
     add(template: SceneryTemplate): void {
-        template.name = "unnamed-" + this.counter++;
-        let file: File = this.folderView.path.addFile<SceneryTemplate>(template.name, template);
+        let name: string = "unnamed-" + this.counter++;
+        let file: File = this.folderView.path.addFile<SceneryTemplate>(name, template);
 
         if (file === undefined)
             return this.add(template);
@@ -54,11 +54,6 @@ class Clipboard {
                 const newFile: File = file.rename(name);
                 if (newFile === undefined)
                     return ui.showError("Can't rename scenery template...", "File with this name already exists.");
-
-                let template: SceneryTemplate = newFile.getContent<SceneryTemplate>();
-                template.name = newFile.getName();
-                newFile.setContent(template);
-
                 this.folderView.select(newFile);
                 this.manager.invalidate();
             },
@@ -70,20 +65,31 @@ class Clipboard {
         UiUtils.showConfirm(
             "Delete scenery template",
             ["Are you sure you want to delete this scenery", "template?"],
-            confirmed => { if (confirmed) file.delete(); },
+            confirmed => {
+                if (!confirmed)
+                    return;
+                file.delete();
+                this.manager.invalidate();
+            },
             "Delete",
         );
     }
 
     save(): void {
-        this.manager.library.save(this.folderView.selected.getContent<SceneryTemplate>());
+        const file: File = this.folderView.selected;
+        this.manager.library.save(file.getName(), file.getContent<SceneryTemplate>());
     }
 
     clear(): void {
         UiUtils.showConfirm(
             "Clear clipboard",
             ["Are you sure you want to clear the clipboard?"],
-            confirmed => { if (confirmed) this.folderView.files.map(x => x).forEach((file: File) => file.delete()); },
+            confirmed => {
+                if (!confirmed)
+                    return;
+                this.folderView.files.map(x => x).forEach((file: File) => file.delete());
+                this.manager.invalidate();
+            },
             "Clear clipboard",
         );
     }

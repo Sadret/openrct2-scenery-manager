@@ -20,7 +20,6 @@ Array.prototype.find = function(callback) {
             return this[idx];
 }
 
-
 registerPlugin({
     name: "clipboard",
     version: "0.0.0",

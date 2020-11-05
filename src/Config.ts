@@ -105,17 +105,25 @@ export class ConfigFileSystem implements FileSystem {
         return true;
     };
 
+    copy(src: File, dest: File): boolean {
+        return this.__copy_move(src, dest, false);
+    };
     move(src: File, dest: File): boolean {
+        return this.__copy_move(src, dest, true);
+    };
+    __copy_move(src: File, dest: File, move: boolean): boolean {
         if (!this.exists(src) || this.exists(dest))
             return false;
-        if (this.isFolder(src) && dest.getPath().indexOf(src.getPath()) !== -1)
+        if (move && this.isFolder(src) && dest.getPath().indexOf(src.getPath()) !== -1)
             return false;
 
-        this.setData(dest, this.getData(src));
-        this.delete(src);
+        this.setData(dest, this.__deepCopy(this.getData(src)));
+
+        if (move)
+            this.delete(src);
 
         return true;
-    };
+    }
     setContent<T>(file: File, content: T): boolean {
         if (!this.isFile(file))
             return false;
@@ -133,6 +141,26 @@ export class ConfigFileSystem implements FileSystem {
 
         this.setData(file, undefined);
     };
+
+    __deepCopy<T>(data: ConfigElement): ConfigElement {
+        if (data.type === "file") {
+            const file: ConfigFile<T> = <ConfigFile<T>>data;
+            return <ConfigElement>{
+                type: "file",
+                content: file.content,
+            };
+        } else {
+            const folder: ConfigFolder = <ConfigFolder>data;
+            const files: { [key: string]: ConfigElement } = {};
+            Object.keys(folder.files).forEach(key => {
+                files[key] = this.__deepCopy(folder.files[key]);
+            })
+            return <ConfigElement>{
+                type: "folder",
+                files: files,
+            };
+        }
+    }
 }
 
 export const library: ConfigFileSystem = new ConfigFileSystem("library");
