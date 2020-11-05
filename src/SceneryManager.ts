@@ -16,9 +16,9 @@ export class SceneryManager {
     readonly libraryManager: LibraryManager;
 
     handle: Window = undefined;
-    reloadRequested: boolean = false;
-    reloading: boolean = false;
-    activeTool: boolean = false;
+    isReloadRequested: boolean = false;
+    isReloading: boolean = false;
+    isToolActive: boolean = false;
     activeTab: number = 0;
 
     constructor() {
@@ -72,10 +72,9 @@ export class SceneryManager {
             tabIndex: this.activeTab,
             onUpdate: () => this.update(),
             onClose: () => {
-                if (!this.reloading && this.activeTool) {
+                this.handle = undefined;
+                if (!this.isReloading && this.isToolActive)
                     ui.tool.cancel();
-                    this.handle == undefined;
-                }
             },
             onTabChange: () => {
                 this.activeTab = this.handle.tabIndex;
@@ -85,23 +84,26 @@ export class SceneryManager {
     }
 
     invalidate(): void {
-        this.reloadRequested = true;
+        this.isReloadRequested = true;
+    }
+
+    setToolActive(isToolActive: boolean): void {
+        this.isToolActive = isToolActive;
     }
 
     update(): void {
-        if (!this.reloadRequested)
+        if (!this.isReloadRequested)
             return;
 
-        this.reloading = true;
+        this.isReloading = true;
 
         const x = this.handle.x;
         const y = this.handle.y;
         this.handle.close();
-        this.handle = undefined;
 
         this.open(x, y);
 
-        this.reloadRequested = false;
-        this.reloading = false;
+        this.isReloadRequested = false;
+        this.isReloading = false;
     }
 }

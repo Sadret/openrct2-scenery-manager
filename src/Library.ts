@@ -20,7 +20,7 @@ class Library {
             }
 
             onDeselect(): void {
-                if (this.selected !== undefined && this.selected.isFile() && ui.tool)
+                if (this.selected !== undefined && (!this.selected.exists() || this.selected.isFile()) && ui.tool)
                     ui.tool.cancel();
                 manager.invalidate();
             }

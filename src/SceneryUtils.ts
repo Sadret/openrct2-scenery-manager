@@ -193,7 +193,7 @@ function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter):
                 if (filter.footpath)
                     data.push(getFootpath(tile, offset, idx));
                 if (filter.footpath_addition) {
-                    let addition: FootpathSceneryData = getFootpathScenery(tile, offset, idx);
+                    let addition: FootpathAdditionData = getFootpathAddition(tile, offset, idx);
                     if (addition !== undefined)
                         data.push(addition);
                 }
@@ -297,7 +297,7 @@ function getBanner(tile: Tile, offset: CoordsXY, idx: number): BannerData {
     };
 }
 
-function getFootpathScenery(tile: Tile, offset: CoordsXY, idx: number): FootpathSceneryData {
+function getFootpathAddition(tile: Tile, offset: CoordsXY, idx: number): FootpathAdditionData {
     let element: FootpathElement = <FootpathElement>tile.elements[idx];
     if (element.addition === null)
         return undefined;
@@ -351,7 +351,7 @@ function getPlaceAction(type: SceneryType): SceneryPlaceAction {
         case "banner":
             return "bannerplace";
         case "footpath_addition":
-            return "footpathsceneryplace";
+            return "footpathadditionplace";
         default:
             return undefined;
     }
@@ -370,7 +370,7 @@ function getRemoveAction(type: SceneryType): SceneryRemoveAction {
         case "banner":
             return "bannerremove";
         case "footpath_addition":
-            return "footpathsceneryremove";
+            return "footpathadditionremove";
         default:
             return undefined;
     }

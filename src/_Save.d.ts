@@ -66,6 +66,6 @@ interface BannerData extends SceneryData {
     readonly primaryColour: number,
 }
 
-interface FootpathSceneryData extends SceneryData {
+interface FootpathAdditionData extends SceneryData {
     readonly type: "footpath_addition",
 }

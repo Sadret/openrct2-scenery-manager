@@ -13,18 +13,22 @@ class CopyPaste {
     }
 
     selectArea(): void {
+        if (this.selecting)
+            return ui.tool.cancel();
+
         let start = undefined;
         let end = undefined;
         let drag = false;
-
-        this.selecting = true;
-        this.manager.invalidate();
 
         ui.activateTool({
             id: "clipboard-area-select",
             cursor: "cross_hair",
             onStart: () => {
+                console.log("plugin show");
+                this.selecting = true;
                 ui.mainViewport.visibilityFlags |= 1 << 7;
+                this.manager.invalidate();
+                this.manager.setToolActive(true);
             },
             onDown: e => {
                 drag = true;
@@ -42,10 +46,11 @@ class CopyPaste {
                 drag = false;
             },
             onFinish: () => {
+                this.selecting = false;
                 ui.tileSelection.range = null;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
-                this.selecting = false;
                 this.manager.invalidate();
+                this.manager.setToolActive(false);
             },
         });
     }
@@ -58,10 +63,6 @@ class CopyPaste {
     }
 
     pasteTemplate(template: SceneryTemplate, onCancel: () => void): void {
-        if (ui.tool)
-            ui.tool.cancel();
-        if (template === undefined)
-            return;
         if (template.data.find((data: SceneryData) => SceneryUtils.getObject(data) === undefined) !== undefined)
             return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
 
@@ -91,6 +92,7 @@ class CopyPaste {
             cursor: "cross_hair",
             onStart: () => {
                 ui.mainViewport.visibilityFlags |= 1 << 7;
+                this.manager.setToolActive(true);
             },
             onDown: () => {
                 removeGhost();
@@ -110,6 +112,7 @@ class CopyPaste {
                 ui.tileSelection.range = null;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
                 onCancel();
+                this.manager.setToolActive(false);
             },
         });
     }

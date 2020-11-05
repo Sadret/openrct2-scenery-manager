@@ -41,7 +41,7 @@ interface BannerPlaceArgs extends SceneryPlaceArgs {
     readonly primaryColour: number,
 }
 
-interface FootpathSceneryPlaceArgs extends SceneryPlaceArgs { }
+interface FootpathAdditionPlaceArgs extends SceneryPlaceArgs { }
 
 /*
  * SCENERY REMOVE ACTIONS
@@ -74,7 +74,7 @@ interface BannerRemoveArgs extends SceneryRemoveArgs {
     readonly direction: number,
 }
 
-interface FootpathSceneryRemoveArgs extends SceneryRemoveArgs { }
+interface FootpathAdditionRemoveArgs extends SceneryRemoveArgs { }
 
 /*
  * OTHER
@@ -82,6 +82,6 @@ interface FootpathSceneryRemoveArgs extends SceneryRemoveArgs { }
 
 type SceneryObject = Object | SmallSceneryObject;
 
-type SceneryPlaceAction = "footpathplace" | "smallsceneryplace" | "wallplace" | "largesceneryplace" | "bannerplace" | "footpathsceneryplace";
+type SceneryPlaceAction = "footpathplace" | "smallsceneryplace" | "wallplace" | "largesceneryplace" | "bannerplace" | "footpathadditionplace";
 
-type SceneryRemoveAction = "footpathremove" | "smallsceneryremove" | "wallremove" | "largesceneryremove" | "bannerremove" | "footpathsceneryremove";
+type SceneryRemoveAction = "footpathremove" | "smallsceneryremove" | "wallremove" | "largesceneryremove" | "bannerremove" | "footpathadditionremove";
