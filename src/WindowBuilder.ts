@@ -18,12 +18,12 @@ export class Margin {
         this.right = right;
     }
 
-    static create(margin: number): Margin {
+    static uniform(margin: number): Margin {
         return new Margin(margin, margin, margin, margin);
     }
 
-    static none: Margin = Margin.create(0);
-    static default: Margin = Margin.create(2);
+    static none: Margin = Margin.uniform(0);
+    static default: Margin = Margin.uniform(2);
 }
 
 export abstract class BoxBuilder {
@@ -385,16 +385,18 @@ export class WindowBuilder extends VBoxBuilder {
 export class TabBuilder extends VBoxBuilder {
     constructor(
         width: number,
+        padding?: number,
+        margin: Margin = Margin.default,
     ) {
         super(
             undefined,
             width,
-            undefined,
+            padding,
             new Margin(
-                44 + Margin.default.top,
-                1 + Margin.default.bottom,
-                1 + Margin.default.left,
-                1 + Margin.default.right,
+                44 + margin.top,
+                1 + margin.bottom,
+                1 + margin.left,
+                1 + margin.right,
             ),
         );
     }
@@ -405,16 +407,17 @@ class GroupBoxBuilder extends VBoxBuilder {
         position: CoordsXY,
         width: number,
         padding: number,
+        margin: Margin = Margin.default,
     ) {
         super(
             position,
             width,
             padding,
             new Margin(
-                13 + Margin.default.top,
-                2 + Margin.default.bottom,
-                2 + Margin.default.left,
-                2 + Margin.default.right,
+                13 + margin.top,
+                2 + margin.bottom,
+                2 + margin.left,
+                2 + margin.right,
             ),
         );
     }

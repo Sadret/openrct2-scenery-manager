@@ -3,17 +3,20 @@ import Settings from "./Settings";
 import Clipboard from "./Clipboard";
 import Library from "./Library";
 import LibraryManager from "./LibraryManager";
-import { TabBuilder } from "./WindowBuilder";
+import About from "./About";
+import { TabBuilder, Margin } from "./WindowBuilder";
 
 export class SceneryManager {
     static readonly TAB_MAIN: number = 0;
     static readonly TAB_LIBRARY: number = 1;
+    static readonly TAB_ABOUT: number = 2;
 
     readonly copyPaste: CopyPaste;
     readonly settings: Settings;
     readonly clipboard: Clipboard;
     readonly library: Library;
     readonly libraryManager: LibraryManager;
+    readonly about: About;
 
     handle: Window = undefined;
     isToolActive: boolean = false;
@@ -24,6 +27,7 @@ export class SceneryManager {
         this.clipboard = new Clipboard(this);
         this.library = new Library(this);
         this.libraryManager = new LibraryManager(this);
+        this.about = new About(this);
     }
 
     open(x?: number, y?: number, tabIndex: number = 0): void {
@@ -42,7 +46,11 @@ export class SceneryManager {
         if (tabIndex === SceneryManager.TAB_LIBRARY)
             this.libraryManager.build(libraryTab);
 
-        const tabs: TabBuilder[] = [mainTab, libraryTab, new TabBuilder(384)];
+        const aboutTab: TabBuilder = new TabBuilder(384, 16, Margin.uniform(8));
+        if (tabIndex === SceneryManager.TAB_ABOUT)
+            this.about.build(aboutTab);
+
+        const tabs: TabBuilder[] = [mainTab, libraryTab, aboutTab];
 
         if (x === undefined)
             x = (ui.width - tabs[tabIndex].getWidth()) / 2;

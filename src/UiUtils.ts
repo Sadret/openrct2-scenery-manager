@@ -6,7 +6,7 @@ export function showConfirm(title: string, message: string[], callback: (confirm
     let handle: Window = undefined;
     let confirmed: boolean = false;
 
-    const window = new WindowBuilder(250, 2, Margin.create(8));
+    const window = new WindowBuilder(250, 2, Margin.uniform(8));
 
     message.forEach(line => window.addLabel({ text: line, }));
 
