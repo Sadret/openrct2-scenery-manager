@@ -16,10 +16,7 @@ export class SceneryManager {
     readonly libraryManager: LibraryManager;
 
     handle: Window = undefined;
-    isReloadRequested: boolean = false;
-    isReloading: boolean = false;
     isToolActive: boolean = false;
-    activeTab: number = 0;
 
     constructor() {
         this.copyPaste = new CopyPaste(this);
@@ -29,12 +26,12 @@ export class SceneryManager {
         this.libraryManager = new LibraryManager(this);
     }
 
-    open(x?: number, y?: number): void {
+    open(x?: number, y?: number, tabIndex: number = 0): void {
         if (this.handle !== undefined)
             return;
 
         const mainTab: TabBuilder = new TabBuilder(384);
-        if (this.activeTab === SceneryManager.TAB_MAIN) {
+        if (tabIndex === SceneryManager.TAB_MAIN) {
             this.copyPaste.build(mainTab);
             this.settings.build(mainTab);
             this.clipboard.build(mainTab);
@@ -42,22 +39,22 @@ export class SceneryManager {
         }
 
         const libraryTab: TabBuilder = new TabBuilder(384);
-        if (this.activeTab === SceneryManager.TAB_LIBRARY)
+        if (tabIndex === SceneryManager.TAB_LIBRARY)
             this.libraryManager.build(libraryTab);
 
         const tabs: TabBuilder[] = [mainTab, libraryTab, new TabBuilder(384)];
 
         if (x === undefined)
-            x = (ui.width - tabs[this.activeTab].getWidth()) / 2;
+            x = (ui.width - tabs[tabIndex].getWidth()) / 2;
         if (y === undefined)
-            y = (ui.height - tabs[this.activeTab].getHeight()) / 2;
+            y = (ui.height - tabs[tabIndex].getHeight()) / 2;
 
         this.handle = ui.openWindow({
             classification: "clipboard",
             x: x,
             y: y,
-            width: tabs[this.activeTab].getWidth(),
-            height: tabs[this.activeTab].getHeight(),
+            width: tabs[tabIndex].getWidth(),
+            height: tabs[tabIndex].getHeight(),
             title: "Clipboard",
             tabs: [{
                 image: 5459,
@@ -69,41 +66,26 @@ export class SceneryManager {
                 image: 5461,
                 widgets: tabs[2].getWidgets(),
             }],
-            tabIndex: this.activeTab,
-            onUpdate: () => this.update(),
+            tabIndex: tabIndex,
             onClose: () => {
-                this.handle = undefined;
-                if (!this.isReloading && this.isToolActive)
+                if (this.isToolActive)
                     ui.tool.cancel();
+                this.handle = undefined;
             },
-            onTabChange: () => {
-                this.activeTab = this.handle.tabIndex;
-                this.invalidate();
-            },
+            onTabChange: () => this.setActiveTab(this.handle.tabIndex),
         });
     }
 
-    invalidate(): void {
-        this.isReloadRequested = true;
+    setActiveTab(tabIndex: number) {
+        const x = this.handle.x;
+        const y = this.handle.y;
+
+        this.handle.close();
+
+        this.open(x, y, tabIndex);
     }
 
     setToolActive(isToolActive: boolean): void {
         this.isToolActive = isToolActive;
-    }
-
-    update(): void {
-        if (!this.isReloadRequested)
-            return;
-
-        this.isReloading = true;
-
-        const x = this.handle.x;
-        const y = this.handle.y;
-        this.handle.close();
-
-        this.open(x, y);
-
-        this.isReloadRequested = false;
-        this.isReloading = false;
     }
 }

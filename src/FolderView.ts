@@ -1,15 +1,22 @@
 /// <reference path="./_Save.d.ts" />
 
 import { File } from "./File";
+import { BoxBuilder } from "./WindowBuilder";
 
 export class FolderView {
+    readonly name: string;
+    readonly getWindow: () => Window;
+
     path: File;
     readonly files: File[] = [];
 
     selected: File = undefined;
 
-    constructor(path: File) {
-        this.path = path;
+    constructor(name: string, getWindow: () => Window, path: File) {
+        this.name = name;
+        this.getWindow = getWindow;
+
+        this.open(path);
     }
 
     getPath(): string {
@@ -17,8 +24,6 @@ export class FolderView {
     }
 
     select(file: File): void {
-        this.onDeselect();
-
         if (File.equals(file, this.selected))
             if (file !== undefined && file.isFolder())
                 // file is folder and already selected: open folder
@@ -34,12 +39,8 @@ export class FolderView {
                 // file is not selected and does not equal root: update selected
                 this.selected = file;
 
-        this.onSelect();
+        this.update();
     }
-
-    onDeselect(): void { }
-
-    onSelect(): void { }
 
     open(file: File): void {
         if (!file.isFolder())
@@ -48,14 +49,43 @@ export class FolderView {
         this.select(undefined);
     }
 
-    getWidget(): {
-        scrollbars: ScrollbarType;
-        columns: ListViewColumn[];
-        items: ListViewItem[];
-        selectedCell: RowColumn;
-        onClick: (item: number, column: number) => void;
-    } {
-        let selectedRow: number = undefined;
+    build(builder: BoxBuilder, height: number): void {
+        builder.addListView({
+            name: this.name,
+            scrollbars: "vertical",
+            columns: [{
+                header: "Name",
+                ratioWidth: 3,
+            }, {
+                header: "Width",
+                ratioWidth: 1,
+            }, {
+                header: "Length",
+                ratioWidth: 1,
+            }, {
+                header: "Size",
+                ratioWidth: 1,
+            }],
+            items: this.getItems(),
+            selectedCell: this.getSelectedCell(),
+            onClick: (row: number) => this.select(this.files[row]),
+        }, height);
+    }
+
+    update(): void {
+        const widget: ListView = this.getWindow().findWidget(this.name);
+
+        const oldItems: ListViewItem[] | string[] = widget.items;
+        const newItems: ListViewItem[] = this.getItems();
+        if (!oldItems.deepEquals(newItems))
+            widget.items = this.getItems();
+
+        const selectedCell = this.getSelectedCell();
+        if (widget.selectedCell ?.row !== selectedCell ?.row)
+            widget.selectedCell = selectedCell;
+    }
+
+    getItems(): ListViewItem[] {
         const items: ListViewItem[] = [];
 
         const addItem = (item: File, info: ListViewItem) => {
@@ -76,16 +106,12 @@ export class FolderView {
         this.path.getFiles().filter((file: File) =>
             file.isFolder()
         ).forEach((file: File) => {
-            if (this.selected !== undefined && file.getPath() === this.selected.getPath())
-                selectedRow = items.length;
             addItem(file, [file.getName() + "/", "", "", ""]);
         });
 
         this.path.getFiles().filter((file: File) =>
             file.isFile()
         ).forEach((file: File) => {
-            if (this.selected !== undefined && file.getPath() === this.selected.getPath())
-                selectedRow = items.length;
             let template: SceneryTemplate = file.getContent();
             if (template === undefined)
                 addItem(file, [file.getName(), "", "", ""]);
@@ -98,30 +124,23 @@ export class FolderView {
                 ]);
         });
 
-        if (selectedRow === undefined)
-            this.select(undefined);
+        return items;
+    }
 
-        return {
-            scrollbars: "vertical",
-            columns: [{
-                header: "Name",
-                ratioWidth: 3,
-            }, {
-                header: "Width",
-                ratioWidth: 1,
-            }, {
-                header: "Length",
-                ratioWidth: 1,
-            }, {
-                header: "Size",
-                ratioWidth: 1,
-            }],
-            items: items,
-            selectedCell: {
-                row: selectedRow,
-                column: 0,
-            },
-            onClick: (row: number) => this.select(this.files[row]),
-        };
+    getSelectedCell(): RowColumn {
+        if (this.selected === undefined)
+            return undefined;
+
+        for (let row = 0; row < this.files.length; row++) {
+            const file: File = this.files[row];
+            if (file !== undefined && file.getPath() === this.selected.getPath())
+                return {
+                    row: row,
+                    column: 0,
+                };
+        }
+
+        this.select(undefined);
+        return undefined;
     }
 }

@@ -26,7 +26,7 @@ class CopyPaste {
             onStart: () => {
                 this.selecting = true;
                 ui.mainViewport.visibilityFlags |= 1 << 7;
-                this.manager.invalidate();
+                this.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = true;
                 this.manager.setToolActive(true);
             },
             onDown: e => {
@@ -48,7 +48,7 @@ class CopyPaste {
                 this.selecting = false;
                 ui.tileSelection.range = null;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
-                this.manager.invalidate();
+                this.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = false;
                 this.manager.setToolActive(false);
             },
         });
@@ -130,11 +130,13 @@ class CopyPaste {
         const group = builder.getGroupBox();
         const hbox = group.getHBox([1, 1]);
         hbox.addTextButton({
+            name: "copypaste_select",
             isPressed: this.selecting,
             text: "Select area",
             onClick: () => this.selectArea(),
         });
         hbox.addTextButton({
+            name: "copypaste_copy",
             text: "Copy area",
             onClick: () => this.copyArea(),
         });

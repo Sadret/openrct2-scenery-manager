@@ -26,9 +26,9 @@ class Settings {
     }
 
     build(builder: BoxBuilder): void {
-        const rotationLabel: string = "Rotation: " + (this.options.rotation === 0 ? "none" : (this.options.rotation * 90 + " degree"));
-        const mirroredLabel: string = "Mirrored: " + (this.options.mirrored ? "yes" : "no");
-        const absoluteLabel: string = this.options.absolute ? "Absolute height" : "Relative to surface";
+        const rotationLabel: () => string = () => "Rotation: " + (this.options.rotation === 0 ? "none" : (this.options.rotation * 90 + " degree"));
+        const mirroredLabel: () => string = () => "Mirrored: " + (this.options.mirrored ? "yes" : "no");
+        const absoluteLabel: () => string = () => this.options.absolute ? "Absolute height" : "Relative to surface";
 
         const hbox = builder.getHBox([1, 1]);
         {
@@ -37,10 +37,7 @@ class Settings {
                 group.addCheckbox({
                     text: key,
                     isChecked: this.filter[key],
-                    onChange: isChecked => {
-                        this.filter[key] = isChecked;
-                        this.manager.invalidate();
-                    },
+                    onChange: isChecked => this.filter[key] = isChecked,
                 });
             hbox.addGroupBox({
                 text: "Filter",
@@ -48,24 +45,27 @@ class Settings {
         } {
             const group = hbox.getGroupBox();
             group.addTextButton({
-                text: rotationLabel,
+                text: rotationLabel(),
+                name: "options_rotation",
                 onClick: () => {
                     this.options.rotation = (this.options.rotation + 1) & 3;
-                    this.manager.invalidate();
+                    this.manager.handle.findWidget<ButtonWidget>("options_rotation").text = rotationLabel();
                 },
             });
             group.addTextButton({
-                text: mirroredLabel,
+                text: mirroredLabel(),
+                name: "options_mirrored",
                 onClick: () => {
                     this.options.mirrored = !this.options.mirrored;
-                    this.manager.invalidate();
+                    this.manager.handle.findWidget<ButtonWidget>("options_mirrored").text = mirroredLabel();
                 },
             });
             group.addTextButton({
-                text: absoluteLabel,
+                text: absoluteLabel(),
+                name: "options_absolute",
                 onClick: () => {
                     this.options.absolute = !this.options.absolute;
-                    this.manager.invalidate();
+                    this.manager.handle.findWidget<ButtonWidget>("options_absolute").text = absoluteLabel();
                 },
             });
             {
@@ -75,13 +75,14 @@ class Settings {
                 });
                 heightOffset.addSpinner({
                     text: String(this.options.height),
+                    name: "options_height",
                     onDecrement: () => {
                         this.options.height--;
-                        this.manager.invalidate();
+                        this.manager.handle.findWidget<SpinnerWidget>("options_height").text = String(this.options.height);
                     },
                     onIncrement: () => {
                         this.options.height++;
-                        this.manager.invalidate();
+                        this.manager.handle.findWidget<SpinnerWidget>("options_height").text = String(this.options.height);
                     },
                 });
                 group.addBox(heightOffset);

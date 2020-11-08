@@ -6,6 +6,7 @@ declare global {
     interface Array<T> {
         reverseForEach(callback: (currentValue: T, index?: number, array?: T) => void): void;
         find(callback: (value: T) => boolean): T;
+        deepEquals(other: any[]): boolean;
     }
 }
 
@@ -18,6 +19,14 @@ Array.prototype.find = function(callback) {
     for (let idx = 0; idx < this.length; idx++)
         if (callback(this[idx]))
             return this[idx];
+}
+
+Array.prototype.deepEquals = function(other) {
+    return this.length === other.length && this.every((val: any, index: number) => {
+        if (Array.isArray(val) && Array.isArray(other[index]))
+            return val.deepEquals(other[index]);
+        return val === other[index];
+    });
 }
 
 registerPlugin({

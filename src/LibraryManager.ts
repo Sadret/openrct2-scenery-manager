@@ -15,8 +15,12 @@ class LibraryManager {
     constructor(manager: SceneryManager) {
         this.manager = manager;
 
-        this.folderView = new FolderView(Config.library.getRoot());
-        this.folderView.onSelect = () => this.manager.invalidate();
+        this.folderView = new FolderView("librarymanager_listview", () => this.manager.handle, Config.library.getRoot());
+
+        this.folderView.select = (file: File) => {
+            FolderView.prototype.select.call(this.folderView, file);
+            this.update();
+        }
     }
 
     add(): void {
@@ -24,9 +28,10 @@ class LibraryManager {
             title: "Folder name",
             description: "Enter a name for the new folder:",
             callback: name => {
-                if (this.folderView.path.addFolder(name) === undefined)
+                const folder: File = this.folderView.path.addFolder(name);
+                if (folder === undefined)
                     return ui.showError("Can't create new folder...", "Folder with this name already exists.");
-                this.manager.invalidate();
+                this.folderView.select(folder);
             },
         });
     }
@@ -44,7 +49,7 @@ class LibraryManager {
                 const newFile: File = file.rename(name);
                 if (newFile === undefined)
                     return ui.showError("Can't rename " + label + "...", "File or folder with this name already exists.");
-                this.manager.invalidate();
+                this.folderView.select(newFile);
             },
         });
     }
@@ -61,7 +66,8 @@ class LibraryManager {
             confirmed => {
                 if (confirmed)
                     file.delete();
-                this.manager.invalidate();
+                this.folderView.update();
+                this.update();
             },
             "Delete",
         );
@@ -70,7 +76,7 @@ class LibraryManager {
     copy(deleteAfterCopy: boolean): void {
         this.copiedFile = this.folderView.selected;
         this.deleteAfterCopy = deleteAfterCopy;
-        this.manager.invalidate();
+        this.update();
     }
 
     paste(name?: string): void {
@@ -90,7 +96,7 @@ class LibraryManager {
         // do not move folder into itself
         // (this would be prevented automatically, but then we would start an infinite loop below)
         if (this.deleteAfterCopy && dest.getPath().indexOf(src.getPath()) === 0)
-            return ui.showError("Could not move folder...", "The destination is a subfolder of the source.")
+            return ui.showError("Could not move folder...", "The destination cannot be a subfolder of the source.")
 
         if (name === undefined)
             name = src.getName();
@@ -100,81 +106,146 @@ class LibraryManager {
         if (file === undefined)
             return this.paste("Copy of " + name);
 
-        this.folderView.select(file);
         this.cancel();
+
+        this.folderView.select(file);
     }
 
     cancel(): void {
         this.copiedFile = undefined;
-        this.manager.invalidate();
+        this.update();
     }
 
     build(builder: BoxBuilder): void {
+        // current path and add folder button
         {
             const hbox = builder.getHBox([3, 1]);
             hbox.addLabel({
-                text: "." + this.folderView.getPath() + "/",
+                name: "librarymanager_path",
+                text: this.getPath(),
             });
             hbox.addTextButton({
+                name: "librarymanager_add",
                 text: "Add folder",
                 onClick: () => this.add(),
             });
             builder.addBox(hbox);
         }
-        builder.addListView({
-            ...this.folderView.getWidget(),
-            canSelect: false,
-        }, 256);
-        if (this.copiedFile) {
-            {
-                const hbox = builder.getHBox([1, 3]);
-                hbox.addLabel({
-                    text: this.deleteAfterCopy ? "Moved file:" : "Copied file:",
-                });
-                hbox.addLabel({
-                    text: "." + this.copiedFile.getPath() + (this.copiedFile.isFolder() ? "/" : ""),
-                });
-                builder.addBox(hbox);
-            }
-            builder.addLabel({
-                text: "Navigate to destination folder, then click paste button.",
+        // folder view
+        this.folderView.build(builder, 256);
+        // current file
+        {
+            const hbox = builder.getHBox([1, 3]);
+            hbox.addLabel({
+                name: "librarymanager_filelabel",
+                text: this.getFileLabel(),
             });
-            {
-                const hbox = builder.getHBox([1, 1]);
-                hbox.addTextButton({
-                    text: "Paste here",
-                    onClick: () => this.paste(),
-                });
-                hbox.addTextButton({
-                    text: "Cancel",
-                    onClick: () => this.cancel(),
-                });
-                builder.addBox(hbox);
-            }
-        } else {
-            const hbox = builder.getHBox([1, 1, 1, 1]);
-            hbox.addTextButton({
-                text: "Rename",
-                onClick: () => this.rename(),
-                isDisabled: this.folderView.selected === undefined,
-            });
-            hbox.addTextButton({
-                text: "Delete",
-                onClick: () => this.delete(),
-                isDisabled: this.folderView.selected === undefined,
-            });
-            hbox.addTextButton({
-                text: "Copy",
-                onClick: () => this.copy(false),
-                isDisabled: this.folderView.selected === undefined,
-            });
-            hbox.addTextButton({
-                text: "Move",
-                onClick: () => this.copy(true),
-                isDisabled: this.folderView.selected === undefined,
+            hbox.addLabel({
+                name: "librarymanager_file",
+                text: this.getFile(),
             });
             builder.addBox(hbox);
         }
+        // manage buttons
+        {
+            const isDisabled: boolean = this.folderView.selected === undefined || this.copiedFile !== undefined;
+            const hbox = builder.getHBox([1, 1, 1, 1]);
+            hbox.addTextButton({
+                text: "Rename",
+                name: "librarymanager_rename",
+                onClick: () => this.rename(),
+                isDisabled: isDisabled,
+            });
+            hbox.addTextButton({
+                text: "Delete",
+                name: "librarymanager_delete",
+                onClick: () => this.delete(),
+                isDisabled: isDisabled,
+            });
+            hbox.addTextButton({
+                text: "Copy",
+                name: "librarymanager_copy",
+                onClick: () => this.copy(false),
+                isDisabled: isDisabled,
+            });
+            hbox.addTextButton({
+                text: "Move",
+                name: "librarymanager_move",
+                onClick: () => this.copy(true),
+                isDisabled: isDisabled,
+            });
+            builder.addBox(hbox);
+        }
+        // paste and cancel button
+        {
+            const isDisabled: boolean = this.copiedFile === undefined;
+            const hbox = builder.getHBox([1, 1]);
+            hbox.addTextButton({
+                text: "Paste here",
+                name: "librarymanager_paste",
+                onClick: () => this.paste(),
+                isDisabled: isDisabled,
+            });
+            hbox.addTextButton({
+                text: "Cancel",
+                name: "librarymanager_cancel",
+                onClick: () => this.cancel(),
+                isDisabled: isDisabled,
+            });
+            builder.addBox(hbox);
+        }
+    }
+
+    update(): void {
+        const handle: Window = this.manager.handle;
+
+        {
+            handle.findWidget<LabelWidget>("librarymanager_path").text = this.getPath();
+            handle.findWidget<LabelWidget>("librarymanager_filelabel").text = this.getFileLabel();
+            handle.findWidget<LabelWidget>("librarymanager_file").text = this.getFile();
+        } {
+            const isDisabled: boolean = this.folderView.selected === undefined || this.copiedFile !== undefined;
+            handle.findWidget<ButtonWidget>("librarymanager_rename").isDisabled = isDisabled;
+            handle.findWidget<ButtonWidget>("librarymanager_delete").isDisabled = isDisabled;
+            handle.findWidget<ButtonWidget>("librarymanager_copy").isDisabled = isDisabled;
+            handle.findWidget<ButtonWidget>("librarymanager_move").isDisabled = isDisabled;
+        } {
+            const isDisabled: boolean = this.copiedFile === undefined;
+            handle.findWidget<ButtonWidget>("librarymanager_paste").isDisabled = isDisabled;
+            handle.findWidget<ButtonWidget>("librarymanager_cancel").isDisabled = isDisabled;
+        }
+    }
+
+    getPath(): string {
+        return "." + this.folderView.getPath() + "/";
+    }
+
+    getFileLabel(): string {
+        const file: File = this.copiedFile || this.folderView.selected;
+        let str: string = "";
+        if (file !== undefined)
+            if (file.isFile())
+                str = " file";
+            else
+                str = " folder";
+
+        if (this.copiedFile)
+            if (this.deleteAfterCopy)
+                return "Moved" + str + ":";
+            else
+                return "Copied" + str + ":";
+        else
+            return "Selected" + str + ":";
+    }
+
+    getFile(): string {
+        const file: File = this.copiedFile || this.folderView.selected;
+        if (file === undefined)
+            return "-";
+        else if (file.isFile())
+            return "." + file.getPath();
+        else
+            return "." + file.getPath() + "/";
     }
 }
 export default LibraryManager;

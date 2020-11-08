@@ -13,21 +13,30 @@ class Clipboard {
     constructor(manager: SceneryManager) {
         this.manager = manager;
 
-        this.folderView = new FolderView(Config.clipboard.getRoot());
-        this.folderView.onDeselect = () => {
-            const selected = this.folderView.selected;
-            if (selected !== undefined && (!selected.exists() || selected.isFile()) && ui.tool)
-                ui.tool.cancel();
-            this.manager.invalidate();
-        }
-        this.folderView.onSelect = () => {
-            const selected = this.folderView.selected;
-            if (selected !== undefined && selected.isFile())
+        this.folderView = new FolderView("clipboard_listview", () => this.manager.handle, Config.clipboard.getRoot());
+
+        this.folderView.select = (file: File) => {
+            const selected: File = this.folderView.selected;
+
+            const deselectFile = selected !== undefined && selected.isFile() && selected !== file;
+            const selectFile = file !== undefined && file.isFile() && file !== selected;
+
+            if (
+                deselectFile
+                || (selected !== undefined && !selected.exists())
+            ) if (ui.tool)
+                    ui.tool.cancel();
+
+            FolderView.prototype.select.call(this.folderView, file);
+
+            if (selectFile)
                 this.manager.copyPaste.pasteTemplate(
-                    selected.getContent(),
+                    file.getContent(),
                     () => this.folderView.select(undefined),
                 );
-            this.manager.invalidate();
+
+            if (deselectFile || selectFile)
+                this.update();
         }
     }
 
@@ -39,7 +48,6 @@ class Clipboard {
             return this.add(template);
 
         this.folderView.select(file);
-        this.manager.invalidate();
     }
 
     name(): void {
@@ -52,7 +60,6 @@ class Clipboard {
                 if (newFile === undefined)
                     return ui.showError("Can't rename scenery template...", "File with this name already exists.");
                 this.folderView.select(newFile);
-                this.manager.invalidate();
             },
         });
     }
@@ -66,7 +73,8 @@ class Clipboard {
                 if (!confirmed)
                     return;
                 file.delete();
-                this.manager.invalidate();
+                this.folderView.update();
+                this.update();
             },
             "Delete",
         );
@@ -85,31 +93,37 @@ class Clipboard {
                 if (!confirmed)
                     return;
                 this.folderView.files.map(x => x).forEach((file: File) => file.delete());
-                this.manager.invalidate();
+                this.folderView.update();
+                this.update();
             },
             "Clear clipboard",
         );
     }
 
     build(builder: BoxBuilder): void {
+        const isDisabled: boolean = this.folderView.selected === undefined;
+
         const group = builder.getGroupBox();
-        group.addListView(this.folderView.getWidget(), 128);
+        this.folderView.build(group, 128);
         {
             const buttons = group.getHBox([30, 30, 40, 40]);
             buttons.addTextButton({
                 text: "Name",
+                name: "clipboard_name",
                 onClick: () => this.name(),
-                isDisabled: this.folderView.selected === undefined,
+                isDisabled: isDisabled,
             });
             buttons.addTextButton({
                 text: "Delete",
+                name: "clipboard_delete",
                 onClick: () => this.delete(),
-                isDisabled: this.folderView.selected === undefined,
+                isDisabled: isDisabled,
             });
             buttons.addTextButton({
                 text: "Save to library",
+                name: "clipboard_save",
                 onClick: () => this.save(),
-                isDisabled: this.folderView.selected === undefined,
+                isDisabled: isDisabled,
             });
             buttons.addTextButton({
                 text: "Clear clipboard",
@@ -120,6 +134,15 @@ class Clipboard {
         builder.addGroupBox({
             text: "Clipboard",
         }, group);
+    }
+
+    update(): void {
+        const handle: Window = this.manager.handle;
+        const isDisabled: boolean = this.folderView.selected === undefined;
+
+        handle.findWidget<ButtonWidget>("clipboard_name").isDisabled = isDisabled;
+        handle.findWidget<ButtonWidget>("clipboard_delete").isDisabled = isDisabled;
+        handle.findWidget<ButtonWidget>("clipboard_save").isDisabled = isDisabled;
     }
 }
 export default Clipboard;

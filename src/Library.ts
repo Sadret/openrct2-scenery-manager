@@ -1,10 +1,10 @@
 /// <reference path="./_Save.d.ts" />
 
 import * as Config from "./Config";
+import { File } from "./File";
 import { FolderView } from "./FolderView";
 import { SceneryManager } from "./SceneryManager";
 import { BoxBuilder } from "./WindowBuilder";
-import CopyPaste from "./CopyPaste";
 
 class Library {
     readonly manager: SceneryManager;
@@ -13,28 +13,36 @@ class Library {
     constructor(manager: SceneryManager) {
         this.manager = manager;
 
-        this.folderView = new FolderView(Config.library.getRoot());
-        this.folderView.onDeselect = () => {
-            const selected = this.folderView.selected;
-            if (selected !== undefined && (!selected.exists() || selected.isFile()) && ui.tool)
-                ui.tool.cancel();
-            this.manager.invalidate();
-        }
-        this.folderView.onSelect = () => {
-            const selected = this.folderView.selected;
-            if (selected !== undefined && selected.isFile())
+        this.folderView = new FolderView("library_listview", () => this.manager.handle, Config.library.getRoot());
+
+        this.folderView.select = (file: File) => {
+            const selected: File = this.folderView.selected;
+
+            const deselectFile = selected !== undefined && selected.isFile() && selected !== file;
+            const selectFile = file !== undefined && file.isFile() && file !== selected;
+
+            if (
+                deselectFile
+                || (selected !== undefined && !selected.exists())
+            ) if (ui.tool)
+                    ui.tool.cancel();
+
+            FolderView.prototype.select.call(this.folderView, file);
+
+            if (selectFile)
                 this.manager.copyPaste.pasteTemplate(
-                    selected.getContent(),
+                    file.getContent(),
                     () => this.folderView.select(undefined),
                 );
-            this.manager.invalidate();
+
+            this.update();
         }
     }
 
     save(name: string, template: SceneryTemplate): void {
         if (this.folderView.path.addFile<SceneryTemplate>(name, template) === undefined)
             return ui.showError("Can't save scenery template...", "File or folder with this name already exists.");
-        this.manager.invalidate();
+        this.folderView.update();
     }
 
     add(): void {
@@ -44,23 +52,24 @@ class Library {
             callback: name => {
                 if (this.folderView.path.addFolder(name) === undefined)
                     return ui.showError("Can't create new folder...", "Folder with this name already exists.");
-                this.manager.invalidate();
+                this.folderView.update();
             },
         });
     }
 
     manage(): void {
-        this.manager.libraryManager.folderView.open(this.folderView.path);
-        this.manager.activeTab = SceneryManager.TAB_LIBRARY;
-        this.manager.invalidate();
+        this.manager.libraryManager.folderView.path = this.folderView.path;
+        this.manager.libraryManager.folderView.selected = this.folderView.selected;
+        this.manager.setActiveTab(SceneryManager.TAB_LIBRARY);
     }
 
     build(builder: BoxBuilder): void {
         const group = builder.getGroupBox();
         group.addLabel({
-            text: "." + this.folderView.getPath() + "/",
+            text: this.getPath(),
+            name: "library_path",
         });
-        group.addListView(this.folderView.getWidget(), 128);
+        this.folderView.build(group, 128);
         {
             const buttons = group.getHBox([50, 50]);
             buttons.addTextButton({
@@ -76,6 +85,14 @@ class Library {
         builder.addGroupBox({
             text: "Library",
         }, group);
+    }
+
+    update(): void {
+        this.manager.handle.findWidget<LabelWidget>("library_path").text = this.getPath();
+    }
+
+    getPath(): string {
+        return "." + this.folderView.getPath() + "/";
     }
 }
 export default Library;
