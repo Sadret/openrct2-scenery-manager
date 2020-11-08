@@ -1,6 +1,6 @@
 /// <reference path="./../../openrct2.d.ts" />
 
-class Margin {
+export class Margin {
     readonly top: number;
     readonly bottom: number;
     readonly left: number;
@@ -18,8 +18,12 @@ class Margin {
         this.right = right;
     }
 
-    static none: Margin = new Margin(0, 0, 0, 0);
-    static default: Margin = new Margin(2, 2, 2, 2);
+    static create(margin: number): Margin {
+        return new Margin(margin, margin, margin, margin);
+    }
+
+    static none: Margin = Margin.create(0);
+    static default: Margin = Margin.create(2);
 }
 
 export abstract class BoxBuilder {
@@ -361,16 +365,18 @@ class HBoxBuilder extends BoxBuilder {
 export class WindowBuilder extends VBoxBuilder {
     constructor(
         width: number,
+        padding?: number,
+        margin: Margin = Margin.default,
     ) {
         super(
             undefined,
             width,
-            undefined,
+            padding,
             new Margin(
-                15 + Margin.default.top,
-                1 + Margin.default.bottom,
-                1 + Margin.default.left,
-                1 + Margin.default.right,
+                15 + margin.top,
+                1 + margin.bottom,
+                1 + margin.left,
+                1 + margin.right,
             ),
         );
     }

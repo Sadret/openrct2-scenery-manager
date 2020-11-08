@@ -1,16 +1,18 @@
 /// <reference path="./../../openrct2.d.ts" />
 
-import { WindowBuilder } from "./WindowBuilder";
+import { WindowBuilder, Margin } from "./WindowBuilder";
 
 export function showConfirm(title: string, message: string[], callback: (confirmed: boolean) => void, okText: string = "OK", cancelText: string = "Cancel") {
     let handle: Window = undefined;
     let confirmed: boolean = false;
 
-    const window = new WindowBuilder(250);
+    const window = new WindowBuilder(250, 2, Margin.create(8));
 
     message.forEach(line => window.addLabel({ text: line, }));
 
-    const hbox = window.getHBox([1, 1,]);
+    window.addSpace(4);
+
+    const hbox = window.getHBox([1, 1, 1,]);
     hbox.addTextButton({
         text: okText,
         onClick: () => {
@@ -18,6 +20,7 @@ export function showConfirm(title: string, message: string[], callback: (confirm
             handle.close();
         },
     });
+    hbox.addSpace(0);
     hbox.addTextButton({
         text: cancelText,
         onClick: () => handle.close(),
