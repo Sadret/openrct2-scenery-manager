@@ -382,20 +382,11 @@ function getRemoveAction(type: SceneryType): SceneryRemoveAction {
 
 let cache = {};
 
-function addToCache(type: SceneryType, identifier: string, object: SceneryObject) {
-    if (cache[type] === undefined)
-        cache[type] = {};
-    if (cache[type][identifier] === undefined)
-        cache[type][identifier] = object;
-}
-
 export function getObject(data: SceneryData): SceneryObject {
-    if (cache[data.type] === undefined)
+    if (cache[data.type] === undefined) {
         cache[data.type] = {};
-    if (
-        cache[data.type][data.identifier] === undefined
-        || context.getObject(data.type, cache[data.type][data.identifier].index).identifier !== data.identifier
-    ) cache[data.type][data.identifier] = context.getAllObjects(data.type).find((object: SceneryObject) => object.identifier === data.identifier);
+        context.getAllObjects(data.type).forEach((object: SceneryObject) => cache[data.type][object.identifier] = object);
+    }
     return cache[data.type][data.identifier];
 }
 
