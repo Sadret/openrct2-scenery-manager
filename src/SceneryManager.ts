@@ -1,3 +1,10 @@
+/*****************************************************************************
+ * Copyright (c) 2020 Sadret
+ *
+ * The OpenRCT2 plugin "Scenery Manager" is licensed
+ * under the GNU General Public License version 3.
+ *****************************************************************************/
+
 import CopyPaste from "./CopyPaste";
 import Settings from "./Settings";
 import Clipboard from "./Clipboard";
@@ -46,7 +53,7 @@ export class SceneryManager {
         if (tabIndex === SceneryManager.TAB_LIBRARY)
             this.libraryManager.build(libraryTab);
 
-        const aboutTab: TabBuilder = new TabBuilder(384, 16, Margin.uniform(8));
+        const aboutTab: TabBuilder = new TabBuilder(384, 8, Margin.uniform(8));
         if (tabIndex === SceneryManager.TAB_ABOUT)
             this.about.build(aboutTab);
 

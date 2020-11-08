@@ -1,3 +1,10 @@
+/*****************************************************************************
+ * Copyright (c) 2020 Sadret
+ *
+ * The OpenRCT2 plugin "Scenery Manager" is licensed
+ * under the GNU General Public License version 3.
+ *****************************************************************************/
+
 import { SceneryManager } from "./SceneryManager";
 import { BoxBuilder } from "./WindowBuilder";
 
@@ -10,7 +17,13 @@ class About {
         builder.addLabel({ text: separator });
         builder.addSpace(0);
         this.addText(builder, [
-            "Idea & development by Sadret.",
+            "Copyright (c) 2020 Sadret",
+            "This plugin is licensed under GPL-3.0",
+        ]);
+        builder.addSpace(0);
+        builder.addLabel({ text: separator });
+        builder.addSpace(0);
+        this.addText(builder, [
             "If you want to support me, you can buy me a coffee:",
             "https://www.BuyMeACoffee.com/SadretGaming",
         ]);
@@ -26,7 +39,7 @@ class About {
         builder.addLabel({ text: separator });
         builder.addSpace(0);
         this.addText(builder, [
-            "If you find any bugs or if you have ideas for",
+            "If you find any bugs or if you have any ideas for",
             "improvements, you can open an issue on GitHub",
             "or contact me on Discord: Sadret#2502",
         ]);

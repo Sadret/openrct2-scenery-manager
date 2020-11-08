@@ -1,3 +1,10 @@
+/*****************************************************************************
+ * Copyright (c) 2020 Sadret
+ *
+ * The OpenRCT2 plugin "Scenery Manager" is licensed
+ * under the GNU General Public License version 3.
+ *****************************************************************************/
+
 /// <reference path="./../../openrct2.d.ts" />
 
 export function span(start: CoordsXY, end: CoordsXY): MapRange {
