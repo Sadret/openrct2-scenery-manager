@@ -10,19 +10,22 @@ import Settings from "./Settings";
 import Clipboard from "./Clipboard";
 import Library from "./Library";
 import LibraryManager from "./LibraryManager";
+import Configuration from "./Configuration";
 import About from "./About";
 import { TabBuilder, Margin } from "./WindowBuilder";
 
 export class SceneryManager {
     static readonly TAB_MAIN: number = 0;
     static readonly TAB_LIBRARY: number = 1;
-    static readonly TAB_ABOUT: number = 2;
+    static readonly TAB_CONFIGURATION: number = 2;
+    static readonly TAB_ABOUT: number = 3;
 
     readonly copyPaste: CopyPaste;
     readonly settings: Settings;
     readonly clipboard: Clipboard;
     readonly library: Library;
     readonly libraryManager: LibraryManager;
+    readonly configuration: Configuration;
     readonly about: About;
 
     handle: Window = undefined;
@@ -34,6 +37,7 @@ export class SceneryManager {
         this.clipboard = new Clipboard(this);
         this.library = new Library(this);
         this.libraryManager = new LibraryManager(this);
+        this.configuration = new Configuration(this);
         this.about = new About(this);
     }
 
@@ -53,41 +57,51 @@ export class SceneryManager {
         if (tabIndex === SceneryManager.TAB_LIBRARY)
             this.libraryManager.build(libraryTab);
 
+        const configurationTab: TabBuilder = new TabBuilder(384);
+        if (tabIndex === SceneryManager.TAB_CONFIGURATION)
+            this.configuration.build(configurationTab);
+
         const aboutTab: TabBuilder = new TabBuilder(384, 8, Margin.uniform(8));
         if (tabIndex === SceneryManager.TAB_ABOUT)
             this.about.build(aboutTab);
 
-        const tabs: TabBuilder[] = [mainTab, libraryTab, aboutTab];
-
+        const activeTab = [mainTab, libraryTab, configurationTab, aboutTab][tabIndex];
         if (x === undefined)
-            x = (ui.width - tabs[tabIndex].getWidth()) / 2;
+            x = (ui.width - activeTab.getWidth()) / 2;
         if (y === undefined)
-            y = (ui.height - tabs[tabIndex].getHeight()) / 2;
+            y = (ui.height - activeTab.getHeight()) / 2;
 
         this.handle = ui.openWindow({
             classification: "clipboard",
             x: x,
             y: y,
-            width: tabs[tabIndex].getWidth(),
-            height: tabs[tabIndex].getHeight(),
+            width: activeTab.getWidth(),
+            height: activeTab.getHeight(),
             title: "Clipboard",
             tabs: [{
                 image: 5465,
-                widgets: tabs[0].getWidgets(),
+                widgets: mainTab.getWidgets(),
             }, {
                 image: {
                     frameBase: 5277,
                     frameCount: 7,
                     frameDuration: 4,
                 },
-                widgets: tabs[1].getWidgets(),
+                widgets: libraryTab.getWidgets(),
+            }, {
+                image: {
+                    frameBase: 5205,
+                    frameCount: 16,
+                    frameDuration: 4,
+                },
+                widgets: configurationTab.getWidgets(),
             }, {
                 image: {
                     frameBase: 5367,
                     frameCount: 8,
                     frameDuration: 4,
                 },
-                widgets: tabs[2].getWidgets(),
+                widgets: aboutTab.getWidgets(),
             }],
             tabIndex: tabIndex,
             onClose: () => {
