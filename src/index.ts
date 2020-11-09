@@ -37,21 +37,21 @@ Array.prototype.deepEquals = function(other) {
 }
 
 registerPlugin({
-    name: "clipboard",
+    name: "scenery-manager",
     version: "0.0.0",
     authors: ["Sadret"],
     type: "remote",
-    licence: "MIT",
+    licence: "GPL-3.0",
     main: () => {
         // check if ui is available
         if (ui === undefined)
-            return console.log("[clipboard] Loading cancelled: game runs in headless mode.");
+            return console.log("[scenery-manager] Loading cancelled: game runs in headless mode.");
 
         // create manager
         const manager: SceneryManager = new SceneryManager();
 
         // add menu item
-        ui.registerMenuItem("Clipboard", () => manager.open());
+        ui.registerMenuItem("Scenery Manager", () => manager.open());
         manager.open();
 
         // add menu item
@@ -123,7 +123,7 @@ function tabs(): void {
         window.addBox(hbox);
     }
     ui.openWindow({
-        classification: "clipboard",
+        classification: "scenery-manager",
         x: undefined,
         y: undefined,
         width: window.getWidth(),
@@ -182,12 +182,12 @@ function images(): void {
     });
 
     handle = ui.openWindow({
-        classification: "clipboard",
+        classification: "scenery-manager",
         x: undefined,
         y: undefined,
         width: window.getWidth(),
         height: window.getHeight(),
-        title: "Clipboard",
+        title: "Images",
         widgets: window.getWidgets(),
         onUpdate: undefined,
         onClose: undefined,

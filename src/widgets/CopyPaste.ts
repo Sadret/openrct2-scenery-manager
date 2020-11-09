@@ -28,7 +28,7 @@ class CopyPaste {
         let drag = false;
 
         ui.activateTool({
-            id: "clipboard-area-select",
+            id: "scenery-manager-area-select",
             cursor: "cross_hair",
             onStart: () => {
                 this.selecting = true;
@@ -95,7 +95,7 @@ class CopyPaste {
         }
 
         ui.activateTool({
-            id: "clipboard-template-paste",
+            id: "scenery-manager-template-paste",
             cursor: "cross_hair",
             onStart: () => {
                 ui.mainViewport.visibilityFlags |= 1 << 7;

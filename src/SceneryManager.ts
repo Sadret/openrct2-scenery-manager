@@ -72,12 +72,12 @@ export class SceneryManager {
             y = (ui.height - activeTab.getHeight()) / 2;
 
         this.handle = ui.openWindow({
-            classification: "clipboard",
+            classification: "scenery-manager",
             x: x,
             y: y,
             width: activeTab.getWidth(),
             height: activeTab.getHeight(),
-            title: "Clipboard",
+            title: "Scenery Manager",
             tabs: [{
                 image: 5465,
                 widgets: mainTab.getWidgets(),

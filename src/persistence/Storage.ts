@@ -8,7 +8,7 @@
 /// <reference path="./../../../openrct2.d.ts" />
 import { FileSystem, File } from "./../persistence/File";
 
-const namespace: string = "Clipboard";
+const namespace: string = "scenery-manager";
 const storagePrefix: string = namespace + ".";
 
 export function has(key: string): boolean {
