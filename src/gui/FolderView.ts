@@ -62,7 +62,7 @@ export class FolderView {
             scrollbars: "vertical",
             columns: [{
                 header: "Name",
-                ratioWidth: 3,
+                ratioWidth: 5,
             }, {
                 header: "Width",
                 ratioWidth: 1,
@@ -80,6 +80,8 @@ export class FolderView {
     }
 
     update(): void {
+        if (this.getWindow() === undefined) return;
+
         const widget: ListView = this.getWindow().findWidget(this.name);
 
         const oldItems: ListViewItem[] | string[] = widget.items;

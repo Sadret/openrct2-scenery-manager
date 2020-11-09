@@ -105,9 +105,9 @@ export class SceneryManager {
             }],
             tabIndex: tabIndex,
             onClose: () => {
+                this.handle = undefined;
                 if (this.isToolActive)
                     ui.tool.cancel();
-                this.handle = undefined;
             },
             onTabChange: () => this.setActiveTab(this.handle.tabIndex),
         });

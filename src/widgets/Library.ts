@@ -95,6 +95,7 @@ class Library {
     }
 
     update(): void {
+        if (this.manager.handle === undefined) return;
         this.manager.handle.findWidget<LabelWidget>("library_path").text = this.getPath();
     }
 

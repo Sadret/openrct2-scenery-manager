@@ -55,7 +55,8 @@ class CopyPaste {
                 this.selecting = false;
                 ui.tileSelection.range = null;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
-                this.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = false;
+                if (this.manager.handle !== undefined)
+                    this.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = false;
                 this.manager.setToolActive(false);
             },
         });

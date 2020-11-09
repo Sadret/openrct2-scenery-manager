@@ -144,6 +144,8 @@ class Clipboard {
     }
 
     update(): void {
+        if (this.manager.handle === undefined) return;
+
         const handle: Window = this.manager.handle;
         const isDisabled: boolean = this.folderView.selected === undefined;
 
