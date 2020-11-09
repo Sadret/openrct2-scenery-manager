@@ -34,7 +34,6 @@ class CopyPaste {
                 this.selecting = true;
                 ui.mainViewport.visibilityFlags |= 1 << 7;
                 this.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = true;
-                this.manager.setToolActive(true);
             },
             onDown: e => {
                 drag = true;
@@ -57,7 +56,6 @@ class CopyPaste {
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
                 if (this.manager.handle !== undefined)
                     this.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = false;
-                this.manager.setToolActive(false);
             },
         });
     }
@@ -99,7 +97,6 @@ class CopyPaste {
             cursor: "cross_hair",
             onStart: () => {
                 ui.mainViewport.visibilityFlags |= 1 << 7;
-                this.manager.setToolActive(true);
             },
             onDown: () => {
                 removeGhost();
@@ -119,7 +116,6 @@ class CopyPaste {
                 ui.tileSelection.range = null;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
                 onCancel();
-                this.manager.setToolActive(false);
             },
         });
     }

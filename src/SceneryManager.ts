@@ -29,7 +29,6 @@ export class SceneryManager {
     readonly about: About;
 
     handle: Window = undefined;
-    isToolActive: boolean = false;
 
     constructor() {
         this.copyPaste = new CopyPaste(this);
@@ -106,7 +105,7 @@ export class SceneryManager {
             tabIndex: tabIndex,
             onClose: () => {
                 this.handle = undefined;
-                if (this.isToolActive)
+                if (ui.tool && ui.tool.id.indexOf("scenery-manager") === 0)
                     ui.tool.cancel();
             },
             onTabChange: () => this.setActiveTab(this.handle.tabIndex),
@@ -120,9 +119,5 @@ export class SceneryManager {
         this.handle.close();
 
         this.open(x, y, tabIndex);
-    }
-
-    setToolActive(isToolActive: boolean): void {
-        this.isToolActive = isToolActive;
     }
 }
