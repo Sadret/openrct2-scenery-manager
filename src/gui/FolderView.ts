@@ -5,10 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./_Save.d.ts" />
+/// <reference path="./../definitions/_Save.d.ts" />
 
-import { File } from "./File";
-import { BoxBuilder } from "./WindowBuilder";
+import { File } from "./../persistence/File";
+import { BoxBuilder } from "./../gui/WindowBuilder";
 
 export class FolderView {
     readonly name: string;

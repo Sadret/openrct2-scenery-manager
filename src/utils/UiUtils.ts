@@ -5,9 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../../openrct2.d.ts" />
+/// <reference path="./../../../openrct2.d.ts" />
 
-import { WindowBuilder, Margin } from "./WindowBuilder";
+import { WindowBuilder, Margin } from "./../gui/WindowBuilder";
 
 export function showConfirm(title: string, message: string[], callback: (confirmed: boolean) => void, okText: string = "OK", cancelText: string = "Cancel") {
     let handle: Window = undefined;

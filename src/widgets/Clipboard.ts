@@ -5,12 +5,12 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Storage from "./Storage";
-import * as UiUtils from "./UiUtils";
-import { File } from "./File";
-import { FolderView } from "./FolderView";
-import { SceneryManager } from "./SceneryManager";
-import { BoxBuilder } from "./WindowBuilder";
+import * as Storage from "./../persistence/Storage";
+import * as UiUtils from "./../utils/UiUtils";
+import { File } from "./../persistence/File";
+import { FolderView } from "./../gui/FolderView";
+import { SceneryManager } from "./../SceneryManager";
+import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class Clipboard {
     readonly manager: SceneryManager;

@@ -5,12 +5,12 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Storage from "./Storage";
-import * as UiUtils from "./UiUtils";
-import { FolderView } from "./FolderView";
-import { SceneryManager } from "./SceneryManager";
-import { BoxBuilder } from "./WindowBuilder";
-import { File } from "./File";
+import * as Storage from "./../persistence/Storage";
+import * as UiUtils from "./../utils/UiUtils";
+import { FolderView } from "./../gui/FolderView";
+import { SceneryManager } from "./../SceneryManager";
+import { BoxBuilder } from "./../gui/WindowBuilder";
+import { File } from "./../persistence/File";
 
 class LibraryManager {
     readonly manager: SceneryManager;

@@ -5,11 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../../openrct2.d.ts" />
-/// <reference path="./_Additions.d.ts" />
-/// <reference path="./_Save.d.ts" />
+/// <reference path="./../../../openrct2.d.ts" />
+/// <reference path="./../definitions/_Additions.d.ts" />
+/// <reference path="./../definitions/_Save.d.ts" />
 
-import * as CoordUtils from "./CoordUtils";
+import * as CoordUtils from "./../utils/CoordUtils";
 
 /*
  * INTERFACE DEFINITION

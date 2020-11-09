@@ -5,14 +5,14 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import CopyPaste from "./CopyPaste";
-import Settings from "./Settings";
-import Clipboard from "./Clipboard";
-import Library from "./Library";
-import LibraryManager from "./LibraryManager";
-import Configuration from "./Configuration";
-import About from "./About";
-import { TabBuilder, Margin } from "./WindowBuilder";
+import CopyPaste from "./widgets/CopyPaste";
+import Settings from "./widgets/Settings";
+import Clipboard from "./widgets/Clipboard";
+import Library from "./widgets/Library";
+import LibraryManager from "./widgets/LibraryManager";
+import Configuration from "./widgets/Configuration";
+import About from "./widgets/About";
+import { TabBuilder, Margin } from "./gui/WindowBuilder";
 
 export class SceneryManager {
     static readonly TAB_MAIN: number = 0;

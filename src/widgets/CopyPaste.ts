@@ -5,10 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as CoordUtils from "./CoordUtils";
-import * as SceneryUtils from "./SceneryUtils";
-import { SceneryManager } from "./SceneryManager";
-import { BoxBuilder } from "./WindowBuilder";
+import * as CoordUtils from "./../utils/CoordUtils";
+import * as SceneryUtils from "./../utils/SceneryUtils";
+import { SceneryManager } from "./../SceneryManager";
+import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class CopyPaste {
     readonly manager: SceneryManager;

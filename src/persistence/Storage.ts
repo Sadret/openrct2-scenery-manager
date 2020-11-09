@@ -5,8 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../../openrct2.d.ts" />
-import { FileSystem, File } from "./File";
+/// <reference path="./../../../openrct2.d.ts" />
+import { FileSystem, File } from "./../persistence/File";
 
 const namespace: string = "Clipboard";
 const storagePrefix: string = namespace + ".";

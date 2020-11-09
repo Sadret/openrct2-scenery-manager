@@ -5,10 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./_Save.d.ts" />
+/// <reference path="./../definitions/_Save.d.ts" />
 
-import { SceneryManager } from "./SceneryManager";
-import { BoxBuilder } from "./WindowBuilder";
+import { SceneryManager } from "./../SceneryManager";
+import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class Configuration {
     readonly manager: SceneryManager;

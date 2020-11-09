@@ -60,7 +60,7 @@ registerPlugin({
     },
 });
 
-import { WindowBuilder } from "./WindowBuilder";
+import { WindowBuilder } from "./gui/WindowBuilder";
 
 const arr = [
     // 5198, // SPR_TAB // 0x144e

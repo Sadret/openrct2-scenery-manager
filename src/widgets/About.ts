@@ -5,8 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { SceneryManager } from "./SceneryManager";
-import { BoxBuilder } from "./WindowBuilder";
+import { SceneryManager } from "./../SceneryManager";
+import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class About {
     constructor(_manager: SceneryManager) { }

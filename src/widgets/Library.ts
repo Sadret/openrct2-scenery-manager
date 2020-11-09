@@ -5,13 +5,13 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./_Save.d.ts" />
+/// <reference path="./../definitions/_Save.d.ts" />
 
-import * as Storage from "./Storage";
-import { File } from "./File";
-import { FolderView } from "./FolderView";
-import { SceneryManager } from "./SceneryManager";
-import { BoxBuilder } from "./WindowBuilder";
+import * as Storage from "./../persistence/Storage";
+import { File } from "./../persistence/File";
+import { FolderView } from "./../gui/FolderView";
+import { SceneryManager } from "./../SceneryManager";
+import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class Library {
     readonly manager: SceneryManager;
