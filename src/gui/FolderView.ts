@@ -110,14 +110,20 @@ export class FolderView {
         if (this.path.getParent() !== undefined)
             addItem(this.path.getParent(), ["../", "", "", ""]);
 
-        this.path.getFiles().filter((file: File) =>
+        this.path.getFiles(
+        ).filter((file: File) =>
             file.isFolder()
-        ).forEach((file: File) => {
-            addItem(file, [file.getName() + "/", "", "", ""]);
-        });
+        ).sort((a: File, b: File) =>
+            a.getName().localeCompare(b.getName())
+        ).forEach((file: File) =>
+            addItem(file, [file.getName() + "/", "", "", ""])
+        );
 
-        this.path.getFiles().filter((file: File) =>
+        this.path.getFiles(
+        ).filter((file: File) =>
             file.isFile()
+        ).sort((a: File, b: File) =>
+            a.getName().localeCompare(b.getName())
         ).forEach((file: File) => {
             let template: SceneryTemplate = file.getContent();
             if (template === undefined)
