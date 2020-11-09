@@ -1,0 +1,17 @@
+{
+    "name": "scenery-manager",
+    "version": "0.0.0",
+    "description": "Scenery Manager",
+    "scripts": {
+        "build": "rollup -c && babel ./build/scenery-manager.js --out-file ./build/scenery-manager.js"
+    },
+    "devDependencies": {
+        "@babel/core": "^7.9.0",
+        "@rollup/plugin-typescript": "^5.0.0",
+        "babel-cli": "^6.26.0",
+        "babel-preset-env": "^1.7.0",
+        "rollup": "^2.18.0",
+        "tslib": "^1.13.0",
+        "typescript": "^3.9.3"
+    }
+}
