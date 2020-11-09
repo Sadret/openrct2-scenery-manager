@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Config from "./Config";
+import * as Storage from "./Storage";
 import * as UiUtils from "./UiUtils";
 import { File } from "./File";
 import { FolderView } from "./FolderView";
@@ -20,7 +20,7 @@ class Clipboard {
     constructor(manager: SceneryManager) {
         this.manager = manager;
 
-        this.folderView = new FolderView("clipboard_listview", () => this.manager.handle, Config.clipboard.getRoot());
+        this.folderView = new FolderView("clipboard_listview", () => this.manager.handle, Storage.clipboard.getRoot());
 
         this.folderView.select = (file: File) => {
             const selected: File = this.folderView.selected;

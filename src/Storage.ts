@@ -9,35 +9,35 @@
 import { FileSystem, File } from "./File";
 
 const namespace: string = "Clipboard";
-const configPrefix: string = namespace + ".";
+const storagePrefix: string = namespace + ".";
 
 export function has(key: string): boolean {
-    return context.sharedStorage.has(configPrefix + key);
+    return context.sharedStorage.has(storagePrefix + key);
 }
 
 export function get<T>(key: string): T {
-    return context.sharedStorage.get(configPrefix + key);
+    return context.sharedStorage.get(storagePrefix + key);
 }
 
 export function set<T>(key: string, value: T): void {
-    context.sharedStorage.set(configPrefix + key, value);
+    context.sharedStorage.set(storagePrefix + key, value);
 }
 
-interface ConfigElement {
+interface StorageElement {
     type: "folder" | "file";
 }
 
-interface ConfigFolder extends ConfigElement {
+interface StorageFolder extends StorageElement {
     type: "folder";
-    files: { [key: string]: ConfigElement };
+    files: { [key: string]: StorageElement };
 }
 
-interface ConfigFile<T> extends ConfigElement {
+interface StorageFile<T> extends StorageElement {
     type: "file";
     content: T;
 }
 
-export class ConfigFileSystem implements FileSystem {
+export class StorageFileSystem implements FileSystem {
     readonly root: string;
 
     constructor(root: string) {
@@ -58,11 +58,11 @@ export class ConfigFileSystem implements FileSystem {
         return (this.root + file.getPath()).replace(/\//g, ".files.");
     }
 
-    getData<T extends ConfigElement>(file: File): T {
+    getData<T extends StorageElement>(file: File): T {
         return get<T>(this.getKey(file));
     }
 
-    setData<T extends ConfigElement>(file: File, data: T): void {
+    setData<T extends StorageElement>(file: File, data: T): void {
         set<T>(this.getKey(file), data);
     }
 
@@ -78,7 +78,7 @@ export class ConfigFileSystem implements FileSystem {
         if (!this.isFolder(file))
             return undefined;
 
-        const files: { [key: string]: ConfigElement } = this.getData<ConfigFolder>(file).files;
+        const files: { [key: string]: StorageElement } = this.getData<StorageFolder>(file).files;
         const result: File[] = [];
         for (let name in files)
             result.push(new File(this, file.path + "/" + name));
@@ -88,14 +88,14 @@ export class ConfigFileSystem implements FileSystem {
         if (!this.isFile(file))
             return undefined;
 
-        return this.getData<ConfigFile<T>>(file).content;
+        return this.getData<StorageFile<T>>(file).content;
     };
 
     createFolder(file: File): boolean {
         if (this.exists(file))
             return false;
 
-        this.setData<ConfigFolder>(file, {
+        this.setData<StorageFolder>(file, {
             type: "folder",
             files: {},
         });
@@ -105,7 +105,7 @@ export class ConfigFileSystem implements FileSystem {
         if (this.exists(file))
             return false;
 
-        this.setData<ConfigFile<T>>(file, {
+        this.setData<StorageFile<T>>(file, {
             type: "file",
             content: content,
         });
@@ -135,7 +135,7 @@ export class ConfigFileSystem implements FileSystem {
         if (!this.isFile(file))
             return false;
 
-        this.setData<ConfigFile<T>>(file, {
+        this.setData<StorageFile<T>>(file, {
             type: "file",
             content: content,
         });
@@ -149,20 +149,20 @@ export class ConfigFileSystem implements FileSystem {
         this.setData(file, undefined);
     };
 
-    __deepCopy<T>(data: ConfigElement): ConfigElement {
+    __deepCopy<T>(data: StorageElement): StorageElement {
         if (data.type === "file") {
-            const file: ConfigFile<T> = <ConfigFile<T>>data;
-            return <ConfigElement>{
+            const file: StorageFile<T> = <StorageFile<T>>data;
+            return <StorageElement>{
                 type: "file",
                 content: file.content,
             };
         } else {
-            const folder: ConfigFolder = <ConfigFolder>data;
-            const files: { [key: string]: ConfigElement } = {};
+            const folder: StorageFolder = <StorageFolder>data;
+            const files: { [key: string]: StorageElement } = {};
             Object.keys(folder.files).forEach(key => {
                 files[key] = this.__deepCopy(folder.files[key]);
             })
-            return <ConfigElement>{
+            return <StorageElement>{
                 type: "folder",
                 files: files,
             };
@@ -170,5 +170,5 @@ export class ConfigFileSystem implements FileSystem {
     }
 }
 
-export const library: ConfigFileSystem = new ConfigFileSystem("library");
-export const clipboard: ConfigFileSystem = new ConfigFileSystem("clipboard");
+export const library: StorageFileSystem = new StorageFileSystem("library");
+export const clipboard: StorageFileSystem = new StorageFileSystem("clipboard");

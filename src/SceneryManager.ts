@@ -72,13 +72,21 @@ export class SceneryManager {
             height: tabs[tabIndex].getHeight(),
             title: "Clipboard",
             tabs: [{
-                image: 5459,
+                image: 5465,
                 widgets: tabs[0].getWidgets(),
             }, {
-                image: 5460,
+                image: {
+                    frameBase: 5277,
+                    frameCount: 7,
+                    frameDuration: 4,
+                },
                 widgets: tabs[1].getWidgets(),
             }, {
-                image: 5461,
+                image: {
+                    frameBase: 5367,
+                    frameCount: 8,
+                    frameDuration: 4,
+                },
                 widgets: tabs[2].getWidgets(),
             }],
             tabIndex: tabIndex,

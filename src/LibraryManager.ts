@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Config from "./Config";
+import * as Storage from "./Storage";
 import * as UiUtils from "./UiUtils";
 import { FolderView } from "./FolderView";
 import { SceneryManager } from "./SceneryManager";
@@ -22,7 +22,7 @@ class LibraryManager {
     constructor(manager: SceneryManager) {
         this.manager = manager;
 
-        this.folderView = new FolderView("librarymanager_listview", () => this.manager.handle, Config.library.getRoot());
+        this.folderView = new FolderView("librarymanager_listview", () => this.manager.handle, Storage.library.getRoot());
 
         this.folderView.select = (file: File) => {
             FolderView.prototype.select.call(this.folderView, file);

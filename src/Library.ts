@@ -7,7 +7,7 @@
 
 /// <reference path="./_Save.d.ts" />
 
-import * as Config from "./Config";
+import * as Storage from "./Storage";
 import { File } from "./File";
 import { FolderView } from "./FolderView";
 import { SceneryManager } from "./SceneryManager";
@@ -20,7 +20,7 @@ class Library {
     constructor(manager: SceneryManager) {
         this.manager = manager;
 
-        this.folderView = new FolderView("library_listview", () => this.manager.handle, Config.library.getRoot());
+        this.folderView = new FolderView("library_listview", () => this.manager.handle, Storage.library.getRoot());
 
         this.folderView.select = (file: File) => {
             const selected: File = this.folderView.selected;
