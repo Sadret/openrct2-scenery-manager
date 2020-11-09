@@ -35,7 +35,7 @@ export function showConfirm(title: string, message: string[], callback: (confirm
     window.addBox(hbox);
 
     handle = ui.openWindow({
-        classification: "confirm",
+        classification: "scenery-manager-confirm",
         x: (ui.width - window.getWidth()) / 2,
         y: (ui.height - window.getHeight()) / 2,
         width: window.getWidth(),
