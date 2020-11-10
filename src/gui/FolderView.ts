@@ -9,6 +9,7 @@
 
 import { File } from "./../persistence/File";
 import { BoxBuilder } from "./../gui/WindowBuilder";
+import * as StringUtils from "./../utils/StringUtils";
 
 export class FolderView {
     readonly name: string;
@@ -115,8 +116,8 @@ export class FolderView {
         this.path.getFiles(
         ).filter((file: File) =>
             file.isFolder()
-        ).sort((a: File, b: File) =>
-            a.getName().localeCompare(b.getName())
+        ).sort(
+            (a: File, b: File) => StringUtils.compare(a.getName(), b.getName())
         ).forEach((file: File) =>
             addItem(file, [file.getName() + "/", "", "", ""])
         );
@@ -124,8 +125,8 @@ export class FolderView {
         this.path.getFiles(
         ).filter((file: File) =>
             file.isFile()
-        ).sort((a: File, b: File) =>
-            a.getName().localeCompare(b.getName())
+        ).sort(
+            (a: File, b: File) => StringUtils.compare(a.getName(), b.getName())
         ).forEach((file: File) => {
             let template: SceneryTemplate = file.getContent();
             if (template === undefined)
