@@ -175,7 +175,7 @@ export function paste(template: SceneryTemplate, offset: CoordsXY, filter: Filte
 }
 
 export function remove(data: SceneryRemoveArgs[]) {
-    data.reverseForEach((args: SceneryRemoveArgs) => {
+    data.slice().reverse().forEach((args: SceneryRemoveArgs) => {
         let type: SceneryType = (<any>args).type;
         if (type === "banner")
             context.executeAction(getRemoveAction(type), {

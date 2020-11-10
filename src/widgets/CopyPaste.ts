@@ -5,6 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as ArrayUtils from "./../utils/ArrayUtils";
 import * as CoordUtils from "./../utils/CoordUtils";
 import * as SceneryUtils from "./../utils/SceneryUtils";
 import { SceneryManager } from "./../SceneryManager";
@@ -68,7 +69,7 @@ class CopyPaste {
     }
 
     pasteTemplate(template: SceneryTemplate, onCancel: () => void): void {
-        if (template.data.find((data: SceneryData) => SceneryUtils.getObject(data) === undefined) !== undefined)
+        if (ArrayUtils.find(template.data, (data: SceneryData) => SceneryUtils.getObject(data) === undefined) !== undefined)
             return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
 
         let ghost: SceneryRemoveArgs[] = undefined;

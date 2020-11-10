@@ -10,6 +10,7 @@
 import { File } from "./../persistence/File";
 import { BoxBuilder } from "./../gui/WindowBuilder";
 import * as StringUtils from "./../utils/StringUtils";
+import * as ArrayUtils from "./../utils/ArrayUtils";
 
 export class FolderView {
     readonly name: string;
@@ -87,7 +88,7 @@ export class FolderView {
 
         const oldItems: ListViewItem[] | string[] = widget.items;
         const newItems: ListViewItem[] = this.getItems();
-        if (!oldItems.deepEquals(newItems))
+        if (!ArrayUtils.deepEquals(oldItems, newItems))
             widget.items = this.getItems();
 
         const selectedCell = this.getSelectedCell();
