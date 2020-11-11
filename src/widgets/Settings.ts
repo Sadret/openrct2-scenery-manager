@@ -33,7 +33,7 @@ class Settings {
     }
 
     build(builder: BoxBuilder): void {
-        const rotationLabel: () => string = () => "Rotation: " + (this.options.rotation === 0 ? "none" : (this.options.rotation * 90 + " degree"));
+        const rotationLabel: () => string = () => String(this.options.rotation === 0 ? "none" : (this.options.rotation * 90 + " deg"));
         const mirroredLabel: () => string = () => "Mirrored: " + (this.options.mirrored ? "yes" : "no");
         const absoluteLabel: () => string = () => this.options.absolute ? "Absolute height" : "Relative to surface";
 
@@ -51,14 +51,25 @@ class Settings {
             }, group);
         } {
             const group = hbox.getGroupBox();
-            group.addTextButton({
-                text: rotationLabel(),
-                name: "options_rotation",
-                onClick: () => {
-                    this.options.rotation = (this.options.rotation + 1) & 3;
-                    this.manager.handle.findWidget<ButtonWidget>("options_rotation").text = rotationLabel();
-                },
-            });
+            {
+                const rotation = group.getHBox([1, 1]);
+                rotation.addLabel({
+                    text: "Rotation:",
+                });
+                rotation.addSpinner({
+                    text: rotationLabel(),
+                    name: "options_rotation",
+                    onDecrement: () => {
+                        this.options.rotation = (this.options.rotation + 3) & 3;
+                        this.manager.handle.findWidget<SpinnerWidget>("options_rotation").text = rotationLabel();
+                    },
+                    onIncrement: () => {
+                        this.options.rotation = (this.options.rotation + 1) & 3;
+                        this.manager.handle.findWidget<SpinnerWidget>("options_rotation").text = rotationLabel();
+                    },
+                });
+                group.addBox(rotation);
+            }
             group.addTextButton({
                 text: mirroredLabel(),
                 name: "options_mirrored",
@@ -78,7 +89,7 @@ class Settings {
             {
                 const heightOffset = group.getHBox([1, 1]);
                 heightOffset.addLabel({
-                    text: "Height offset",
+                    text: "Height offset:",
                 });
                 heightOffset.addSpinner({
                     text: String(this.options.height),
