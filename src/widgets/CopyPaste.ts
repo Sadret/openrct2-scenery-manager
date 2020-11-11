@@ -1,23 +1,23 @@
 /*****************************************************************************
  * Copyright (c) 2020 Sadret
  *
- * The OpenRCT2 plugin "Scenery Manager" is licensed
+ * The OpenRCT2 plug-in "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
 import * as ArrayUtils from "./../utils/ArrayUtils";
 import * as CoordUtils from "./../utils/CoordUtils";
 import * as SceneryUtils from "./../utils/SceneryUtils";
-import { SceneryManager } from "./../SceneryManager";
+import Main from "./../widgets/Main";
 import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class CopyPaste {
-    readonly manager: SceneryManager;
+    readonly main: Main;
 
     selecting: boolean = false;
 
-    constructor(manager: SceneryManager) {
-        this.manager = manager;
+    constructor(main: Main) {
+        this.main = main;
     }
 
     selectArea(): void {
@@ -34,7 +34,7 @@ class CopyPaste {
             onStart: () => {
                 this.selecting = true;
                 ui.mainViewport.visibilityFlags |= 1 << 7;
-                this.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = true;
+                this.main.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = true;
             },
             onDown: e => {
                 drag = true;
@@ -55,8 +55,8 @@ class CopyPaste {
                 this.selecting = false;
                 ui.tileSelection.range = null;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
-                if (this.manager.handle !== undefined)
-                    this.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = false;
+                if (this.main.manager.handle !== undefined)
+                    this.main.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = false;
             },
         });
     }
@@ -65,7 +65,7 @@ class CopyPaste {
         if (ui.tileSelection.range === null)
             ui.showError("Can't copy area...", "Nothing selected!");
         else
-            this.manager.clipboard.add(SceneryUtils.copy(ui.tileSelection.range, this.manager.settings.filter));
+            this.main.clipboard.add(SceneryUtils.copy(ui.tileSelection.range, this.main.settings.filter));
     }
 
     pasteTemplate(template: SceneryTemplate, onCancel: () => void): void {
@@ -79,7 +79,7 @@ class CopyPaste {
                 SceneryUtils.remove(ghost);
             ghost = undefined;
         }
-        const settings = this.manager.settings;
+        const settings = this.main.settings;
         function placeGhost() {
             if (ui.tileSelection.range === null)
                 return removeGhost();
@@ -101,7 +101,7 @@ class CopyPaste {
             },
             onDown: () => {
                 removeGhost();
-                SceneryUtils.paste(template, ui.tileSelection.range.leftTop, this.manager.settings.filter, this.manager.settings.options);
+                SceneryUtils.paste(template, ui.tileSelection.range.leftTop, this.main.settings.filter, this.main.settings.options);
             },
             onMove: e => {
                 if (e.mapCoords.x * e.mapCoords.y === 0)
@@ -123,7 +123,7 @@ class CopyPaste {
 
     getSize(template: SceneryTemplate) {
         let size: CoordsXY = template.size;
-        if (this.manager.settings.options.rotation % 2 === 1)
+        if (this.main.settings.options.rotation % 2 === 1)
             size = {
                 x: size.y,
                 y: size.x,

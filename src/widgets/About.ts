@@ -1,24 +1,38 @@
 /*****************************************************************************
  * Copyright (c) 2020 Sadret
  *
- * The OpenRCT2 plugin "Scenery Manager" is licensed
+ * The OpenRCT2 plug-in "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { SceneryManager } from "./../SceneryManager";
-import { BoxBuilder } from "./../gui/WindowBuilder";
+import SceneryManager from "./../SceneryManager";
+import { BoxBuilder, Margin } from "./../gui/WindowBuilder";
 
 class About {
     constructor(_manager: SceneryManager) { }
 
     build(builder: BoxBuilder): void {
+        const content = builder.getVBox(8, Margin.uniform(4));
+        this.content(content);
+        builder.addBox(content);
+    }
+
+    content(builder: BoxBuilder) {
         const separator: string = "++++++++++++++++++++++++++++++++++++++++++++++++++++";
 
         builder.addLabel({ text: separator });
         builder.addSpace(0);
         this.addText(builder, [
             "Copyright (c) 2020 Sadret",
-            "This plugin is licensed under GPL-3.0",
+            "The OpenRCT2 plug-in \"Scenery Manager\" is licensed",
+            "under the GNU General Public License version 3.",
+        ]);
+        builder.addSpace(0);
+        builder.addLabel({ text: separator });
+        builder.addSpace(0);
+        this.addText(builder, [
+            "If you like this plug-in, please leave a star on GitHub.",
+            "https://github.com/Sadret/openrct2-scenery-manager",
         ]);
         builder.addSpace(0);
         builder.addLabel({ text: separator });
@@ -26,14 +40,6 @@ class About {
         this.addText(builder, [
             "If you want to support me, you can buy me a coffee:",
             "https://www.BuyMeACoffee.com/SadretGaming",
-        ]);
-        builder.addSpace(0);
-        builder.addLabel({ text: separator });
-        builder.addSpace(0);
-        this.addText(builder, [
-            "Visit GitHub for updates:",
-            "https://github.com/Sadret/openrct2-scenery-manager",
-            "If you like this plug-in, please leave a star on GitHub.",
         ]);
         builder.addSpace(0);
         builder.addLabel({ text: separator });

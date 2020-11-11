@@ -1,16 +1,16 @@
 /*****************************************************************************
  * Copyright (c) 2020 Sadret
  *
- * The OpenRCT2 plugin "Scenery Manager" is licensed
+ * The OpenRCT2 plug-in "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
 import { Filter, Options } from "./../utils/SceneryUtils";
-import { SceneryManager } from "./../SceneryManager";
+import Main from "./../widgets/Main";
 import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class Settings {
-    readonly manager: SceneryManager;
+    readonly main: Main;
 
     readonly filter: Filter = {
         footpath: true,
@@ -28,8 +28,8 @@ class Settings {
         ghost: false,
     };
 
-    constructor(manager: SceneryManager) {
-        this.manager = manager;
+    constructor(main: Main) {
+        this.main = main;
     }
 
     build(builder: BoxBuilder): void {
@@ -61,11 +61,11 @@ class Settings {
                     name: "options_rotation",
                     onDecrement: () => {
                         this.options.rotation = (this.options.rotation + 3) & 3;
-                        this.manager.handle.findWidget<SpinnerWidget>("options_rotation").text = rotationLabel();
+                        this.main.manager.handle.findWidget<SpinnerWidget>("options_rotation").text = rotationLabel();
                     },
                     onIncrement: () => {
                         this.options.rotation = (this.options.rotation + 1) & 3;
-                        this.manager.handle.findWidget<SpinnerWidget>("options_rotation").text = rotationLabel();
+                        this.main.manager.handle.findWidget<SpinnerWidget>("options_rotation").text = rotationLabel();
                     },
                 });
                 group.addBox(rotation);
@@ -75,7 +75,7 @@ class Settings {
                 name: "options_mirrored",
                 onClick: () => {
                     this.options.mirrored = !this.options.mirrored;
-                    this.manager.handle.findWidget<ButtonWidget>("options_mirrored").text = mirroredLabel();
+                    this.main.manager.handle.findWidget<ButtonWidget>("options_mirrored").text = mirroredLabel();
                 },
             });
             group.addTextButton({
@@ -83,7 +83,7 @@ class Settings {
                 name: "options_absolute",
                 onClick: () => {
                     this.options.absolute = !this.options.absolute;
-                    this.manager.handle.findWidget<ButtonWidget>("options_absolute").text = absoluteLabel();
+                    this.main.manager.handle.findWidget<ButtonWidget>("options_absolute").text = absoluteLabel();
                 },
             });
             {
@@ -96,11 +96,11 @@ class Settings {
                     name: "options_height",
                     onDecrement: () => {
                         this.options.height--;
-                        this.manager.handle.findWidget<SpinnerWidget>("options_height").text = String(this.options.height);
+                        this.main.manager.handle.findWidget<SpinnerWidget>("options_height").text = String(this.options.height);
                     },
                     onIncrement: () => {
                         this.options.height++;
-                        this.manager.handle.findWidget<SpinnerWidget>("options_height").text = String(this.options.height);
+                        this.main.manager.handle.findWidget<SpinnerWidget>("options_height").text = String(this.options.height);
                     },
                 });
                 group.addBox(heightOffset);

@@ -1,7 +1,7 @@
 /*****************************************************************************
  * Copyright (c) 2020 Sadret
  *
- * The OpenRCT2 plugin "Scenery Manager" is licensed
+ * The OpenRCT2 plug-in "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
@@ -40,7 +40,6 @@ export abstract class BoxBuilder {
     readonly margin: Margin;
 
     readonly innerWidth: number;
-
     readonly cursor: CoordsXY;
     readonly widgets: Widget[] = [];
 
@@ -57,11 +56,10 @@ export abstract class BoxBuilder {
         this.padding = padding;
         this.margin = margin;
 
-        this.innerWidth = width - margin.left - margin.right;
-
+        this.innerWidth = this.width - this.margin.left - this.margin.right;
         this.cursor = {
-            x: position.x + margin.left,
-            y: position.y + margin.top,
+            x: this.position.x + this.margin.left,
+            y: this.position.y + this.margin.top,
         };
     }
 
@@ -70,30 +68,31 @@ export abstract class BoxBuilder {
 
     abstract advanceCursor(widget: Widget, verticalMargin: number): void;
 
-    getVBox(padding?: number): VBoxBuilder {
+    getVBox(padding?: number, margin?: Margin): VBoxBuilder {
         return new VBoxBuilder(
             { ...this.cursor },
             this.peekWidgetWidth(),
             padding,
-            Margin.none,
+            margin,
         );
     }
 
-    getHBox(weights: number[], padding?: number): HBoxBuilder {
+    getHBox(weights: number[], padding?: number, margin?: Margin): HBoxBuilder {
         return new HBoxBuilder(
             weights,
             { ...this.cursor },
             this.peekWidgetWidth(),
             padding,
-            Margin.none,
+            margin,
         );
     }
 
-    getGroupBox(padding?: number): GroupBoxBuilder {
+    getGroupBox(padding?: number, margin?: Margin): GroupBoxBuilder {
         return new GroupBoxBuilder(
             { x: this.cursor.x, y: this.cursor.y + 1, },
             this.peekWidgetWidth(),
             padding,
+            margin,
         )
     }
 

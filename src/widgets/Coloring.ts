@@ -5,9 +5,14 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-export function compare(a: string, b: string): number {
-    const case_insensitive = a.toLowerCase().localeCompare(b.toLowerCase());
-    if (case_insensitive !== 0)
-        return case_insensitive;
-    return a.localeCompare(b);
+import SceneryManager from "./../SceneryManager";
+import { BoxBuilder } from "./../gui/WindowBuilder";
+
+class Coloring {
+    constructor(_manager: SceneryManager) { }
+
+    build(builder: BoxBuilder): void {
+        builder.addLabel({ text: "coming soon" });
+    }
 }
+export default Coloring;

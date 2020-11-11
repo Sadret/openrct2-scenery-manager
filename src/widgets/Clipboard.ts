@@ -1,7 +1,7 @@
 /*****************************************************************************
  * Copyright (c) 2020 Sadret
  *
- * The OpenRCT2 plugin "Scenery Manager" is licensed
+ * The OpenRCT2 plug-in "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
@@ -9,18 +9,18 @@ import * as Storage from "./../persistence/Storage";
 import * as UiUtils from "./../utils/UiUtils";
 import { File } from "./../persistence/File";
 import { FolderView } from "./../gui/FolderView";
-import { SceneryManager } from "./../SceneryManager";
+import Main from "./../widgets/Main";
 import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class Clipboard {
-    readonly manager: SceneryManager;
+    readonly main: Main;
     readonly folderView: FolderView;
     counter: number = 0;
 
-    constructor(manager: SceneryManager) {
-        this.manager = manager;
+    constructor(main: Main) {
+        this.main = main;
 
-        this.folderView = new FolderView("clipboard_listview", () => this.manager.handle, Storage.clipboard.getRoot());
+        this.folderView = new FolderView("clipboard_listview", () => this.main.manager.handle, Storage.clipboard.getRoot());
 
         this.folderView.select = (file: File) => {
             const selected: File = this.folderView.selected;
@@ -37,7 +37,7 @@ class Clipboard {
             FolderView.prototype.select.call(this.folderView, file);
 
             if (selectFile)
-                this.manager.copyPaste.pasteTemplate(
+                this.main.copyPaste.pasteTemplate(
                     file.getContent(),
                     () => this.folderView.select(undefined),
                 );
@@ -89,7 +89,7 @@ class Clipboard {
 
     save(): void {
         const file: File = this.folderView.selected;
-        this.manager.library.save(file.getName(), file.getContent<SceneryTemplate>());
+        this.main.library.save(file.getName(), file.getContent<SceneryTemplate>());
     }
 
     clear(): void {
@@ -144,9 +144,9 @@ class Clipboard {
     }
 
     update(): void {
-        if (this.manager.handle === undefined) return;
+        if (this.main.manager.handle === undefined) return;
 
-        const handle: Window = this.manager.handle;
+        const handle: Window = this.main.manager.handle;
         const isDisabled: boolean = this.folderView.selected === undefined;
 
         handle.findWidget<ButtonWidget>("clipboard_name").isDisabled = isDisabled;

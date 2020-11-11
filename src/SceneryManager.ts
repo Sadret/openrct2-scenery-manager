@@ -1,107 +1,122 @@
 /*****************************************************************************
  * Copyright (c) 2020 Sadret
  *
- * The OpenRCT2 plugin "Scenery Manager" is licensed
+ * The OpenRCT2 plug-in "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import CopyPaste from "./widgets/CopyPaste";
-import Settings from "./widgets/Settings";
-import Clipboard from "./widgets/Clipboard";
+import Main from "./widgets/Main";
 import Library from "./widgets/Library";
-import LibraryManager from "./widgets/LibraryManager";
-import Configuration from "./widgets/Configuration";
+import Coloring from "./widgets/Coloring";
+import Utilities from "./widgets/Utilities";
+import Research from "./widgets/Research";
 import About from "./widgets/About";
-import { TabBuilder, Margin } from "./gui/WindowBuilder";
+import { TabBuilder, BoxBuilder } from "./gui/WindowBuilder";
 
-export class SceneryManager {
-    static readonly TAB_MAIN: number = 0;
-    static readonly TAB_LIBRARY: number = 1;
-    static readonly TAB_CONFIGURATION: number = 2;
-    static readonly TAB_ABOUT: number = 3;
+export enum TAB {
+    MAIN,
+    LIBRARY,
+    COLORING,
+    UTILITITES,
+    RESEARCH,
+    ABOUT,
+}
 
-    readonly copyPaste: CopyPaste;
-    readonly settings: Settings;
-    readonly clipboard: Clipboard;
+interface Tab {
+    image: number | ImageAnimation;
+    widget: {
+        build: (builder: BoxBuilder) => void;
+    };
+}
+
+class SceneryManager {
+    readonly tabs: Tab[];
+
+    readonly main: Main;
     readonly library: Library;
-    readonly libraryManager: LibraryManager;
-    readonly configuration: Configuration;
+    readonly coloring: Coloring;
+    readonly utilities: Utilities;
+    readonly research: Research;
     readonly about: About;
 
     handle: Window = undefined;
 
     constructor() {
-        this.copyPaste = new CopyPaste(this);
-        this.settings = new Settings(this);
-        this.clipboard = new Clipboard(this);
+        this.main = new Main(this);
         this.library = new Library(this);
-        this.libraryManager = new LibraryManager(this);
-        this.configuration = new Configuration(this);
+        this.coloring = new Coloring(this);
+        this.utilities = new Utilities(this);
+        this.research = new Research(this);
         this.about = new About(this);
+
+        this.tabs = [{
+            image: 5465,
+            widget: this.main,
+        }, {
+            image: {
+                frameBase: 5277,
+                frameCount: 7,
+                frameDuration: 4,
+            },
+            widget: this.library,
+        }, {
+            image: {
+                frameBase: 5221,
+                frameCount: 8,
+                frameDuration: 4,
+            },
+            widget: this.coloring,
+        }, {
+            image: {
+                frameBase: 5205,
+                frameCount: 16,
+                frameDuration: 4,
+            },
+            widget: this.utilities,
+        }, {
+            image: 5327,
+            widget: this.research,
+        }, {
+            image: {
+                frameBase: 5367,
+                frameCount: 8,
+                frameDuration: 4,
+            },
+            widget: this.about,
+        }];
     }
 
     open(x?: number, y?: number, tabIndex: number = 0): void {
         if (this.handle !== undefined)
             return;
 
-        const mainTab: TabBuilder = new TabBuilder(384);
-        if (tabIndex === SceneryManager.TAB_MAIN) {
-            this.copyPaste.build(mainTab);
-            this.settings.build(mainTab);
-            this.clipboard.build(mainTab);
-            this.library.build(mainTab);
-        }
+        let width: number, height: number;
 
-        const libraryTab: TabBuilder = new TabBuilder(384);
-        if (tabIndex === SceneryManager.TAB_LIBRARY)
-            this.libraryManager.build(libraryTab);
-
-        const configurationTab: TabBuilder = new TabBuilder(384);
-        if (tabIndex === SceneryManager.TAB_CONFIGURATION)
-            this.configuration.build(configurationTab);
-
-        const aboutTab: TabBuilder = new TabBuilder(384, 8, Margin.uniform(8));
-        if (tabIndex === SceneryManager.TAB_ABOUT)
-            this.about.build(aboutTab);
-
-        const activeTab = [mainTab, libraryTab, configurationTab, aboutTab][tabIndex];
-        if (x === undefined)
-            x = (ui.width - activeTab.getWidth()) / 2;
-        if (y === undefined)
-            y = (ui.height - activeTab.getHeight()) / 2;
+        const tabs: WindowTabDesc[] = this.tabs.map((tab: Tab, idx: number) => {
+            const builder: TabBuilder = new TabBuilder(384);
+            if (tabIndex === idx) {
+                tab.widget.build(builder);
+                if (x === undefined)
+                    x = (ui.width - builder.getWidth()) / 2;
+                if (y === undefined)
+                    y = (ui.height - builder.getHeight()) / 2;
+                width = builder.getWidth();
+                height = builder.getHeight();
+            }
+            return {
+                image: tab.image,
+                widgets: builder.getWidgets(),
+            }
+        });
 
         this.handle = ui.openWindow({
             classification: "scenery-manager",
             x: x,
             y: y,
-            width: activeTab.getWidth(),
-            height: activeTab.getHeight(),
+            width: width,
+            height: height,
             title: "Scenery Manager",
-            tabs: [{
-                image: 5465,
-                widgets: mainTab.getWidgets(),
-            }, {
-                image: {
-                    frameBase: 5277,
-                    frameCount: 7,
-                    frameDuration: 4,
-                },
-                widgets: libraryTab.getWidgets(),
-            }, {
-                image: {
-                    frameBase: 5205,
-                    frameCount: 16,
-                    frameDuration: 4,
-                },
-                widgets: configurationTab.getWidgets(),
-            }, {
-                image: {
-                    frameBase: 5367,
-                    frameCount: 8,
-                    frameDuration: 4,
-                },
-                widgets: aboutTab.getWidgets(),
-            }],
+            tabs: tabs,
             tabIndex: tabIndex,
             onClose: () => {
                 this.handle = undefined;
@@ -121,3 +136,4 @@ export class SceneryManager {
         this.open(x, y, tabIndex);
     }
 }
+export default SceneryManager;
