@@ -6,8 +6,8 @@
  *****************************************************************************/
 
 /// <reference path="./../../../openrct2.d.ts" />
-/// <reference path="./../definitions/_Additions.d.ts" />
-/// <reference path="./../definitions/_Save.d.ts" />
+/// <reference path="./../definitions/SceneryArgs.d.ts" />
+/// <reference path="./../definitions/SceneryTemplate.d.ts" />
 
 import * as CoordUtils from "./../utils/CoordUtils";
 

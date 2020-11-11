@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../definitions/_Save.d.ts" />
+/// <reference path="./../definitions/SceneryTemplate.d.ts" />
 
 import { File } from "./../persistence/File";
 import { BoxBuilder } from "./../gui/WindowBuilder";
