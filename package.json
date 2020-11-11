@@ -1,6 +1,6 @@
 {
     "name": "scenery-manager",
-    "version": "0.0.0",
+    "version": "1.0.0",
     "description": "Scenery Manager",
     "scripts": {
         "build": "rollup -c && babel ./build/scenery-manager.js --out-file ./build/scenery-manager.js"
