@@ -34,7 +34,7 @@ class Research {
         {
             const group = builder.getGroupBox(builder.padding, builder.margin);
 
-            group.addLabel({ text: "- Recoloring tool." });
+            group.addLabel({ text: "- Colour brush." });
             group.addLabel({ text: "- Path replacing tool." });
             group.addLabel({ text: "- Flood fill tool." });
             group.addSpace(0);
