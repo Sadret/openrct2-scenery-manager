@@ -148,7 +148,7 @@ export function copy(range: MapRange, filter: Filter): SceneryTemplate {
     };
 }
 
-export function paste(template: SceneryTemplate, offset: CoordsXY, filter: Filter, options: Options): SceneryRemoveArgs[] {
+export function paste(template: SceneryTemplate, offset: CoordsXY, filter: Filter, options: Options): SceneryData[] {
     let deltaZ = options.height;
     if (!options.absolute)
         deltaZ += getMedianSurfaceHeight(offset, template.size) - template.surfaceHeight;
@@ -157,7 +157,7 @@ export function paste(template: SceneryTemplate, offset: CoordsXY, filter: Filte
     template = rotate(template, options.rotation);
     template = translate(template, { ...offset, z: deltaZ * 8 });
 
-    let result: SceneryRemoveArgs[] = [];
+    let result: SceneryData[] = [];
 
     template.data.forEach(data => {
         if (!filter[data.type])
@@ -167,23 +167,22 @@ export function paste(template: SceneryTemplate, offset: CoordsXY, filter: Filte
             if (queryResult.error === 0)
                 context.executeAction(getPlaceAction(data.type), placeArgs, executeResult => {
                     if (executeResult.error === 0)
-                        result.push(getRemoveArgs(data));
+                        result.push(data);
                 });
         });
     });
     return result;
 }
 
-export function remove(data: SceneryRemoveArgs[]) {
-    data.slice().reverse().forEach((args: SceneryRemoveArgs) => {
-        let type: SceneryType = (<any>args).type;
-        if (type === "banner")
-            context.executeAction(getRemoveAction(type), {
-                ...args,
-                z: args.z + 16,
+export function remove(data: SceneryData[]) {
+    data.slice().reverse().forEach((date: SceneryData) => {
+        if (date.type === "banner")
+            context.executeAction(getRemoveAction(date.type), {
+                ...getRemoveArgs(date),
+                z: date.z + 16,
             }, () => { });
         else
-            context.executeAction(getRemoveAction(type), args, () => { });
+            context.executeAction(getRemoveAction(date.type), getRemoveArgs(date), () => { });
     });
 }
 

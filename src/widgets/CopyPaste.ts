@@ -72,7 +72,7 @@ class CopyPaste {
         if (ArrayUtils.find(template.data, (data: SceneryData) => SceneryUtils.getObject(data) === undefined) !== undefined)
             return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
 
-        let ghost: SceneryRemoveArgs[] = undefined;
+        let ghost: SceneryData[] = undefined;
         let ghostCoords: CoordsXY = undefined;
         function removeGhost() {
             if (ghost !== undefined)
