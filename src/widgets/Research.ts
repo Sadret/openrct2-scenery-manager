@@ -53,6 +53,9 @@ class Research {
         builder.addSpace(0);
         builder.addLabel({ text: "Visit GitHub for future updates or to report any issues:" });
         builder.addLabel({ text: "https://github.com/Sadret/openrct2-scenery-manager" });
+        builder.addSpace(0);
+        builder.addLabel({ text: "Subscribe to my YouTube channel to learn about upcoming features:" });
+        builder.addLabel({ text: "YouTube: Sadret Gaming" });
     }
 }
 export default Research;

@@ -116,6 +116,7 @@ class SceneryManager {
             width: width,
             height: height,
             title: "Scenery Manager",
+            colours: [7, 7, 6,], // shades of blue
             tabs: tabs,
             tabIndex: tabIndex,
             onClose: () => {
