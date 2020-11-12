@@ -346,8 +346,8 @@ class HBoxBuilder extends BoxBuilder {
         const fractionalWidths: number[] = weights.map((weight: number) => widthPerWeight * weight);
         let carry = 0;
         this.widths = fractionalWidths.map(fraction => {
-            let val = carry + fraction;
-            let width = Math.round(val);
+            const val = carry + fraction;
+            const width = Math.round(val);
             carry = val - width;
             return width;
         });

@@ -5,13 +5,13 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import Main from "./widgets/Main";
-import Library from "./widgets/Library";
-import Coloring from "./widgets/Coloring";
-import Utilities from "./widgets/Utilities";
-import Research from "./widgets/Research";
+import { BoxBuilder, TabBuilder } from "./gui/WindowBuilder";
 import About from "./widgets/About";
-import { TabBuilder, BoxBuilder } from "./gui/WindowBuilder";
+import Coloring from "./widgets/Coloring";
+import Library from "./widgets/Library";
+import Main from "./widgets/Main";
+import Research from "./widgets/Research";
+import Utilities from "./widgets/Utilities";
 
 export enum TAB {
     MAIN,
@@ -96,10 +96,11 @@ class SceneryManager {
             const builder: TabBuilder = new TabBuilder(384);
             if (tabIndex === idx) {
                 tab.widget.build(builder);
-                if (x === undefined)
-                    x = (ui.width - builder.getWidth()) / 2;
-                if (y === undefined)
-                    y = (ui.height - builder.getHeight()) / 2;
+                // open centered (testing only)
+                // if (x === undefined)
+                //     x = (ui.width - builder.getWidth()) / 2;
+                // if (y === undefined)
+                //     y = (ui.height - builder.getHeight()) / 2;
                 width = builder.getWidth();
                 height = builder.getHeight();
             }

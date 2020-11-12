@@ -5,12 +5,12 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import SceneryManager from "./../SceneryManager";
 import { BoxBuilder } from "./../gui/WindowBuilder";
-import CopyPaste from "./../widgets/CopyPaste";
-import Settings from "./../widgets/Settings";
 import Clipboard from "./../widgets/Clipboard";
+import CopyPaste from "./../widgets/CopyPaste";
 import LibraryView from "./../widgets/LibraryView";
+import Settings from "./../widgets/Settings";
+import SceneryManager from "./../SceneryManager";
 
 class Main {
     readonly manager: SceneryManager;

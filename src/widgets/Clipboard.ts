@@ -5,12 +5,12 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import { FolderView } from "./../gui/FolderView";
+import { BoxBuilder } from "./../gui/WindowBuilder";
+import { File } from "./../persistence/File";
 import * as Storage from "./../persistence/Storage";
 import * as UiUtils from "./../utils/UiUtils";
-import { File } from "./../persistence/File";
-import { FolderView } from "./../gui/FolderView";
 import Main from "./../widgets/Main";
-import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class Clipboard {
     readonly main: Main;
@@ -32,8 +32,8 @@ class Clipboard {
     }
 
     add(template: SceneryTemplate): void {
-        let name: string = "unnamed-" + this.counter++;
-        let file: File = this.folderView.path.addFile<SceneryTemplate>(name, template);
+        const name: string = "unnamed-" + this.counter++;
+        const file: File = this.folderView.path.addFile<SceneryTemplate>(name, template);
 
         if (file === undefined)
             return this.add(template);

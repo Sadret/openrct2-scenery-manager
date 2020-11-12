@@ -25,7 +25,7 @@ registerPlugin({
 
         // add menu
         ui.registerMenuItem("Scenery Manager", () => manager.open());
-        // open window
-        manager.open();
+        // open window (testing only)
+        // manager.open();
     },
 });

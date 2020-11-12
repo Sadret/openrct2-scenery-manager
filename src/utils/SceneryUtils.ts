@@ -54,7 +54,7 @@ function rotate(template: SceneryTemplate, rotation: number): SceneryTemplate {
     return rotate({
         ...template,
         data: template.data.map(input => {
-            let out: any = {
+            const out: any = {
                 ...input,
                 x: input.y,
                 y: template.size.x - input.x,
@@ -85,7 +85,7 @@ function mirror(template: SceneryTemplate, mirror: boolean): SceneryTemplate {
     return {
         ...template,
         data: template.data.map(input => {
-            let out: any = {
+            const out: any = {
                 ...input,
                 y: template.size.y - input.y,
             };
@@ -157,12 +157,12 @@ export function paste(template: SceneryTemplate, offset: CoordsXY, filter: Filte
     template = rotate(template, options.rotation);
     template = translate(template, { ...offset, z: deltaZ * 8 });
 
-    let result: SceneryData[] = [];
+    const result: SceneryData[] = [];
 
     template.data.forEach(data => {
         if (!filter[data.type])
             return;
-        let placeArgs: SceneryPlaceArgs = getPlaceArgs(data, options.ghost ? 72 : 0);
+        const placeArgs: SceneryPlaceArgs = getPlaceArgs(data, options.ghost ? 72 : 0);
         context.queryAction(getPlaceAction(data.type), placeArgs, queryResult => {
             if (queryResult.error === 0)
                 context.executeAction(getPlaceAction(data.type), placeArgs, executeResult => {
@@ -191,15 +191,15 @@ export function remove(data: SceneryData[]) {
  */
 
 function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter): SceneryData[] {
-    let tile: Tile = map.getTile(x / 32, y / 32);
-    let data: SceneryData[] = [];
+    const tile: Tile = map.getTile(x / 32, y / 32);
+    const data: SceneryData[] = [];
     tile.elements.forEach((_, idx) => {
         switch (tile.elements[idx].type) {
             case "footpath":
                 if (filter.footpath)
                     data.push(getFootpath(tile, offset, idx));
                 if (filter.footpath_addition) {
-                    let addition: FootpathAdditionData = getFootpathAddition(tile, offset, idx);
+                    const addition: FootpathAdditionData = getFootpathAddition(tile, offset, idx);
                     if (addition !== undefined)
                         data.push(addition);
                 }
@@ -214,7 +214,7 @@ function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter):
                 break;
             case "large_scenery":
                 if (filter.large_scenery) {
-                    let largeScenery = getLargeScenery(tile, offset, idx);
+                    const largeScenery = getLargeScenery(tile, offset, idx);
                     if (largeScenery !== undefined)
                         data.push(largeScenery);
                 }
@@ -231,8 +231,8 @@ function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter):
 }
 
 function getBaseSceneryData(tile: Tile, offset: CoordsXY, idx: number): SceneryData {
-    let element: BaseTileElement = tile.elements[idx];
-    let object: Object = context.getObject(<ObjectType>element.type, (<any>element).object);
+    const element: BaseTileElement = tile.elements[idx];
+    const object: Object = context.getObject(<ObjectType>element.type, (<any>element).object);
     return {
         type: undefined,
         identifier: object.identifier,
@@ -243,7 +243,7 @@ function getBaseSceneryData(tile: Tile, offset: CoordsXY, idx: number): SceneryD
 }
 
 function getFootpath(tile: Tile, offset: CoordsXY, idx: number): FootpathData {
-    let element: FootpathElement = <FootpathElement>tile.elements[idx];
+    const element: FootpathElement = <FootpathElement>tile.elements[idx];
     return {
         ...getBaseSceneryData(tile, offset, idx),
         type: "footpath",
@@ -254,8 +254,8 @@ function getFootpath(tile: Tile, offset: CoordsXY, idx: number): FootpathData {
 }
 
 function getSmallScenery(tile: Tile, offset: CoordsXY, idx: number): SmallSceneryData {
-    let element: SmallSceneryElement = <SmallSceneryElement><BaseTileElement>tile.elements[idx];
-    let occupiedQuadrants = tile.data[idx * 16 + 1] & 0xF;
+    const element: SmallSceneryElement = <SmallSceneryElement><BaseTileElement>tile.elements[idx];
+    const occupiedQuadrants = tile.data[idx * 16 + 1] & 0xF;
     return {
         ...getBaseSceneryData(tile, offset, idx),
         type: "small_scenery",
@@ -267,7 +267,7 @@ function getSmallScenery(tile: Tile, offset: CoordsXY, idx: number): SmallScener
 }
 
 function getWall(tile: Tile, offset: CoordsXY, idx: number): WallData {
-    let element: WallElement = <WallElement><BaseTileElement>tile.elements[idx];
+    const element: WallElement = <WallElement><BaseTileElement>tile.elements[idx];
     return {
         ...getBaseSceneryData(tile, offset, idx),
         type: "wall",
@@ -280,7 +280,7 @@ function getWall(tile: Tile, offset: CoordsXY, idx: number): WallData {
 }
 
 function getLargeScenery(tile: Tile, offset: CoordsXY, idx: number): LargeSceneryData {
-    let element: LargeSceneryElement = <LargeSceneryElement><BaseTileElement>tile.elements[idx];
+    const element: LargeSceneryElement = <LargeSceneryElement><BaseTileElement>tile.elements[idx];
     if (tile.data[idx * 16 + 0x8] !== 0)
         return undefined;
     return {
@@ -293,7 +293,7 @@ function getLargeScenery(tile: Tile, offset: CoordsXY, idx: number): LargeScener
 }
 
 function getBanner(tile: Tile, offset: CoordsXY, idx: number): BannerData {
-    let element: BannerElement = <BannerElement><BaseTileElement>tile.elements[idx];
+    const element: BannerElement = <BannerElement><BaseTileElement>tile.elements[idx];
     return {
         ...getBaseSceneryData(tile, offset, idx),
         type: "banner",
@@ -304,10 +304,10 @@ function getBanner(tile: Tile, offset: CoordsXY, idx: number): BannerData {
 }
 
 function getFootpathAddition(tile: Tile, offset: CoordsXY, idx: number): FootpathAdditionData {
-    let element: FootpathElement = <FootpathElement>tile.elements[idx];
+    const element: FootpathElement = <FootpathElement>tile.elements[idx];
     if (element.addition === null)
         return undefined;
-    let object: Object = context.getObject("footpath_addition", element.addition);
+    const object: Object = context.getObject("footpath_addition", element.addition);
     if (tile.data[idx * 16 + 0x7] === 0)
         return undefined;
     return {
@@ -386,7 +386,7 @@ function getRemoveAction(type: SceneryType): SceneryRemoveAction {
  * IDENTIFIER TO OBJECT CONVERSION
  */
 
-let cache = {};
+const cache = {};
 
 export function getObject(data: SceneryData): SceneryObject {
     if (cache[data.type] === undefined) {
@@ -415,7 +415,7 @@ function isHalfSpace(data: SceneryData): boolean {
 function hasFlag(data: SceneryData, bit: number) {
     if (data.type !== "small_scenery")
         return false;
-    let object: SmallSceneryObject = <SmallSceneryObject>getObject(data);
+    const object: SmallSceneryObject = <SmallSceneryObject>getObject(data);
     return (object.flags & (1 << bit)) !== 0;
 }
 

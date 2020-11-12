@@ -6,7 +6,7 @@
  *****************************************************************************/
 
 /// <reference path="./../../../openrct2.d.ts" />
-import { FileSystem, File } from "./../persistence/File";
+import { File, FileSystem } from "./../persistence/File";
 
 const namespace: string = "scenery-manager";
 const storagePrefix: string = namespace + ".";
@@ -45,7 +45,7 @@ export class StorageFileSystem implements FileSystem {
     }
 
     getRoot(): File {
-        let file: File = new File(this, "");
+        const file: File = new File(this, "");
         this.createFolder(file);
         return file;
     }
@@ -80,7 +80,7 @@ export class StorageFileSystem implements FileSystem {
 
         const files: { [key: string]: StorageElement } = this.getData<StorageFolder>(file).files;
         const result: File[] = [];
-        for (let name in files)
+        for (const name in files)
             result.push(new File(this, file.path + "/" + name));
         return result;
     };

@@ -23,7 +23,6 @@ export interface FileSystem {
     delete(file: File): boolean;
 }
 
-
 export class File {
     readonly fs: FileSystem;
     readonly path: string;

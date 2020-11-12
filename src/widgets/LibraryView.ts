@@ -7,11 +7,11 @@
 
 /// <reference path="./../definitions/SceneryTemplate.d.ts" />
 
-import * as Storage from "./../persistence/Storage";
 import { FolderView } from "./../gui/FolderView";
+import { BoxBuilder } from "./../gui/WindowBuilder";
+import * as Storage from "./../persistence/Storage";
 import Main from "./../widgets/Main";
 import { TAB } from "./../SceneryManager";
-import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class LibraryView {
     readonly main: Main;

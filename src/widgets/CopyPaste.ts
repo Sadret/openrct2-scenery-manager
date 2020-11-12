@@ -5,11 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import { BoxBuilder } from "./../gui/WindowBuilder";
 import * as ArrayUtils from "./../utils/ArrayUtils";
 import * as CoordUtils from "./../utils/CoordUtils";
 import * as SceneryUtils from "./../utils/SceneryUtils";
 import Main from "./../widgets/Main";
-import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class CopyPaste {
     readonly main: Main;
@@ -83,7 +83,7 @@ class CopyPaste {
         function placeGhost() {
             if (ui.tileSelection.range === null)
                 return removeGhost();
-            let offset = ui.tileSelection.range.leftTop;
+            const offset = ui.tileSelection.range.leftTop;
             if (CoordUtils.equals(offset, ghostCoords))
                 return;
             removeGhost();

@@ -7,10 +7,10 @@
 
 /// <reference path="./../definitions/SceneryTemplate.d.ts" />
 
-import { File } from "./../persistence/File";
 import { BoxBuilder } from "./../gui/WindowBuilder";
-import * as StringUtils from "./../utils/StringUtils";
+import { File } from "./../persistence/File";
 import * as ArrayUtils from "./../utils/ArrayUtils";
+import * as StringUtils from "./../utils/StringUtils";
 
 export class FolderView {
     readonly name: string;
@@ -144,7 +144,7 @@ export class FolderView {
         ).sort(
             (a: File, b: File) => StringUtils.compare(a.getName(), b.getName())
         ).forEach((file: File) => {
-            let template: SceneryTemplate = file.getContent();
+            const template: SceneryTemplate = file.getContent();
             if (template === undefined)
                 addItem(file, [file.getName(), "", "", ""]);
             else

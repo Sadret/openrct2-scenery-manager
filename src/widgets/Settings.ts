@@ -5,9 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import { BoxBuilder } from "./../gui/WindowBuilder";
 import { Filter, Options } from "./../utils/SceneryUtils";
 import Main from "./../widgets/Main";
-import { BoxBuilder } from "./../gui/WindowBuilder";
 
 class Settings {
     readonly main: Main;

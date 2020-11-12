@@ -21,7 +21,7 @@ export function span(start: CoordsXY, end: CoordsXY): MapRange {
 }
 
 export function centered(center: CoordsXY, size: CoordsXY): MapRange {
-    let start = {
+    const start = {
         x: (center.x - size.x / 2) & ~31,
         y: (center.y - size.y / 2) & ~31,
     };

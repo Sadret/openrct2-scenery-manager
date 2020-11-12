@@ -7,7 +7,7 @@
 
 /// <reference path="./../../../openrct2.d.ts" />
 
-import { WindowBuilder, Margin } from "./../gui/WindowBuilder";
+import { Margin, WindowBuilder } from "./../gui/WindowBuilder";
 
 export function showConfirm(title: string, message: string[], callback: (confirmed: boolean) => void, okText: string = "OK", cancelText: string = "Cancel") {
     let handle: Window = undefined;
