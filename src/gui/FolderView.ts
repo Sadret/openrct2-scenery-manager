@@ -14,17 +14,14 @@ import * as ArrayUtils from "./../utils/ArrayUtils";
 
 export class FolderView {
     readonly name: string;
-    readonly getWindow: () => Window;
 
     path: File;
     readonly files: File[] = [];
 
     selected: File = undefined;
 
-    constructor(name: string, getWindow: () => Window, path: File) {
+    constructor(name: string, path: File) {
         this.name = name;
-        this.getWindow = getWindow;
-
         this.open(path);
     }
 
@@ -32,24 +29,38 @@ export class FolderView {
         return this.path.getPath();
     }
 
+    getWindow(): Window {
+        return undefined;
+    }
+
     select(file: File): void {
         if (File.equals(file, this.selected))
             if (file !== undefined && file.isFolder())
                 // file is folder and already selected: open folder
-                this.open(file);
+                return this.open(file);
             else
                 // file is already selected, but not a folder: do nothing
                 return;
         else
             if (file !== undefined && File.equals(file, this.path.getParent()))
                 // file is not undefined and equals root: open root
-                this.open(file);
-            else
+                return this.open(file);
+            else {
+                if (this.selected !== undefined && this.selected.isFile())
+                    this.onFileDeselect();
+
                 // file is not selected and does not equal root: update selected
                 this.selected = file;
 
+                if (this.selected !== undefined && this.selected.isFile())
+                    this.onFileSelect();
+            }
+
         this.update();
     }
+
+    onFileDeselect(): void { }
+    onFileSelect(): void { }
 
     open(file: File): void {
         if (!file.isFolder())
@@ -94,7 +105,11 @@ export class FolderView {
         const selectedCell = this.getSelectedCell();
         if (widget.selectedCell ?.row !== selectedCell ?.row)
             widget.selectedCell = selectedCell;
+
+        this.onUpdate();
     }
+
+    onUpdate(): void { }
 
     getItems(): ListViewItem[] {
         const items: ListViewItem[] = [];

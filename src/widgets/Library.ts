@@ -22,12 +22,9 @@ class Library {
     constructor(manager: SceneryManager) {
         this.manager = manager;
 
-        this.folderView = new FolderView("librarymanager_listview", () => this.manager.handle, Storage.library.getRoot());
-
-        this.folderView.select = (file: File) => {
-            FolderView.prototype.select.call(this.folderView, file);
-            this.update();
-        }
+        this.folderView = new FolderView("librarymanager_listview", Storage.library.getRoot());
+        this.folderView.getWindow = () => this.manager.handle;
+        this.folderView.onUpdate = () => this.update();
     }
 
     add(): void {

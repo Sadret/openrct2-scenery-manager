@@ -8,7 +8,6 @@
 /// <reference path="./../definitions/SceneryTemplate.d.ts" />
 
 import * as Storage from "./../persistence/Storage";
-import { File } from "./../persistence/File";
 import { FolderView } from "./../gui/FolderView";
 import Main from "./../widgets/Main";
 import { TAB } from "./../SceneryManager";
@@ -21,30 +20,15 @@ class LibraryView {
     constructor(main: Main) {
         this.main = main;
 
-        this.folderView = new FolderView("library_listview", () => this.main.manager.handle, Storage.library.getRoot());
-
-        this.folderView.select = (file: File) => {
-            const selected: File = this.folderView.selected;
-
-            const deselectFile = selected !== undefined && selected.isFile() && selected !== file;
-            const selectFile = file !== undefined && file.isFile() && file !== selected;
-
-            if (
-                deselectFile
-                || (selected !== undefined && !selected.exists())
-            ) if (ui.tool)
-                    ui.tool.cancel();
-
-            FolderView.prototype.select.call(this.folderView, file);
-
-            if (selectFile)
-                this.main.copyPaste.pasteTemplate(
-                    file.getContent(),
-                    () => this.folderView.select(undefined),
-                );
-
-            this.update();
-        }
+        this.folderView = new FolderView("library_listview", Storage.library.getRoot());
+        this.folderView.getWindow = () => this.main.manager.handle;
+        this.folderView.onFileDeselect = () => { if (ui.tool) ui.tool.cancel() };
+        this.folderView.onFileSelect = () =>
+            this.main.copyPaste.pasteTemplate(
+                this.folderView.selected.getContent(),
+                () => this.folderView.select(undefined),
+            );
+        this.folderView.onUpdate = () => this.update();
     }
 
     save(name: string, template: SceneryTemplate): void {

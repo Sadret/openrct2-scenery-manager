@@ -20,31 +20,15 @@ class Clipboard {
     constructor(main: Main) {
         this.main = main;
 
-        this.folderView = new FolderView("clipboard_listview", () => this.main.manager.handle, Storage.clipboard.getRoot());
-
-        this.folderView.select = (file: File) => {
-            const selected: File = this.folderView.selected;
-
-            const deselectFile = selected !== undefined && selected.isFile() && selected !== file;
-            const selectFile = file !== undefined && file.isFile() && file !== selected;
-
-            if (
-                deselectFile
-                || (selected !== undefined && !selected.exists())
-            ) if (ui.tool)
-                    ui.tool.cancel();
-
-            FolderView.prototype.select.call(this.folderView, file);
-
-            if (selectFile)
-                this.main.copyPaste.pasteTemplate(
-                    file.getContent(),
-                    () => this.folderView.select(undefined),
-                );
-
-            if (deselectFile || selectFile)
-                this.update();
-        }
+        this.folderView = new FolderView("clipboard_listview", Storage.clipboard.getRoot());
+        this.folderView.getWindow = () => this.main.manager.handle;
+        this.folderView.onFileDeselect = () => { if (ui.tool) ui.tool.cancel() };
+        this.folderView.onFileSelect = () =>
+            this.main.copyPaste.pasteTemplate(
+                this.folderView.selected.getContent(),
+                () => this.folderView.select(undefined),
+            );
+        this.folderView.onUpdate = () => this.update();
     }
 
     add(template: SceneryTemplate): void {
