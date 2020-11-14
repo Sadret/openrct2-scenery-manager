@@ -386,13 +386,19 @@ function getRemoveAction(type: SceneryType): SceneryRemoveAction {
  * IDENTIFIER TO OBJECT CONVERSION
  */
 
-const cache = {};
+const cache: { [key: string]: { [key: string]: SceneryObject; }; } = {};
+
+function loadCache(type: SceneryType): void {
+    cache[type] = {};
+    context.getAllObjects(type).forEach((object: SceneryObject) => cache[type][object.identifier] = object);
+}
 
 export function getObject(data: SceneryData): SceneryObject {
-    if (cache[data.type] === undefined) {
-        cache[data.type] = {};
-        context.getAllObjects(data.type).forEach((object: SceneryObject) => cache[data.type][object.identifier] = object);
-    }
+    if (cache[data.type] === undefined)
+        loadCache(data.type);
+    const object = cache[data.type][data.identifier];
+    if (object !== undefined && data.identifier !== object.identifier)
+        loadCache(data.type);
     return cache[data.type][data.identifier];
 }
 
