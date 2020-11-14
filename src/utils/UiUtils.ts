@@ -19,7 +19,7 @@ export function showConfirm(title: string, message: string[], callback: (confirm
 
     window.addSpace(4);
 
-    const hbox = window.getHBox([1, 1, 1,]);
+    const hbox = window.getHBox([1, 1,]);
     hbox.addTextButton({
         text: okText,
         onClick: () => {
@@ -27,7 +27,6 @@ export function showConfirm(title: string, message: string[], callback: (confirm
             handle.close();
         },
     });
-    hbox.addSpace(0);
     hbox.addTextButton({
         text: cancelText,
         onClick: () => handle.close(),

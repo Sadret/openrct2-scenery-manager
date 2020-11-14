@@ -59,7 +59,7 @@ class Clipboard {
         const file: File = this.folderView.selected;
         UiUtils.showConfirm(
             "Delete scenery template",
-            ["Are you sure you want to delete this scenery", "template?"],
+            ["Do you really want to delete this scenery", "template?"],
             confirmed => {
                 if (!confirmed)
                     return;
@@ -79,7 +79,7 @@ class Clipboard {
     clear(): void {
         UiUtils.showConfirm(
             "Clear clipboard",
-            ["Are you sure you want to clear the clipboard?"],
+            ["Do you really want to clear the clipboard?"],
             confirmed => {
                 if (!confirmed)
                     return;
