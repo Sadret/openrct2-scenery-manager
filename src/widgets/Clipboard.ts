@@ -63,6 +63,8 @@ class Clipboard {
             confirmed => {
                 if (!confirmed)
                     return;
+                if (ui.tool ?.id === "scenery-manager-template-paste")
+                    ui.tool.cancel();
                 file.delete();
                 this.folderView.update();
                 this.update();

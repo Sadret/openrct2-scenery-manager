@@ -11,3 +11,7 @@ export function compare(a: string, b: string): number {
         return case_insensitive;
     return a.localeCompare(b);
 }
+
+export function toDisplayString(s: string): string {
+    return s.split("_").map(token => token.charAt(0).toUpperCase() + token.slice(1)).join(" ");
+}

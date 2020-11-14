@@ -7,6 +7,7 @@
 
 import { BoxBuilder } from "./../gui/WindowBuilder";
 import { Filter, Options } from "./../utils/SceneryUtils";
+import * as StringUtils from "./../utils/StringUtils";
 import Main from "./../widgets/Main";
 
 class Settings {
@@ -42,7 +43,7 @@ class Settings {
             const group = hbox.getGroupBox();
             for (let key in this.filter)
                 group.addCheckbox({
-                    text: key,
+                    text: StringUtils.toDisplayString(key),
                     isChecked: this.filter[key],
                     onChange: isChecked => this.filter[key] = isChecked,
                 });

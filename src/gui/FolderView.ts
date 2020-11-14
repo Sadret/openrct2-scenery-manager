@@ -121,10 +121,8 @@ export class FolderView {
 
         this.files.length = 0;
 
-        while (!this.path.isFolder()) {
-            this.path = this.path.getParent();
-            this.select(undefined);
-        }
+        while (!this.path.isFolder())
+            this.open(this.path.getParent());
 
         if (this.path.getParent() !== undefined)
             addItem(this.path.getParent(), ["../", "", "", ""]);
@@ -165,7 +163,7 @@ export class FolderView {
 
         for (let row = 0; row < this.files.length; row++) {
             const file: File = this.files[row];
-            if (file !== undefined && file.getPath() === this.selected.getPath())
+            if (file.getPath() === this.selected.getPath())
                 return {
                     row: row,
                     column: 0,
