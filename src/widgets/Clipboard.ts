@@ -47,10 +47,13 @@ class Clipboard {
             title: "Scenery template name",
             description: "Enter a new name for this scenery template:",
             callback: name => {
+                this.folderView.select(undefined);
                 const newFile: File = file.rename(name);
-                if (newFile === undefined)
+                if (newFile === undefined) {
+                    this.folderView.select(file);
                     return ui.showError("Can't rename scenery template...", "File with this name already exists.");
-                this.folderView.select(newFile);
+                } else
+                    this.folderView.select(newFile);
             },
         });
     }
@@ -63,8 +66,7 @@ class Clipboard {
             confirmed => {
                 if (!confirmed)
                     return;
-                if (ui.tool ?.id === "scenery-manager-template-paste")
-                    ui.tool.cancel();
+                this.folderView.select(undefined);
                 file.delete();
                 this.folderView.update();
                 this.update();
