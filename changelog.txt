@@ -1,0 +1,9 @@
+1.0.0 (2020-11-19)
+------------------------------------------------------------------------
+- Feature: Copy and paste chunks of scenery as template.
+- Feature: Filter scenery by type on copy or paste.
+- Feature: Rotate and mirror scenery template on paste.
+- Feature: Adjust height of scenery template on paste.
+- Feature: Store copied scenery templates in clipboard.
+- Feature: Rename and delete saved scenery templates.
+- Feature: Save and manage scenery templates in a file-system-like persistent library.
