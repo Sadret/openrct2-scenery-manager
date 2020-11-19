@@ -7,6 +7,7 @@
 
 /// <reference path="./../../openrct2.d.ts" />
 
+import * as Storage from "./persistence/Storage";
 import SceneryManager from "./SceneryManager";
 
 registerPlugin({
@@ -19,6 +20,10 @@ registerPlugin({
         // check if ui is available
         if (ui === undefined)
             return console.log("[scenery-manager] Loading cancelled: game runs in headless mode.");
+
+        // set save file version if not present
+        if (!Storage.has("version"))
+            Storage.set<string>("version", "1.0.0");
 
         // create manager
         const manager: SceneryManager = new SceneryManager();
