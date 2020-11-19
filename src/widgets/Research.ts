@@ -25,7 +25,7 @@ class Research {
 
             group.addLabel({ text: "- Sloped fences and walls do not copy." });
             group.addLabel({ text: "- Banner text and color do not copy." });
-            group.addLabel({ text: "- Ghost banner sometimes does not show." });
+            group.addLabel({ text: "- Ghost banners sometimes does not show." });
             group.addLabel({ text: "- Scroll position resets when list content changes." });
 
             builder.addGroupBox({ text: "Known problems" }, group);
@@ -54,7 +54,7 @@ class Research {
         builder.addLabel({ text: "Visit GitHub for future updates or to report any issues:" });
         builder.addLabel({ text: "https://github.com/Sadret/openrct2-scenery-manager" });
         builder.addSpace(0);
-        builder.addLabel({ text: "Add me on social media to learn about upcoming features:" });
+        builder.addLabel({ text: "Follow me on social media to learn about upcoming features:" });
         {
             const hbox = builder.getHBox([1, 1]);
             hbox.addLabel({ text: "YouTube: Sadret Gaming" });

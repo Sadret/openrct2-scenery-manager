@@ -130,7 +130,7 @@ class Library {
             });
             hbox.addTextButton({
                 name: "librarymanager_add",
-                text: "Add folder",
+                text: "Add new folder",
                 onClick: () => this.add(),
             });
             builder.addBox(hbox);
