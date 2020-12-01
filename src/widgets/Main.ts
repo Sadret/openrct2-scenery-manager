@@ -18,7 +18,7 @@ class Main {
     readonly copyPaste: CopyPaste;
     readonly settings: Settings;
     readonly clipboard: Clipboard;
-    readonly library: LibraryView;
+    readonly libraryView: LibraryView;
 
     constructor(manager: SceneryManager) {
         this.manager = manager;
@@ -26,14 +26,14 @@ class Main {
         this.copyPaste = new CopyPaste(this);
         this.settings = new Settings(this);
         this.clipboard = new Clipboard(this);
-        this.library = new LibraryView(this);
+        this.libraryView = new LibraryView(this);
     }
 
     build(builder: BoxBuilder): void {
         this.copyPaste.build(builder);
         this.settings.build(builder);
         this.clipboard.build(builder);
-        this.library.build(builder);
+        this.libraryView.build(builder);
     }
 }
 export default Main;

@@ -50,8 +50,8 @@ class LibraryView {
     }
 
     manage(): void {
-        this.main.library.folderView.path = this.folderView.path;
-        this.main.library.folderView.selected = this.folderView.selected;
+        this.main.manager.library.folderView.open(this.folderView.path);
+        this.main.manager.library.folderView.select(this.folderView.selected);
         this.main.manager.setActiveTab(TAB.LIBRARY);
     }
 

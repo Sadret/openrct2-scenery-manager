@@ -77,7 +77,7 @@ class Clipboard {
 
     save(): void {
         const file: File = this.folderView.selected;
-        this.main.library.save(file.getName(), file.getContent<SceneryTemplate>());
+        this.main.libraryView.save(file.getName(), file.getContent<SceneryTemplate>());
     }
 
     clear(): void {
