@@ -41,6 +41,8 @@ class CopyPaste {
                 start = e.mapCoords;
             },
             onMove: e => {
+                if (e.mapCoords === undefined || e.mapCoords.x * e.mapCoords.y === 0)
+                    return;
                 if (drag) {
                     end = e.mapCoords;
                     ui.tileSelection.range = CoordUtils.span(start, end);
