@@ -235,7 +235,7 @@ function getBaseSceneryData(tile: Tile, offset: CoordsXY, idx: number): SceneryD
     const object: Object = context.getObject(<ObjectType>element.type, (<any>element).object);
     return {
         type: undefined,
-        identifier: object.identifier,
+        identifier: getIdentifier(object),
         x: tile.x * 32 - offset.x,
         y: tile.y * 32 - offset.y,
         z: element.baseHeight * 8,
@@ -311,9 +311,9 @@ function getFootpathAddition(tile: Tile, offset: CoordsXY, idx: number): Footpat
     if (tile.data[idx * 16 + 0x7] === 0)
         return undefined;
     return {
-        ...getBaseSceneryData(tile, offset, idx),
+        ...getBaseSceneryData(tile, offset, idx), // footpath data
         type: "footpath_addition",
-        identifier: object.identifier,
+        identifier: getIdentifier(object), // footpath addition identifier
     };
 }
 
@@ -390,16 +390,20 @@ const cache: { [key: string]: { [key: string]: SceneryObject; }; } = {};
 
 function loadCache(type: SceneryType): void {
     cache[type] = {};
-    context.getAllObjects(type).forEach((object: SceneryObject) => cache[type][object.identifier] = object);
+    context.getAllObjects(type).forEach((object: SceneryObject) => cache[type][getIdentifier(object)] = object);
 }
 
 export function getObject(data: SceneryData): SceneryObject {
     if (cache[data.type] === undefined)
         loadCache(data.type);
     const object = cache[data.type][data.identifier];
-    if (object !== undefined && data.identifier !== object.identifier)
+    if (object !== undefined && data.identifier !== getIdentifier(object))
         loadCache(data.type);
     return cache[data.type][data.identifier];
+}
+
+function getIdentifier(object: SceneryObject): string {
+    return object.identifier || object.legacyIdentifier;
 }
 
 /*
