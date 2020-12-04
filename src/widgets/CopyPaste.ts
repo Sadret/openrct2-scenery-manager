@@ -76,13 +76,13 @@ class CopyPaste {
 
         let ghost: SceneryData[] = undefined;
         let ghostCoords: CoordsXY = undefined;
-        function removeGhost() {
+        function removeGhost(): void {
             if (ghost !== undefined)
                 SceneryUtils.remove(ghost);
             ghost = undefined;
         }
         const settings = this.main.settings;
-        function placeGhost() {
+        function placeGhost(): void {
             if (ui.tileSelection.range === null)
                 return removeGhost();
             const offset = ui.tileSelection.range.leftTop;

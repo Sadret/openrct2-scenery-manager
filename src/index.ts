@@ -13,7 +13,7 @@ import SceneryManager from "./SceneryManager";
 
 registerPlugin({
     name: "scenery-manager",
-    version: "1.0.0",
+    version: "1.0.1",
     authors: ["Sadret"],
     type: "remote",
     licence: "GPL-3.0",
@@ -25,7 +25,7 @@ registerPlugin({
 
         // set save file version if not present
         if (!Storage.has("version")) {
-            Storage.set<string>("version", "1.0.0");
+            Storage.set<string>("version", "1.0.1");
             UiUtils.showAlert("Welcome to Scenery Manager!", [
                 "Thank you for using Scenery Manager!",
                 "",

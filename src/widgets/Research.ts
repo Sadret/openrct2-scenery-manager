@@ -18,7 +18,15 @@ class Research {
     }
 
     content(builder: BoxBuilder) {
-        builder.addLabel({ text: "Version: 1.0.0" });
+        builder.addLabel({ text: "Version: 1.0.1" });
+        builder.addSpace(0);
+        {
+            const group = builder.getGroupBox(builder.padding, builder.margin);
+
+            group.addLabel({ text: "- Custom scenery is now supported." });
+
+            builder.addGroupBox({ text: "Latest changes" }, group);
+        }
         builder.addSpace(0);
         {
             const group = builder.getGroupBox(builder.padding, builder.margin);
