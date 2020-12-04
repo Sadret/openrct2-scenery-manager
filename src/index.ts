@@ -17,6 +17,7 @@ registerPlugin({
     authors: ["Sadret"],
     type: "remote",
     licence: "GPL-3.0",
+    minApiVersion: 10,
     main: () => {
         // check if ui is available
         if (ui === undefined)
