@@ -15,7 +15,7 @@ registerPlugin({
     name: "scenery-manager",
     version: "1.0.1",
     authors: ["Sadret"],
-    type: "remote",
+    type: "local",
     licence: "GPL-3.0",
     minApiVersion: 10,
     main: () => {
