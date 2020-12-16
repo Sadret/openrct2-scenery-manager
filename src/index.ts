@@ -20,7 +20,7 @@ registerPlugin({
     minApiVersion: 10,
     main: () => {
         // check if ui is available
-        if (ui === undefined)
+        if (typeof ui === "undefined")
             return console.log("[scenery-manager] Loading cancelled: game runs in headless mode.");
 
         // set save file version if not present
