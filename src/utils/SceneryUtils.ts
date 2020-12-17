@@ -17,6 +17,7 @@ import * as CoordUtils from "./../utils/CoordUtils";
 
 export interface Filter {
     footpath: boolean;
+    track: boolean;
     small_scenery: boolean;
     wall: boolean;
     large_scenery: boolean;
@@ -176,13 +177,8 @@ export function paste(template: SceneryTemplate, offset: CoordsXY, filter: Filte
 
 export function remove(data: SceneryData[]) {
     data.slice().reverse().forEach((date: SceneryData) => {
-        if (date.type === "banner")
-            context.executeAction(getRemoveAction(date.type), {
-                ...getRemoveArgs(date),
-                z: date.z + 16,
-            }, () => { });
-        else
-            context.executeAction(getRemoveAction(date.type), getRemoveArgs(date), () => { });
+        console.log(getRemoveAction(date.type), getRemoveArgs(date));
+        context.executeAction(getRemoveAction(date.type), getRemoveArgs(date), () => { });
     });
 }
 
@@ -203,6 +199,10 @@ function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter):
                     if (addition !== undefined)
                         data.push(addition);
                 }
+                break;
+            case "track":
+                if (filter.track)
+                    data.push(getTrack(tile, offset, idx));
                 break;
             case "small_scenery":
                 if (filter.small_scenery)
@@ -253,9 +253,26 @@ function getFootpath(tile: Tile, offset: CoordsXY, idx: number): FootpathData {
     };
 }
 
+function getTrack(tile: Tile, offset: CoordsXY, idx: number): TrackData {
+    if (tile.data[idx * 16 + 0x6] !== 0)
+        return undefined;
+    const element: TrackElement = <TrackElement>tile.elements[idx];
+    return {
+        ...getBaseSceneryData(tile, offset, idx),
+        type: "track",
+        direction: element.direction,
+        ride: element.ride,
+        trackType: element.trackType,
+        brakeSpeed: tile.data[idx * 16 + 0x8],
+        colour: tile.data[idx * 16 + 0x7] & 3,
+        seatRotation: (tile.data[idx * 16 + 0x7] >> 4) & 0xF,
+        trackPlaceFlags: tile.data[idx * 16 + 0xA] & 3,
+        isFromTrackDesign: false,
+    };
+}
+
 function getSmallScenery(tile: Tile, offset: CoordsXY, idx: number): SmallSceneryData {
     const element: SmallSceneryElement = <SmallSceneryElement><BaseTileElement>tile.elements[idx];
-    const occupiedQuadrants = tile.data[idx * 16 + 1] & 0xF;
     return {
         ...getBaseSceneryData(tile, offset, idx),
         type: "small_scenery",
@@ -280,9 +297,9 @@ function getWall(tile: Tile, offset: CoordsXY, idx: number): WallData {
 }
 
 function getLargeScenery(tile: Tile, offset: CoordsXY, idx: number): LargeSceneryData {
-    const element: LargeSceneryElement = <LargeSceneryElement><BaseTileElement>tile.elements[idx];
     if (tile.data[idx * 16 + 0x8] !== 0)
         return undefined;
+    const element: LargeSceneryElement = <LargeSceneryElement><BaseTileElement>tile.elements[idx];
     return {
         ...getBaseSceneryData(tile, offset, idx),
         type: "large_scenery",
@@ -299,7 +316,7 @@ function getBanner(tile: Tile, offset: CoordsXY, idx: number): BannerData {
         type: "banner",
         z: (element.baseHeight - 2) * 8,
         direction: tile.data[idx * 16 + 6],
-        primaryColour: (<any>element).primaryColour,
+        primaryColour: (<any>element).primaryColour, // not set, can be deleted
     };
 }
 
@@ -345,9 +362,12 @@ function getMedianSurfaceHeight(start: CoordsXY, size: CoordsXY): number {
  */
 
 function getPlaceAction(type: SceneryType): SceneryPlaceAction {
+    return <SceneryPlaceAction>(type.replace("_", "").toLowerCase() + "place");
     switch (type) {
         case "footpath":
             return "footpathplace";
+        case "track":
+            return "trackplace";
         case "small_scenery":
             return "smallsceneryplace";
         case "wall":
@@ -364,6 +384,7 @@ function getPlaceAction(type: SceneryType): SceneryPlaceAction {
 }
 
 function getRemoveAction(type: SceneryType): SceneryRemoveAction {
+    return <SceneryRemoveAction>(type.replace("_", "").toLowerCase() + "remove");
     switch (type) {
         case "footpath":
             return "footpathremove";
@@ -388,21 +409,23 @@ function getRemoveAction(type: SceneryType): SceneryRemoveAction {
 
 const cache: { [key: string]: { [key: string]: SceneryObject; }; } = {};
 
-function loadCache(type: SceneryType): void {
+function loadCache(type: ObjectType): void {
     cache[type] = {};
     context.getAllObjects(type).forEach((object: SceneryObject) => cache[type][getIdentifier(object)] = object);
 }
 
 export function getObject(data: SceneryData): SceneryObject {
     if (cache[data.type] === undefined)
-        loadCache(data.type);
+        loadCache(<ObjectType>data.type);
     const object = cache[data.type][data.identifier];
     if (object !== undefined && data.identifier !== getIdentifier(object))
-        loadCache(data.type);
+        loadCache(<ObjectType>data.type);
     return cache[data.type][data.identifier];
 }
 
 function getIdentifier(object: SceneryObject): string {
+    if (object === null)
+        return undefined;
     return object.identifier || object.legacyIdentifier;
 }
 
@@ -446,6 +469,12 @@ function getPlaceArgs(data: SceneryData, flags: number): SceneryPlaceArgs {
                 flags: flags,
                 object: getObject(data).index + 1,
             };
+        case "track":
+            return {
+                ...data,
+                flags: flags,
+                object: undefined,
+            };
         default:
             return {
                 ...data,
@@ -463,12 +492,24 @@ function getRemoveArgs(data: SceneryData): SceneryRemoveArgs {
                 flags: 72,
                 object: getObject(data).index,
             };
+        case "track":
+            return <TrackRemoveArgs><unknown>{
+                ...data,
+                flags: 72,
+                sequence: 0,
+            };
         case "large_scenery":
             return <LargeSceneryRemoveArgs>{
                 ...data,
                 flags: 72,
                 tileIndex: 0,
             };
+        case "banner":
+            return {
+                ...data,
+                flags: 72,
+                z: data.z + 16,
+            }
         default:
             return {
                 ...data,

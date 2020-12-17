@@ -11,7 +11,7 @@
  * SCENERY TYPE
  */
 
-type SceneryType = "footpath" | "small_scenery" | "wall" | "large_scenery" | "banner" | "footpath_addition";
+type SceneryType = "footpath" | "track" | "small_scenery" | "wall" | "large_scenery" | "banner" | "footpath_addition";
 
 /*
  * SCENERY TEMPLATE
@@ -40,6 +40,18 @@ interface FootpathData extends SceneryData {
     readonly direction: number,
     readonly slope: number,
     readonly isQueue: boolean,
+}
+
+interface TrackData extends SceneryData {
+    readonly type: "track",
+    readonly direction: number,
+    readonly ride: number,
+    readonly trackType: number,
+    readonly brakeSpeed: number,
+    readonly colour: number,
+    readonly seatRotation: number,
+    readonly trackPlaceFlags: number,
+    readonly isFromTrackDesign: boolean,
 }
 
 interface SmallSceneryData extends SceneryData {

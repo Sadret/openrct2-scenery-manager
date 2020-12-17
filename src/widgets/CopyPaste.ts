@@ -71,7 +71,7 @@ class CopyPaste {
     }
 
     pasteTemplate(template: SceneryTemplate, onCancel: () => void): void {
-        if (ArrayUtils.find(template.data, (data: SceneryData) => SceneryUtils.getObject(data) === undefined) !== undefined)
+        if (ArrayUtils.find(template.data, (data: SceneryData) => data.type !== "track" && SceneryUtils.getObject(data) === undefined) !== undefined)
             return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
 
         let ghost: SceneryData[] = undefined;

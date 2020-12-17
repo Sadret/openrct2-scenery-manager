@@ -24,6 +24,17 @@ interface FootpathPlaceArgs extends SceneryPlaceArgs {
     readonly slope: number,
 }
 
+interface TrackPlaceArgs extends SceneryPlaceArgs {
+    readonly direction: number,
+    readonly ride: number,
+    readonly trackType: number,
+    readonly brakeSpeed: number,
+    readonly colour: number,
+    readonly seatRotation: number,
+    readonly trackPlaceFlags: number,
+    readonly isFromTrackDesign: boolean,
+}
+
 interface SmallSceneryPlaceArgs extends SceneryPlaceArgs {
     readonly direction: number,
     readonly quadrant: number,
@@ -65,6 +76,12 @@ interface SceneryRemoveArgs {
 
 interface FootpathRemoveArgs extends SceneryRemoveArgs { }
 
+interface TrackRemoveArgs extends SceneryRemoveArgs {
+    readonly direction: number,
+    readonly trackType: number,
+    readonly sequence: number,
+}
+
 interface SmallSceneryRemoveArgs extends SceneryRemoveArgs {
     readonly object: number,
     readonly quadrant: number,
@@ -91,6 +108,6 @@ interface FootpathAdditionRemoveArgs extends SceneryRemoveArgs { }
 
 type SceneryObject = Object | SmallSceneryObject;
 
-type SceneryPlaceAction = "footpathplace" | "smallsceneryplace" | "wallplace" | "largesceneryplace" | "bannerplace" | "footpathadditionplace";
+type SceneryPlaceAction = "footpathplace" | "trackplace" | "smallsceneryplace" | "wallplace" | "largesceneryplace" | "bannerplace" | "footpathadditionplace";
 
-type SceneryRemoveAction = "footpathremove" | "smallsceneryremove" | "wallremove" | "largesceneryremove" | "bannerremove" | "footpathadditionremove";
+type SceneryRemoveAction = "footpathremove" | "trackremove" | "smallsceneryremove" | "wallremove" | "largesceneryremove" | "bannerremove" | "footpathadditionremove";

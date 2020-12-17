@@ -15,6 +15,7 @@ class Settings {
 
     readonly filter: Filter = {
         footpath: true,
+        track: true,
         small_scenery: true,
         wall: true,
         large_scenery: true,
