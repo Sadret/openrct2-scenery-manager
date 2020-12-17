@@ -6,23 +6,33 @@
  *****************************************************************************/
 
 /// <reference path="./../../../openrct2.d.ts" />
-/// <reference path="./../definitions/SceneryArgs.d.ts" />
-/// <reference path="./../definitions/SceneryTemplate.d.ts" />
+/// <reference path="./../definitions/Actions.d.ts" />
+/// <reference path="./../definitions/Data.d.ts" />
 
-import * as CoordUtils from "./../utils/CoordUtils";
+import Banner from "../template/Banner";
+import Entrance from "../template/Entrance";
+import Footpath from "../template/Footpath";
+import FootpathAddition from "../template/FootpathAddition";
+import LargeScenery from "../template/LargeScenery";
+import SmallScenery from "../template/SmallScenery";
+import Track from "../template/Track";
+import Wall from "../template/Wall";
+import * as CoordUtils from "../utils/CoordUtils";
+import * as Template from "../template/Template";
 
 /*
  * INTERFACE DEFINITION
  */
 
 export interface Filter {
-    footpath: boolean;
-    track: boolean;
-    small_scenery: boolean;
-    wall: boolean;
-    large_scenery: boolean;
     banner: boolean;
+    entrance: any;
+    footpath: boolean;
     footpath_addition: boolean;
+    large_scenery: boolean;
+    small_scenery: boolean;
+    track: boolean;
+    wall: boolean;
 }
 
 export interface Options {
@@ -34,105 +44,11 @@ export interface Options {
 }
 
 /*
- * TRANSFORMATION METHODS
- */
-
-function translate(template: SceneryTemplate, offset: CoordsXYZ): SceneryTemplate {
-    return {
-        ...template,
-        data: template.data.map(input => ({
-            ...input,
-            x: input.x + offset.x,
-            y: input.y + offset.y,
-            z: input.z + offset.z,
-        })),
-    };
-}
-
-function rotate(template: SceneryTemplate, rotation: number): SceneryTemplate {
-    if (rotation % 4 == 0)
-        return template;
-    return rotate({
-        ...template,
-        data: template.data.map(input => {
-            const out: any = {
-                ...input,
-                x: input.y,
-                y: template.size.x - input.x,
-            };
-            // 0xFF means no direction for paths
-            if (out.direction !== undefined && out.direction !== 0xFF)
-                out.direction = (out.direction + 1) & 3;
-            if (out.edge !== undefined)
-                out.edge = (out.edge + 1) & 3;
-            if (out.quadrant !== undefined)
-                if (!isFullTile(out))
-                    out.quadrant = (out.quadrant + 1) & 3;
-            if (out.slope !== undefined && out.slope !== 0)
-                out.slope = (((out.slope ^ (1 << 2)) + 1) % 4) | (1 << 2);
-            return out;
-        }),
-        size: {
-            x: template.size.y,
-            y: template.size.x,
-        },
-    }, rotation - 1);
-}
-
-function mirror(template: SceneryTemplate, mirror: boolean): SceneryTemplate {
-    // mirror_scenery(): /src/openrct2/ride/TrackDesign.cpp
-    if (!mirror)
-        return template;
-    return {
-        ...template,
-        data: template.data.map(input => {
-            const out: any = {
-                ...input,
-                y: template.size.y - input.y,
-            };
-            switch (out.type) {
-                case "footpath":
-                    if (out.slope & (1 << 0))
-                        out.slope ^= (1 << 1);
-                    break;
-                case "small_scenery":
-                    if (isDiagonal(out)) {
-                        out.direction ^= (1 << 0);
-                        if (!isFullTile(out))
-                            out.quadrant ^= (1 << 0);
-                        break;
-                    }
-                    if (out.direction & (1 << 0))
-                        out.direction ^= (1 << 1);
-                    if (!isHalfSpace(out))
-                        out.quadrant ^= (1 << 0);
-                    break;
-                case "wall":
-                    if (out.direction & (1 << 0))
-                        out.direction ^= (1 << 1);
-                    if (out.edge & (1 << 0))
-                        out.edge ^= (1 << 1);
-                    break;
-                case "large_scenery":
-                    break;
-                case "banner":
-                    if (out.direction & (1 << 0))
-                        out.direction ^= (1 << 1);
-                    break;
-                case "footpath_addition":
-                    break;
-            }
-            return out;
-        }),
-    };
-}
-
-/*
  * COPY PASTE REMOVE METHODS
  */
 
-export function copy(range: MapRange, filter: Filter): SceneryTemplate {
-    const data: SceneryData[] = [];
+export function copy(range: MapRange, filter: Filter): TemplateData {
+    const elements: ElementData[] = [];
 
     const start: CoordsXY = range.leftTop;
     const end: CoordsXY = range.rightBottom;
@@ -140,198 +56,104 @@ export function copy(range: MapRange, filter: Filter): SceneryTemplate {
 
     for (let x = start.x; x <= end.x; x += 32)
         for (let y = start.y; y <= end.y; y += 32)
-            data.push(...getSceneryData(x, y, start, filter));
+            elements.push(...getSceneryData(x, y, start, filter));
 
     return {
-        data: data,
+        elements: elements,
         size: size,
         surfaceHeight: getMedianSurfaceHeight(start, size),
     };
 }
 
-export function paste(template: SceneryTemplate, offset: CoordsXY, filter: Filter, options: Options): SceneryData[] {
+export function paste(template: TemplateData, offset: CoordsXY, filter: Filter, options: Options): ElementData[] {
     let deltaZ = options.height;
     if (!options.absolute)
         deltaZ += getMedianSurfaceHeight(offset, template.size) - template.surfaceHeight;
 
-    template = mirror(template, options.mirrored);
-    template = rotate(template, options.rotation);
-    template = translate(template, { ...offset, z: deltaZ * 8 });
+    if (options.mirrored)
+        template = Template.mirror(template);
+    template = Template.rotate(template, options.rotation);
+    template = Template.translate(template, { ...offset, z: deltaZ * 8 });
 
-    const result: SceneryData[] = [];
+    const result: ElementData[] = [];
 
-    template.data.forEach(data => {
-        if (!filter[data.type])
+    template.elements.forEach((element: ElementData) => {
+        if (!filter[element.type])
             return;
-        const placeArgs: SceneryPlaceArgs = getPlaceArgs(data, options.ghost ? 72 : 0);
-        context.queryAction(getPlaceAction(data.type), placeArgs, queryResult => {
+        const action: PlaceAction = Template.getPlaceAction(element);
+        const args: PlaceActionArgs = Template.getPlaceArgs(element, options.ghost ? 72 : 0);
+        context.queryAction(action, args, queryResult => {
             if (queryResult.error === 0)
-                context.executeAction(getPlaceAction(data.type), placeArgs, executeResult => {
+                context.executeAction(action, args, executeResult => {
                     if (executeResult.error === 0)
-                        result.push(data);
+                        result.push(element);
                 });
         });
     });
     return result;
 }
 
-export function remove(data: SceneryData[]) {
-    data.slice().reverse().forEach((date: SceneryData) => {
-        console.log(getRemoveAction(date.type), getRemoveArgs(date));
-        context.executeAction(getRemoveAction(date.type), getRemoveArgs(date), () => { });
+export function remove(elements: ElementData[]) {
+    elements.forEach((element: ElementData) => {
+        const action: RemoveAction = Template.getRemoveAction(element);
+        const args: RemoveActionArgs = Template.getRemoveArgs(element);
+        context.queryAction(action, args, queryResult => {
+            if (queryResult.error === 0)
+                context.executeAction(action, args, () => { });
+        });
     });
 }
 
 /*
- * Data CREATION
+ * DATA CREATION
  */
 
-function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter): SceneryData[] {
+function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter): ElementData[] {
     const tile: Tile = map.getTile(x / 32, y / 32);
-    const data: SceneryData[] = [];
-    tile.elements.forEach((_, idx) => {
-        switch (tile.elements[idx].type) {
+    const data: ElementData[] = [];
+    tile.elements.forEach((element: BaseTileElement, idx: number) => {
+        switch (element.type) {
+            case "banner":
+                if (filter.banner)
+                    data.push(Banner.createFromTileData(tile, offset, idx));
+                break;
+            case "entrance":
+                if (filter.entrance)
+                    data.push(Entrance.createFromTileData(tile, offset, idx));
+                break;
             case "footpath":
                 if (filter.footpath)
-                    data.push(getFootpath(tile, offset, idx));
+                    data.push(Footpath.createFromTileData(tile, offset, idx));
                 if (filter.footpath_addition) {
-                    const addition: FootpathAdditionData = getFootpathAddition(tile, offset, idx);
+                    const addition: FootpathAdditionData = FootpathAddition.createFromTileData(tile, offset, idx);
                     if (addition !== undefined)
                         data.push(addition);
                 }
                 break;
-            case "track":
-                if (filter.track)
-                    data.push(getTrack(tile, offset, idx));
-                break;
-            case "small_scenery":
-                if (filter.small_scenery)
-                    data.push(getSmallScenery(tile, offset, idx));
-                break;
-            case "wall":
-                if (filter.wall)
-                    data.push(getWall(tile, offset, idx));
-                break;
             case "large_scenery":
                 if (filter.large_scenery) {
-                    const largeScenery = getLargeScenery(tile, offset, idx);
+                    const largeScenery: LargeSceneryData = LargeScenery.createFromTileData(tile, offset, idx);
                     if (largeScenery !== undefined)
                         data.push(largeScenery);
                 }
                 break;
-            case "banner":
-                if (filter.banner)
-                    data.push(getBanner(tile, offset, idx));
+            case "small_scenery":
+                if (filter.small_scenery)
+                    data.push(SmallScenery.createFromTileData(tile, offset, idx));
+                break;
+            case "track":
+                if (filter.track)
+                    data.push(Track.createFromTileData(tile, offset, idx));
+                break;
+            case "wall":
+                if (filter.wall)
+                    data.push(Wall.createFromTileData(tile, offset, idx));
                 break;
             default:
                 break;
         }
     });
     return data;
-}
-
-function getBaseSceneryData(tile: Tile, offset: CoordsXY, idx: number): SceneryData {
-    const element: BaseTileElement = tile.elements[idx];
-    const object: Object = context.getObject(<ObjectType>element.type, (<any>element).object);
-    return {
-        type: undefined,
-        identifier: getIdentifier(object),
-        x: tile.x * 32 - offset.x,
-        y: tile.y * 32 - offset.y,
-        z: element.baseHeight * 8,
-    };
-}
-
-function getFootpath(tile: Tile, offset: CoordsXY, idx: number): FootpathData {
-    const element: FootpathElement = <FootpathElement>tile.elements[idx];
-    return {
-        ...getBaseSceneryData(tile, offset, idx),
-        type: "footpath",
-        direction: 0xFF, // otherwise, it removes walls in that direction
-        slope: (tile.data[idx * 16 + 0x9] & 1) * (tile.data[idx * 16 + 0xA] | (1 << 2)),
-        isQueue: element.isQueue,
-    };
-}
-
-function getTrack(tile: Tile, offset: CoordsXY, idx: number): TrackData {
-    if (tile.data[idx * 16 + 0x6] !== 0)
-        return undefined;
-    const element: TrackElement = <TrackElement>tile.elements[idx];
-    return {
-        ...getBaseSceneryData(tile, offset, idx),
-        type: "track",
-        direction: element.direction,
-        ride: element.ride,
-        trackType: element.trackType,
-        brakeSpeed: tile.data[idx * 16 + 0x8],
-        colour: tile.data[idx * 16 + 0x7] & 3,
-        seatRotation: (tile.data[idx * 16 + 0x7] >> 4) & 0xF,
-        trackPlaceFlags: tile.data[idx * 16 + 0xA] & 3,
-        isFromTrackDesign: false,
-    };
-}
-
-function getSmallScenery(tile: Tile, offset: CoordsXY, idx: number): SmallSceneryData {
-    const element: SmallSceneryElement = <SmallSceneryElement><BaseTileElement>tile.elements[idx];
-    return {
-        ...getBaseSceneryData(tile, offset, idx),
-        type: "small_scenery",
-        direction: element.direction,
-        quadrant: (tile.data[idx * 16 + 0] >> 6) & 3,
-        primaryColour: element.primaryColour,
-        secondaryColour: element.secondaryColour,
-    };
-}
-
-function getWall(tile: Tile, offset: CoordsXY, idx: number): WallData {
-    const element: WallElement = <WallElement><BaseTileElement>tile.elements[idx];
-    return {
-        ...getBaseSceneryData(tile, offset, idx),
-        type: "wall",
-        direction: element.direction,
-        edge: tile.data[idx * 16 + 0] % 4,
-        primaryColour: tile.data[idx * 16 + 6],
-        secondaryColour: tile.data[idx * 16 + 7],
-        tertiaryColour: tile.data[idx * 16 + 8],
-    };
-}
-
-function getLargeScenery(tile: Tile, offset: CoordsXY, idx: number): LargeSceneryData {
-    if (tile.data[idx * 16 + 0x8] !== 0)
-        return undefined;
-    const element: LargeSceneryElement = <LargeSceneryElement><BaseTileElement>tile.elements[idx];
-    return {
-        ...getBaseSceneryData(tile, offset, idx),
-        type: "large_scenery",
-        direction: (<any>element).direction,
-        primaryColour: element.primaryColour,
-        secondaryColour: element.secondaryColour,
-    };
-}
-
-function getBanner(tile: Tile, offset: CoordsXY, idx: number): BannerData {
-    const element: BannerElement = <BannerElement><BaseTileElement>tile.elements[idx];
-    return {
-        ...getBaseSceneryData(tile, offset, idx),
-        type: "banner",
-        z: (element.baseHeight - 2) * 8,
-        direction: tile.data[idx * 16 + 6],
-        primaryColour: (<any>element).primaryColour, // not set, can be deleted
-    };
-}
-
-function getFootpathAddition(tile: Tile, offset: CoordsXY, idx: number): FootpathAdditionData {
-    const element: FootpathElement = <FootpathElement>tile.elements[idx];
-    if (element.addition === null)
-        return undefined;
-    const object: Object = context.getObject("footpath_addition", element.addition);
-    if (tile.data[idx * 16 + 0x7] === 0)
-        return undefined;
-    return {
-        ...getBaseSceneryData(tile, offset, idx), // footpath data
-        type: "footpath_addition",
-        identifier: getIdentifier(object), // footpath addition identifier
-    };
 }
 
 /*
@@ -349,7 +171,7 @@ function getMedianSurfaceHeight(start: CoordsXY, size: CoordsXY): number {
     const heights: number[] = [];
     for (let x: number = 0; x <= size.x; x += 32)
         for (let y: number = 0; y <= size.y; y += 32) {
-            const surface: TileElement = getSurface(start.x + x, start.y + y);
+            const surface: BaseTileElement = getSurface(start.x + x, start.y + y);
             if (surface !== undefined)
                 heights.push(surface.baseHeight);
         }
@@ -358,63 +180,17 @@ function getMedianSurfaceHeight(start: CoordsXY, size: CoordsXY): number {
 }
 
 /*
- * TYPE INFO METHODS
- */
-
-function getPlaceAction(type: SceneryType): SceneryPlaceAction {
-    return <SceneryPlaceAction>(type.replace("_", "").toLowerCase() + "place");
-    switch (type) {
-        case "footpath":
-            return "footpathplace";
-        case "track":
-            return "trackplace";
-        case "small_scenery":
-            return "smallsceneryplace";
-        case "wall":
-            return "wallplace";
-        case "large_scenery":
-            return "largesceneryplace";
-        case "banner":
-            return "bannerplace";
-        case "footpath_addition":
-            return "footpathadditionplace";
-        default:
-            return undefined;
-    }
-}
-
-function getRemoveAction(type: SceneryType): SceneryRemoveAction {
-    return <SceneryRemoveAction>(type.replace("_", "").toLowerCase() + "remove");
-    switch (type) {
-        case "footpath":
-            return "footpathremove";
-        case "small_scenery":
-            return "smallsceneryremove";
-        case "wall":
-            return "wallremove";
-        case "large_scenery":
-            return "largesceneryremove";
-        case "banner":
-            return "bannerremove";
-        case "footpath_addition":
-            return "footpathadditionremove";
-        default:
-            return undefined;
-    }
-}
-
-/*
  * IDENTIFIER TO OBJECT CONVERSION
  */
 
-const cache: { [key: string]: { [key: string]: SceneryObject; }; } = {};
+const cache: { [key: string]: { [key: string]: Object; }; } = {};
 
 function loadCache(type: ObjectType): void {
     cache[type] = {};
-    context.getAllObjects(type).forEach((object: SceneryObject) => cache[type][getIdentifier(object)] = object);
+    context.getAllObjects(type).forEach((object: Object) => cache[type][getIdentifier(object)] = object);
 }
 
-export function getObject(data: SceneryData): SceneryObject {
+export function getObject(data: ElementData): Object {
     if (cache[data.type] === undefined)
         loadCache(<ObjectType>data.type);
     const object = cache[data.type][data.identifier];
@@ -423,97 +199,9 @@ export function getObject(data: SceneryData): SceneryObject {
     return cache[data.type][data.identifier];
 }
 
-function getIdentifier(object: SceneryObject): string {
+// where used?
+export function getIdentifier(object: Object): string {
     if (object === null)
         return undefined;
     return object.identifier || object.legacyIdentifier;
-}
-
-/*
- * OBJECT META DATA
- */
-
-function isFullTile(data: SceneryData): boolean {
-    return hasFlag(data, 0);
-}
-
-function isDiagonal(data: SceneryData): boolean {
-    return hasFlag(data, 8);
-}
-
-function isHalfSpace(data: SceneryData): boolean {
-    return hasFlag(data, 24);
-}
-
-function hasFlag(data: SceneryData, bit: number) {
-    if (data.type !== "small_scenery")
-        return false;
-    const object: SmallSceneryObject = <SmallSceneryObject>getObject(data);
-    return (object.flags & (1 << bit)) !== 0;
-}
-
-/*
- * SCENERYDATA TO ARGUMENT CONVERSION
- */
-function getPlaceArgs(data: SceneryData, flags: number): SceneryPlaceArgs {
-    switch (data.type) {
-        case "footpath":
-            return {
-                ...data,
-                flags: flags,
-                object: getObject(data).index | ((<FootpathData>data).isQueue ? (1 << 7) : 0),
-            };
-        case "footpath_addition":
-            return {
-                ...data,
-                flags: flags,
-                object: getObject(data).index + 1,
-            };
-        case "track":
-            return {
-                ...data,
-                flags: flags,
-                object: undefined,
-            };
-        default:
-            return {
-                ...data,
-                flags: flags,
-                object: getObject(data).index,
-            };
-    }
-}
-
-function getRemoveArgs(data: SceneryData): SceneryRemoveArgs {
-    switch (data.type) {
-        case "small_scenery":
-            return <SmallSceneryRemoveArgs>{
-                ...data,
-                flags: 72,
-                object: getObject(data).index,
-            };
-        case "track":
-            return <TrackRemoveArgs><unknown>{
-                ...data,
-                flags: 72,
-                sequence: 0,
-            };
-        case "large_scenery":
-            return <LargeSceneryRemoveArgs>{
-                ...data,
-                flags: 72,
-                tileIndex: 0,
-            };
-        case "banner":
-            return {
-                ...data,
-                flags: 72,
-                z: data.z + 16,
-            }
-        default:
-            return {
-                ...data,
-                flags: 72,
-            };
-    }
 }

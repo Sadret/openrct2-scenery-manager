@@ -5,11 +5,12 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { BoxBuilder } from "./../gui/WindowBuilder";
-import * as ArrayUtils from "./../utils/ArrayUtils";
-import * as CoordUtils from "./../utils/CoordUtils";
-import * as SceneryUtils from "./../utils/SceneryUtils";
-import Main from "./../widgets/Main";
+import { BoxBuilder } from "../gui/WindowBuilder";
+import * as ArrayUtils from "../utils/ArrayUtils";
+import * as CoordUtils from "../utils/CoordUtils";
+import * as SceneryUtils from "../utils/SceneryUtils";
+import * as Template from "../template/Template";
+import Main from "../widgets/Main";
 
 class CopyPaste {
     readonly main: Main;
@@ -70,11 +71,11 @@ class CopyPaste {
             this.main.clipboard.add(SceneryUtils.copy(ui.tileSelection.range, this.main.settings.filter));
     }
 
-    pasteTemplate(template: SceneryTemplate, onCancel: () => void): void {
-        if (ArrayUtils.find(template.data, (data: SceneryData) => data.type !== "track" && SceneryUtils.getObject(data) === undefined) !== undefined)
+    pasteTemplate(template: TemplateData, onCancel: () => void): void {
+        if (ArrayUtils.find(template.elements, (element: ElementData) => !Template.isAvailable(element)) !== undefined)
             return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
 
-        let ghost: SceneryData[] = undefined;
+        let ghost: ElementData[] = undefined;
         let ghostCoords: CoordsXY = undefined;
         function removeGhost(): void {
             if (ghost !== undefined)
@@ -123,7 +124,7 @@ class CopyPaste {
         });
     }
 
-    getSize(template: SceneryTemplate) {
+    getSize(template: TemplateData) {
         let size: CoordsXY = template.size;
         if (this.main.settings.options.rotation % 2 === 1)
             size = {

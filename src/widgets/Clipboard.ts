@@ -5,12 +5,12 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { FolderView } from "./../gui/FolderView";
-import { BoxBuilder } from "./../gui/WindowBuilder";
-import { File } from "./../persistence/File";
-import * as Storage from "./../persistence/Storage";
-import * as UiUtils from "./../utils/UiUtils";
-import Main from "./../widgets/Main";
+import { FolderView } from "../gui/FolderView";
+import { BoxBuilder } from "../gui/WindowBuilder";
+import { File } from "../persistence/File";
+import * as Storage from "../persistence/Storage";
+import * as UiUtils from "../utils/UiUtils";
+import Main from "../widgets/Main";
 
 class Clipboard {
     readonly main: Main;
@@ -25,15 +25,15 @@ class Clipboard {
         this.folderView.onFileDeselect = () => { if (ui.tool) ui.tool.cancel() };
         this.folderView.onFileSelect = () =>
             this.main.copyPaste.pasteTemplate(
-                this.folderView.selected.getContent(),
+                this.folderView.selected.getContent<TemplateData>(),
                 () => this.folderView.select(undefined),
             );
         this.folderView.onUpdate = () => this.update();
     }
 
-    add(template: SceneryTemplate): void {
+    add(template: TemplateData): void {
         const name: string = "unnamed-" + this.counter++;
-        const file: File = this.folderView.path.addFile<SceneryTemplate>(name, template);
+        const file: File = this.folderView.path.addFile<TemplateData>(name, template);
 
         if (file === undefined)
             return this.add(template);
@@ -77,7 +77,7 @@ class Clipboard {
 
     save(): void {
         const file: File = this.folderView.selected;
-        this.main.libraryView.save(file.getName(), file.getContent<SceneryTemplate>());
+        this.main.libraryView.save(file.getName(), file.getContent<TemplateData>());
     }
 
     clear(): void {

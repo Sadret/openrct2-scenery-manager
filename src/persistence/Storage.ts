@@ -6,7 +6,7 @@
  *****************************************************************************/
 
 /// <reference path="./../../../openrct2.d.ts" />
-import { File, FileSystem } from "./../persistence/File";
+import { File, FileSystem } from "../persistence/File";
 
 const namespace: string = "scenery-manager";
 const storagePrefix: string = namespace + ".";

@@ -5,12 +5,12 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../definitions/SceneryTemplate.d.ts" />
+/// <reference path="./../definitions/Data.d.ts" />
 
-import { BoxBuilder } from "./../gui/WindowBuilder";
-import { File } from "./../persistence/File";
-import * as ArrayUtils from "./../utils/ArrayUtils";
-import * as StringUtils from "./../utils/StringUtils";
+import { BoxBuilder } from "../gui/WindowBuilder";
+import { File } from "../persistence/File";
+import * as ArrayUtils from "../utils/ArrayUtils";
+import * as StringUtils from "../utils/StringUtils";
 
 export class FolderView {
     readonly name: string;
@@ -142,15 +142,15 @@ export class FolderView {
         ).sort(
             (a: File, b: File) => StringUtils.compare(a.getName(), b.getName())
         ).forEach((file: File) => {
-            const template: SceneryTemplate = file.getContent();
-            if (template === undefined)
+            const templateData: TemplateData = file.getContent<TemplateData>();
+            if (templateData === undefined)
                 addItem(file, [file.getName(), "", "", ""]);
             else
                 addItem(file, [
                     file.getName(),
-                    String(template.size.x / 32 + 1),
-                    String(template.size.y / 32 + 1),
-                    String(template.data.length),
+                    String(templateData.size.x / 32 + 1),
+                    String(templateData.size.y / 32 + 1),
+                    String(templateData.elements.length),
                 ]);
         });
 

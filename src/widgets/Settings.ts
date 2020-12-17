@@ -5,22 +5,23 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { BoxBuilder } from "./../gui/WindowBuilder";
-import { Filter, Options } from "./../utils/SceneryUtils";
-import * as StringUtils from "./../utils/StringUtils";
-import Main from "./../widgets/Main";
+import { BoxBuilder } from "../gui/WindowBuilder";
+import { Filter, Options } from "../utils/SceneryUtils";
+import * as StringUtils from "../utils/StringUtils";
+import Main from "../widgets/Main";
 
 class Settings {
     readonly main: Main;
 
     readonly filter: Filter = {
-        footpath: true,
-        track: true,
-        small_scenery: true,
-        wall: true,
-        large_scenery: true,
         banner: true,
+        entrance: true,
+        footpath: true,
         footpath_addition: true,
+        large_scenery: true,
+        small_scenery: true,
+        track: true,
+        wall: true,
     };
     readonly options: Options = {
         rotation: 0,

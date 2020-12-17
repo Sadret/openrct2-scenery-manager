@@ -5,13 +5,13 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../definitions/SceneryTemplate.d.ts" />
+/// <reference path="./../definitions/Data.d.ts" />
 
-import { FolderView } from "./../gui/FolderView";
-import { BoxBuilder } from "./../gui/WindowBuilder";
-import * as Storage from "./../persistence/Storage";
-import Main from "./../widgets/Main";
-import { TAB } from "./../SceneryManager";
+import { FolderView } from "../gui/FolderView";
+import { BoxBuilder } from "../gui/WindowBuilder";
+import * as Storage from "../persistence/Storage";
+import Main from "../widgets/Main";
+import { TAB } from "../SceneryManager";
 
 class LibraryView {
     readonly main: Main;
@@ -25,14 +25,14 @@ class LibraryView {
         this.folderView.onFileDeselect = () => { if (ui.tool) ui.tool.cancel() };
         this.folderView.onFileSelect = () =>
             this.main.copyPaste.pasteTemplate(
-                this.folderView.selected.getContent(),
+                this.folderView.selected.getContent<TemplateData>(),
                 () => this.folderView.select(undefined),
             );
         this.folderView.onUpdate = () => this.update();
     }
 
-    save(name: string, template: SceneryTemplate): void {
-        if (this.folderView.path.addFile<SceneryTemplate>(name, template) === undefined)
+    save(name: string, template: TemplateData): void {
+        if (this.folderView.path.addFile<TemplateData>(name, template) === undefined)
             return ui.showError("Can't save scenery template...", "File or folder with this name already exists.");
         this.folderView.update();
     }
