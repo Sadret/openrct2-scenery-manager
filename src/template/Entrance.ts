@@ -6,7 +6,6 @@
  *****************************************************************************/
 
 import IElement from "./IElement";
-import * as SceneryUtils from "../utils/SceneryUtils";
 
 const Entrance: IElement<EntranceData> = {
 
@@ -26,13 +25,13 @@ const Entrance: IElement<EntranceData> = {
     },
 
     rotate(element: EntranceData, size: CoordsXY, rotation: number): EntranceData {
-        if ((rotation & 3) === 0)
+        if ((rotation & 0x3) === 0)
             return element;
         return Entrance.rotate({
             ...element,
             x: element.y,
             y: size.x - element.x,
-            direction: (element.direction + 1) & 3,
+            direction: (element.direction + 1) & 0x3,
         }, {
                 x: size.y,
                 y: size.x,

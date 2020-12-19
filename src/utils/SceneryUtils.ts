@@ -142,8 +142,11 @@ function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter):
                     data.push(SmallScenery.createFromTileData(tile, offset, idx));
                 break;
             case "track":
-                if (filter.track)
-                    data.push(Track.createFromTileData(tile, offset, idx));
+                if (filter.track) {
+                    const track: TrackData = Track.createFromTileData(tile, offset, idx);
+                    if (track !== undefined)
+                        data.push(track);
+                }
                 break;
             case "wall":
                 if (filter.wall)
