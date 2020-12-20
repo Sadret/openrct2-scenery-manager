@@ -96,6 +96,7 @@ export class FolderView {
         if (this.getWindow() === undefined) return;
 
         const widget: ListView = this.getWindow().findWidget(this.name);
+        if (widget === null) return;
 
         const oldItems: ListViewItem[] | string[] = widget.items;
         const newItems: ListViewItem[] = this.getItems();
