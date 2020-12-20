@@ -1,5 +1,6 @@
-1.0.1+
+1.1.0
 ------------------------------------------------------------------------
+- Feature: [BETA] Trackitecture support.
 - Fix: [#6] Bad error when running under headless.
 
 1.0.1 (2020-12-04)

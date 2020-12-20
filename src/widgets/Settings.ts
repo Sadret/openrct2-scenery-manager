@@ -108,8 +108,10 @@ class Settings {
                 });
                 group.addBox(heightOffset);
             }
-            group.addSpace();
-            group.addSpace();
+            // group.addSpace();
+            // group.addSpace();
+            // group.addSpace();
+            // group.addSpace();
             hbox.addGroupBox({
                 text: "Options",
             }, group);

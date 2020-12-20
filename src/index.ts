@@ -12,7 +12,7 @@ import SceneryManager from "./SceneryManager"
 
 registerPlugin({
     name: "scenery-manager",
-    version: "1.0.1",
+    version: "1.1.0",
     authors: ["Sadret"],
     type: "local",
     licence: "GPL-3.0",

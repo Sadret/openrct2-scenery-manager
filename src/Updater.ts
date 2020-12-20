@@ -9,12 +9,12 @@
 
 import * as Storage from "./persistence/Storage";
 import * as UiUtils from "./utils/UiUtils";
-import { File, FileSystem } from "./persistence/File";
+import { File } from "./persistence/File";
 
 export function update(load: () => void): void {
     switch (Storage.get<String>("version")) {
         case undefined:
-            Storage.set<string>("version", "1.0.2");
+            Storage.set<string>("version", "1.1.0");
             UiUtils.showAlert("Welcome to Scenery Manager!", [
                 "Thank you for using Scenery Manager!",
                 "",
