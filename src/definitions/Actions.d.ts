@@ -10,7 +10,7 @@
  */
 type PlaceAction =
     "bannerplace" |
-    "entranceplace" |
+    "rideentranceexitplace" |
     "footpathplace" |
     "footpathadditionplace" |
     "largesceneryplace" |
@@ -79,7 +79,7 @@ interface WallPlaceArgs extends PlaceActionArgs {
  */
 type RemoveAction =
     "bannerremove" |
-    "entranceremove" |
+    "rideentranceexitremove" |
     "footpathremove" |
     "footpathadditionremove" |
     "largesceneryremove" |

@@ -64,11 +64,11 @@ const Entrance: IElement<EntranceData> = {
         };
     },
 
-    getPlaceAction(): "entranceplace" {
-        return "entranceplace";
+    getPlaceAction(): "rideentranceexitplace" {
+        return "rideentranceexitplace";
     },
-    getRemoveAction(): "entranceremove" {
-        return "entranceremove";
+    getRemoveAction(): "rideentranceexitremove" {
+        return "rideentranceexitremove";
     },
 
 };
