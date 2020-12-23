@@ -8,11 +8,11 @@
 import { BoxBuilder } from "../gui/WindowBuilder";
 import SceneryManager from "../SceneryManager";
 
-class Utilities {
+class Configuration {
     constructor(_manager: SceneryManager) { }
 
     build(builder: BoxBuilder): void {
         builder.addLabel({ text: "coming soon" });
     }
 }
-export default Utilities;
+export default Configuration;

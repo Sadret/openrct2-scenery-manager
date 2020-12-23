@@ -11,7 +11,7 @@ import Coloring from "./widgets/Coloring";
 import Library from "./widgets/Library";
 import Main from "./widgets/Main";
 import Research from "./widgets/Research";
-import Utilities from "./widgets/Utilities";
+import Configuration from "./widgets/Configuration";
 
 export enum TAB {
     MAIN,
@@ -35,7 +35,7 @@ class SceneryManager {
     readonly main: Main;
     readonly library: Library;
     readonly coloring: Coloring;
-    readonly utilities: Utilities;
+    readonly configuration: Configuration;
     readonly research: Research;
     readonly about: About;
 
@@ -45,7 +45,7 @@ class SceneryManager {
         this.main = new Main(this);
         this.library = new Library(this);
         this.coloring = new Coloring(this);
-        this.utilities = new Utilities(this);
+        this.configuration = new Configuration(this);
         this.research = new Research(this);
         this.about = new About(this);
 
@@ -72,7 +72,7 @@ class SceneryManager {
                 frameCount: 16,
                 frameDuration: 4,
             },
-            widget: this.utilities,
+            widget: this.configuration,
         }, {
             image: 5327,
             widget: this.research,
