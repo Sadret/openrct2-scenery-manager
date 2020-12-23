@@ -18,7 +18,7 @@ const Footpath: IElement<FootpathData> = {
             x: tile.x * 32 - offset.x,
             y: tile.y * 32 - offset.y,
             z: element.baseHeight * 8,
-            direction: 0xFF,
+            direction: undefined,
             identifier: SceneryUtils.getIdentifier(object),
             slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
             isQueue: element.isQueue,
@@ -60,6 +60,7 @@ const Footpath: IElement<FootpathData> = {
             ...element,
             flags: flags,
             object: SceneryUtils.getObject(element).index,
+            direction: 0xFF, // = invalid direction
         };
     },
     getRemoveArgs(element: FootpathData): FootpathRemoveArgs {

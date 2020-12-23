@@ -40,7 +40,7 @@ interface ElementData {
     readonly y: number,
     // almost all
     readonly z: number, // except entrance
-    readonly direction: number, // except footpath_addition
+    readonly direction: number, // except footpath, footpath_addition
     readonly identifier: string, // except entrance, track
 }
 
