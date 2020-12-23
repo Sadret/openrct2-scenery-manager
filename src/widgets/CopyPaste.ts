@@ -10,6 +10,7 @@ import * as ArrayUtils from "../utils/ArrayUtils";
 import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 import * as Template from "../template/Template";
+import * as Configuration from "../widgets/Configuration";
 import Main from "../widgets/Main";
 
 class CopyPaste {
@@ -72,8 +73,15 @@ class CopyPaste {
     }
 
     pasteTemplate(template: TemplateData, onCancel: () => void): void {
-        if (ArrayUtils.find(template.elements, (element: ElementData) => !Template.isAvailable(element)) !== undefined)
-            return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
+        {
+            const onMissingElement: Configuration.Action = Configuration.getOnMissingElement();
+            if (onMissingElement !== "ignore")
+                if (ArrayUtils.find(template.elements, (element: ElementData) => !Template.isAvailable(element)) !== undefined)
+                    if (onMissingElement === "warning")
+                        ui.showError("Can't paste entire template...", "Template includes scenery which is unavailable.");
+                    else
+                        return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
+        }
 
         let ghost: ElementData[] = undefined;
         let ghostCoords: CoordsXY = undefined;

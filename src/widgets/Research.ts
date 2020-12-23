@@ -18,7 +18,7 @@ class Research {
     }
 
     content(builder: BoxBuilder) {
-        builder.addLabel({ text: "Version: 1.1.0" });
+        builder.addLabel({ text: "Version: 1.1.1" });
         builder.addSpace(0);
         {
             const group = builder.getGroupBox(builder.padding, builder.margin);

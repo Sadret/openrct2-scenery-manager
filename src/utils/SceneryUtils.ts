@@ -80,6 +80,8 @@ export function paste(template: TemplateData, offset: CoordsXY, filter: Filter, 
     template.elements.forEach((element: ElementData) => {
         if (!filter[element.type])
             return;
+        if (!Template.isAvailable(element))
+            return;
         const action: PlaceAction = Template.getPlaceAction(element);
         const args: PlaceActionArgs = Template.getPlaceArgs(element, options.ghost ? 72 : 0);
         context.queryAction(action, args, queryResult => {

@@ -14,7 +14,6 @@ import { File } from "./persistence/File";
 export function update(load: () => void): void {
     switch (Storage.get<String>("version")) {
         case undefined:
-            Storage.set<string>("version", "1.1.0");
             UiUtils.showAlert("Welcome to Scenery Manager!", [
                 "Thank you for using Scenery Manager!",
                 "",
@@ -28,6 +27,12 @@ export function update(load: () => void): void {
                 "",
                 "I hope you enjoy this plug-in!",
             ], 350);
+            init_111();
+            return load();
+        case "1.1.1":
+            return load();
+        case "1.1.0":
+            init_111();
             return load();
         case "1.0.1":
             return UiUtils.showConfirm("Welcome to Scenery Manager!", [
@@ -41,11 +46,10 @@ export function update(load: () => void): void {
             ], (confirmed: boolean) => {
                 if (!confirmed)
                     return;
-                update_101_110();
+                update_110();
+                init_111();
                 load();
             }, "Continue", "Cancel");
-        case "1.1.0":
-            return load();
         default:
             return UiUtils.showConfirm("Welcome to Scenery Manager!", [
                 "Your clipboard and library contain templates",
@@ -62,7 +66,7 @@ export function update(load: () => void): void {
     }
 }
 
-function update_101_110(): void {
+function update_110(): void {
     interface OldTemplateData {
         readonly data: ElementData[],
         readonly size: CoordsXY,
@@ -84,6 +88,9 @@ function update_101_110(): void {
 
     recurse(Storage.clipboard.getRoot());
     recurse(Storage.library.getRoot());
+}
 
-    Storage.set<string>("version", "1.1.0");
+function init_111(): void {
+    Storage.set<number>("onMissingElement", 0);
+    Storage.set<string>("version", "1.1.1");
 }

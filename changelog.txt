@@ -1,3 +1,7 @@
+1.1.1
+------------------------------------------------------------------------
+- Feature: Add configuration: behaviour if element unavailable
+
 1.1.0
 ------------------------------------------------------------------------
 - Feature: [BETA] Trackitecture support.
