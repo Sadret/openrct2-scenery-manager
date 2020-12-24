@@ -22,8 +22,8 @@ const LargeScenery: IElement<LargeSceneryData> = {
             z: element.baseHeight * 8,
             direction: tile.data[idx * 16 + 0] % 4,
             identifier: SceneryUtils.getIdentifier(object),
-            primaryColour: tile.data[idx * 16 + 6],
-            secondaryColour: tile.data[idx * 16 + 7],
+            primaryColour: tile.data[idx * 16 + 0x9],
+            secondaryColour: tile.data[idx * 16 + 0xA],
         };
     },
 
