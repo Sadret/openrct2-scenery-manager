@@ -35,6 +35,7 @@ export function update(load: () => void): void {
             init_111();
             return load();
         case "1.0.1":
+        case "1.0.0":
             return UiUtils.showConfirm("Welcome to Scenery Manager!", [
                 "Your clipboard and library contain templates",
                 "from a previous version of Scenery Manager.",
