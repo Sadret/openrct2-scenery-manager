@@ -57,7 +57,7 @@ export function translate(template: TemplateData, offset: CoordsXYZ): TemplateDa
                 y: element.y + offset.y,
                 z: element.z + offset.z,
             })
-        ),
+        ).filter((element: ElementData) => element.z > 0),
     };
 }
 export function rotate(template: TemplateData, rotation: number): TemplateData {
