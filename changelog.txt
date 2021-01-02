@@ -1,5 +1,9 @@
 1.1.3
 ------------------------------------------------------------------------
+- Fix: Rotating a template with missing elements results in a crash.
+
+1.1.3
+------------------------------------------------------------------------
 - Fix: Updater can now correctly handle v1.0.0.
 
 1.1.2

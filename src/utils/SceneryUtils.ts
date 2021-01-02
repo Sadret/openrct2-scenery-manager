@@ -70,6 +70,7 @@ export function paste(template: TemplateData, offset: CoordsXY, filter: Filter, 
     if (!options.absolute)
         deltaZ += getMedianSurfaceHeight(offset, template.size) - template.surfaceHeight;
 
+    template = Template.available(template);
     if (options.mirrored)
         template = Template.mirror(template);
     template = Template.rotate(template, options.rotation);
@@ -79,8 +80,6 @@ export function paste(template: TemplateData, offset: CoordsXY, filter: Filter, 
 
     template.elements.forEach((element: ElementData) => {
         if (!filter[element.type])
-            return;
-        if (!Template.isAvailable(element))
             return;
         const action: PlaceAction = Template.getPlaceAction(element);
         const args: PlaceActionArgs = Template.getPlaceArgs(element, options.ghost ? 72 : 0);

@@ -14,6 +14,7 @@ import LargeScenery from "./LargeScenery";
 import SmallScenery from "./SmallScenery";
 import Track from "./Track";
 import Wall from "./Wall";
+import * as ArrayUtils from "../utils/ArrayUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
 const map: { [key in ElementType]: IElement<ElementData> } = {
@@ -31,12 +32,24 @@ function get(type: ElementType): IElement<ElementData> {
     return map[type];
 }
 
-export function isAvailable(element: ElementData): boolean {
+function isElementAvailable(element: ElementData): boolean {
     return element.identifier === undefined || SceneryUtils.getObject(element) !== undefined;
+}
+
+export function isAvailable(template: TemplateData): boolean {
+    return ArrayUtils.find(template.elements, (element: ElementData) => !isElementAvailable(element)) !== undefined;
+}
+
+export function available(template: TemplateData): TemplateData {
+    return {
+        ...template,
+        elements: template.elements.filter(isElementAvailable),
+    };
 }
 
 export function translate(template: TemplateData, offset: CoordsXYZ): TemplateData {
     return {
+        ...template,
         elements: template.elements.map(
             (element: ElementData) => ({
                 ...element,
@@ -45,14 +58,13 @@ export function translate(template: TemplateData, offset: CoordsXYZ): TemplateDa
                 z: element.z + offset.z,
             })
         ),
-        size: template.size,
-        surfaceHeight: template.surfaceHeight,
     };
 }
 export function rotate(template: TemplateData, rotation: number): TemplateData {
     if ((rotation & 3) === 0)
         return template;
     return {
+        ...template,
         elements: template.elements.map(
             (element: ElementData) => get(element.type) ?.rotate(element, template.size, rotation)
             ),
@@ -60,16 +72,14 @@ export function rotate(template: TemplateData, rotation: number): TemplateData {
             x: template.size.y,
             y: template.size.x,
         },
-        surfaceHeight: template.surfaceHeight,
     };
 }
 export function mirror(template: TemplateData): TemplateData {
     return {
+        ...template,
         elements: template.elements.map(
             (element: ElementData) => get(element.type) ?.mirror(element, template.size)
             ),
-        size: template.size,
-        surfaceHeight: template.surfaceHeight,
     };
 }
 
