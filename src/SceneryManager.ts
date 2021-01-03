@@ -74,7 +74,11 @@ class SceneryManager {
             },
             widget: this.configuration,
         }, {
-            image: 5327,
+            image: {
+                frameBase: 5327,
+                frameCount: 8,
+                frameDuration: 4,
+            },
             widget: this.research,
         }, {
             image: {
