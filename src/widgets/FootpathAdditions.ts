@@ -7,12 +7,12 @@
 
 import { BoxBuilder } from "../gui/WindowBuilder";
 
-class Coloring {
-    public static instance: Coloring = new Coloring();
-    constructor() { }
+class FootpathAdditions {
+    public static instance: FootpathAdditions = new FootpathAdditions();
+    private constructor() { }
 
     public build(builder: BoxBuilder): void {
         builder.addLabel({ text: "coming soon" });
     }
 }
-export default Coloring.instance;
+export default FootpathAdditions.instance;

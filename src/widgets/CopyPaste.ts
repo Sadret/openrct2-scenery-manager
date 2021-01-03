@@ -5,23 +5,22 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { BoxBuilder } from "../gui/WindowBuilder";
+import Clipboard from "./Clipboard";
+import Settings from "./Settings";
+import SceneryManager from "../SceneryManager";
+import * as Template from "../template/Template";
 import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
-import * as Template from "../template/Template";
 import * as Configuration from "../widgets/Configuration";
-import Main from "../widgets/Main";
+import { BoxBuilder } from "../gui/WindowBuilder";
 
 class CopyPaste {
-    readonly main: Main;
+    public static instance: CopyPaste = new CopyPaste();
+    private constructor() { }
 
-    selecting: boolean = false;
+    private selecting: boolean = false;
 
-    constructor(main: Main) {
-        this.main = main;
-    }
-
-    selectArea(): void {
+    private selectArea(): void {
         if (this.selecting)
             return ui.tool.cancel();
 
@@ -35,7 +34,7 @@ class CopyPaste {
             onStart: () => {
                 this.selecting = true;
                 ui.mainViewport.visibilityFlags |= 1 << 7;
-                this.main.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = true;
+                SceneryManager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = true;
             },
             onDown: e => {
                 drag = true;
@@ -58,20 +57,20 @@ class CopyPaste {
                 this.selecting = false;
                 ui.tileSelection.range = null;
                 ui.mainViewport.visibilityFlags &= ~(1 << 7);
-                if (this.main.manager.handle !== undefined)
-                    this.main.manager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = false;
+                if (SceneryManager.handle !== undefined)
+                    SceneryManager.handle.findWidget<ButtonWidget>("copypaste_select").isPressed = false;
             },
         });
     }
 
-    copyArea(): void {
+    private copyArea(): void {
         if (ui.tileSelection.range === null)
             ui.showError("Can't copy area...", "Nothing selected!");
         else
-            this.main.clipboard.add(SceneryUtils.copy(ui.tileSelection.range, this.main.settings.filter));
+            Clipboard.add(SceneryUtils.copy(ui.tileSelection.range, Settings.filter));
     }
 
-    pasteTemplate(template: TemplateData, onCancel: () => void): void {
+    public pasteTemplate(template: TemplateData, onCancel: () => void): void {
         {
             const onMissingElement: Configuration.Action = Configuration.getOnMissingElement();
             if (onMissingElement !== "ignore" && !Template.isAvailable(template))
@@ -88,7 +87,6 @@ class CopyPaste {
                 SceneryUtils.remove(ghost);
             ghost = undefined;
         }
-        const settings = this.main.settings;
         function placeGhost(): void {
             if (ui.tileSelection.range === null)
                 return removeGhost();
@@ -98,7 +96,7 @@ class CopyPaste {
             removeGhost();
             if (offset.x * offset.y === 0)
                 return;
-            ghost = SceneryUtils.paste(template, offset, settings.filter, { ...settings.options, ghost: true, });
+            ghost = SceneryUtils.paste(template, offset, Settings.filter, { ...Settings.options, ghost: true, });
             ghostCoords = offset;
         }
 
@@ -110,7 +108,7 @@ class CopyPaste {
             },
             onDown: () => {
                 removeGhost();
-                SceneryUtils.paste(template, ui.tileSelection.range.leftTop, this.main.settings.filter, this.main.settings.options);
+                SceneryUtils.paste(template, ui.tileSelection.range.leftTop, Settings.filter, Settings.options);
             },
             onMove: e => {
                 if (e.mapCoords.x * e.mapCoords.y === 0)
@@ -130,9 +128,9 @@ class CopyPaste {
         });
     }
 
-    getSize(template: TemplateData) {
+    private getSize(template: TemplateData) {
         let size: CoordsXY = template.size;
-        if (this.main.settings.options.rotation % 2 === 1)
+        if (Settings.options.rotation % 2 === 1)
             size = {
                 x: size.y,
                 y: size.x,
@@ -140,7 +138,7 @@ class CopyPaste {
         return size;
     }
 
-    build(builder: BoxBuilder): void {
+    public build(builder: BoxBuilder): void {
         const group = builder.getGroupBox();
         const hbox = group.getHBox([1, 1]);
         hbox.addTextButton({
@@ -160,4 +158,4 @@ class CopyPaste {
         }, group);
     }
 }
-export default CopyPaste;
+export default CopyPaste.instance;

@@ -7,37 +7,37 @@
 
 /// <reference path="./../definitions/Data.d.ts" />
 
+import CopyPaste from "./CopyPaste";
+import Library from "./Library";
+import SceneryManager from "../SceneryManager";
+import * as Storage from "../persistence/Storage";
 import { FolderView } from "../gui/FolderView";
 import { BoxBuilder } from "../gui/WindowBuilder";
-import * as Storage from "../persistence/Storage";
-import Main from "../widgets/Main";
-import { TAB } from "../SceneryManager";
 
 class LibraryView {
-    readonly main: Main;
-    readonly folderView: FolderView;
+    public static instance: LibraryView = new LibraryView();
 
-    constructor(main: Main) {
-        this.main = main;
+    private readonly folderView: FolderView;
 
+    private constructor() {
         this.folderView = new FolderView("library_listview", Storage.library.getRoot());
-        this.folderView.getWindow = () => this.main.manager.handle;
+        this.folderView.getWindow = () => SceneryManager.handle;
         this.folderView.onFileDeselect = () => { if (ui.tool) ui.tool.cancel() };
         this.folderView.onFileSelect = () =>
-            this.main.copyPaste.pasteTemplate(
+            CopyPaste.pasteTemplate(
                 this.folderView.selected.getContent<TemplateData>(),
                 () => this.folderView.select(undefined),
             );
         this.folderView.onUpdate = () => this.update();
     }
 
-    save(name: string, template: TemplateData): void {
+    public save(name: string, template: TemplateData): void {
         if (this.folderView.path.addFile<TemplateData>(name, template) === undefined)
             return ui.showError("Can't save scenery template...", "File or folder with this name already exists.");
         this.folderView.update();
     }
 
-    add(): void {
+    private add(): void {
         ui.showTextInput({
             title: "Folder name",
             description: "Enter a name for the new folder:",
@@ -49,13 +49,13 @@ class LibraryView {
         });
     }
 
-    manage(): void {
-        this.main.manager.library.folderView.open(this.folderView.path);
-        this.main.manager.library.folderView.select(this.folderView.selected);
-        this.main.manager.setActiveTab(TAB.LIBRARY);
+    private manage(): void {
+        Library.folderView.open(this.folderView.path);
+        Library.folderView.select(this.folderView.selected);
+        SceneryManager.setActiveTab(1);
     }
 
-    build(builder: BoxBuilder): void {
+    public build(builder: BoxBuilder): void {
         const group = builder.getGroupBox();
         group.addLabel({
             text: this.getPath(),
@@ -79,13 +79,13 @@ class LibraryView {
         }, group);
     }
 
-    update(): void {
-        if (this.main.manager.handle === undefined) return;
-        this.main.manager.handle.findWidget<LabelWidget>("library_path").text = this.getPath();
+    private update(): void {
+        if (SceneryManager.handle === undefined) return;
+        SceneryManager.handle.findWidget<LabelWidget>("library_path").text = this.getPath();
     }
 
-    getPath(): string {
+    private getPath(): string {
         return "." + this.folderView.getPath() + "/";
     }
 }
-export default LibraryView;
+export default LibraryView.instance;

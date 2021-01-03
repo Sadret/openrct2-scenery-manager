@@ -6,18 +6,18 @@
  *****************************************************************************/
 
 import { BoxBuilder, Margin } from "../gui/WindowBuilder";
-import SceneryManager from "../SceneryManager";
 
 class About {
-    constructor(_manager: SceneryManager) { }
+    public static instance: About = new About();
+    private constructor() { }
 
-    build(builder: BoxBuilder): void {
+    public build(builder: BoxBuilder): void {
         const content = builder.getVBox(8, Margin.uniform(4));
         this.content(content);
         builder.addBox(content);
     }
 
-    content(builder: BoxBuilder) {
+    private content(builder: BoxBuilder) {
         const separator: string = "++++++++++++++++++++++++++++++++++++++++++++++++++++";
 
         builder.addLabel({ text: separator });
@@ -53,7 +53,7 @@ class About {
         builder.addLabel({ text: separator });
     }
 
-    addText(builder: BoxBuilder, lines: string[]) {
+    private addText(builder: BoxBuilder, lines: string[]) {
         const hbox = builder.getHBox([1, 8, 1], 0);
         hbox.addSpace(0);
 
@@ -65,4 +65,4 @@ class About {
         builder.addBox(hbox);
     }
 }
-export default About;
+export default About.instance;

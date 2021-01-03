@@ -5,33 +5,34 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import CopyPaste from "./CopyPaste";
+import LibraryView from "./LibraryView";
+import SceneryManager from "../SceneryManager";
+import * as Storage from "../persistence/Storage";
+import * as UiUtils from "../utils/UiUtils";
 import { FolderView } from "../gui/FolderView";
 import { BoxBuilder } from "../gui/WindowBuilder";
 import { File } from "../persistence/File";
-import * as Storage from "../persistence/Storage";
-import * as UiUtils from "../utils/UiUtils";
-import Main from "../widgets/Main";
 
 class Clipboard {
-    readonly main: Main;
-    readonly folderView: FolderView;
-    counter: number = 0;
+    public static instance: Clipboard = new Clipboard();
 
-    constructor(main: Main) {
-        this.main = main;
+    private readonly folderView: FolderView;
+    private counter: number = 0;
 
+    private constructor() {
         this.folderView = new FolderView("clipboard_listview", Storage.clipboard.getRoot());
-        this.folderView.getWindow = () => this.main.manager.handle;
+        this.folderView.getWindow = () => SceneryManager.handle;
         this.folderView.onFileDeselect = () => { if (ui.tool) ui.tool.cancel() };
         this.folderView.onFileSelect = () =>
-            this.main.copyPaste.pasteTemplate(
+            CopyPaste.pasteTemplate(
                 this.folderView.selected.getContent<TemplateData>(),
                 () => this.folderView.select(undefined),
             );
         this.folderView.onUpdate = () => this.update();
     }
 
-    add(template: TemplateData): void {
+    public add(template: TemplateData): void {
         const name: string = "unnamed-" + this.counter++;
         const file: File = this.folderView.path.addFile<TemplateData>(name, template);
 
@@ -41,7 +42,7 @@ class Clipboard {
         this.folderView.select(file);
     }
 
-    name(): void {
+    private name(): void {
         const file: File = this.folderView.selected;
         ui.showTextInput({
             title: "Scenery template name",
@@ -58,7 +59,7 @@ class Clipboard {
         });
     }
 
-    delete(): void {
+    private delete(): void {
         const file: File = this.folderView.selected;
         UiUtils.showConfirm(
             "Delete scenery template",
@@ -75,12 +76,12 @@ class Clipboard {
         );
     }
 
-    save(): void {
+    private save(): void {
         const file: File = this.folderView.selected;
-        this.main.libraryView.save(file.getName(), file.getContent<TemplateData>());
+        LibraryView.save(file.getName(), file.getContent<TemplateData>());
     }
 
-    clear(): void {
+    private clear(): void {
         UiUtils.showConfirm(
             "Clear clipboard",
             ["Do you really want to clear the clipboard?"],
@@ -95,7 +96,7 @@ class Clipboard {
         );
     }
 
-    build(builder: BoxBuilder): void {
+    public build(builder: BoxBuilder): void {
         const isDisabled: boolean = this.folderView.selected === undefined;
 
         const group = builder.getGroupBox();
@@ -131,10 +132,10 @@ class Clipboard {
         }, group);
     }
 
-    update(): void {
-        if (this.main.manager.handle === undefined) return;
+    private update(): void {
+        if (SceneryManager.handle === undefined) return;
 
-        const handle: Window = this.main.manager.handle;
+        const handle: Window = SceneryManager.handle;
         const isDisabled: boolean = this.folderView.selected === undefined;
 
         handle.findWidget<ButtonWidget>("clipboard_name").isDisabled = isDisabled;
@@ -142,4 +143,4 @@ class Clipboard {
         handle.findWidget<ButtonWidget>("clipboard_save").isDisabled = isDisabled;
     }
 }
-export default Clipboard;
+export default Clipboard.instance;

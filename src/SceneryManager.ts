@@ -8,19 +8,11 @@
 import { BoxBuilder, TabBuilder } from "./gui/WindowBuilder";
 import About from "./widgets/About";
 import Coloring from "./widgets/Coloring";
+import Configuration from "./widgets/Configuration";
+import FootpathAdditions from "./widgets/FootpathAdditions";
 import Library from "./widgets/Library";
 import Main from "./widgets/Main";
 import Research from "./widgets/Research";
-import Configuration from "./widgets/Configuration";
-
-export enum TAB {
-    MAIN,
-    LIBRARY,
-    COLORING,
-    UTILITITES,
-    RESEARCH,
-    ABOUT,
-}
 
 interface Tab {
     image: number | ImageAnimation;
@@ -30,63 +22,53 @@ interface Tab {
 }
 
 class SceneryManager {
-    readonly tabs: Tab[];
+    public static instance: SceneryManager = new SceneryManager();
 
-    readonly main: Main;
-    readonly library: Library;
-    readonly coloring: Coloring;
-    readonly configuration: Configuration;
-    readonly research: Research;
-    readonly about: About;
+    private readonly tabs: Tab[];
+    public handle: Window = undefined;
 
-    handle: Window = undefined;
-
-    constructor() {
-        this.main = new Main(this);
-        this.library = new Library(this);
-        this.coloring = new Coloring(this);
-        this.configuration = new Configuration(this);
-        this.research = new Research(this);
-        this.about = new About(this);
-
+    private constructor() {
         this.tabs = [{
             image: 5465,
-            widget: this.main,
+            widget: Main,
         }, {
             image: {
                 frameBase: 5277,
                 frameCount: 7,
                 frameDuration: 4,
             },
-            widget: this.library,
+            widget: Library,
         }, {
             image: {
                 frameBase: 5221,
                 frameCount: 8,
                 frameDuration: 4,
             },
-            widget: this.coloring,
+            widget: Coloring,
+        }, {
+            image: 5464,
+            widget: FootpathAdditions,
         }, {
             image: {
                 frameBase: 5205,
                 frameCount: 16,
                 frameDuration: 4,
             },
-            widget: this.configuration,
+            widget: Configuration,
         }, {
             image: {
                 frameBase: 5327,
                 frameCount: 8,
                 frameDuration: 4,
             },
-            widget: this.research,
+            widget: Research,
         }, {
             image: {
                 frameBase: 5367,
                 frameCount: 8,
                 frameDuration: 4,
             },
-            widget: this.about,
+            widget: About,
         }];
     }
 
@@ -133,7 +115,7 @@ class SceneryManager {
         });
     }
 
-    setActiveTab(tabIndex: number) {
+    public setActiveTab(tabIndex: number) {
         const x = this.handle.x;
         const y = this.handle.y;
 
@@ -142,4 +124,4 @@ class SceneryManager {
         this.open(x, y, tabIndex);
     }
 }
-export default SceneryManager;
+export default SceneryManager.instance;

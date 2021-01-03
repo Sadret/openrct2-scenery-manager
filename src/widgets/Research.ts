@@ -6,18 +6,18 @@
  *****************************************************************************/
 
 import { BoxBuilder, Margin } from "../gui/WindowBuilder";
-import SceneryManager from "../SceneryManager";
 
 class Research {
-    constructor(_manager: SceneryManager) { }
+    public static instance: Research = new Research();
+    private constructor() { }
 
-    build(builder: BoxBuilder): void {
+    public build(builder: BoxBuilder): void {
         const content = builder.getVBox(4, Margin.uniform(8));
         this.content(content);
         builder.addBox(content);
     }
 
-    content(builder: BoxBuilder) {
+    private content(builder: BoxBuilder) {
         builder.addLabel({ text: "Version: 1.1.4" });
         builder.addSpace(0);
         {
@@ -68,4 +68,4 @@ class Research {
         builder.addLabel({ text: "YouTube: Sadret Gaming" });
     }
 }
-export default Research;
+export default Research.instance;

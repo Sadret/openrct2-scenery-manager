@@ -5,35 +5,21 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import Clipboard from "./Clipboard";
+import CopyPaste from "./CopyPaste";
+import LibraryView from "./LibraryView";
+import Settings from "./Settings";
 import { BoxBuilder } from "../gui/WindowBuilder";
-import Clipboard from "../widgets/Clipboard";
-import CopyPaste from "../widgets/CopyPaste";
-import LibraryView from "../widgets/LibraryView";
-import Settings from "../widgets/Settings";
-import SceneryManager from "../SceneryManager";
 
 class Main {
-    readonly manager: SceneryManager;
+    public static instance: Main = new Main();
+    private constructor() { }
 
-    readonly copyPaste: CopyPaste;
-    readonly settings: Settings;
-    readonly clipboard: Clipboard;
-    readonly libraryView: LibraryView;
-
-    constructor(manager: SceneryManager) {
-        this.manager = manager;
-
-        this.copyPaste = new CopyPaste(this);
-        this.settings = new Settings(this);
-        this.clipboard = new Clipboard(this);
-        this.libraryView = new LibraryView(this);
-    }
-
-    build(builder: BoxBuilder): void {
-        this.copyPaste.build(builder);
-        this.settings.build(builder);
-        this.clipboard.build(builder);
-        this.libraryView.build(builder);
+    public build(builder: BoxBuilder): void {
+        CopyPaste.build(builder);
+        Settings.build(builder);
+        Clipboard.build(builder);
+        LibraryView.build(builder);
     }
 }
-export default Main;
+export default Main.instance;

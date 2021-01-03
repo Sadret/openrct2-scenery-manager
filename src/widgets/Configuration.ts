@@ -6,7 +6,6 @@
  *****************************************************************************/
 
 import * as Storage from "../persistence/Storage";
-import SceneryManager from "../SceneryManager";
 import { BoxBuilder } from "../gui/WindowBuilder";
 
 export type Action = "error" | "warning" | "ignore";
@@ -20,9 +19,10 @@ export function getOnMissingElement(): Action {
 }
 
 class Configuration {
-    constructor(_manager: SceneryManager) { }
+    public static instance: Configuration = new Configuration();
+    private constructor() { }
 
-    build(builder: BoxBuilder): void {
+    public build(builder: BoxBuilder): void {
         {
             const hbox = builder.getHBox([3, 1]);
             hbox.addLabel({
@@ -41,4 +41,4 @@ class Configuration {
         }
     }
 }
-export default Configuration;
+export default Configuration.instance;

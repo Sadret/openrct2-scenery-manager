@@ -5,29 +5,28 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import SceneryManager from "../SceneryManager";
+import * as Storage from "../persistence/Storage";
+import * as UiUtils from "../utils/UiUtils";
 import { FolderView } from "../gui/FolderView";
 import { BoxBuilder } from "../gui/WindowBuilder";
 import { File } from "../persistence/File";
-import * as Storage from "../persistence/Storage";
-import * as UiUtils from "../utils/UiUtils";
-import SceneryManager from "../SceneryManager";
 
 class Library {
-    readonly manager: SceneryManager;
-    readonly folderView: FolderView;
+    public static instance: Library = new Library();
 
-    copiedFile: File;
-    deleteAfterCopy: boolean;
+    public readonly folderView: FolderView;
 
-    constructor(manager: SceneryManager) {
-        this.manager = manager;
-
+    private constructor() {
         this.folderView = new FolderView("librarymanager_listview", Storage.library.getRoot());
-        this.folderView.getWindow = () => this.manager.handle;
+        this.folderView.getWindow = () => SceneryManager.handle;
         this.folderView.onUpdate = () => this.update();
     }
 
-    add(): void {
+    private copiedFile: File;
+    private deleteAfterCopy: boolean;
+
+    private add(): void {
         ui.showTextInput({
             title: "Folder name",
             description: "Enter a name for the new folder:",
@@ -40,7 +39,7 @@ class Library {
         });
     }
 
-    rename(): void {
+    private rename(): void {
         if (this.folderView.selected === undefined)
             return;
         const file: File = this.folderView.selected;
@@ -58,7 +57,7 @@ class Library {
         });
     }
 
-    delete(): void {
+    private delete(): void {
         if (this.folderView.selected === undefined)
             return;
         const file: File = this.folderView.selected;
@@ -77,13 +76,13 @@ class Library {
         );
     }
 
-    copy(deleteAfterCopy: boolean): void {
+    private copy(deleteAfterCopy: boolean): void {
         this.copiedFile = this.folderView.selected;
         this.deleteAfterCopy = deleteAfterCopy;
         this.update();
     }
 
-    paste(name?: string): void {
+    private paste(name?: string): void {
         const src: File = this.copiedFile;
         const srcLabel = src.isFile() ? "file" : "folder";
         const dest: File = this.folderView.path;
@@ -115,12 +114,12 @@ class Library {
         this.folderView.select(file);
     }
 
-    cancel(): void {
+    private cancel(): void {
         this.copiedFile = undefined;
         this.update();
     }
 
-    build(builder: BoxBuilder): void {
+    public build(builder: BoxBuilder): void {
         // current path and add folder button
         {
             const hbox = builder.getHBox([3, 1]);
@@ -200,8 +199,8 @@ class Library {
         }
     }
 
-    update(): void {
-        const handle: Window = this.manager.handle;
+    public update(): void {
+        const handle: Window = SceneryManager.handle;
 
         {
             handle.findWidget<LabelWidget>("librarymanager_path").text = this.getPath();
@@ -220,11 +219,11 @@ class Library {
         }
     }
 
-    getPath(): string {
+    private getPath(): string {
         return "." + this.folderView.getPath() + "/";
     }
 
-    getFileLabel(): string {
+    private getFileLabel(): string {
         const file: File = this.copiedFile || this.folderView.selected;
         let str: string = "";
         if (file !== undefined)
@@ -242,7 +241,7 @@ class Library {
             return "Selected" + str + ":";
     }
 
-    getFile(): string {
+    private getFile(): string {
         const file: File = this.copiedFile || this.folderView.selected;
         if (file === undefined)
             return "-";
@@ -252,4 +251,4 @@ class Library {
             return "." + file.getPath() + "/";
     }
 }
-export default Library;
+export default Library.instance;
