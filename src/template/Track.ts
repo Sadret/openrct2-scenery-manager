@@ -7,25 +7,24 @@
 
 import IElement from "./IElement";
 
-const Track: IElement<TrackData> = {
+const Track: IElement<TrackElement, TrackData> = {
 
-    createFromTileData(tile: Tile, offset: CoordsXY, idx: number): TrackData {
-        const element: TrackElement = <TrackElement>tile.elements[idx];
+    createFromTileData(coords: CoordsXY, element: TrackElement, data: Uint8Array, idx: number): TrackData {
         if (element.sequence !== 0)
             return undefined;
         return {
             type: "track",
-            x: tile.x * 32 - offset.x,
-            y: tile.y * 32 - offset.y,
+            x: coords.x,
+            y: coords.y,
             z: element.baseHeight * 8,
             direction: element.direction,
             identifier: undefined,
             ride: element.ride,
             trackType: element.trackType,
-            brakeSpeed: tile.data[idx * 16 + 0x9],
-            colour: tile.data[idx * 16 + 0x7] & 3,
-            seatRotation: tile.data[idx * 16 + 0x7] >> 4 & 0xF,
-            trackPlaceFlags: tile.data[idx * 16 + 0xA] & 3,
+            brakeSpeed: data[idx * 16 + 0x9],
+            colour: data[idx * 16 + 0x7] & 3,
+            seatRotation: data[idx * 16 + 0x7] >> 4 & 0xF,
+            trackPlaceFlags: data[idx * 16 + 0xA] & 3,
             isFromTrackDesign: false,
         };
     },

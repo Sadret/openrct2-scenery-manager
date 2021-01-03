@@ -9,8 +9,8 @@
 /// <reference path="./../definitions/Actions.d.ts" />
 /// <reference path="./../definitions/Data.d.ts" />
 
-interface IElement<T extends ElementData> {
-    createFromTileData(tile: Tile, offset: CoordsXY, idx: number): T;
+interface IElement<S extends BaseTileElement, T extends ElementData> {
+    createFromTileData(coords: CoordsXY, element: S, data: Uint8Array, idx: number): T;
 
     rotate(element: T, size: CoordsXY, rotation: number): T;
     mirror(element: T, size: CoordsXY): T;

@@ -17,7 +17,7 @@ import Wall from "./Wall";
 import * as ArrayUtils from "../utils/ArrayUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-const map: { [key in ElementType]: IElement<ElementData> } = {
+const map: { [key in ElementType]: IElement<BaseTileElement, ElementData> } = {
     banner: Banner,
     entrance: Entrance,
     footpath: Footpath,
@@ -28,7 +28,7 @@ const map: { [key in ElementType]: IElement<ElementData> } = {
     wall: Wall,
 }
 
-function get(type: ElementType): IElement<ElementData> {
+function get(type: ElementType): IElement<BaseTileElement, ElementData> {
     return map[type];
 }
 
@@ -65,21 +65,22 @@ export function rotate(template: TemplateData, rotation: number): TemplateData {
         return template;
     return {
         ...template,
-        elements: template.elements.map(
-            (element: ElementData) => get(element.type) ?.rotate(element, template.size, rotation)
-            ),
-        size: (rotation & 1) == 0 ? template.size : {
-            x: template.size.y,
-            y: template.size.x,
-        },
+        // elements: template.elements.map(
+        //     (element: ElementData) =>
+        //         get(element.type) ?.rotate(element, template.size, rotation)
+        //     ),
+        // size: (rotation & 1) == 0 ? template.size : {
+        //     x: template.size.y,
+        //     y: template.size.x,
+        // },
     };
 }
 export function mirror(template: TemplateData): TemplateData {
     return {
         ...template,
-        elements: template.elements.map(
-            (element: ElementData) => get(element.type) ?.mirror(element, template.size)
-            ),
+        // elements: template.elements.map(
+        //     (element: ElementData) => get(element.type) ?.mirror(element, template.size)
+        //     ),
     };
 }
 

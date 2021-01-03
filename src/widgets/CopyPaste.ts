@@ -67,7 +67,7 @@ class CopyPaste {
         if (ui.tileSelection.range === null)
             ui.showError("Can't copy area...", "Nothing selected!");
         else
-            Clipboard.add(SceneryUtils.copy(ui.tileSelection.range, Settings.filter));
+            Clipboard.add(SceneryUtils.read(ui.tileSelection.tiles, Settings.filter));
     }
 
     public pasteTemplate(template: TemplateData, onCancel: () => void): void {
@@ -96,7 +96,7 @@ class CopyPaste {
             removeGhost();
             if (offset.x * offset.y === 0)
                 return;
-            ghost = SceneryUtils.paste(template, offset, Settings.filter, { ...Settings.options, ghost: true, });
+            ghost = SceneryUtils.place(template, offset, Settings.filter, { ...Settings.options, ghost: true, });
             ghostCoords = offset;
         }
 
@@ -108,7 +108,7 @@ class CopyPaste {
             },
             onDown: () => {
                 removeGhost();
-                SceneryUtils.paste(template, ui.tileSelection.range.leftTop, Settings.filter, Settings.options);
+                SceneryUtils.place(template, ui.tileSelection.range.leftTop, Settings.filter, Settings.options);
             },
             onMove: e => {
                 if (e.mapCoords.x * e.mapCoords.y === 0)
@@ -129,7 +129,7 @@ class CopyPaste {
     }
 
     private getSize(template: TemplateData) {
-        let size: CoordsXY = template.size;
+        let size: CoordsXY = CoordUtils.getSize(CoordUtils.toMapRange(template.tiles));
         if (Settings.options.rotation % 2 === 1)
             size = {
                 x: size.y,

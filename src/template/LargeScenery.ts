@@ -8,22 +8,21 @@
 import IElement from "./IElement";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-const LargeScenery: IElement<LargeSceneryData> = {
+const LargeScenery: IElement<LargeSceneryElement, LargeSceneryData> = {
 
-    createFromTileData(tile: Tile, offset: CoordsXY, idx: number): LargeSceneryData {
-        if (tile.data[idx * 16 + 0x8] !== 0)
+    createFromTileData(coords: CoordsXY, element: LargeSceneryElement, data: Uint8Array, idx: number): LargeSceneryData {
+        if (data[idx * 16 + 0x8] !== 0)
             return undefined;
-        const element: LargeSceneryElement = <LargeSceneryElement>tile.elements[idx];
         const object: Object = context.getObject("large_scenery", (<any>element).object);
         return {
             type: "large_scenery",
-            x: tile.x * 32 - offset.x,
-            y: tile.y * 32 - offset.y,
+            x: coords.x,
+            y: coords.y,
             z: element.baseHeight * 8,
-            direction: tile.data[idx * 16 + 0] % 4,
+            direction: data[idx * 16 + 0] % 4,
             identifier: SceneryUtils.getIdentifier(object),
-            primaryColour: tile.data[idx * 16 + 0x9],
-            secondaryColour: tile.data[idx * 16 + 0xA],
+            primaryColour: data[idx * 16 + 0x9],
+            secondaryColour: data[idx * 16 + 0xA],
         };
     },
 

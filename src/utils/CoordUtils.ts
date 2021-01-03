@@ -7,6 +7,38 @@
 
 /// <reference path="./../../../openrct2.d.ts" />
 
+/*
+ * CONVERSION FUNCTIONS
+ */
+
+export function toTileCoords(coords: CoordsXY): CoordsXY {
+    return { x: coords.x / 32, y: coords.y / 32 };
+}
+
+export function toCoordsXY(coords: CoordsXY): CoordsXY {
+    return { x: coords.x * 32, y: coords.y * 32 };
+}
+
+export function toMapRange(tiles: CoordsXY[]): MapRange {
+    if (tiles.length === 0)
+        return undefined;
+    const xx: number[] = tiles.map((coords: CoordsXY) => coords.x);
+    const yy: number[] = tiles.map((coords: CoordsXY) => coords.y);
+    return {
+        leftTop: {
+            x: Math.min(...xx),
+            y: Math.min(...yy),
+        }, rightBottom: {
+            x: Math.max(...xx),
+            y: Math.max(...yy),
+        },
+    }
+}
+
+/*
+ * UTILITY
+ */
+
 export function span(start: CoordsXY, end: CoordsXY): MapRange {
     return {
         leftTop: {
@@ -32,7 +64,30 @@ export function centered(center: CoordsXY, size: CoordsXY): MapRange {
 }
 
 export function getSize(range: MapRange): CoordsXY {
-    return sub(range.rightBottom, range.leftTop);
+    return add(sub(range.rightBottom, range.leftTop), { x: 1, y: 1 });
+}
+
+export function circle(center: CoordsXY, diameter: number): CoordsXY[] {
+    const start = {
+        x: (center.x - diameter * 16) & ~31,
+        y: (center.y - diameter * 16) & ~31,
+    };
+    const dh: number = (diameter + 1) / 2;
+    const dh2: number = diameter / 2 * diameter / 2;
+    const range: number[] = [];
+    for (let i = 0; i <= diameter; i++)
+        range.push(i);
+    return [].concat(
+        ...range.map(
+            (x: number) => range.map(
+                (y: number) => ({ x: x, y: y })
+            )
+        )
+    ).filter(
+        (c: CoordsXY) => (c.x - dh) * (c.x - dh) + (c.y - dh) * (c.y - dh) <= dh2
+    ).map(
+        (c: CoordsXY) => add(toCoordsXY(c), start)
+    );
 }
 
 function add(u: CoordsXY, v: CoordsXY): CoordsXY {

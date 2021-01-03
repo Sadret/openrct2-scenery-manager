@@ -78,9 +78,9 @@ function update_110(): void {
         if (file.isFile()) {
             const template: OldTemplateData = file.getContent<OldTemplateData>();
             file.setContent<TemplateData>({
+                ...template,
+                tiles: undefined,
                 elements: template.data,
-                size: template.size,
-                surfaceHeight: template.surfaceHeight,
             });
         } else {
             file.getFiles().forEach((child: File) => recurse(child));

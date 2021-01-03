@@ -8,19 +8,18 @@
 import IElement from "./IElement";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-const SmallScenery: IElement<SmallSceneryData> = {
+const SmallScenery: IElement<SmallSceneryElement, SmallSceneryData> = {
 
-    createFromTileData(tile: Tile, offset: CoordsXY, idx: number): SmallSceneryData {
-        const element: SmallSceneryElement = <SmallSceneryElement>tile.elements[idx];
+    createFromTileData(coords: CoordsXY, element: SmallSceneryElement, data: Uint8Array, idx: number): SmallSceneryData {
         const object: Object = context.getObject("small_scenery", (<any>element).object);
         return {
             type: "small_scenery",
-            x: tile.x * 32 - offset.x,
-            y: tile.y * 32 - offset.y,
+            x: coords.x,
+            y: coords.y,
             z: element.baseHeight * 8,
             direction: element.direction,
             identifier: SceneryUtils.getIdentifier(object),
-            quadrant: (tile.data[idx * 16 + 0] >> 6) & 3,
+            quadrant: (data[idx * 16 + 0] >> 6) & 3,
             primaryColour: element.primaryColour,
             secondaryColour: element.secondaryColour,
         };

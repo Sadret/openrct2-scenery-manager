@@ -8,15 +8,14 @@
 import IElement from "./IElement";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-const Footpath: IElement<FootpathData> = {
+const Footpath: IElement<FootpathElement, FootpathData> = {
 
-    createFromTileData(tile: Tile, offset: CoordsXY, idx: number): FootpathData {
-        const element: FootpathElement = <FootpathElement>tile.elements[idx];
+    createFromTileData(coords: CoordsXY, element: FootpathElement, data: Uint8Array, idx: number): FootpathData {
         const object: Object = context.getObject("footpath", (<any>element).object);
         return {
             type: "footpath",
-            x: tile.x * 32 - offset.x,
-            y: tile.y * 32 - offset.y,
+            x: coords.x,
+            y: coords.y,
             z: element.baseHeight * 8,
             direction: undefined,
             identifier: SceneryUtils.getIdentifier(object),

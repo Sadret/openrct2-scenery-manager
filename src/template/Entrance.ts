@@ -7,16 +7,15 @@
 
 import IElement from "./IElement";
 
-const Entrance: IElement<EntranceData> = {
+const Entrance: IElement<EntranceElement, EntranceData> = {
 
-    createFromTileData(tile: Tile, offset: CoordsXY, idx: number): EntranceData {
-        const element: EntranceElement = <EntranceElement>tile.elements[idx];
+    createFromTileData(coords: CoordsXY, element: EntranceElement, data: Uint8Array, idx: number): EntranceData {
         return {
             type: "entrance",
-            x: tile.x * 32 - offset.x,
-            y: tile.y * 32 - offset.y,
+            x: coords.x,
+            y: coords.y,
             z: element.baseHeight * 8,
-            direction: tile.data[idx * 16 + 0] % 4,
+            direction: data[idx * 16 + 0] % 4,
             identifier: undefined,
             ride: element.ride,
             station: element.station,

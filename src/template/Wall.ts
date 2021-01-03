@@ -8,21 +8,20 @@
 import IElement from "./IElement";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-const Wall: IElement<WallData> = {
+const Wall: IElement<WallElement, WallData> = {
 
-    createFromTileData(tile: Tile, offset: CoordsXY, idx: number): WallData {
-        const element: WallElement = <WallElement>tile.elements[idx];
+    createFromTileData(coords: CoordsXY, element: WallElement, data: Uint8Array, idx: number): WallData {
         const object: Object = context.getObject("wall", (<any>element).object);
         return {
             type: "wall",
-            x: tile.x * 32 - offset.x,
-            y: tile.y * 32 - offset.y,
+            x: coords.x,
+            y: coords.y,
             z: element.baseHeight * 8,
             direction: element.direction,
             identifier: SceneryUtils.getIdentifier(object),
-            primaryColour: tile.data[idx * 16 + 6],
-            secondaryColour: tile.data[idx * 16 + 7],
-            tertiaryColour: tile.data[idx * 16 + 8],
+            primaryColour: data[idx * 16 + 6],
+            secondaryColour: data[idx * 16 + 7],
+            tertiaryColour: data[idx * 16 + 8],
         };
     },
 

@@ -23,5 +23,6 @@ registerPlugin({
             return console.log("[scenery-manager] Loading cancelled: game runs in headless mode.");
 
         Updater.update(() => ui.registerMenuItem("Scenery Manager", () => SceneryManager.open()));
+        SceneryManager.open(undefined, undefined, 3);
     },
 });

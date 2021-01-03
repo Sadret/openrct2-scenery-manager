@@ -10,6 +10,7 @@
 import { BoxBuilder } from "../gui/WindowBuilder";
 import { File } from "../persistence/File";
 import * as ArrayUtils from "../utils/ArrayUtils";
+import * as CoordUtils from "../utils/CoordUtils";
 import * as StringUtils from "../utils/StringUtils";
 
 export class FolderView {
@@ -146,13 +147,15 @@ export class FolderView {
             const templateData: TemplateData = file.getContent<TemplateData>();
             if (templateData === undefined)
                 addItem(file, [file.getName(), "", "", ""]);
-            else
+            else {
+                const size: CoordsXY = CoordUtils.getSize(CoordUtils.toMapRange(templateData.tiles));
                 addItem(file, [
                     file.getName(),
-                    String(templateData.size.x / 32 + 1),
-                    String(templateData.size.y / 32 + 1),
+                    String(size.x),
+                    String(size.y),
                     String(templateData.elements.length),
                 ]);
+            }
         });
 
         return items;

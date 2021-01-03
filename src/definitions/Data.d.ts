@@ -25,7 +25,7 @@ type ElementType =
 
 interface TemplateData {
     readonly elements: ElementData[],
-    readonly size: CoordsXY,
+    readonly tiles: CoordsXY[],
     readonly surfaceHeight: number,
 }
 

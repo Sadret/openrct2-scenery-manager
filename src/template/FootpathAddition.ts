@@ -8,19 +8,18 @@
 import IElement from "./IElement";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-const FootpathAddition: IElement<FootpathAdditionData> = {
+const FootpathAddition: IElement<FootpathElement, FootpathAdditionData> = {
 
-    createFromTileData(tile: Tile, offset: CoordsXY, idx: number): FootpathAdditionData {
-        const element: FootpathElement = <FootpathElement>tile.elements[idx];
+    createFromTileData(coords: CoordsXY, element: FootpathElement, data: Uint8Array, idx: number): FootpathAdditionData {
         if (element.addition === null)
             return undefined;
         const object: Object = context.getObject("footpath_addition", element.addition);
         return {
             type: "footpath_addition",
-            x: tile.x * 32 - offset.x,
-            y: tile.y * 32 - offset.y,
+            x: coords.x,
+            y: coords.y,
             z: element.baseHeight * 8,
-            direction: tile.data[idx * 16 + 0] % 4,
+            direction: data[idx * 16 + 0] % 4,
             identifier: SceneryUtils.getIdentifier(object),
         };
     },

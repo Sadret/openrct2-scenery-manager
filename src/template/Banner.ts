@@ -8,19 +8,18 @@
 import IElement from "./IElement";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-const Banner: IElement<BannerData> = {
+const Banner: IElement<BannerElement, BannerData> = {
 
-    createFromTileData(tile: Tile, offset: CoordsXY, idx: number): BannerData {
-        const element: BannerElement = <BannerElement>tile.elements[idx];
+    createFromTileData(coords: CoordsXY, element: BannerElement, data: Uint8Array, idx: number): BannerData {
         const object: Object = context.getObject("banner", (<any>element).object);
         return {
             type: "banner",
-            x: tile.x * 32 - offset.x,
-            y: tile.y * 32 - offset.y,
+            x: coords.x,
+            y: coords.y,
             z: element.baseHeight * 8,
-            direction: tile.data[idx * 16 + 0] % 4,
+            direction: data[idx * 16 + 0] % 4,
             identifier: SceneryUtils.getIdentifier(object),
-            primaryColour: tile.data[idx * 16 + 6],
+            primaryColour: data[idx * 16 + 6],
         };
     },
 

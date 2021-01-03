@@ -25,50 +25,44 @@ import * as Template from "../template/Template";
  */
 
 export interface Filter {
-    banner: boolean;
-    entrance: any;
-    footpath: boolean;
-    footpath_addition: boolean;
-    large_scenery: boolean;
-    small_scenery: boolean;
-    track: boolean;
-    wall: boolean;
+    banner: boolean,
+    entrance: any,
+    footpath: boolean,
+    footpath_addition: boolean,
+    large_scenery: boolean,
+    small_scenery: boolean,
+    track: boolean,
+    wall: boolean,
 }
 
 export interface Options {
     rotation: number,
     mirrored: boolean,
-    absolute: boolean;
-    height: number;
-    ghost: boolean;
+    absolute: boolean,
+    height: number,
+    ghost: boolean,
 }
 
 /*
- * COPY PASTE REMOVE METHODS
+ * READ / PLACE / REMOVE METHODS
  */
 
-export function copy(range: MapRange, filter: Filter): TemplateData {
+export function read(tiles: CoordsXY[], filter: Filter): TemplateData {
     const elements: ElementData[] = [];
-
-    const start: CoordsXY = range.leftTop;
-    const end: CoordsXY = range.rightBottom;
-    const size: CoordsXY = CoordUtils.getSize(ui.tileSelection.range);
-
-    for (let x = start.x; x <= end.x; x += 32)
-        for (let y = start.y; y <= end.y; y += 32)
-            elements.push(...getSceneryData(x, y, start, filter));
-
+    tiles.forEach(
+        (coords: CoordsXY) => elements.push(...getSceneryData(coords, filter))
+    );
     return {
         elements: elements,
-        size: size,
-        surfaceHeight: getMedianSurfaceHeight(start, size),
+        tiles: tiles,
+        surfaceHeight: getMedianSurfaceHeight(tiles),
     };
 }
 
-export function paste(template: TemplateData, offset: CoordsXY, filter: Filter, options: Options): ElementData[] {
+export function place(template: TemplateData, offset: CoordsXY, filter: Filter, options: Options): ElementData[] {
     let deltaZ = options.height;
-    if (!options.absolute)
-        deltaZ += getMedianSurfaceHeight(offset, template.size) - template.surfaceHeight;
+    // if (!options.absolute)
+    //     deltaZ += getMedianSurfaceHeight([offset]/*, template.size*/) - template.surfaceHeight;
 
     template = Template.available(template);
     if (options.mirrored)
@@ -89,6 +83,8 @@ export function paste(template: TemplateData, offset: CoordsXY, filter: Filter, 
                     if (executeResult.error === 0)
                         result.push(element);
                 });
+            else
+                console.log(action, args, queryResult);
         });
     });
     return result;
@@ -109,49 +105,50 @@ export function remove(elements: ElementData[]) {
  * DATA CREATION
  */
 
-function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter): ElementData[] {
-    const tile: Tile = map.getTile(x / 32, y / 32);
+function getSceneryData(coords: CoordsXY, filter: Filter): ElementData[] {
+    const tileCoords = CoordUtils.toTileCoords(coords);
+    const tile: Tile = map.getTile(tileCoords.x, tileCoords.y);
     const data: ElementData[] = [];
     tile.elements.forEach((element: BaseTileElement, idx: number) => {
         switch (element.type) {
             case "banner":
                 if (filter.banner)
-                    data.push(Banner.createFromTileData(tile, offset, idx));
+                    data.push(Banner.createFromTileData(coords, <BannerElement>element, tile.data, idx));
                 break;
             case "entrance":
                 if (filter.entrance)
-                    data.push(Entrance.createFromTileData(tile, offset, idx));
+                    data.push(Entrance.createFromTileData(coords, <EntranceElement>element, tile.data, idx));
                 break;
             case "footpath":
                 if (filter.footpath)
-                    data.push(Footpath.createFromTileData(tile, offset, idx));
+                    data.push(Footpath.createFromTileData(coords, <FootpathElement>element, tile.data, idx));
                 if (filter.footpath_addition) {
-                    const addition: FootpathAdditionData = FootpathAddition.createFromTileData(tile, offset, idx);
+                    const addition: FootpathAdditionData = FootpathAddition.createFromTileData(coords, <FootpathElement>element, tile.data, idx);
                     if (addition !== undefined)
                         data.push(addition);
                 }
                 break;
             case "large_scenery":
                 if (filter.large_scenery) {
-                    const largeScenery: LargeSceneryData = LargeScenery.createFromTileData(tile, offset, idx);
+                    const largeScenery: LargeSceneryData = LargeScenery.createFromTileData(coords, <LargeSceneryElement>element, tile.data, idx);
                     if (largeScenery !== undefined)
                         data.push(largeScenery);
                 }
                 break;
             case "small_scenery":
                 if (filter.small_scenery)
-                    data.push(SmallScenery.createFromTileData(tile, offset, idx));
+                    data.push(SmallScenery.createFromTileData(coords, <SmallSceneryElement>element, tile.data, idx));
                 break;
             case "track":
                 if (filter.track) {
-                    const track: TrackData = Track.createFromTileData(tile, offset, idx);
+                    const track: TrackData = Track.createFromTileData(coords, <TrackElement>element, tile.data, idx);
                     if (track !== undefined)
                         data.push(track);
                 }
                 break;
             case "wall":
                 if (filter.wall)
-                    data.push(Wall.createFromTileData(tile, offset, idx));
+                    data.push(Wall.createFromTileData(coords, <WallElement>element, tile.data, idx));
                 break;
             default:
                 break;
@@ -164,21 +161,22 @@ function getSceneryData(x: number, y: number, offset: CoordsXY, filter: Filter):
  * UTILITY METHODS
  */
 
-function getSurface(x: number, y: number): SurfaceElement {
-    for (let element of map.getTile(x / 32, y / 32).elements)
+function getSurface(coords: CoordsXY): SurfaceElement {
+    for (let element of map.getTile(coords.x / 32, coords.y / 32).elements)
         if (element.type === "surface")
             return <SurfaceElement>element;
     return undefined;
 }
 
-function getMedianSurfaceHeight(start: CoordsXY, size: CoordsXY): number {
+function getMedianSurfaceHeight(tiles: CoordsXY[]): number {
     const heights: number[] = [];
-    for (let x: number = 0; x <= size.x; x += 32)
-        for (let y: number = 0; y <= size.y; y += 32) {
-            const surface: BaseTileElement = getSurface(start.x + x, start.y + y);
+    tiles.forEach(
+        (coords: CoordsXY) => {
+            const surface: BaseTileElement = getSurface(coords);
             if (surface !== undefined)
                 heights.push(surface.baseHeight);
         }
+    );
     heights.sort();
     return heights[Math.floor(heights.length / 2)];
 }
