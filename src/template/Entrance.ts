@@ -49,18 +49,14 @@ const Entrance: IElement<EntranceElement, EntranceData> = {
         }
     },
 
-    getPlaceArgs(element: EntranceData, flags: number): EntrancePlaceArgs {
+    getPlaceArgs(element: EntranceData): EntrancePlaceArgs {
         return {
             ...element,
-            flags: flags,
             object: undefined,
         };
     },
     getRemoveArgs(element: EntranceData): EntranceRemoveArgs {
-        return {
-            ...element,
-            flags: 72,
-        };
+        return element;
     },
 
     getPlaceAction(): "rideentranceexitplace" {

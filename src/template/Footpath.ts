@@ -54,19 +54,15 @@ const Footpath: IElement<FootpathElement, FootpathData> = {
         }
     },
 
-    getPlaceArgs(element: FootpathData, flags: number): FootpathPlaceArgs {
+    getPlaceArgs(element: FootpathData): FootpathPlaceArgs {
         return {
             ...element,
-            flags: flags,
             object: SceneryUtils.getObject(element).index,
             direction: 0xFF, // = invalid direction
         };
     },
     getRemoveArgs(element: FootpathData): FootpathRemoveArgs {
-        return {
-            ...element,
-            flags: 72,
-        };
+        return element;
     },
 
     getPlaceAction(): "footpathplace" {

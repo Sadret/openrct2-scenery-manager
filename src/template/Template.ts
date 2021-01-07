@@ -47,6 +47,15 @@ export function available(template: TemplateData): TemplateData {
     };
 }
 
+export function filter(template: TemplateData, filter: (type: ElementType) => boolean): TemplateData {
+    return {
+        ...template,
+        elements: template.elements.filter(
+            (element: ElementData) => filter(element.type)
+        ),
+    };
+}
+
 export function translate(template: TemplateData, offset: CoordsXYZ): TemplateData {
     return {
         ...template,
@@ -84,8 +93,8 @@ export function mirror(template: TemplateData): TemplateData {
     };
 }
 
-export function getPlaceArgs(element: ElementData, flags: number): PlaceActionArgs {
-    return get(element.type) ?.getPlaceArgs(element, flags);
+export function getPlaceArgs(element: ElementData): PlaceActionArgs {
+    return get(element.type) ?.getPlaceArgs(element);
 }
 export function getRemoveArgs(element: ElementData): RemoveActionArgs {
     return get(element.type) ?.getRemoveArgs(element);

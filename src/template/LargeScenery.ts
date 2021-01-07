@@ -52,17 +52,15 @@ const LargeScenery: IElement<LargeSceneryElement, LargeSceneryData> = {
         }
     },
 
-    getPlaceArgs(element: LargeSceneryData, flags: number): LargeSceneryPlaceArgs {
+    getPlaceArgs(element: LargeSceneryData): LargeSceneryPlaceArgs {
         return {
             ...element,
-            flags: flags,
             object: SceneryUtils.getObject(element).index,
         };
     },
     getRemoveArgs(element: LargeSceneryData): LargeSceneryRemoveArgs {
         return {
             ...element,
-            flags: 72,
             tileIndex: 0,
         };
     },

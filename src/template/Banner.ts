@@ -49,18 +49,14 @@ const Banner: IElement<BannerElement, BannerData> = {
         }
     },
 
-    getPlaceArgs(element: BannerData, flags: number): BannerPlaceArgs {
+    getPlaceArgs(element: BannerData): BannerPlaceArgs {
         return {
             ...element,
-            flags: flags,
             object: SceneryUtils.getObject(element).index,
         };
     },
     getRemoveArgs(element: BannerData): BannerRemoveArgs {
-        return {
-            ...element,
-            flags: 72,
-        };
+        return element;
     },
 
     getPlaceAction(): "bannerplace" {

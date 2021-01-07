@@ -56,10 +56,9 @@ const Track: IElement<TrackElement, TrackData> = {
         }
     },
 
-    getPlaceArgs(element: TrackData, flags: number): TrackPlaceArgs {
+    getPlaceArgs(element: TrackData): TrackPlaceArgs {
         return {
             ...element,
-            flags: flags,
             object: undefined,
             z: element.z - trackBlock[element.trackType],
         };
@@ -67,7 +66,6 @@ const Track: IElement<TrackElement, TrackData> = {
     getRemoveArgs(element: TrackData): TrackRemoveArgs {
         return {
             ...element,
-            flags: 72,
             sequence: 0,
         };
     },

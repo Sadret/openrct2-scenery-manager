@@ -51,19 +51,15 @@ const Wall: IElement<WallElement, WallData> = {
         }
     },
 
-    getPlaceArgs(element: WallData, flags: number): WallPlaceArgs {
+    getPlaceArgs(element: WallData): WallPlaceArgs {
         return {
             ...element,
-            flags: flags,
             object: SceneryUtils.getObject(element).index,
             edge: element.direction,
         };
     },
     getRemoveArgs(element: WallData): WallRemoveArgs {
-        return {
-            ...element,
-            flags: 72,
-        };
+        return element;
     },
 
     getPlaceAction(): "wallplace" {

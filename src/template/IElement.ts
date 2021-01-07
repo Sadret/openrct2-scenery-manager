@@ -15,7 +15,7 @@ interface IElement<S extends BaseTileElement, T extends ElementData> {
     rotate(element: T, size: CoordsXY, rotation: number): T;
     mirror(element: T, size: CoordsXY): T;
 
-    getPlaceArgs(element: T, flags: number): PlaceActionArgs;
+    getPlaceArgs(element: T): PlaceActionArgs;
     getRemoveArgs(element: T): RemoveActionArgs;
 
     getPlaceAction(): PlaceAction;

@@ -8,13 +8,12 @@
 import SceneryManager from "../SceneryManager";
 import * as StringUtils from "../utils/StringUtils";
 import { BoxBuilder } from "../gui/WindowBuilder";
-import { Filter, Options } from "../utils/SceneryUtils";
 
 class Settings {
     public static instance: Settings = new Settings();
     private constructor() { }
 
-    public readonly filter: Filter = {
+    public readonly filter: { [key in ElementType]: boolean } = {
         banner: true,
         entrance: true,
         footpath: true,
@@ -24,18 +23,17 @@ class Settings {
         track: true,
         wall: true,
     };
-    public readonly options: Options = {
-        rotation: 0,
-        mirrored: false,
-        absolute: false,
-        height: 0,
-        ghost: false,
-    };
+
+    public rotation: number = 0;
+    public mirrored: boolean = false;
+    public absolute: boolean = false;
+    public height: number = 0;
+    public ghost: boolean = false;
 
     public build(builder: BoxBuilder): void {
-        const rotationLabel: () => string = () => String(this.options.rotation === 0 ? "none" : (this.options.rotation * 90 + " deg"));
-        const mirroredLabel: () => string = () => "Mirrored: " + (this.options.mirrored ? "yes" : "no");
-        const absoluteLabel: () => string = () => this.options.absolute ? "Absolute height" : "Relative to surface";
+        const rotationLabel: () => string = () => String(this.rotation === 0 ? "none" : (this.rotation * 90 + " deg"));
+        const mirroredLabel: () => string = () => "Mirrored: " + (this.mirrored ? "yes" : "no");
+        const absoluteLabel: () => string = () => this.absolute ? "Absolute height" : "Relative to surface";
 
         const hbox = builder.getHBox([1, 1]);
         {
@@ -60,11 +58,11 @@ class Settings {
                     text: rotationLabel(),
                     name: "options_rotation",
                     onDecrement: () => {
-                        this.options.rotation = (this.options.rotation + 3) & 3;
+                        this.rotation = (this.rotation + 3) & 3;
                         SceneryManager.handle.findWidget<SpinnerWidget>("options_rotation").text = rotationLabel();
                     },
                     onIncrement: () => {
-                        this.options.rotation = (this.options.rotation + 1) & 3;
+                        this.rotation = (this.rotation + 1) & 3;
                         SceneryManager.handle.findWidget<SpinnerWidget>("options_rotation").text = rotationLabel();
                     },
                 });
@@ -74,7 +72,7 @@ class Settings {
                 text: mirroredLabel(),
                 name: "options_mirrored",
                 onClick: () => {
-                    this.options.mirrored = !this.options.mirrored;
+                    this.mirrored = !this.mirrored;
                     SceneryManager.handle.findWidget<ButtonWidget>("options_mirrored").text = mirroredLabel();
                 },
             });
@@ -82,7 +80,7 @@ class Settings {
                 text: absoluteLabel(),
                 name: "options_absolute",
                 onClick: () => {
-                    this.options.absolute = !this.options.absolute;
+                    this.absolute = !this.absolute;
                     SceneryManager.handle.findWidget<ButtonWidget>("options_absolute").text = absoluteLabel();
                 },
             });
@@ -92,15 +90,15 @@ class Settings {
                     text: "Height offset:",
                 });
                 heightOffset.addSpinner({
-                    text: String(this.options.height),
+                    text: String(this.height),
                     name: "options_height",
                     onDecrement: () => {
-                        this.options.height--;
-                        SceneryManager.handle.findWidget<SpinnerWidget>("options_height").text = String(this.options.height);
+                        this.height--;
+                        SceneryManager.handle.findWidget<SpinnerWidget>("options_height").text = String(this.height);
                     },
                     onIncrement: () => {
-                        this.options.height++;
-                        SceneryManager.handle.findWidget<SpinnerWidget>("options_height").text = String(this.options.height);
+                        this.height++;
+                        SceneryManager.handle.findWidget<SpinnerWidget>("options_height").text = String(this.height);
                     },
                 });
                 group.addBox(heightOffset);

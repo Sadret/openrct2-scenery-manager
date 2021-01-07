@@ -43,18 +43,14 @@ const FootpathAddition: IElement<FootpathElement, FootpathAdditionData> = {
         }
     },
 
-    getPlaceArgs(element: FootpathAdditionData, flags: number): FootpathAdditionPlaceArgs {
+    getPlaceArgs(element: FootpathAdditionData): FootpathAdditionPlaceArgs {
         return {
             ...element,
-            flags: flags,
             object: SceneryUtils.getObject(element).index,
         };
     },
     getRemoveArgs(element: FootpathAdditionData): FootpathAdditionRemoveArgs {
-        return {
-            ...element,
-            flags: 72,
-        };
+        return element;
     },
 
     getPlaceAction(): "footpathadditionplace" {

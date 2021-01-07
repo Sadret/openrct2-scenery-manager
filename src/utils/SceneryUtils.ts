@@ -21,79 +21,43 @@ import * as CoordUtils from "../utils/CoordUtils";
 import * as Template from "../template/Template";
 
 /*
- * INTERFACE DEFINITION
- */
-
-export interface Filter {
-    banner: boolean,
-    entrance: any,
-    footpath: boolean,
-    footpath_addition: boolean,
-    large_scenery: boolean,
-    small_scenery: boolean,
-    track: boolean,
-    wall: boolean,
-}
-
-export interface Options {
-    rotation: number,
-    mirrored: boolean,
-    absolute: boolean,
-    height: number,
-    ghost: boolean,
-}
-
-/*
  * READ / PLACE / REMOVE METHODS
  */
 
-export function read(tiles: CoordsXY[], filter: Filter): TemplateData {
+export function read(tiles: CoordsXY[]): ElementData[] {
     const elements: ElementData[] = [];
     tiles.forEach(
-        (coords: CoordsXY) => elements.push(...getSceneryData(coords, filter))
+        (coords: CoordsXY) => elements.push(...getSceneryData(coords))
     );
-    return {
-        elements: elements,
-        tiles: tiles,
-        surfaceHeight: getMedianSurfaceHeight(tiles),
-    };
+    return elements;
 }
 
-export function place(template: TemplateData, offset: CoordsXY, filter: Filter, options: Options): ElementData[] {
-    let deltaZ = options.height;
-    // if (!options.absolute)
-    //     deltaZ += getMedianSurfaceHeight([offset]/*, template.size*/) - template.surfaceHeight;
-
-    template = Template.available(template);
-    if (options.mirrored)
-        template = Template.mirror(template);
-    template = Template.rotate(template, options.rotation);
-    template = Template.translate(template, { ...offset, z: deltaZ * 8 });
-
+export function place(elements: ElementData[], ghost: boolean = false): ElementData[] {
     const result: ElementData[] = [];
-
-    template.elements.forEach((element: ElementData) => {
-        if (!filter[element.type])
-            return;
+    elements.forEach((element: ElementData) => {
         const action: PlaceAction = Template.getPlaceAction(element);
-        const args: PlaceActionArgs = Template.getPlaceArgs(element, options.ghost ? 72 : 0);
+        const args: PlaceActionArgs = {
+            ...Template.getPlaceArgs(element),
+            flags: ghost ? 72 : 0,
+        };
         context.queryAction(action, args, queryResult => {
             if (queryResult.error === 0)
                 context.executeAction(action, args, executeResult => {
                     if (executeResult.error === 0)
                         result.push(element);
                 });
-            else
-                console.log(action, args, queryResult);
         });
     });
     return result;
 }
 
-export function remove(elements: ElementData[]) {
+export function remove(elements: ElementData[], ghost: boolean = false) {
     elements.forEach((element: ElementData) => {
         const action: RemoveAction = Template.getRemoveAction(element);
-        const args: RemoveActionArgs = Template.getRemoveArgs(element);
+        const args: RemoveActionArgs = {
+            ...Template.getRemoveArgs(element),
+            flags: ghost ? 72 : 0,
+        };
         context.queryAction(action, args, queryResult => {
             if (queryResult.error === 0)
                 context.executeAction(action, args, () => { });
@@ -105,53 +69,38 @@ export function remove(elements: ElementData[]) {
  * DATA CREATION
  */
 
-function getSceneryData(coords: CoordsXY, filter: Filter): ElementData[] {
+function getSceneryData(coords: CoordsXY): ElementData[] {
     const tileCoords = CoordUtils.toTileCoords(coords);
     const tile: Tile = map.getTile(tileCoords.x, tileCoords.y);
     const data: ElementData[] = [];
     tile.elements.forEach((element: BaseTileElement, idx: number) => {
         switch (element.type) {
             case "banner":
-                if (filter.banner)
-                    data.push(Banner.createFromTileData(coords, <BannerElement>element, tile.data, idx));
-                break;
+                return data.push(Banner.createFromTileData(coords, <BannerElement>element, tile.data, idx));
             case "entrance":
-                if (filter.entrance)
-                    data.push(Entrance.createFromTileData(coords, <EntranceElement>element, tile.data, idx));
-                break;
+                return data.push(Entrance.createFromTileData(coords, <EntranceElement>element, tile.data, idx));
             case "footpath":
-                if (filter.footpath)
-                    data.push(Footpath.createFromTileData(coords, <FootpathElement>element, tile.data, idx));
-                if (filter.footpath_addition) {
-                    const addition: FootpathAdditionData = FootpathAddition.createFromTileData(coords, <FootpathElement>element, tile.data, idx);
-                    if (addition !== undefined)
-                        data.push(addition);
-                }
-                break;
+                data.push(Footpath.createFromTileData(coords, <FootpathElement>element, tile.data, idx));
+                const addition: FootpathAdditionData = FootpathAddition.createFromTileData(coords, <FootpathElement>element, tile.data, idx);
+                if (addition !== undefined)
+                    data.push(addition);
+                return;
             case "large_scenery":
-                if (filter.large_scenery) {
-                    const largeScenery: LargeSceneryData = LargeScenery.createFromTileData(coords, <LargeSceneryElement>element, tile.data, idx);
-                    if (largeScenery !== undefined)
-                        data.push(largeScenery);
-                }
-                break;
+                const largeScenery: LargeSceneryData = LargeScenery.createFromTileData(coords, <LargeSceneryElement>element, tile.data, idx);
+                if (largeScenery !== undefined)
+                    data.push(largeScenery);
+                return;
             case "small_scenery":
-                if (filter.small_scenery)
-                    data.push(SmallScenery.createFromTileData(coords, <SmallSceneryElement>element, tile.data, idx));
-                break;
+                return data.push(SmallScenery.createFromTileData(coords, <SmallSceneryElement>element, tile.data, idx));
             case "track":
-                if (filter.track) {
-                    const track: TrackData = Track.createFromTileData(coords, <TrackElement>element, tile.data, idx);
-                    if (track !== undefined)
-                        data.push(track);
-                }
-                break;
+                const track: TrackData = Track.createFromTileData(coords, <TrackElement>element, tile.data, idx);
+                if (track !== undefined)
+                    data.push(track);
+                return;
             case "wall":
-                if (filter.wall)
-                    data.push(Wall.createFromTileData(coords, <WallElement>element, tile.data, idx));
-                break;
+                return data.push(Wall.createFromTileData(coords, <WallElement>element, tile.data, idx));
             default:
-                break;
+                return;
         }
     });
     return data;

@@ -62,17 +62,15 @@ const SmallScenery: IElement<SmallSceneryElement, SmallSceneryData> = {
         }
     },
 
-    getPlaceArgs(element: SmallSceneryData, flags: number): SmallSceneryPlaceArgs {
+    getPlaceArgs(element: SmallSceneryData): SmallSceneryPlaceArgs {
         return {
             ...element,
-            flags: flags,
             object: SceneryUtils.getObject(element).index,
         };
     },
     getRemoveArgs(element: SmallSceneryData): SmallSceneryRemoveArgs {
         return {
             ...element,
-            flags: 72,
             object: SceneryUtils.getObject(element).index,
         };
     },

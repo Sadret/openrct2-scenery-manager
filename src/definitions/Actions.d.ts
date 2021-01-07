@@ -21,7 +21,7 @@ type PlaceAction =
 
 interface PlaceActionArgs {
     // all
-    readonly flags: number,
+    readonly flags?: number,
     readonly x: number,
     readonly y: number,
     // almost all
@@ -88,7 +88,7 @@ type RemoveAction =
     "wallremove";
 
 interface RemoveActionArgs {
-    readonly flags: number,
+    readonly flags?: number,
     readonly x: number,
     readonly y: number,
     readonly z: number,
