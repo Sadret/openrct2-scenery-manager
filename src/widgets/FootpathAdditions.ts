@@ -59,7 +59,6 @@ class FootpathAdditions {
                         identifier: "rct2.bench1",
                     })),
                     tiles: tiles,
-                    surfaceHeight: 0,
                 };
             }),
         });

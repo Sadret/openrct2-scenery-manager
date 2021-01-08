@@ -6,50 +6,41 @@
  *****************************************************************************/
 
 import IElement from "./IElement";
+import * as CoordUtils from "../utils/CoordUtils";
+import * as Direction from "../utils/Direction";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
 const LargeScenery: IElement<LargeSceneryElement, LargeSceneryData> = {
 
-    createFromTileData(coords: CoordsXY, element: LargeSceneryElement, data: Uint8Array, idx: number): LargeSceneryData {
-        if (data[idx * 16 + 0x8] !== 0)
+    createFromTileData(coords: CoordsXY, element: LargeSceneryElement): LargeSceneryData {
+        if (element.sequence !== 0)
             return undefined;
         const object: Object = context.getObject("large_scenery", (<any>element).object);
         return {
             type: "large_scenery",
             x: coords.x,
             y: coords.y,
-            z: element.baseHeight * 8,
-            direction: data[idx * 16 + 0] % 4,
+            z: element.baseZ,
+            direction: element.direction,
             identifier: SceneryUtils.getIdentifier(object),
-            primaryColour: data[idx * 16 + 0x9],
-            secondaryColour: data[idx * 16 + 0xA],
+            primaryColour: element.primaryColour,
+            secondaryColour: element.secondaryColour,
         };
     },
 
-    rotate(element: LargeSceneryData, size: CoordsXY, rotation: number): LargeSceneryData {
-        if ((rotation & 3) === 0)
-            return element;
-        return LargeScenery.rotate({
-            ...element,
-            x: element.y,
-            y: size.x - element.x,
-            direction: (element.direction + 1) & 3,
-        }, {
-                x: size.y,
-                y: size.x,
-            }, rotation - 1);
-    },
-    mirror(element: LargeSceneryData, size: CoordsXY): LargeSceneryData {
-        let direction = element.direction;
-
-        if (direction & (1 << 0))
-            direction ^= (1 << 1);
-
+    rotate(element: LargeSceneryData, rotation: number): LargeSceneryData {
         return {
             ...element,
-            y: size.y - element.y,
-            direction: direction,
-        }
+            ...CoordUtils.rotate(element, rotation),
+            direction: Direction.rotate(element.direction, rotation),
+        };
+    },
+    mirror(element: LargeSceneryData): LargeSceneryData {
+        return {
+            ...element,
+            ...CoordUtils.mirror(element),
+            direction: Direction.mirror(element.direction),
+        };
     },
 
     getPlaceArgs(element: LargeSceneryData): LargeSceneryPlaceArgs {

@@ -70,35 +70,35 @@ export function remove(elements: ElementData[], ghost: boolean = false) {
  */
 
 function getSceneryData(coords: CoordsXY): ElementData[] {
-    const tileCoords = CoordUtils.toTileCoords(coords);
+    const tileCoords = CoordUtils.worldToTileCoords(coords);
     const tile: Tile = map.getTile(tileCoords.x, tileCoords.y);
     const data: ElementData[] = [];
-    tile.elements.forEach((element: BaseTileElement, idx: number) => {
+    tile.elements.forEach((element: BaseTileElement) => {
         switch (element.type) {
             case "banner":
-                return data.push(Banner.createFromTileData(coords, <BannerElement>element, tile.data, idx));
+                return data.push(Banner.createFromTileData(coords, <BannerElement>element));
             case "entrance":
-                return data.push(Entrance.createFromTileData(coords, <EntranceElement>element, tile.data, idx));
+                return data.push(Entrance.createFromTileData(coords, <EntranceElement>element));
             case "footpath":
-                data.push(Footpath.createFromTileData(coords, <FootpathElement>element, tile.data, idx));
-                const addition: FootpathAdditionData = FootpathAddition.createFromTileData(coords, <FootpathElement>element, tile.data, idx);
+                data.push(Footpath.createFromTileData(coords, <FootpathElement>element));
+                const addition: FootpathAdditionData = FootpathAddition.createFromTileData(coords, <FootpathElement>element);
                 if (addition !== undefined)
                     data.push(addition);
                 return;
             case "large_scenery":
-                const largeScenery: LargeSceneryData = LargeScenery.createFromTileData(coords, <LargeSceneryElement>element, tile.data, idx);
+                const largeScenery: LargeSceneryData = LargeScenery.createFromTileData(coords, <LargeSceneryElement>element);
                 if (largeScenery !== undefined)
                     data.push(largeScenery);
                 return;
             case "small_scenery":
-                return data.push(SmallScenery.createFromTileData(coords, <SmallSceneryElement>element, tile.data, idx));
+                return data.push(SmallScenery.createFromTileData(coords, <SmallSceneryElement>element));
             case "track":
-                const track: TrackData = Track.createFromTileData(coords, <TrackElement>element, tile.data, idx);
+                const track: TrackData = Track.createFromTileData(coords, <TrackElement>element);
                 if (track !== undefined)
                     data.push(track);
                 return;
             case "wall":
-                return data.push(Wall.createFromTileData(coords, <WallElement>element, tile.data, idx));
+                return data.push(Wall.createFromTileData(coords, <WallElement>element));
             default:
                 return;
         }
@@ -128,6 +128,10 @@ function getMedianSurfaceHeight(tiles: CoordsXY[]): number {
     );
     heights.sort();
     return heights[Math.floor(heights.length / 2)];
+}
+
+export function getSurfaceHeight(coords: CoordsXY): number {
+    return getSurface(coords) ?.baseZ;
 }
 
 /*

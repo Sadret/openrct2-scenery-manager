@@ -6,49 +6,40 @@
  *****************************************************************************/
 
 import IElement from "./IElement";
+import * as CoordUtils from "../utils/CoordUtils";
+import * as Direction from "../utils/Direction";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
 const Wall: IElement<WallElement, WallData> = {
 
-    createFromTileData(coords: CoordsXY, element: WallElement, data: Uint8Array, idx: number): WallData {
+    createFromTileData(coords: CoordsXY, element: WallElement): WallData {
         const object: Object = context.getObject("wall", (<any>element).object);
         return {
             type: "wall",
             x: coords.x,
             y: coords.y,
-            z: element.baseHeight * 8,
+            z: element.baseZ,
             direction: element.direction,
             identifier: SceneryUtils.getIdentifier(object),
-            primaryColour: data[idx * 16 + 6],
-            secondaryColour: data[idx * 16 + 7],
-            tertiaryColour: data[idx * 16 + 8],
+            primaryColour: element.primaryColour,
+            secondaryColour: element.secondaryColour,
+            tertiaryColour: element.tertiaryColour,
         };
     },
 
-    rotate(element: WallData, size: CoordsXY, rotation: number): WallData {
-        if ((rotation & 3) === 0)
-            return element;
-        return Wall.rotate({
-            ...element,
-            x: element.y,
-            y: size.x - element.x,
-            direction: (element.direction + 1) & 3,
-        }, {
-                x: size.y,
-                y: size.x,
-            }, rotation - 1);
-    },
-    mirror(element: WallData, size: CoordsXY): WallData {
-        let direction = element.direction;
-
-        if (direction & (1 << 0))
-            direction ^= (1 << 1);
-
+    rotate(element: WallData, rotation: number): WallData {
         return {
             ...element,
-            y: size.y - element.y,
-            direction: direction,
-        }
+            ...CoordUtils.rotate(element, rotation),
+            direction: Direction.rotate(element.direction, rotation),
+        };
+    },
+    mirror(element: WallData): WallData {
+        return {
+            ...element,
+            ...CoordUtils.mirror(element),
+            direction: Direction.mirror(element.direction),
+        };
     },
 
     getPlaceArgs(element: WallData): WallPlaceArgs {

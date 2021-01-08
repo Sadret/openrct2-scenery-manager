@@ -6,60 +6,57 @@
  *****************************************************************************/
 
 import IElement from "./IElement";
+import * as CoordUtils from "../utils/CoordUtils";
+import * as Direction from "../utils/Direction";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
 const SmallScenery: IElement<SmallSceneryElement, SmallSceneryData> = {
 
-    createFromTileData(coords: CoordsXY, element: SmallSceneryElement, data: Uint8Array, idx: number): SmallSceneryData {
+    createFromTileData(coords: CoordsXY, element: SmallSceneryElement): SmallSceneryData {
         const object: Object = context.getObject("small_scenery", (<any>element).object);
         return {
             type: "small_scenery",
             x: coords.x,
             y: coords.y,
-            z: element.baseHeight * 8,
+            z: element.baseZ,
             direction: element.direction,
             identifier: SceneryUtils.getIdentifier(object),
-            quadrant: (data[idx * 16 + 0] >> 6) & 3,
+            quadrant: element.quadrant,
             primaryColour: element.primaryColour,
             secondaryColour: element.secondaryColour,
         };
     },
 
-    rotate(element: SmallSceneryData, size: CoordsXY, rotation: number): SmallSceneryData {
-        if ((rotation & 3) === 0)
-            return element;
-        return SmallScenery.rotate({
+    rotate(element: SmallSceneryData, rotation: number): SmallSceneryData {
+        return {
             ...element,
-            x: element.y,
-            y: size.x - element.x,
-            direction: (element.direction + 1) & 3,
-            quadrant: isFullTile(element) ? element.quadrant : ((element.quadrant + 1) & 3),
-        }, {
-                x: size.y,
-                y: size.x,
-            }, rotation - 1);
+            ...CoordUtils.rotate(element, rotation),
+            direction: Direction.rotate(element.direction, rotation),
+            quadrant: isFullTile(element) ? element.quadrant : Direction.rotate(element.quadrant, rotation),
+        };
     },
-    mirror(element: SmallSceneryData, size: CoordsXY): SmallSceneryData {
+    mirror(element: SmallSceneryData): SmallSceneryData {
         let direction = element.direction;
         let quadrant = element.quadrant;
 
         if (isDiagonal(element)) {
-            direction ^= (1 << 0);
+            direction ^= 0x1;
             if (!isFullTile(element))
-                quadrant ^= (1 << 0);
+                quadrant ^= 0x1;
         } else {
-            if (direction & (1 << 0))
-                direction ^= (1 << 1);
+            // direction = Direction.mirror(direction);
+            if (direction & 0x1) // same as above
+                direction ^= 0x2;
             if (!isHalfSpace(element))
-                quadrant ^= (1 << 0);
+                quadrant ^= 0x1;
         }
 
         return {
             ...element,
-            y: size.y - element.y,
+            ...CoordUtils.mirror(element),
             direction: direction,
             quadrant: quadrant,
-        }
+        };
     },
 
     getPlaceArgs(element: SmallSceneryData): SmallSceneryPlaceArgs {

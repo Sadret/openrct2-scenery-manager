@@ -10,10 +10,10 @@
 /// <reference path="./../definitions/Data.d.ts" />
 
 interface IElement<S extends BaseTileElement, T extends ElementData> {
-    createFromTileData(coords: CoordsXY, element: S, data: Uint8Array, idx: number): T;
+    createFromTileData(coords: CoordsXY, element: S): T;
 
-    rotate(element: T, size: CoordsXY, rotation: number): T;
-    mirror(element: T, size: CoordsXY): T;
+    rotate(element: T, rotation: number): T;
+    mirror(element: T): T;
 
     getPlaceArgs(element: T): PlaceActionArgs;
     getRemoveArgs(element: T): RemoveActionArgs;

@@ -26,7 +26,6 @@ type ElementType =
 interface TemplateData {
     readonly elements: ElementData[],
     readonly tiles: CoordsXY[],
-    readonly surfaceHeight: number,
 }
 
 /*
@@ -58,7 +57,7 @@ interface EntranceData extends ElementData {
 
 interface FootpathData extends ElementData {
     readonly type: "footpath",
-    readonly slope: number,
+    readonly slopeDirection: number,
     readonly isQueue: boolean,
 }
 

@@ -15,6 +15,7 @@ import SmallScenery from "./SmallScenery";
 import Track from "./Track";
 import Wall from "./Wall";
 import * as ArrayUtils from "../utils/ArrayUtils";
+import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
 const map: { [key in ElementType]: IElement<BaseTileElement, ElementData> } = {
@@ -37,7 +38,7 @@ function isElementAvailable(element: ElementData): boolean {
 }
 
 export function isAvailable(template: TemplateData): boolean {
-    return ArrayUtils.find(template.elements, (element: ElementData) => !isElementAvailable(element)) !== undefined;
+    return ArrayUtils.find(template.elements, (element: ElementData) => !isElementAvailable(element)) === undefined;
 }
 
 export function available(template: TemplateData): TemplateData {
@@ -56,9 +57,12 @@ export function filter(template: TemplateData, filter: (type: ElementType) => bo
     };
 }
 
+export function transform(template: TemplateData, mirrored: boolean, rotation: number, offset: CoordsXYZ) {
+    return translate(rotate(mirror(template, mirrored), rotation), offset);
+}
+
 export function translate(template: TemplateData, offset: CoordsXYZ): TemplateData {
     return {
-        ...template,
         elements: template.elements.map(
             (element: ElementData) => ({
                 ...element,
@@ -66,30 +70,40 @@ export function translate(template: TemplateData, offset: CoordsXYZ): TemplateDa
                 y: element.y + offset.y,
                 z: element.z + offset.z,
             })
-        ).filter((element: ElementData) => element.z > 0),
+            // ).filter((element: ElementData) => element.z > 0),
+        ),
+        tiles: template.tiles.map(
+            (tile: CoordsXY) => ({
+                x: tile.x + offset.x,
+                y: tile.y + offset.y,
+            })
+        ),
     };
 }
 export function rotate(template: TemplateData, rotation: number): TemplateData {
     if ((rotation & 3) === 0)
         return template;
     return {
-        ...template,
-        // elements: template.elements.map(
-        //     (element: ElementData) =>
-        //         get(element.type) ?.rotate(element, template.size, rotation)
-        //     ),
-        // size: (rotation & 1) == 0 ? template.size : {
-        //     x: template.size.y,
-        //     y: template.size.x,
-        // },
+        elements: template.elements.map(
+            (element: ElementData) =>
+                get(element.type) ?.rotate(element, rotation)
+            ),
+        tiles: template.tiles.map(
+            (tile: CoordsXY) => CoordUtils.rotate(tile, rotation)
+        ),
     };
 }
-export function mirror(template: TemplateData): TemplateData {
+export function mirror(template: TemplateData, mirrored: boolean = true): TemplateData {
+    if (!mirrored)
+        return template;
     return {
-        ...template,
-        // elements: template.elements.map(
-        //     (element: ElementData) => get(element.type) ?.mirror(element, template.size)
-        //     ),
+        elements: template.elements.map(
+            (element: ElementData) =>
+                get(element.type) ?.mirror(element)
+            ),
+        tiles: template.tiles.map(
+            (tile: CoordsXY) => CoordUtils.mirror(tile)
+        ),
     };
 }
 

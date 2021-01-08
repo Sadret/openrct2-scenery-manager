@@ -11,12 +11,12 @@
  * CONVERSION FUNCTIONS
  */
 
-export function toTileCoords(coords: CoordsXY): CoordsXY {
-    return { x: coords.x / 32, y: coords.y / 32 };
-}
-
-export function toCoordsXY(coords: CoordsXY): CoordsXY {
-    return { x: coords.x * 32, y: coords.y * 32 };
+export function toTiles(range: MapRange): CoordsXY[] {
+    const tiles: CoordsXY[] = [];
+    for (let x = range.leftTop.x; x <= range.rightBottom.x; x += 32)
+        for (let y = range.leftTop.y; y <= range.rightBottom.y; y += 32)
+            tiles.push({ x: x, y: y });
+    return tiles;
 }
 
 export function toMapRange(tiles: CoordsXY[]): MapRange {
@@ -35,9 +35,74 @@ export function toMapRange(tiles: CoordsXY[]): MapRange {
     }
 }
 
+export function worldToTileCoords(coords: CoordsXY): CoordsXY {
+    return { x: coords.x / 32, y: coords.y / 32 };
+}
+
+export function tileToWorldCoords(coords: CoordsXY): CoordsXY {
+    return { x: coords.x * 32, y: coords.y * 32 };
+}
+
+/*
+ * MATH
+ */
+
+function round(coords: CoordsXY): CoordsXY {
+    return {
+        x: coords.x & ~31,
+        y: coords.y & ~31,
+    };
+}
+
+function add(u: CoordsXY, v: CoordsXY): CoordsXY {
+    return {
+        x: u.x + v.x,
+        y: u.y + v.y,
+    };
+}
+
+function sub(u: CoordsXY, v: CoordsXY): CoordsXY {
+    return {
+        x: u.x - v.x,
+        y: u.y - v.y,
+    };
+}
+
+function scale(u: CoordsXY, f: number): CoordsXY {
+    return {
+        x: u.x * f,
+        y: u.y * f,
+    };
+}
+
 /*
  * UTILITY
  */
+
+const sin: number[] = [0, 1, 0, -1];
+const cos: number[] = [1, 0, -1, 0];
+
+export function rotate(coords: CoordsXY, rotation: number) {
+    const t: number = rotation & 3;
+    return {
+        x: + coords.x * cos[t] + coords.y * sin[t],
+        y: - coords.x * sin[t] + coords.y * cos[t],
+    };
+}
+
+export function mirror(coords: CoordsXY, mirrored: boolean = true) {
+    if (!mirrored)
+        return coords;
+    return {
+        x: coords.x,
+        y: -coords.y,
+    };
+}
+
+export function center(tiles: CoordsXY[]): CoordsXY {
+    const range: MapRange = toMapRange(tiles);
+    return round(scale(add(range.rightBottom, range.leftTop), 0.5));
+}
 
 export function span(start: CoordsXY, end: CoordsXY): MapRange {
     return {
@@ -53,10 +118,7 @@ export function span(start: CoordsXY, end: CoordsXY): MapRange {
 }
 
 export function centered(center: CoordsXY, size: CoordsXY): MapRange {
-    const start = {
-        x: (center.x - size.x / 2) & ~31,
-        y: (center.y - size.y / 2) & ~31,
-    };
+    const start: CoordsXY = round(sub(center, scale(size, 0.5)));
     return {
         leftTop: start,
         rightBottom: add(start, size),
@@ -68,10 +130,7 @@ export function getSize(range: MapRange): CoordsXY {
 }
 
 export function circle(center: CoordsXY, diameter: number): CoordsXY[] {
-    const start = {
-        x: (center.x - diameter * 16) & ~31,
-        y: (center.y - diameter * 16) & ~31,
-    };
+    const start: CoordsXY = round(sub(center, { x: diameter * 16, y: diameter * 16 }));
     const dh: number = (diameter + 1) / 2;
     const dh2: number = diameter / 2 * diameter / 2;
     const range: number[] = [];
@@ -86,22 +145,8 @@ export function circle(center: CoordsXY, diameter: number): CoordsXY[] {
     ).filter(
         (c: CoordsXY) => (c.x - dh) * (c.x - dh) + (c.y - dh) * (c.y - dh) <= dh2
     ).map(
-        (c: CoordsXY) => add(toCoordsXY(c), start)
+        (c: CoordsXY) => add(tileToWorldCoords(c), start)
     );
-}
-
-function add(u: CoordsXY, v: CoordsXY): CoordsXY {
-    return {
-        x: u.x + v.x,
-        y: u.y + v.y,
-    };
-}
-
-function sub(u: CoordsXY, v: CoordsXY): CoordsXY {
-    return {
-        x: u.x - v.x,
-        y: u.y - v.y,
-    };
 }
 
 export function equals(u: CoordsXY, v: CoordsXY): boolean {

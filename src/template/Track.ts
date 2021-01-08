@@ -6,54 +6,47 @@
  *****************************************************************************/
 
 import IElement from "./IElement";
+import * as CoordUtils from "../utils/CoordUtils";
+import * as Direction from "../utils/Direction";
 
 const Track: IElement<TrackElement, TrackData> = {
 
-    createFromTileData(coords: CoordsXY, element: TrackElement, data: Uint8Array, idx: number): TrackData {
+    createFromTileData(coords: CoordsXY, element: TrackElement): TrackData {
         if (element.sequence !== 0)
             return undefined;
         return {
             type: "track",
             x: coords.x,
             y: coords.y,
-            z: element.baseHeight * 8,
+            z: element.baseZ,
             direction: element.direction,
             identifier: undefined,
             ride: element.ride,
             trackType: element.trackType,
-            brakeSpeed: data[idx * 16 + 0x9],
-            colour: data[idx * 16 + 0x7] & 3,
-            seatRotation: data[idx * 16 + 0x7] >> 4 & 0xF,
-            trackPlaceFlags: data[idx * 16 + 0xA] & 3,
+            brakeSpeed: element.brakeBoosterSpeed,
+            colour: element.colourScheme,
+            seatRotation: element.seatRotation,
+            trackPlaceFlags:
+                Number(element.isInverted) << 1 |
+                Number(element.hasCableLift) << 2,
             isFromTrackDesign: false,
         };
     },
 
-    rotate(element: TrackData, size: CoordsXY, rotation: number): TrackData {
-        if ((rotation & 3) === 0)
-            return element;
-        return Track.rotate({
-            ...element,
-            x: element.y,
-            y: size.x - element.x,
-            direction: (element.direction + 1) & 3,
-        }, {
-                x: size.y,
-                y: size.x,
-            }, rotation - 1);
-    },
-    mirror(element: TrackData, size: CoordsXY): TrackData {
-        let direction = element.direction;
-
-        if (direction & (1 << 0))
-            direction ^= (1 << 1);
-
+    rotate(element: TrackData, rotation: number): TrackData {
         return {
             ...element,
-            y: size.y - element.y,
-            direction: direction,
+            ...CoordUtils.rotate(element, rotation),
+            direction: Direction.rotate(element.direction, rotation),
+        };
+    },
+    mirror(element: TrackData): TrackData {
+        return {
+            ...element,
+            ...CoordUtils.mirror(element),
+            direction: Direction.mirror(element.direction),
             trackType: mirrorMap[element.trackType],
-        }
+        };
     },
 
     getPlaceArgs(element: TrackData): TrackPlaceArgs {
@@ -61,6 +54,7 @@ const Track: IElement<TrackElement, TrackData> = {
             ...element,
             object: undefined,
             z: element.z - trackBlock[element.trackType],
+            brakeSpeed: element.brakeSpeed === null ? 0 : element.brakeSpeed,
         };
     },
     getRemoveArgs(element: TrackData): TrackRemoveArgs {

@@ -6,47 +6,38 @@
  *****************************************************************************/
 
 import IElement from "./IElement";
+import * as CoordUtils from "../utils/CoordUtils";
+import * as Direction from "../utils/Direction";
 
 const Entrance: IElement<EntranceElement, EntranceData> = {
 
-    createFromTileData(coords: CoordsXY, element: EntranceElement, data: Uint8Array, idx: number): EntranceData {
+    createFromTileData(coords: CoordsXY, element: EntranceElement): EntranceData {
         return {
             type: "entrance",
             x: coords.x,
             y: coords.y,
-            z: element.baseHeight * 8,
-            direction: data[idx * 16 + 0] % 4,
+            z: element.baseZ,
+            direction: element.direction,
             identifier: undefined,
             ride: element.ride,
             station: element.station,
-            isExit: element.object === 1,
+            isExit: element.object === 1, // = ENTRANCE_TYPE_RIDE_EXIT
         };
     },
 
-    rotate(element: EntranceData, size: CoordsXY, rotation: number): EntranceData {
-        if ((rotation & 0x3) === 0)
-            return element;
-        return Entrance.rotate({
-            ...element,
-            x: element.y,
-            y: size.x - element.x,
-            direction: (element.direction + 1) & 0x3,
-        }, {
-                x: size.y,
-                y: size.x,
-            }, rotation - 1);
-    },
-    mirror(element: EntranceData, size: CoordsXY): EntranceData {
-        let direction = element.direction;
-
-        if (direction & (1 << 0))
-            direction ^= (1 << 1);
-
+    rotate(element: EntranceData, rotation: number): EntranceData {
         return {
             ...element,
-            y: size.y - element.y,
-            direction: direction,
-        }
+            ...CoordUtils.rotate(element, rotation),
+            direction: Direction.rotate(element.direction, rotation),
+        };
+    },
+    mirror(element: EntranceData): EntranceData {
+        return {
+            ...element,
+            ...CoordUtils.mirror(element),
+            direction: Direction.mirror(element.direction),
+        };
     },
 
     getPlaceArgs(element: EntranceData): EntrancePlaceArgs {

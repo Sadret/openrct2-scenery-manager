@@ -11,7 +11,7 @@
 import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-export function activate(getTemplate: (coords: CoordsXY) => TemplateData): void {
+export function activate(getTemplate: (coords: CoordsXY) => TemplateData, onFinish?: () => void): void {
     let ghostData: ElementData[] = undefined;
     let ghostCoords: CoordsXY = undefined;
     function removeGhost(): void {
@@ -55,6 +55,7 @@ export function activate(getTemplate: (coords: CoordsXY) => TemplateData): void 
             removeGhost();
             ui.tileSelection.tiles = null;
             ui.mainViewport.visibilityFlags &= ~(1 << 7);
+            if (onFinish !== undefined) onFinish();
         },
     });
 }

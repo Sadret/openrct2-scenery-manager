@@ -9,6 +9,7 @@ import Clipboard from "./Clipboard";
 import Settings from "./Settings";
 import SceneryManager from "../SceneryManager";
 import * as Template from "../template/Template";
+import * as Brush from "../utils/Brush";
 import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 import * as Configuration from "../widgets/Configuration";
@@ -66,11 +67,21 @@ class CopyPaste {
     private copyArea(): void {
         if (ui.tileSelection.range === null)
             ui.showError("Can't copy area...", "Nothing selected!");
-        // else
-        //     Clipboard.add(SceneryUtils.read(ui.tileSelection.tiles));
+        else {
+            const tiles: CoordsXY[] = CoordUtils.toTiles(ui.tileSelection.range);
+            const center: CoordsXY = CoordUtils.center(tiles);
+            Clipboard.add(Template.translate({
+                elements: SceneryUtils.read(tiles),
+                tiles: tiles,
+            }, {
+                    x: -center.x,
+                    y: -center.y,
+                    z: -SceneryUtils.getSurfaceHeight(center),
+                }));
+        }
     }
 
-    public pasteTemplate(template: TemplateData, onCancel: () => void): void {
+    public pasteTemplate(template: TemplateData, onFinish: () => void): void {
         {
             const onMissingElement: Configuration.Action = Configuration.getOnMissingElement();
             if (onMissingElement !== "ignore" && !Template.isAvailable(template))
@@ -80,62 +91,10 @@ class CopyPaste {
                     return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
         }
 
-        let ghost: ElementData[] = undefined;
-        let ghostCoords: CoordsXY = undefined;
-        function removeGhost(): void {
-            if (ghost !== undefined)
-                SceneryUtils.remove(ghost);
-            ghost = undefined;
-        }
-        function placeGhost(): void {
-            if (ui.tileSelection.range === null)
-                return removeGhost();
-            const offset = ui.tileSelection.range.leftTop;
-            if (CoordUtils.equals(offset, ghostCoords))
-                return;
-            removeGhost();
-            if (offset.x * offset.y === 0)
-                return;
-            // ghost = SceneryUtils.place(template, offset, Settings.filter, { ...Settings.options, ghost: true, });
-            ghostCoords = offset;
-        }
-
-        ui.activateTool({
-            id: "scenery-manager-template-paste",
-            cursor: "cross_hair",
-            onStart: () => {
-                ui.mainViewport.visibilityFlags |= 1 << 7;
-            },
-            onDown: () => {
-                removeGhost();
-                // SceneryUtils.place(template, ui.tileSelection.range.leftTop, Settings.filter, Settings.options);
-            },
-            onMove: e => {
-                if (e.mapCoords.x * e.mapCoords.y === 0)
-                    ui.tileSelection.range = null;
-                else
-                    ui.tileSelection.range = CoordUtils.centered(e.mapCoords, this.getSize(template));
-                placeGhost();
-            },
-            onUp: () => {
-            },
-            onFinish: () => {
-                removeGhost();
-                ui.tileSelection.range = null;
-                ui.mainViewport.visibilityFlags &= ~(1 << 7);
-                onCancel();
-            },
-        });
-    }
-
-    private getSize(template: TemplateData) {
-        let size: CoordsXY = CoordUtils.getSize(CoordUtils.toMapRange(template.tiles));
-        if (Settings.rotation % 2 === 1)
-            size = {
-                x: size.y,
-                y: size.x,
-            };
-        return size;
+        Brush.activate((coords: CoordsXY) => Template.transform(template, Settings.mirrored, Settings.rotation, {
+            ...coords,
+            z: SceneryUtils.getSurfaceHeight(coords),
+        }), onFinish);
     }
 
     public build(builder: BoxBuilder): void {

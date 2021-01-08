@@ -6,47 +6,38 @@
  *****************************************************************************/
 
 import IElement from "./IElement";
+import * as CoordUtils from "../utils/CoordUtils";
+import * as Direction from "../utils/Direction";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
 const Banner: IElement<BannerElement, BannerData> = {
 
-    createFromTileData(coords: CoordsXY, element: BannerElement, data: Uint8Array, idx: number): BannerData {
+    createFromTileData(coords: CoordsXY, element: BannerElement): BannerData {
         const object: Object = context.getObject("banner", (<any>element).object);
         return {
             type: "banner",
             x: coords.x,
             y: coords.y,
-            z: element.baseHeight * 8,
-            direction: data[idx * 16 + 0] % 4,
+            z: element.baseZ,
+            direction: element.direction,
             identifier: SceneryUtils.getIdentifier(object),
-            primaryColour: data[idx * 16 + 6],
+            primaryColour: 0,
         };
     },
 
-    rotate(element: BannerData, size: CoordsXY, rotation: number): BannerData {
-        if ((rotation & 3) === 0)
-            return element;
-        return Banner.rotate({
-            ...element,
-            x: element.y,
-            y: size.x - element.x,
-            direction: (element.direction + 1) & 3,
-        }, {
-                x: size.y,
-                y: size.x,
-            }, rotation - 1);
-    },
-    mirror(element: BannerData, size: CoordsXY): BannerData {
-        let direction = element.direction;
-
-        if (direction & (1 << 0))
-            direction ^= (1 << 1);
-
+    rotate(element: BannerData, rotation: number): BannerData {
         return {
             ...element,
-            y: size.y - element.y,
-            direction: direction,
-        }
+            ...CoordUtils.rotate(element, rotation),
+            direction: Direction.rotate(element.direction, rotation),
+        };
+    },
+    mirror(element: BannerData): BannerData {
+        return {
+            ...element,
+            ...CoordUtils.mirror(element),
+            direction: Direction.mirror(element.direction),
+        };
     },
 
     getPlaceArgs(element: BannerData): BannerPlaceArgs {

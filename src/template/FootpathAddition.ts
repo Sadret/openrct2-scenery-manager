@@ -6,11 +6,12 @@
  *****************************************************************************/
 
 import IElement from "./IElement";
+import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
 const FootpathAddition: IElement<FootpathElement, FootpathAdditionData> = {
 
-    createFromTileData(coords: CoordsXY, element: FootpathElement, data: Uint8Array, idx: number): FootpathAdditionData {
+    createFromTileData(coords: CoordsXY, element: FootpathElement): FootpathAdditionData {
         if (element.addition === null)
             return undefined;
         const object: Object = context.getObject("footpath_addition", element.addition);
@@ -18,28 +19,22 @@ const FootpathAddition: IElement<FootpathElement, FootpathAdditionData> = {
             type: "footpath_addition",
             x: coords.x,
             y: coords.y,
-            z: element.baseHeight * 8,
-            direction: data[idx * 16 + 0] % 4,
+            z: element.baseZ,
+            direction: undefined,
             identifier: SceneryUtils.getIdentifier(object),
         };
     },
 
-    rotate(element: FootpathAdditionData, size: CoordsXY, rotation: number): FootpathAdditionData {
-        if ((rotation & 3) === 0)
-            return element;
-        return FootpathAddition.rotate({
-            ...element,
-            x: element.y,
-            y: size.x - element.x,
-        }, {
-                x: size.y,
-                y: size.x,
-            }, rotation - 1);
-    },
-    mirror(element: FootpathAdditionData, size: CoordsXY): FootpathAdditionData {
+    rotate(element: FootpathAdditionData, rotation: number): FootpathAdditionData {
         return {
             ...element,
-            y: size.y - element.y,
+            ...CoordUtils.rotate(element, rotation),
+        };
+    },
+    mirror(element: FootpathAdditionData): FootpathAdditionData {
+        return {
+            ...element,
+            ...CoordUtils.mirror(element),
         }
     },
 

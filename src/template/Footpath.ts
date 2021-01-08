@@ -6,59 +6,47 @@
  *****************************************************************************/
 
 import IElement from "./IElement";
+import * as CoordUtils from "../utils/CoordUtils";
+import * as Direction from "../utils/Direction";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
 const Footpath: IElement<FootpathElement, FootpathData> = {
 
-    createFromTileData(coords: CoordsXY, element: FootpathElement, data: Uint8Array, idx: number): FootpathData {
+    createFromTileData(coords: CoordsXY, element: FootpathElement): FootpathData {
         const object: Object = context.getObject("footpath", (<any>element).object);
         return {
             type: "footpath",
             x: coords.x,
             y: coords.y,
-            z: element.baseHeight * 8,
+            z: element.baseZ,
             direction: undefined,
             identifier: SceneryUtils.getIdentifier(object),
-            slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
+            slopeDirection: element.slopeDirection,
             isQueue: element.isQueue,
         };
     },
 
-    rotate(element: FootpathData, size: CoordsXY, rotation: number): FootpathData {
-        if ((rotation & 0x3) === 0)
-            return element;
-
-        let slope = element.slope;
-        if (slope !== 0)
-            slope = ((slope + 1) & 0x3) | 0x4;
-
-        return Footpath.rotate({
-            ...element,
-            x: element.y,
-            y: size.x - element.x,
-            slope: slope,
-        }, {
-                x: size.y,
-                y: size.x,
-            }, rotation - 1);
-    },
-    mirror(element: FootpathData, size: CoordsXY): FootpathData {
-        let slope = element.slope;
-        if (slope & 0x1)
-            slope ^= 0x2;
-
+    rotate(element: FootpathData, rotation: number): FootpathData {
         return {
             ...element,
-            y: size.y - element.y,
-            slope: slope,
+            ...CoordUtils.rotate(element, rotation),
+            slopeDirection: Direction.rotate(element.slopeDirection, rotation),
+        };
+    },
+    mirror(element: FootpathData): FootpathData {
+        return {
+            ...element,
+            ...CoordUtils.mirror(element),
+            slopeDirection: Direction.mirror(element.slopeDirection),
         }
     },
 
     getPlaceArgs(element: FootpathData): FootpathPlaceArgs {
         return {
             ...element,
-            object: SceneryUtils.getObject(element).index,
-            direction: 0xFF, // = invalid direction
+            object: SceneryUtils.getObject(element).index | Number(element.isQueue) << 7,
+            slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
+            direction: 0xFF, // = INVALID_DIRECTION
         };
     },
     getRemoveArgs(element: FootpathData): FootpathRemoveArgs {
