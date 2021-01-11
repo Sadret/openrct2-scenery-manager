@@ -126,7 +126,7 @@ export function centered(center: CoordsXY, size: CoordsXY): MapRange {
 }
 
 export function getSize(range: MapRange): CoordsXY {
-    return add(sub(range.rightBottom, range.leftTop), { x: 1, y: 1 });
+    return add(worldToTileCoords(sub(range.rightBottom, range.leftTop)), { x: 1, y: 1 });
 }
 
 export function circle(center: CoordsXY, diameter: number): CoordsXY[] {

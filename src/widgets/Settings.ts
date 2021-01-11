@@ -26,14 +26,12 @@ class Settings {
 
     public rotation: number = 0;
     public mirrored: boolean = false;
-    public absolute: boolean = false;
     public height: number = 0;
     public ghost: boolean = false;
 
     public build(builder: BoxBuilder): void {
-        const rotationLabel: () => string = () => String(this.rotation === 0 ? "none" : (this.rotation * 90 + " deg"));
-        const mirroredLabel: () => string = () => "Mirrored: " + (this.mirrored ? "yes" : "no");
-        const absoluteLabel: () => string = () => this.absolute ? "Absolute height" : "Relative to surface";
+        const rotationLabel: () => string = () => (this.rotation === 0 ? "none" : (this.rotation * 90 + " deg"));
+        const mirroredLabel: () => string = () => (this.mirrored ? "yes" : "no");
 
         const hbox = builder.getHBox([1, 1]);
         {
@@ -68,22 +66,21 @@ class Settings {
                 });
                 group.addBox(rotation);
             }
-            group.addTextButton({
-                text: mirroredLabel(),
-                name: "options_mirrored",
-                onClick: () => {
-                    this.mirrored = !this.mirrored;
-                    SceneryManager.handle.findWidget<ButtonWidget>("options_mirrored").text = mirroredLabel();
-                },
-            });
-            group.addTextButton({
-                text: absoluteLabel(),
-                name: "options_absolute",
-                onClick: () => {
-                    this.absolute = !this.absolute;
-                    SceneryManager.handle.findWidget<ButtonWidget>("options_absolute").text = absoluteLabel();
-                },
-            });
+            {
+                const mirrored = group.getHBox([1, 1]);
+                mirrored.addLabel({
+                    text: "Mirrored:",
+                });
+                mirrored.addTextButton({
+                    text: mirroredLabel(),
+                    name: "options_mirrored",
+                    onClick: () => {
+                        this.mirrored = !this.mirrored;
+                        SceneryManager.handle.findWidget<ButtonWidget>("options_mirrored").text = mirroredLabel();
+                    },
+                });
+                group.addBox(mirrored);
+            }
             {
                 const heightOffset = group.getHBox([1, 1]);
                 heightOffset.addLabel({

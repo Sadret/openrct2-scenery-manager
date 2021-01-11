@@ -70,14 +70,17 @@ class CopyPaste {
         else {
             const tiles: CoordsXY[] = CoordUtils.toTiles(ui.tileSelection.range);
             const center: CoordsXY = CoordUtils.center(tiles);
-            Clipboard.add(Template.translate({
+            let template = {
                 elements: SceneryUtils.read(tiles),
                 tiles: tiles,
-            }, {
-                    x: -center.x,
-                    y: -center.y,
-                    z: -SceneryUtils.getSurfaceHeight(center),
-                }));
+            };
+            template = Template.filter(template, (type: ElementType) => Settings.filter[type]);
+            template = Template.translate(template, {
+                x: -center.x,
+                y: -center.y,
+                z: -SceneryUtils.getMedianSurfaceHeight(tiles),
+            });
+            Clipboard.add(template);
         }
     }
 
@@ -91,10 +94,13 @@ class CopyPaste {
                     return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
         }
 
-        Brush.activate((coords: CoordsXY) => Template.transform(template, Settings.mirrored, Settings.rotation, {
-            ...coords,
-            z: SceneryUtils.getSurfaceHeight(coords),
-        }), onFinish);
+        Brush.activate((coords: CoordsXY) => {
+            let template2 = template;
+            template2 = Template.filter(template2, (type: ElementType) => Settings.filter[type]);
+            template2 = Template.transform(template2, Settings.mirrored, Settings.rotation, { ...coords, z: 0 });
+            template2 = Template.translate(template2, { x: 0, y: 0, z: SceneryUtils.getSurfaceHeight(coords), });
+            return template2;
+        }, onFinish);
     }
 
     public build(builder: BoxBuilder): void {

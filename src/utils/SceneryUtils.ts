@@ -110,28 +110,20 @@ function getSceneryData(coords: CoordsXY): ElementData[] {
  * UTILITY METHODS
  */
 
-function getSurface(coords: CoordsXY): SurfaceElement {
-    for (let element of map.getTile(coords.x / 32, coords.y / 32).elements)
+export function getSurfaceHeight(coords: CoordsXY): number {
+    coords = CoordUtils.worldToTileCoords(coords);
+    for (let element of map.getTile(coords.x, coords.y).elements)
         if (element.type === "surface")
-            return <SurfaceElement>element;
+            return element.baseZ;
     return undefined;
 }
 
-function getMedianSurfaceHeight(tiles: CoordsXY[]): number {
-    const heights: number[] = [];
-    tiles.forEach(
-        (coords: CoordsXY) => {
-            const surface: BaseTileElement = getSurface(coords);
-            if (surface !== undefined)
-                heights.push(surface.baseHeight);
-        }
+export function getMedianSurfaceHeight(tiles: CoordsXY[]): number {
+    const heights: number[] = tiles.map(
+        (coords: CoordsXY) => getSurfaceHeight(coords)
     );
     heights.sort();
     return heights[Math.floor(heights.length / 2)];
-}
-
-export function getSurfaceHeight(coords: CoordsXY): number {
-    return getSurface(coords) ?.baseZ;
 }
 
 /*
