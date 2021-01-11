@@ -42,18 +42,13 @@ export function isAvailable(template: TemplateData): boolean {
 }
 
 export function available(template: TemplateData): TemplateData {
-    return {
-        ...template,
-        elements: template.elements.filter(isElementAvailable),
-    };
+    return filter(template, isElementAvailable);
 }
 
-export function filter(template: TemplateData, filter: (type: ElementType) => boolean): TemplateData {
+export function filter(template: TemplateData, filter: (element: ElementData) => boolean): TemplateData {
     return {
         ...template,
-        elements: template.elements.filter(
-            (element: ElementData) => filter(element.type)
-        ),
+        elements: template.elements.filter(filter),
     };
 }
 

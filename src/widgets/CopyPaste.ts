@@ -74,7 +74,7 @@ class CopyPaste {
                 elements: SceneryUtils.read(tiles),
                 tiles: tiles,
             };
-            template = Template.filter(template, (type: ElementType) => Settings.filter[type]);
+            template = Template.filter(template, (element: ElementData) => Settings.filter[element.type]);
             template = Template.translate(template, {
                 x: -center.x,
                 y: -center.y,
@@ -96,9 +96,10 @@ class CopyPaste {
 
         Brush.activate((coords: CoordsXY) => {
             let template2 = template;
-            template2 = Template.filter(template2, (type: ElementType) => Settings.filter[type]);
+            template2 = Template.filter(template2, (element: ElementData) => Settings.filter[element.type]);
             template2 = Template.transform(template2, Settings.mirrored, Settings.rotation, { ...coords, z: 0 });
             template2 = Template.translate(template2, { x: 0, y: 0, z: SceneryUtils.getSurfaceHeight(coords), });
+            template2 = Template.filter(template2, (element: ElementData) => element.z > 0);
             return template2;
         }, onFinish);
     }
