@@ -21,9 +21,8 @@ export class FolderView {
 
     selected: File = undefined;
 
-    constructor(name: string, path: File) {
+    constructor(name: string) {
         this.name = name;
-        this.open(path);
     }
 
     getPath(): string {

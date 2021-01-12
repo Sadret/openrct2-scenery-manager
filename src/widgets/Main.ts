@@ -12,7 +12,7 @@ import Settings from "./Settings";
 import { BoxBuilder } from "../gui/WindowBuilder";
 
 class Main {
-    public static instance: Main = new Main();
+    public static readonly instance: Main = new Main();
     private constructor() { }
 
     public build(builder: BoxBuilder): void {

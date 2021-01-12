@@ -22,7 +22,7 @@ interface Tab {
 }
 
 class SceneryManager {
-    public static instance: SceneryManager = new SceneryManager();
+    public static readonly instance: SceneryManager = new SceneryManager();
 
     private readonly tabs: Tab[];
     public handle: Window = undefined;

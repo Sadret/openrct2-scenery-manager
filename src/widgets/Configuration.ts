@@ -19,7 +19,7 @@ export function getOnMissingElement(): Action {
 }
 
 class Configuration {
-    public static instance: Configuration = new Configuration();
+    public static readonly instance: Configuration = new Configuration();
     private constructor() { }
 
     public build(builder: BoxBuilder): void {

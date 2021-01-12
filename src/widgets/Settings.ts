@@ -10,7 +10,7 @@ import * as StringUtils from "../utils/StringUtils";
 import { BoxBuilder } from "../gui/WindowBuilder";
 
 class Settings {
-    public static instance: Settings = new Settings();
+    public static readonly instance: Settings = new Settings();
     private constructor() { }
 
     public readonly filter: { [key in ElementType]: boolean } = {

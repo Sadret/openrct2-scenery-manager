@@ -8,7 +8,7 @@
 import { BoxBuilder, Margin } from "../gui/WindowBuilder";
 
 class Research {
-    public static instance: Research = new Research();
+    public static readonly instance: Research = new Research();
     private constructor() { }
 
     public build(builder: BoxBuilder): void {

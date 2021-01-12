@@ -8,7 +8,7 @@
 import { BoxBuilder } from "../gui/WindowBuilder";
 
 class Coloring {
-    public static instance: Coloring = new Coloring();
+    public static readonly instance: Coloring = new Coloring();
     constructor() { }
 
     public build(builder: BoxBuilder): void {

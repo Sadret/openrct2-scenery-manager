@@ -6,19 +6,18 @@
  *****************************************************************************/
 
 import SceneryManager from "../SceneryManager";
-import * as Storage from "../persistence/Storage";
 import * as UiUtils from "../utils/UiUtils";
 import { FolderView } from "../gui/FolderView";
 import { BoxBuilder } from "../gui/WindowBuilder";
 import { File } from "../persistence/File";
 
 class Library {
-    public static instance: Library = new Library();
+    public static readonly instance: Library = new Library();
 
     public readonly folderView: FolderView;
 
     private constructor() {
-        this.folderView = new FolderView("librarymanager_listview", Storage.library.getRoot());
+        this.folderView = new FolderView("librarymanager_listview");
         this.folderView.getWindow = () => SceneryManager.handle;
         this.folderView.onUpdate = () => this.update();
     }

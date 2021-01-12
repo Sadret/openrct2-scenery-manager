@@ -12,7 +12,7 @@ import * as SceneryUtils from "../utils/SceneryUtils";
 import { BoxBuilder } from "../gui/WindowBuilder";
 
 class FootpathAdditions {
-    public static instance: FootpathAdditions = new FootpathAdditions();
+    public static readonly instance: FootpathAdditions = new FootpathAdditions();
     private constructor() { }
 
     private brushShape: number = 1;

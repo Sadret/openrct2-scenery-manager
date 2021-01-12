@@ -10,17 +10,16 @@
 import CopyPaste from "./CopyPaste";
 import Library from "./Library";
 import SceneryManager from "../SceneryManager";
-import * as Storage from "../persistence/Storage";
 import { FolderView } from "../gui/FolderView";
 import { BoxBuilder } from "../gui/WindowBuilder";
 
 class LibraryView {
-    public static instance: LibraryView = new LibraryView();
+    public static readonly instance: LibraryView = new LibraryView();
 
-    private readonly folderView: FolderView;
+    public readonly folderView: FolderView;
 
-    private constructor() {
-        this.folderView = new FolderView("library_listview", Storage.library.getRoot());
+    public constructor() {
+        this.folderView = new FolderView("library_listview");
         this.folderView.getWindow = () => SceneryManager.handle;
         this.folderView.onFileDeselect = () => { if (ui.tool) ui.tool.cancel() };
         this.folderView.onFileSelect = () =>

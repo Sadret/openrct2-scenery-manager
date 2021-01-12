@@ -16,7 +16,7 @@ import * as Configuration from "../widgets/Configuration";
 import { BoxBuilder } from "../gui/WindowBuilder";
 
 class CopyPaste {
-    public static instance: CopyPaste = new CopyPaste();
+    public static readonly instance: CopyPaste = new CopyPaste();
     private constructor() { }
 
     private selecting: boolean = false;

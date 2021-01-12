@@ -8,20 +8,19 @@
 import CopyPaste from "./CopyPaste";
 import LibraryView from "./LibraryView";
 import SceneryManager from "../SceneryManager";
-import * as Storage from "../persistence/Storage";
 import * as UiUtils from "../utils/UiUtils";
 import { FolderView } from "../gui/FolderView";
 import { BoxBuilder } from "../gui/WindowBuilder";
 import { File } from "../persistence/File";
 
 class Clipboard {
-    public static instance: Clipboard = new Clipboard();
+    public static readonly instance: Clipboard = new Clipboard();
 
-    private readonly folderView: FolderView;
+    public readonly folderView: FolderView;
     private counter: number = 0;
 
     private constructor() {
-        this.folderView = new FolderView("clipboard_listview", Storage.clipboard.getRoot());
+        this.folderView = new FolderView("clipboard_listview");
         this.folderView.getWindow = () => SceneryManager.handle;
         this.folderView.onFileDeselect = () => { if (ui.tool) ui.tool.cancel() };
         this.folderView.onFileSelect = () =>

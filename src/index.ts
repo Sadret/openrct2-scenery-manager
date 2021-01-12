@@ -8,6 +8,10 @@
 /// <reference path="./../../openrct2.d.ts" />
 
 import * as Updater from "./Updater";
+import * as Storage from "./persistence/Storage";
+import Clipboard from "./widgets/Clipboard";
+import Library from "./widgets/Library";
+import LibraryView from "./widgets/LibraryView";
 import SceneryManager from "./SceneryManager"
 
 registerPlugin({
@@ -22,7 +26,12 @@ registerPlugin({
         if (typeof ui === "undefined")
             return console.log("[scenery-manager] Loading cancelled: game runs in headless mode.");
 
-        Updater.update(() => ui.registerMenuItem("Scenery Manager", () => SceneryManager.open()));
+        Updater.update(() => {
+            Clipboard.folderView.open(Storage.clipboard.getRoot());
+            Library.folderView.open(Storage.library.getRoot());
+            LibraryView.folderView.open(Storage.library.getRoot());
+            ui.registerMenuItem("Scenery Manager", () => SceneryManager.open());
+        });
         SceneryManager.open(undefined, undefined, 3);
     },
 });
