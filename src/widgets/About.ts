@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020 Sadret
+ * Copyright (c) 2020-2021 Sadret
  *
  * The OpenRCT2 plug-in "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -23,7 +23,7 @@ class About {
         builder.addLabel({ text: separator });
         builder.addSpace(0);
         this.addText(builder, [
-            "Copyright (c) 2020 Sadret",
+            "Copyright (c) 2020-2021 Sadret",
             "The OpenRCT2 plug-in \"Scenery Manager\" is licensed",
             "under the GNU General Public License version 3.",
         ]);
