@@ -8,7 +8,7 @@
 import Clipboard from "./Clipboard";
 import Settings from "./Settings";
 import SceneryManager from "../SceneryManager";
-import * as Template from "../template/Template";
+import Template from "../template/Template";
 import * as Brush from "../utils/Brush";
 import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
@@ -70,38 +70,39 @@ class CopyPaste {
         else {
             const tiles: CoordsXY[] = CoordUtils.toTiles(ui.tileSelection.range);
             const center: CoordsXY = CoordUtils.center(tiles);
-            let template = {
+            Clipboard.add(new Template({
                 elements: SceneryUtils.read(tiles),
                 tiles: tiles,
-            };
-            template = Template.filter(template, (element: ElementData) => Settings.filter[element.type]);
-            template = Template.translate(template, {
+            }).filter(
+                (element: ElementData) => Settings.filter[element.type]
+            ).translate({
                 x: -center.x,
                 y: -center.y,
                 z: -SceneryUtils.getMedianSurfaceHeight(tiles),
-            });
-            Clipboard.add(template);
+            }));
         }
     }
 
-    public pasteTemplate(template: TemplateData, onFinish: () => void): void {
+    public pasteTemplate(template: Template, onFinish: () => void): void {
         {
             const onMissingElement: Configuration.Action = Configuration.getOnMissingElement();
-            if (onMissingElement !== "ignore" && !Template.isAvailable(template))
+            if (onMissingElement !== "ignore" && template.filter(Template.isAvailable).elements.length != template.elements.length)
                 if (onMissingElement === "warning")
                     ui.showError("Can't paste entire template...", "Template includes scenery which is unavailable.");
                 else
                     return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
         }
 
-        Brush.activate((coords: CoordsXY) => {
-            let template2 = template;
-            template2 = Template.filter(template2, (element: ElementData) => Settings.filter[element.type]);
-            template2 = Template.transform(template2, Settings.mirrored, Settings.rotation, { ...coords, z: 0 });
-            template2 = Template.translate(template2, { x: 0, y: 0, z: SceneryUtils.getSurfaceHeight(coords), });
-            template2 = Template.filter(template2, (element: ElementData) => element.z > 0);
-            return template2;
-        }, onFinish);
+        Brush.activate((coords: CoordsXY) => template
+            .filter(
+                (element: ElementData) => Settings.filter[element.type]
+            ).transform(
+                Settings.mirrored, Settings.rotation, { ...coords, z: SceneryUtils.getSurfaceHeight(coords) }
+            ).filter(
+                (element: ElementData) => element.z > 0
+            ),
+            onFinish,
+        );
     }
 
     public build(builder: BoxBuilder): void {

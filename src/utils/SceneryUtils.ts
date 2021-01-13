@@ -18,7 +18,7 @@ import SmallScenery from "../template/SmallScenery";
 import Track from "../template/Track";
 import Wall from "../template/Wall";
 import * as CoordUtils from "../utils/CoordUtils";
-import * as Template from "../template/Template";
+import Template from "../template/Template";
 
 /*
  * READ / PLACE / REMOVE METHODS

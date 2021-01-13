@@ -12,6 +12,7 @@ import * as UiUtils from "../utils/UiUtils";
 import { FolderView } from "../gui/FolderView";
 import { BoxBuilder } from "../gui/WindowBuilder";
 import { File } from "../persistence/File";
+import Template from "../template/Template";
 
 class Clipboard {
     public static readonly instance: Clipboard = new Clipboard();
@@ -25,7 +26,9 @@ class Clipboard {
         this.folderView.onFileDeselect = () => { if (ui.tool) ui.tool.cancel() };
         this.folderView.onFileSelect = () =>
             CopyPaste.pasteTemplate(
-                this.folderView.selected.getContent<TemplateData>(),
+                new Template(
+                    this.folderView.selected.getContent<TemplateData>(),
+                ),
                 () => this.folderView.select(undefined),
             );
         this.folderView.onUpdate = () => this.update();

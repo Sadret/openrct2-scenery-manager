@@ -12,6 +12,7 @@ import Library from "./Library";
 import SceneryManager from "../SceneryManager";
 import { FolderView } from "../gui/FolderView";
 import { BoxBuilder } from "../gui/WindowBuilder";
+import Template from "../template/Template";
 
 class LibraryView {
     public static readonly instance: LibraryView = new LibraryView();
@@ -24,7 +25,9 @@ class LibraryView {
         this.folderView.onFileDeselect = () => { if (ui.tool) ui.tool.cancel() };
         this.folderView.onFileSelect = () =>
             CopyPaste.pasteTemplate(
-                this.folderView.selected.getContent<TemplateData>(),
+                new Template(
+                    this.folderView.selected.getContent<TemplateData>(),
+                ),
                 () => this.folderView.select(undefined),
             );
         this.folderView.onUpdate = () => this.update();
