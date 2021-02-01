@@ -51,6 +51,7 @@ The library consists of an editable structure of folders and files (i.e. scenery
 
 - Sloped fences and walls do not copy.
 - Banner text and color do not copy.
+- Large scenery does not mirror.
 - Ghost banners sometimes does not show.
 - Scroll position resets when list content changes.
 
