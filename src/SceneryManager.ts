@@ -82,11 +82,6 @@ class SceneryManager {
             const builder: TabBuilder = new TabBuilder(384);
             if (tabIndex === idx) {
                 tab.widget.build(builder);
-                // open centered (testing only)
-                // if (x === undefined)
-                //     x = (ui.width - builder.getWidth()) / 2;
-                // if (y === undefined)
-                //     y = (ui.height - builder.getHeight()) / 2;
                 width = builder.getWidth();
                 height = builder.getHeight();
             }

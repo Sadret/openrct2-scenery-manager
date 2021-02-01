@@ -39,7 +39,6 @@ class BenchBrush {
     }
 
     private onChange(): void {
-        console.log(ui.tool ?.id);
         const active: boolean = ui.tool && ui.tool.id === BenchBrush.TOOL_ID;
         SceneryManager.reload();
         if (active)

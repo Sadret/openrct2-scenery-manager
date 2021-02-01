@@ -32,6 +32,5 @@ registerPlugin({
             LibraryView.folderView.open(Storage.library.getRoot());
             ui.registerMenuItem("Scenery Manager", () => SceneryManager.open());
         });
-        SceneryManager.open(undefined, undefined, 3);
     },
 });
