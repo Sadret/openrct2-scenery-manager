@@ -20,3 +20,10 @@ export function find<T>(arr: T[], callback: (value: T) => boolean): T {
             return arr[idx];
     return undefined;
 }
+
+export function findIdx<T>(arr: T[], callback: (value: T) => boolean): number {
+    for (let idx = 0; idx < arr.length; idx++)
+        if (callback(arr[idx]))
+            return idx;
+    return undefined;
+}

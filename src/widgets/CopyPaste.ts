@@ -101,6 +101,7 @@ class CopyPaste {
             ).filter(
                 (element: ElementData) => element.z > 0
             ),
+            "scenery-manager-paste",
             onFinish,
         );
     }

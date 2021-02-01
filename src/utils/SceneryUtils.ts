@@ -137,7 +137,7 @@ function loadCache(type: ObjectType): void {
     context.getAllObjects(type).forEach((object: Object) => cache[type][getIdentifier(object)] = object);
 }
 
-export function getObject(data: ElementData): Object {
+export function getObject(data: ObjectData): Object {
     if (cache[data.type] === undefined)
         loadCache(<ObjectType>data.type);
     const object = cache[data.type][data.identifier];

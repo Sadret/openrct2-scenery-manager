@@ -32,6 +32,11 @@ interface TemplateData {
  * ELEMENT DATA
  */
 
+interface ObjectData {
+    readonly type: ElementType,
+    readonly identifier: string, // except entrance, track
+}
+
 interface ElementData {
     // all
     readonly type: ElementType,

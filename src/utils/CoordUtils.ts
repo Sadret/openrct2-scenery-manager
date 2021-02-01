@@ -156,3 +156,7 @@ export function equals(u: CoordsXY, v: CoordsXY): boolean {
         return false;
     return u.x === v.x && u.y === v.y;
 }
+
+export function parity(coords: CoordsXY, mod: number) {
+    return (coords.x + coords.y) % mod;
+}

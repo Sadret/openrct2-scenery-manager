@@ -9,7 +9,7 @@ import { BoxBuilder, TabBuilder } from "./gui/WindowBuilder";
 import About from "./widgets/About";
 import Coloring from "./widgets/Coloring";
 import Configuration from "./widgets/Configuration";
-import FootpathAdditions from "./widgets/FootpathAdditions";
+import BenchBrush from "./widgets/BenchBrush";
 import Library from "./widgets/Library";
 import Main from "./widgets/Main";
 import Research from "./widgets/Research";
@@ -47,7 +47,7 @@ class SceneryManager {
             widget: Coloring,
         }, {
             image: 5464,
-            widget: FootpathAdditions,
+            widget: BenchBrush,
         }, {
             image: {
                 frameBase: 5205,
@@ -122,6 +122,10 @@ class SceneryManager {
         this.handle.close();
 
         this.open(x, y, tabIndex);
+    }
+
+    public reload(): void {
+        this.setActiveTab(this.handle.tabIndex);
     }
 }
 export default SceneryManager.instance;

@@ -11,7 +11,7 @@
 import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-export function activate(getTemplate: (coords: CoordsXY) => TemplateData, onFinish?: () => void): void {
+export function activate(getTemplate: (coords: CoordsXY) => TemplateData, toolId: string, onFinish?: () => void, drag: boolean = false): void {
     let ghostData: ElementData[] = undefined;
     let ghostCoords: CoordsXY = undefined;
     function removeGhost(): void {
@@ -32,7 +32,7 @@ export function activate(getTemplate: (coords: CoordsXY) => TemplateData, onFini
     }
 
     ui.activateTool({
-        id: "scenery-manager-brush",
+        id: toolId,
         cursor: "cross_hair",
         onStart: () => {
             ui.mainViewport.visibilityFlags |= 1 << 7;
@@ -48,7 +48,7 @@ export function activate(getTemplate: (coords: CoordsXY) => TemplateData, onFini
             if (CoordUtils.equals(coords, ghostCoords))
                 return;
             removeGhost();
-            place(coords, true);
+            place(coords, !drag || !e.isDown);
         },
         onUp: undefined,
         onFinish: () => {
