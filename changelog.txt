@@ -1,3 +1,11 @@
+1.1.5
+------------------------------------------------------------------------
+- Feature: Footpath addition brush for benches, litter bins, etc.
+- Removed: "Absolute Height" option for pasting.
+- Updated: Copyright 2020-2021.
+- Fix: [#10] "Error on missing element" option now working as intended.
+- Fix: [#11][#14] Removed deprecated raw data access of the plug-in API.
+
 1.1.4
 ------------------------------------------------------------------------
 - Fix: Rotating a template with missing elements results in a crash.
