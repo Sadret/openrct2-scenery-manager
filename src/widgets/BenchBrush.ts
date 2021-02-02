@@ -58,7 +58,7 @@ class BenchBrush {
                 })).filter((data: FootpathAdditionData) => data.identifier !== undefined),
                 tiles: tiles,
             };
-        }, BenchBrush.TOOL_ID, undefined, true);
+        }, BenchBrush.TOOL_ID, undefined, "move");
     }
 
     public build(builder: BoxBuilder): void {

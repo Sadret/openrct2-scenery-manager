@@ -9,6 +9,7 @@ import Clipboard from "./Clipboard";
 import Settings from "./Settings";
 import SceneryManager from "../SceneryManager";
 import Template from "../template/Template";
+import * as Storage from "../persistence/Storage";
 import * as Brush from "../utils/Brush";
 import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
@@ -93,16 +94,34 @@ class CopyPaste {
                     return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
         }
 
-        Brush.activate((coords: CoordsXY) => template
-            .filter(
-                (element: ElementData) => Settings.filter[element.type]
-            ).transform(
-                Settings.mirrored, Settings.rotation, { ...coords, z: SceneryUtils.getSurfaceHeight(coords) }
-            ).filter(
-                (element: ElementData) => element.z > 0
-            ),
+        Brush.activate(
+            (coords: CoordsXY, offset: CoordsXY) => {
+                let rotation = Settings.rotation;
+                if (Storage.get<boolean>("cursorRotation")) {
+                    const sensitivity: number = Storage.get<number>("sensitivity");
+                    const diff = offset.x + (1 << sensitivity) >> sensitivity + 1;
+                    if (Storage.get<boolean>("flipRotation"))
+                        rotation += diff;
+                    else
+                        rotation -= diff;
+                }
+                let height = SceneryUtils.getSurfaceHeight(coords) + 8 * Settings.height;
+                if (Storage.get<boolean>("cursorHeightOffset")) {
+                    const step: number = Storage.get<boolean>("smallSteps") ? 8 : 16;
+                    height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
+                }
+                return template
+                    .filter(
+                        (element: ElementData) => Settings.filter[element.type]
+                    ).transform(
+                        Settings.mirrored, rotation, { ...coords, z: height }
+                    ).filter(
+                        (element: ElementData) => element.z > 0
+                    );
+            },
             "scenery-manager-paste",
             onFinish,
+            "up",
         );
     }
 

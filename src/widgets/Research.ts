@@ -18,11 +18,12 @@ class Research {
     }
 
     private content(builder: BoxBuilder) {
-        builder.addLabel({ text: "Version: 1.1.5" });
+        builder.addLabel({ text: "Version: 1.1.6" });
         builder.addSpace(0);
         {
             const group = builder.getGroupBox(builder.padding, builder.margin);
 
+            group.addLabel({ text: "- Use mouse to adjust height and rotation of templates." });
             group.addLabel({ text: "- Brush for benches, litter bins, etc." });
             group.addLabel({ text: "- [BETA] Trackitecture is now supported." });
             group.addLabel({ text: "- Custom scenery is now supported." });

@@ -62,6 +62,8 @@ export function update(load: () => void): void {
             }, "Continue", "Cancel");
 
         case "1.2.0":
+            init();
+        case "1.2.1":
             return load();
 
         default:
@@ -166,6 +168,14 @@ function update_111_120(): void {
 }
 
 function init(): void {
+    // version
+    Storage.set<string>("version", "1.2.1");
+
+    // config
     Storage.set<number>("onMissingElement", 0);
-    Storage.set<string>("version", "1.2.0");
+    Storage.set<boolean>("cursorHeightOffset", false);
+    Storage.set<boolean>("smallSteps", false);
+    Storage.set<boolean>("cursorRotation", false);
+    Storage.set<boolean>("flipRotation", false);
+    Storage.set<number>("sensitivity", 6);
 }

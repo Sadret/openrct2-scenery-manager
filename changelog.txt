@@ -1,3 +1,7 @@
+1.1.6
+------------------------------------------------------------------------
+- Feature: Adjustment of height and rotation of templates via mouse.
+
 1.1.5
 ------------------------------------------------------------------------
 - Feature: Footpath addition brush for benches, litter bins, etc.

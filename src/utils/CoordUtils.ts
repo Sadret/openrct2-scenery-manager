@@ -61,7 +61,7 @@ function add(u: CoordsXY, v: CoordsXY): CoordsXY {
     };
 }
 
-function sub(u: CoordsXY, v: CoordsXY): CoordsXY {
+export function sub(u: CoordsXY, v: CoordsXY): CoordsXY {
     return {
         x: u.x - v.x,
         y: u.y - v.y,
