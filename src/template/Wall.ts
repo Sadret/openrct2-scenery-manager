@@ -13,7 +13,7 @@ import * as SceneryUtils from "../utils/SceneryUtils";
 const Wall: IElement<WallElement, WallData> = {
 
     createFromTileData(coords: CoordsXY, element: WallElement): WallData {
-        const object: Object = context.getObject("wall", (<any>element).object);
+        const object: Object = context.getObject("wall", element.object);
         return {
             type: "wall",
             x: coords.x,

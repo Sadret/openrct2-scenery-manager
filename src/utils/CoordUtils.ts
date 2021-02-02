@@ -130,11 +130,11 @@ export function getSize(range: MapRange): CoordsXY {
 }
 
 export function circle(center: CoordsXY, diameter: number): CoordsXY[] {
-    const start: CoordsXY = round(sub(center, { x: diameter * 16, y: diameter * 16 }));
-    const dh: number = (diameter + 1) / 2;
-    const dh2: number = diameter / 2 * diameter / 2;
+    const start: CoordsXY = round(sub(center, { x: (diameter - 1) * 16, y: (diameter - 1) * 16 })); // -2 also works
+    const m: number = (diameter - 1) / 2; // (diameter - 1) * 16 = (diameter - 1) / 2 * 32
+    const r2: number = diameter / 2 * diameter / 2;
     const range: number[] = [];
-    for (let i = 0; i <= diameter; i++)
+    for (let i = 0; i < diameter; i++)
         range.push(i);
     return [].concat(
         ...range.map(
@@ -143,10 +143,16 @@ export function circle(center: CoordsXY, diameter: number): CoordsXY[] {
             )
         )
     ).filter(
-        (c: CoordsXY) => (c.x - dh) * (c.x - dh) + (c.y - dh) * (c.y - dh) <= dh2
+        (c: CoordsXY) => (c.x - m) * (c.x - m) + (c.y - m) * (c.y - m) <= r2
     ).map(
         (c: CoordsXY) => add(tileToWorldCoords(c), start)
     );
+}
+
+export function square(center: CoordsXY, diameter: number): CoordsXY[] {
+    const start: CoordsXY = round(sub(center, { x: (diameter - 1) * 16, y: (diameter - 1) * 16 })); // -2 also works
+    diameter--;
+    return toTiles({ leftTop: start, rightBottom: add(start, { x: diameter * 32, y: diameter * 32 }) });
 }
 
 export function equals(u: CoordsXY, v: CoordsXY): boolean {

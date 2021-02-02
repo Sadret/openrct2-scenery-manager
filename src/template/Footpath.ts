@@ -13,7 +13,7 @@ import * as SceneryUtils from "../utils/SceneryUtils";
 const Footpath: IElement<FootpathElement, FootpathData> = {
 
     createFromTileData(coords: CoordsXY, element: FootpathElement): FootpathData {
-        const object: Object = context.getObject("footpath", (<any>element).object);
+        const object: Object = context.getObject("footpath", element.object);
         return {
             type: "footpath",
             x: coords.x,

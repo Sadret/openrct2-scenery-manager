@@ -7,12 +7,13 @@
 
 import { BoxBuilder, TabBuilder } from "./gui/WindowBuilder";
 import About from "./widgets/About";
+import Benches from "./widgets/Benches";
 import Coloring from "./widgets/Coloring";
 import Configuration from "./widgets/Configuration";
-import BenchBrush from "./widgets/BenchBrush";
 import Library from "./widgets/Library";
 import Main from "./widgets/Main";
 import Research from "./widgets/Research";
+import Scatter from "./widgets/Scatter";
 
 interface Tab {
     image: number | ImageAnimation;
@@ -46,8 +47,11 @@ class SceneryManager {
             },
             widget: Coloring,
         }, {
+            image: 5459,
+            widget: Scatter,
+        }, {
             image: 5464,
-            widget: BenchBrush,
+            widget: Benches,
         }, {
             image: {
                 frameBase: 5205,

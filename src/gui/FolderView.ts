@@ -7,7 +7,7 @@
 
 /// <reference path="./../definitions/Data.d.ts" />
 
-import { BoxBuilder } from "../gui/WindowBuilder";
+import BoxBuilder from "../gui/WindowBuilder";
 import { File } from "../persistence/File";
 import * as ArrayUtils from "../utils/ArrayUtils";
 import * as CoordUtils from "../utils/CoordUtils";

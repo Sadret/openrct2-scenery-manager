@@ -290,6 +290,7 @@ export abstract class BoxBuilder {
         return this.margin.top + this.height + this.margin.bottom;
     }
 }
+export default BoxBuilder;
 
 class VBoxBuilder extends BoxBuilder {
     constructor(

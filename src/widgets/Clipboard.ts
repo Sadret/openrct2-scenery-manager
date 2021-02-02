@@ -5,14 +5,14 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import BoxBuilder from "../gui/WindowBuilder";
+import Template from "../template/Template";
 import CopyPaste from "./CopyPaste";
 import LibraryView from "./LibraryView";
 import SceneryManager from "../SceneryManager";
 import * as UiUtils from "../utils/UiUtils";
 import { FolderView } from "../gui/FolderView";
-import { BoxBuilder } from "../gui/WindowBuilder";
 import { File } from "../persistence/File";
-import Template from "../template/Template";
 
 class Clipboard {
     public static readonly instance: Clipboard = new Clipboard();

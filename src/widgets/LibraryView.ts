@@ -7,11 +7,11 @@
 
 /// <reference path="./../definitions/Data.d.ts" />
 
+import BoxBuilder from "../gui/WindowBuilder";
 import CopyPaste from "./CopyPaste";
 import Library from "./Library";
 import SceneryManager from "../SceneryManager";
 import { FolderView } from "../gui/FolderView";
-import { BoxBuilder } from "../gui/WindowBuilder";
 import Template from "../template/Template";
 
 class LibraryView {

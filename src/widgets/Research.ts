@@ -35,7 +35,7 @@ class Research {
             const group = builder.getGroupBox(builder.padding, builder.margin);
 
             group.addLabel({ text: "- Sloped fences and walls do not copy." });
-            group.addLabel({ text: "- Banner text and color do not copy." });
+            group.addLabel({ text: "- Banner text and colour do not copy." });
             group.addLabel({ text: "- Large scenery does not mirror." });
             group.addLabel({ text: "- Ghost banners sometimes does not show." });
             group.addLabel({ text: "- Scroll position resets when list content changes." });

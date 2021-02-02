@@ -11,9 +11,8 @@
 import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-export type PlaceMode = "down" | "move" | "up";
-
-export function activate(getTemplate: (coords: CoordsXY, offset: CoordsXY) => TemplateData, toolId: string, onFinish?: () => void, mode: PlaceMode = "down"): void {
+export type BuildMode = "down" | "move" | "up";
+export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => TemplateData, onFinish?: () => void, mode: BuildMode = "down"): void {
     let ghostData: ElementData[] = undefined;
     let ghostCoords: CoordsXY = undefined;
     function removeGhost(): void {
@@ -22,7 +21,6 @@ export function activate(getTemplate: (coords: CoordsXY, offset: CoordsXY) => Te
         ghostData = undefined;
         ghostCoords = undefined;
     }
-
 
     function place(coords: CoordsXY, ghost: boolean, offset: CoordsXY = { x: 0, y: 0 }): void {
         removeGhost();
@@ -37,7 +35,7 @@ export function activate(getTemplate: (coords: CoordsXY, offset: CoordsXY) => Te
 
     let screenCoords: CoordsXY = undefined;
     ui.activateTool({
-        id: toolId,
+        id: "scenery-manager-builder",
         cursor: "cross_hair",
         onStart: () => {
             ui.mainViewport.visibilityFlags |= 1 << 7;
@@ -65,6 +63,61 @@ export function activate(getTemplate: (coords: CoordsXY, offset: CoordsXY) => Te
             ui.tileSelection.tiles = null;
             ui.mainViewport.visibilityFlags &= ~(1 << 7);
             if (onFinish !== undefined) onFinish();
+        },
+    });
+}
+
+export function pick(accept: (element: BaseTileElement) => boolean): void {
+    ui.activateTool({
+        id: "scenery-manager-picker",
+        cursor: "cross_hair",
+        onStart: undefined,
+        onDown: e => {
+            const tileCoords = CoordUtils.worldToTileCoords(e.mapCoords);
+            const tile: Tile = map.getTile(tileCoords.x, tileCoords.y);
+            const element: BaseTileElement = tile.elements[e.tileElementIndex];
+            if (accept(element))
+                ui.tool.cancel();
+        },
+        onMove: undefined,
+        onUp: undefined,
+        onFinish: undefined,
+    })
+}
+
+
+export function select(): void {
+    let start = undefined;
+    let end = undefined;
+    let drag = false;
+
+    ui.activateTool({
+        id: "scenery-manager-selecter",
+        cursor: "cross_hair",
+        onStart: () => {
+            ui.mainViewport.visibilityFlags |= 1 << 7;
+        },
+        onDown: e => {
+            drag = true;
+            start = e.mapCoords;
+        },
+        onMove: e => {
+            if (e.mapCoords === undefined || e.mapCoords.x * e.mapCoords.y === 0)
+                return;
+            if (drag) {
+                end = e.mapCoords;
+                ui.tileSelection.range = CoordUtils.span(start, end);
+            } else if (start === undefined) {
+                ui.tileSelection.range = CoordUtils.span(e.mapCoords, e.mapCoords);
+            }
+        },
+        onUp: () => {
+            drag = false;
+        },
+        onFinish: () => {
+            this.selecting = false;
+            ui.tileSelection.range = null;
+            ui.mainViewport.visibilityFlags &= ~(1 << 7);
         },
     });
 }

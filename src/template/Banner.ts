@@ -8,19 +8,17 @@
 import IElement from "./IElement";
 import * as CoordUtils from "../utils/CoordUtils";
 import * as Direction from "../utils/Direction";
-import * as SceneryUtils from "../utils/SceneryUtils";
 
 const Banner: IElement<BannerElement, BannerData> = {
 
     createFromTileData(coords: CoordsXY, element: BannerElement): BannerData {
-        const object: Object = context.getObject("banner", (<any>element).object);
         return {
             type: "banner",
             x: coords.x,
             y: coords.y,
             z: element.baseZ,
             direction: element.direction,
-            identifier: SceneryUtils.getIdentifier(object),
+            identifier: undefined,
             primaryColour: 0,
         };
     },
@@ -43,7 +41,8 @@ const Banner: IElement<BannerElement, BannerData> = {
     getPlaceArgs(element: BannerData): BannerPlaceArgs {
         return {
             ...element,
-            object: SceneryUtils.getObject(element).index,
+            z: element.z - 16,
+            object: 0,
         };
     },
     getRemoveArgs(element: BannerData): BannerRemoveArgs {

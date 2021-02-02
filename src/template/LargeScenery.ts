@@ -10,16 +10,17 @@ import * as CoordUtils from "../utils/CoordUtils";
 import * as Direction from "../utils/Direction";
 import * as SceneryUtils from "../utils/SceneryUtils";
 
-const LargeScenery: IElement<LargeSceneryElement, LargeSceneryData> = {
+const LargeScenery: IElement<LargeSceneryElement, LargeSceneryData>
+    & { createFromTileData: (coords: CoordsXY, element: LargeSceneryElement, ignoreSequenceIndex: boolean) => LargeSceneryData } = {
 
-    createFromTileData(coords: CoordsXY, element: LargeSceneryElement): LargeSceneryData {
-        if (element.sequence !== 0)
+    createFromTileData(coords: CoordsXY, element: LargeSceneryElement, ignoreSequenceIndex: boolean = false): LargeSceneryData {
+        if (!ignoreSequenceIndex && element.sequence !== 0)
             return undefined;
-        const object: Object = context.getObject("large_scenery", (<any>element).object);
+        const object: Object = context.getObject("large_scenery", element.object);
         return {
             type: "large_scenery",
-            x: coords.x,
-            y: coords.y,
+            x: coords ?.x,
+            y: coords ?.y,
             z: element.baseZ,
             direction: element.direction,
             identifier: SceneryUtils.getIdentifier(object),

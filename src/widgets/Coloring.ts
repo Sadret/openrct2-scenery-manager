@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { BoxBuilder } from "../gui/WindowBuilder";
+import BoxBuilder from "../gui/WindowBuilder";
 
 class Coloring {
     public static readonly instance: Coloring = new Coloring();

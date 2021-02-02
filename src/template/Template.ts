@@ -28,10 +28,6 @@ const map: { [key in ElementType]: IElement<BaseTileElement, ElementData> } = {
     wall: Wall,
 }
 
-function get(type: ElementType): IElement<BaseTileElement, ElementData> {
-    return map[type];
-}
-
 class Template implements TemplateData {
     public readonly elements: ElementData[];
     public readonly tiles: CoordsXY[];
@@ -77,7 +73,7 @@ class Template implements TemplateData {
         return new Template({
             elements: this.elements.map(
                 (element: ElementData) =>
-                    get(element.type) ?.rotate(element, rotation)
+                    Template.get(element) ?.rotate(element, rotation)
                 ),
             tiles: this.tiles.map(
                 (tile: CoordsXY) => CoordUtils.rotate(tile, rotation)
@@ -90,12 +86,16 @@ class Template implements TemplateData {
         return new Template({
             elements: this.elements.map(
                 (element: ElementData) =>
-                    get(element.type) ?.mirror(element)
+                    Template.get(element) ?.mirror(element)
                 ),
             tiles: this.tiles.map(
                 (tile: CoordsXY) => CoordUtils.mirror(tile)
             ),
         });
+    }
+
+    public static get(element: ElementData): IElement<BaseTileElement, ElementData> {
+        return map[element.type];
     }
 
 
@@ -104,17 +104,17 @@ class Template implements TemplateData {
     }
 
     public static getPlaceArgs(element: ElementData): PlaceActionArgs {
-        return get(element.type) ?.getPlaceArgs(element);
+        return Template.get(element) ?.getPlaceArgs(element);
     }
     public static getRemoveArgs(element: ElementData): RemoveActionArgs {
-        return get(element.type) ?.getRemoveArgs(element);
+        return Template.get(element) ?.getRemoveArgs(element);
     }
 
     public static getPlaceAction(element: ElementData): PlaceAction {
-        return get(element.type) ?.getPlaceAction();
+        return Template.get(element) ?.getPlaceAction();
     }
     public static getRemoveAction(element: ElementData): RemoveAction {
-        return get(element.type) ?.getRemoveAction();
+        return Template.get(element) ?.getRemoveAction();
     }
 }
 export default Template;

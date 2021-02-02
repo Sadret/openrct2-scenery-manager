@@ -5,9 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import BoxBuilder from "../gui/WindowBuilder";
 import SceneryManager from "../SceneryManager";
 import * as StringUtils from "../utils/StringUtils";
-import { BoxBuilder } from "../gui/WindowBuilder";
 
 class Settings {
     public static readonly instance: Settings = new Settings();
