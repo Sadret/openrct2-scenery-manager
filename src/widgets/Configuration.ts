@@ -47,7 +47,6 @@ class Configuration {
             text: "Enable height offset with mouse cursor",
             isChecked: Storage.get<boolean>("config.copyPaste.cursor.height.enabled"),
             onChange: (isChecked: boolean) => {
-                console.log(isChecked);
                 Storage.set<boolean>("config.copyPaste.cursor.height.enabled", isChecked);
                 SceneryManager.handle.findWidget<CheckboxWidget>("config_small_steps").isDisabled = !isChecked;
             },

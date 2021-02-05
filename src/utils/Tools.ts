@@ -116,7 +116,6 @@ export function select(): void {
             drag = false;
         },
         onFinish: () => {
-            this.selecting = false;
             ui.tileSelection.range = null;
             ui.mainViewport.visibilityFlags &= ~(1 << 7);
         },
