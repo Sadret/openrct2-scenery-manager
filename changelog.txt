@@ -1,3 +1,8 @@
+1.1.7
+------------------------------------------------------------------------
+- Feature: Scatter tool for random scenery placement.
+- Fix: Square brush now correctly implemented.
+
 1.1.6
 ------------------------------------------------------------------------
 - Feature: Adjustment of height and rotation of templates via mouse.

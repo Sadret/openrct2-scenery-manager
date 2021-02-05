@@ -18,15 +18,15 @@ class Research {
     }
 
     private content(builder: BoxBuilder) {
-        builder.addLabel({ text: "Version: 1.1.6" });
+        builder.addLabel({ text: "Version: 1.1.7" });
         builder.addSpace(0);
         {
             const group = builder.getGroupBox(builder.padding, builder.margin);
 
+            group.addLabel({ text: "- Scatter tool for random scenery placement." });
             group.addLabel({ text: "- Use mouse to adjust height and rotation of templates." });
             group.addLabel({ text: "- Brush for benches, litter bins, etc." });
             group.addLabel({ text: "- [BETA] Trackitecture is now supported." });
-            group.addLabel({ text: "- Custom scenery is now supported." });
 
             builder.addGroupBox({ text: "Latest changes" }, group);
         }
@@ -50,7 +50,6 @@ class Research {
             group.addLabel({ text: "- Path replacing tool." });
             group.addLabel({ text: "- Flood fill tool." });
             group.addSpace(0);
-            group.addLabel({ text: "- Trackitecture support." });
             group.addLabel({ text: "- Blueprint placing." });
             group.addLabel({ text: "- Localisation (language support)." });
             group.addLabel({ text: "- Share your creations online." });
