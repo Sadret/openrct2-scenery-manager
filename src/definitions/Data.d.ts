@@ -107,10 +107,5 @@ interface WallData extends ElementData {
 
 interface ScatterData {
     readonly element: ElementData;
-    weight: number;
-}
-
-interface ScatterPattern {
-    readonly name: string;
-    readonly data: ScatterData[];
+    readonly weight: number;
 }

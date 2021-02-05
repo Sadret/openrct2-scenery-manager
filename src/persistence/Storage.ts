@@ -170,5 +170,6 @@ export class StorageFileSystem implements FileSystem {
     }
 }
 
-export const library: StorageFileSystem = new StorageFileSystem("library");
 export const clipboard: StorageFileSystem = new StorageFileSystem("clipboard");
+export const library: StorageFileSystem = new StorageFileSystem("library");
+export const scatter: StorageFileSystem = new StorageFileSystem("scatter");

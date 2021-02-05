@@ -40,18 +40,18 @@ class Brush {
         });
         hbox.addSpinner({
             text: String(Storage.get<number>("config.brush.size")),
-            name: "brush.size",
+            name: "brush_size",
             onDecrement: () => {
                 const value: number = Storage.get<number>("config.brush.size") - 1;
                 if (value < 1)
                     return;
                 Storage.set<number>("config.brush.size", value);
-                SceneryManager.handle.findWidget<SpinnerWidget>("brush.size").text = String(value);
+                SceneryManager.handle.findWidget<SpinnerWidget>("brush_size").text = String(value);
             },
             onIncrement: () => {
                 const value: number = Storage.get<number>("config.brush.size") + 1;
                 Storage.set<number>("config.brush.size", value);
-                SceneryManager.handle.findWidget<SpinnerWidget>("brush.size").text = String(value);
+                SceneryManager.handle.findWidget<SpinnerWidget>("brush_size").text = String(value);
             },
         });
         hbox.addSpace();

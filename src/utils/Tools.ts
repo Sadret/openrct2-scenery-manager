@@ -20,6 +20,7 @@ export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => Templ
             SceneryUtils.remove(ghostData, true);
         ghostData = undefined;
         ghostCoords = undefined;
+        ui.tileSelection.tiles = undefined;
     }
 
     function place(coords: CoordsXY, ghost: boolean, offset: CoordsXY = { x: 0, y: 0 }): void {

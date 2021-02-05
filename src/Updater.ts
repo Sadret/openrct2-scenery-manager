@@ -62,8 +62,9 @@ export function update(load: () => void): void {
             }, "Continue", "Cancel");
 
         case "1.2.0":
-            init();
         case "1.2.1":
+            init();
+        case "1.2.2":
             return load();
 
         default:
@@ -169,13 +170,43 @@ function update_111_120(): void {
 
 function init(): void {
     // version
-    Storage.set<string>("version", "1.2.1");
+    Storage.set<string>("version", "1.2.2");
 
     // config
-    Storage.set<number>("onMissingElement", 0);
-    Storage.set<boolean>("cursorHeightOffset", false);
-    Storage.set<boolean>("smallSteps", false);
-    Storage.set<boolean>("cursorRotation", false);
-    Storage.set<boolean>("flipRotation", false);
-    Storage.set<number>("sensitivity", 6);
+    Storage.set<object>("config", {
+        "scatter": {
+            "randomise": {
+                "rotation": true,
+                "quadrant": true,
+            },
+            "library": {
+                "show": true,
+                "confirm": {
+                    "overwrite": true,
+                    "delete": true,
+                },
+                "onMissingElement": "error",
+            },
+            "dragToPlace": false,
+        },
+        "brush": {
+            "shape": "circle",
+            "size": 15,
+        },
+        "copyPaste": {
+            "onMissingElement": "error",
+            "cursor": {
+                "height": {
+                    "enabled": false,
+                    "smallSteps": false,
+                    "enable": false,
+                },
+                "rotation": {
+                    "enabled": false,
+                    "flip": false,
+                    "sensitivity": 6,
+                },
+            },
+        },
+    });
 }

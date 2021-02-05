@@ -13,7 +13,7 @@ import * as Storage from "../persistence/Storage";
 import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 import * as Tools from "../utils/Tools";
-import * as Configuration from "../widgets/Configuration";
+import { Action } from "../widgets/Configuration";
 
 class CopyPaste {
     public static readonly instance: CopyPaste = new CopyPaste();
@@ -39,32 +39,31 @@ class CopyPaste {
     }
 
     public pasteTemplate(template: Template, onFinish: () => void): void {
-        {
-            const onMissingElement: Configuration.Action = Configuration.getOnMissingElement();
-            if (onMissingElement !== "ignore" && template.filter(Template.isAvailable).elements.length != template.elements.length)
-                if (onMissingElement === "warning")
-                    ui.showError("Can't paste entire template...", "Template includes scenery which is unavailable.");
-                else
-                    return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
-        }
+        const onMissingElement: Action = Storage.get<Action>("config.copyPaste.onMissingElement");
+        const available: Template = template.filter(Template.isAvailable);
+        if (available.elements.length !== template.elements.length)
+            if (onMissingElement === "error")
+                return ui.showError("Can't paste template...", "Template includes scenery which is unavailable.");
+            else if (onMissingElement === "warning")
+                ui.showError("Can't paste entire template...", "Template includes scenery which is unavailable.");
 
         Tools.build(
             (coords: CoordsXY, offset: CoordsXY) => {
                 let rotation = Settings.rotation;
-                if (Storage.get<boolean>("cursorRotation")) {
-                    const sensitivity: number = Storage.get<number>("sensitivity");
+                if (Storage.get<boolean>("config.copyPaste.cursor.rotation.enabled")) {
+                    const sensitivity: number = Storage.get<number>("config.copyPaste.cursor.rotation.sensitivity");
                     const diff = offset.x + (1 << sensitivity) >> sensitivity + 1;
-                    if (Storage.get<boolean>("flipRotation"))
+                    if (Storage.get<boolean>("config.copyPaste.cursor.rotation.flip"))
                         rotation += diff;
                     else
                         rotation -= diff;
                 }
                 let height = SceneryUtils.getSurfaceHeight(coords) + 8 * Settings.height;
-                if (Storage.get<boolean>("cursorHeightOffset")) {
-                    const step: number = Storage.get<boolean>("smallSteps") ? 8 : 16;
+                if (Storage.get<boolean>("config.copyPaste.cursor.height.enabled")) {
+                    const step: number = Storage.get<boolean>("config.copyPaste.cursor.height.smallSteps") ? 8 : 16;
                     height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
                 }
-                return template
+                return available
                     .filter(
                         (element: ElementData) => Settings.filter[element.type]
                     ).transform(

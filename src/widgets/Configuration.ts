@@ -10,14 +10,7 @@ import * as Storage from "../persistence/Storage";
 import { BoxBuilder, Margin } from "../gui/WindowBuilder";
 
 export type Action = "error" | "warning" | "ignore";
-
-export function getOnMissingElement(): Action {
-    switch (Storage.get<number>("onMissingElement")) {
-        case 0: return "error";
-        case 1: return "warning";
-        case 2: return "ignore";
-    }
-}
+const actions: Action[] = ["error", "warning", "ignore"];
 
 class Configuration {
     public static readonly instance: Configuration = new Configuration();
@@ -25,13 +18,16 @@ class Configuration {
 
     public build(builder: BoxBuilder): void {
         const content = builder.getVBox(4, Margin.uniform(8));
-        this.content(content);
+        content.addLabel({ text: "Configuration:" });
+        this.buildCopyPaste(content);
+        this.buildScatter(content);
         builder.addBox(content);
     }
 
-    private content(builder: BoxBuilder) {
+    private buildCopyPaste(builder: BoxBuilder) {
+        const group = builder.getGroupBox();
         {
-            const hbox = builder.getHBox([11, 10]);
+            const hbox = group.getHBox([16, 5]);
             hbox.addLabel({
                 text: "behaviour if element unavailable:",
             });
@@ -41,57 +37,58 @@ class Configuration {
                     "warning",
                     "ignore",
                 ],
-                selectedIndex: Storage.get<number>("onMissingElement"),
-                onChange: (idx: number) => Storage.set<number>("onMissingElement", idx),
+                selectedIndex: actions.indexOf(Storage.get<Action>("config.copyPaste.onMissingElement")),
+                onChange: (idx: number) => Storage.set<Action>("config.copyPaste.onMissingElement", actions[idx]),
             });
-            builder.addBox(hbox);
+            group.addBox(hbox);
         }
-        builder.addSpace(4);
-        builder.addCheckbox({
+        group.addSpace(4);
+        group.addCheckbox({
             text: "Enable height offset with mouse cursor",
-            isChecked: Storage.get<boolean>("cursorHeightOffset"),
+            isChecked: Storage.get<boolean>("config.copyPaste.cursor.height.enabled"),
             onChange: (isChecked: boolean) => {
-                Storage.set<boolean>("cursorHeightOffset", isChecked);
+                console.log(isChecked);
+                Storage.set<boolean>("config.copyPaste.cursor.height.enabled", isChecked);
                 SceneryManager.handle.findWidget<CheckboxWidget>("config_small_steps").isDisabled = !isChecked;
             },
         });
         {
-            const hbox = builder.getHBox([1, 20]);
+            const hbox = group.getHBox([1, 20]);
             hbox.addSpace();
             hbox.addCheckbox({
                 name: "config_small_steps",
                 text: "Enable small step size (not suited for footpaths)",
-                isDisabled: !(Storage.get<boolean>("cursorHeightOffset")),
-                isChecked: Storage.get<boolean>("smallSteps"),
-                onChange: (isChecked: boolean) => Storage.set<boolean>("smallSteps", isChecked),
+                isDisabled: !(Storage.get<boolean>("config.copyPaste.cursor.height.enabled")),
+                isChecked: Storage.get<boolean>("config.copyPaste.cursor.height.smallSteps"),
+                onChange: (isChecked: boolean) => Storage.set<boolean>("config.copyPaste.cursor.height.smallSteps", isChecked),
             });
-            builder.addBox(hbox);
+            group.addBox(hbox);
         }
-        builder.addSpace(4);
-        builder.addCheckbox({
+        group.addSpace(4);
+        group.addCheckbox({
             text: "Enable rotation with mouse cursor",
-            isChecked: Storage.get<boolean>("cursorRotation"),
+            isChecked: Storage.get<boolean>("config.copyPaste.cursor.rotation.enabled"),
             onChange: (isChecked: boolean) => {
-                Storage.set<boolean>("cursorRotation", isChecked);
+                Storage.set<boolean>("config.copyPaste.cursor.rotation.enabled", isChecked);
                 SceneryManager.handle.findWidget<CheckboxWidget>("config_flip_rotation").isDisabled = !isChecked;
                 SceneryManager.handle.findWidget<LabelWidget>("config_sensitvity_label").isDisabled = !isChecked;
                 SceneryManager.handle.findWidget<SpinnerWidget>("config_sensitvity").isDisabled = !isChecked;
             },
         });
         {
-            const hbox = builder.getHBox([1, 20]);
+            const hbox = group.getHBox([1, 20]);
             hbox.addSpace();
             hbox.addCheckbox({
                 name: "config_flip_rotation",
                 text: "Flip rotation direction",
-                isDisabled: !(Storage.get<boolean>("cursorRotation")),
-                isChecked: Storage.get<boolean>("flipRotation"),
-                onChange: (isChecked: boolean) => Storage.set<boolean>("flipRotation", isChecked),
+                isDisabled: !(Storage.get<boolean>("config.copyPaste.cursor.rotation.enabled")),
+                isChecked: Storage.get<boolean>("config.copyPaste.cursor.rotation.flip"),
+                onChange: (isChecked: boolean) => Storage.set<boolean>("config.copyPaste.cursor.rotation.flip", isChecked),
             });
-            builder.addBox(hbox);
+            group.addBox(hbox);
         }
         {
-            const hbox = builder.getHBox([1, 10, 10]);
+            const hbox = group.getHBox([1, 10, 10]);
             hbox.addSpace();
             hbox.addLabel({
                 name: "config_sensitvity_label",
@@ -100,23 +97,92 @@ class Configuration {
             })
             hbox.addSpinner({
                 name: "config_sensitvity",
-                text: String(Storage.get<number>("sensitivity")),
-                isDisabled: !(Storage.get<boolean>("cursorRotation")),
+                text: String(Storage.get<number>("config.copyPaste.cursor.rotation.sensitivity")),
+                isDisabled: !(Storage.get<boolean>("config.copyPaste.cursor.rotation.enabled")),
                 onDecrement: () => {
-                    const value: number = Storage.get<number>("sensitivity") - 1;
+                    const value: number = Storage.get<number>("config.copyPaste.cursor.rotation.sensitivity") - 1;
                     if (value < 0)
                         return;
-                    Storage.set<number>("sensitivity", value);
+                    Storage.set<number>("config.copyPaste.cursor.rotation.sensitivity", value);
                     SceneryManager.handle.findWidget<SpinnerWidget>("config_sensitvity").text = String(value);
                 },
                 onIncrement: () => {
-                    const value: number = Storage.get<number>("sensitivity") + 1;
-                    Storage.set<number>("sensitivity", value);
+                    const value: number = Storage.get<number>("config.copyPaste.cursor.rotation.sensitivity") + 1;
+                    Storage.set<number>("config.copyPaste.cursor.rotation.sensitivity", value);
                     SceneryManager.handle.findWidget<SpinnerWidget>("config_sensitvity").text = String(value);
                 },
             });
-            builder.addBox(hbox);
+            group.addBox(hbox);
         }
+
+        builder.addGroupBox({
+            text: "Copy & Paste",
+        }, group);
+    }
+
+    private buildScatter(builder: BoxBuilder) {
+        const group = builder.getGroupBox();
+
+        group.addCheckbox({
+            text: "Drag to place",
+            isChecked: Storage.get<boolean>("config.scatter.dragToPlace"),
+            onChange: (isChecked: boolean) => Storage.set<boolean>("config.scatter.dragToPlace", isChecked),
+        });
+        group.addSpace(4);
+        group.addCheckbox({
+            text: "Show library",
+            isChecked: Storage.get<boolean>("config.scatter.library.show"),
+            onChange: (isChecked: boolean) => {
+                Storage.set<boolean>("config.scatter.library.show", isChecked);
+                SceneryManager.handle.findWidget<CheckboxWidget>("config_scatter_library_confirm_overwrite").isDisabled = !isChecked;
+                SceneryManager.handle.findWidget<CheckboxWidget>("config_scatter_library_confirm_delete").isDisabled = !isChecked;
+                SceneryManager.handle.findWidget<CheckboxWidget>("config_scatter_library_onMissingElement").isDisabled = !isChecked;
+                SceneryManager.handle.findWidget<CheckboxWidget>("config_scatter_library_onMissingElement_label").isDisabled = !isChecked;
+            },
+        });
+        {
+            const hbox = group.getHBox([1, 20]);
+            hbox.addSpace();
+            hbox.addCheckbox({
+                name: "config_scatter_library_confirm_overwrite",
+                text: "Confirm pattern overwrite",
+                isDisabled: !(Storage.get<boolean>("config.scatter.library.show")),
+                isChecked: Storage.get<boolean>("config.scatter.library.confirm.overwrite"),
+                onChange: (isChecked: boolean) => Storage.set<boolean>("config.scatter.library.confirm.overwrite", isChecked),
+            });
+            group.addBox(hbox);
+        }
+        {
+            const hbox = group.getHBox([1, 20]);
+            hbox.addSpace();
+            hbox.addCheckbox({
+                name: "config_scatter_library_confirm_delete",
+                text: "Confirm pattern delete",
+                isDisabled: !(Storage.get<boolean>("config.scatter.library.show")),
+                isChecked: Storage.get<boolean>("config.scatter.library.confirm.delete"),
+                onChange: (isChecked: boolean) => Storage.set<boolean>("config.scatter.library.confirm.delete", isChecked),
+            });
+            group.addBox(hbox);
+        }
+        {
+            const hbox = group.getHBox([1, 15, 5]);
+            hbox.addSpace();
+            hbox.addLabel({
+                name: "config_scatter_library_onMissingElement_label",
+                text: "behaviour if element unavailable:",
+            });
+            hbox.addDropdown({
+                name: "config_scatter_library_onMissingElement",
+                items: actions,
+                selectedIndex: actions.indexOf(Storage.get<Action>("config.scatter.library.onMissingElement")),
+                onChange: (idx: number) => Storage.set<Action>("config.scatter.library.onMissingElement", actions[idx]),
+            });
+            group.addBox(hbox);
+        }
+
+        builder.addGroupBox({
+            text: "Scatter Tool",
+        }, group);
     }
 }
 export default Configuration.instance;

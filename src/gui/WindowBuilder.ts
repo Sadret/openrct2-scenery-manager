@@ -30,7 +30,7 @@ export class Margin {
     }
 
     static none: Margin = Margin.uniform(0);
-    static default: Margin = Margin.uniform(2);
+    static default: Margin = Margin.uniform(4);
 }
 
 export abstract class BoxBuilder {
@@ -328,7 +328,7 @@ class HBoxBuilder extends BoxBuilder {
     readonly widths: number[] = [];
 
     constructor(
-        weights: number[],
+        grid: number[],
         position: CoordsXY,
         width: number,
         padding?: number,
@@ -341,10 +341,11 @@ class HBoxBuilder extends BoxBuilder {
             margin,
         );
 
-        const availableWidth: number = this.innerWidth - (weights.length - 1) * this.padding;
-        const totalWeight: number = weights.reduce((prev: number, current: number, _1, _2) => prev + current);
-        const widthPerWeight: number = availableWidth / totalWeight;
-        const fractionalWidths: number[] = weights.map((weight: number) => widthPerWeight * weight);
+        const gridSize: number = grid.reduce((prev: number, current: number) => prev + current);
+        const availableWidth: number = this.innerWidth - (gridSize - 1) * this.padding;
+        const widthPerColumn: number = availableWidth / gridSize;
+        const fractionalWidths: number[] = grid.map((columns: number) => columns * widthPerColumn + (columns - 1) * this.padding);
+
         let carry = 0;
         this.widths = fractionalWidths.map(fraction => {
             const val = carry + fraction;

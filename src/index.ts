@@ -12,6 +12,7 @@ import * as Storage from "./persistence/Storage";
 import Clipboard from "./widgets/Clipboard";
 import Library from "./widgets/Library";
 import LibraryView from "./widgets/LibraryView";
+import Scatter from "./widgets/Scatter";
 import SceneryManager from "./SceneryManager"
 
 registerPlugin({
@@ -30,6 +31,7 @@ registerPlugin({
             Clipboard.folderView.open(Storage.clipboard.getRoot());
             Library.folderView.open(Storage.library.getRoot());
             LibraryView.folderView.open(Storage.library.getRoot());
+            Scatter.library.open(Storage.scatter.getRoot());
             ui.registerMenuItem("Scenery Manager", () => SceneryManager.open());
         });
     },
