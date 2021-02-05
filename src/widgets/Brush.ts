@@ -19,6 +19,7 @@ class Brush {
     private constructor() { }
 
     public provider: (tiles: CoordsXY[]) => TemplateData = undefined;
+    public mode: Tools.BuildMode = undefined;
 
     public activate(): void {
         if (this.provider === undefined)
@@ -28,7 +29,7 @@ class Brush {
             const shape: BrushShape = Storage.get<BrushShape>("config.brush.shape");
             const tiles: CoordsXY[] = shape === "square" ? CoordUtils.square(coords, size) : CoordUtils.circle(coords, size);
             return this.provider(tiles);
-        }, undefined, "move");
+        }, undefined, this.mode);
     }
 
     public build(builder: BoxBuilder): void {

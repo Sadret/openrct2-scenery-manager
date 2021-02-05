@@ -19,35 +19,34 @@ class Scatter {
     public static readonly instance: Scatter = new Scatter();
     private constructor() { }
 
-    private entries: ElementData[] = [];
-    private weights: number[] = [];
-    private weight: number = 0;
+    private data: ScatterData[] = [];
+    private empty: number = 100;
 
     private getName(idx: number): string {
         return "scatter_spinner_" + idx;
     }
-    private getLabel(data: SmallSceneryData) {
-        return SceneryUtils.getObject(data).name + " (" + data.identifier + ")";
+    private getLabel(element: ElementData) {
+        return SceneryUtils.getObject(element).name + " (" + element.identifier + ")";
     }
     private updateEntry(idx: number, weight: number): void {
         if (weight < 0)
             weight = 0;
         if (weight > 100)
             weight = 100;
-        this.weight -= this.weights[idx];
-        if (this.weight + weight > 100)
-            weight = 100 - this.weight;
-        this.weights[idx] = weight;
-        this.weight += this.weights[idx];
+        this.empty += this.data[idx].weight;
+        if (this.empty - weight < 0)
+            weight = this.empty;
+        this.data[idx].weight = weight;
+        this.empty -= weight;
         SceneryManager.handle.findWidget<SpinnerWidget>(this.getName(idx)).text = String(weight) + "%";
-        SceneryManager.handle.findWidget<SpinnerWidget>("scatter_spinner_empty").text = String(100 - this.weight) + "%";
+        SceneryManager.handle.findWidget<SpinnerWidget>("scatter_spinner_empty").text = String(this.empty) + "%";
     }
 
     private getRandomEntry(): ElementData {
         let rnd = Math.random() * 100;
-        for (let i = 0; i < this.entries.length; i++)
-            if ((rnd -= this.weights[i]) < 0)
-                return this.entries[i];
+        for (let i = 0; i < this.data.length; i++)
+            if ((rnd -= this.data[i].weight) < 0)
+                return this.data[i].element;
         return undefined;
     }
 
@@ -79,6 +78,7 @@ class Scatter {
     public build(builder: BoxBuilder): void {
         Brush.build(builder);
         Brush.provider = (tiles: CoordsXY[]) => this.provide(tiles);
+        Brush.mode = "down";
         Brush.activate();
 
         const options = builder.getGroupBox();
@@ -106,31 +106,30 @@ class Scatter {
 
         const pattern = builder.getGroupBox();
 
-        this.entries.forEach((entry: SmallSceneryData, idx: number) => {
+        this.data.forEach((entry: ScatterData, idx: number) => {
             const hbox = pattern.getHBox([10, 4, 2, 2, 3,]);
             hbox.addLabel({
-                text: this.getLabel(entry),
+                text: this.getLabel(entry.element),
             });
             hbox.addSpinner({
                 name: this.getName(idx),
-                text: String(this.weights[idx]) + "%",
-                onDecrement: () => this.updateEntry(idx, this.weights[idx] - 1),
-                onIncrement: () => this.updateEntry(idx, this.weights[idx] + 1),
+                text: String(entry.weight) + "%",
+                onDecrement: () => this.updateEntry(idx, entry.weight - 1),
+                onIncrement: () => this.updateEntry(idx, entry.weight + 1),
             });
             hbox.addTextButton({
                 text: "-10%",
-                onClick: () => this.updateEntry(idx, this.weights[idx] - 10),
+                onClick: () => this.updateEntry(idx, entry.weight - 10),
             });
             hbox.addTextButton({
                 text: "+10%",
-                onClick: () => this.updateEntry(idx, this.weights[idx] + 10),
+                onClick: () => this.updateEntry(idx, entry.weight + 10),
             });
             hbox.addTextButton({
                 text: "Remove",
                 onClick: () => {
                     this.updateEntry(idx, 0);
-                    this.entries.splice(idx, 1);
-                    this.weights.splice(idx, 1);
+                    this.data.splice(idx, 1);
                     SceneryManager.reload();
                 },
             });
@@ -144,7 +143,7 @@ class Scatter {
         });
         hbox.addSpinner({
             name: "scatter_spinner_empty",
-            text: String(100 - this.weight) + "%",
+            text: String(this.empty) + "%",
             isDisabled: true,
             onDecrement: undefined,
             onIncrement: undefined,
@@ -166,8 +165,10 @@ class Scatter {
                         default:
                             return (ui.showError("Cannot use this element...", "Element must be either small scenery or large scenery."), false);
                     }
-                    this.entries.push(data);
-                    this.weights.push(0);
+                    this.data.push({
+                        element: data,
+                        weight: 0,
+                    });
                     ui.tool.cancel();
                     SceneryManager.reload();
                     return false; // do not cancel active build tool

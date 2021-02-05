@@ -126,7 +126,7 @@ export class FolderView {
             this.open(this.path.getParent());
 
         if (this.path.getParent() !== undefined)
-            addItem(this.path.getParent(), ["../", "", "", ""]);
+            addItem(this.path.getParent(), ["../"]);
 
         this.path.getFiles(
         ).filter((file: File) =>
@@ -134,7 +134,7 @@ export class FolderView {
         ).sort(
             (a: File, b: File) => StringUtils.compare(a.getName(), b.getName())
         ).forEach((file: File) =>
-            addItem(file, [file.getName() + "/", "", "", ""])
+            addItem(file, [file.getName() + "/"])
         );
 
         this.path.getFiles(
@@ -145,7 +145,7 @@ export class FolderView {
         ).forEach((file: File) => {
             const templateData: TemplateData = file.getContent<TemplateData>();
             if (templateData === undefined)
-                addItem(file, [file.getName(), "", "", ""]);
+                addItem(file, [file.getName()]);
             else {
                 const size: CoordsXY = CoordUtils.getSize(CoordUtils.toMapRange(templateData.tiles));
                 addItem(file, [

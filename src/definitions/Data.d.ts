@@ -24,8 +24,8 @@ type ElementType =
  */
 
 interface TemplateData {
-    readonly elements: ElementData[],
-    readonly tiles: CoordsXY[],
+    readonly elements: ElementData[];
+    readonly tiles: CoordsXY[];
 }
 
 /*
@@ -33,70 +33,84 @@ interface TemplateData {
  */
 
 interface ObjectData {
-    readonly type: ElementType,
-    readonly identifier: string, // except entrance, track
+    readonly type: ElementType;
+    readonly identifier: string; // except entrance, track
 }
 
 interface ElementData {
     // all
-    readonly type: ElementType,
-    readonly x: number,
-    readonly y: number,
+    readonly type: ElementType;
+    readonly x: number;
+    readonly y: number;
     // almost all
-    readonly z: number, // except entrance
-    readonly direction: number, // except footpath, footpath_addition
-    readonly identifier: string, // except entrance, track
+    readonly z: number; // except entrance
+    readonly direction: number; // except footpath, footpath_addition
+    readonly identifier: string; // except entrance, track
 }
 
 interface BannerData extends ElementData {
-    readonly type: "banner",
-    readonly primaryColour: number,
+    readonly type: "banner";
+    readonly primaryColour: number;
 }
 
 interface EntranceData extends ElementData {
-    readonly type: "entrance",
-    readonly ride: number,
-    readonly station: number,
-    readonly isExit: boolean,
+    readonly type: "entrance";
+    readonly ride: number;
+    readonly station: number;
+    readonly isExit: boolean;
 }
 
 interface FootpathData extends ElementData {
-    readonly type: "footpath",
-    readonly slopeDirection: number,
-    readonly isQueue: boolean,
+    readonly type: "footpath";
+    readonly slopeDirection: number;
+    readonly isQueue: boolean;
 }
 
 interface FootpathAdditionData extends ElementData {
-    readonly type: "footpath_addition",
+    readonly type: "footpath_addition";
 }
 
 interface LargeSceneryData extends ElementData {
-    readonly type: "large_scenery",
-    readonly primaryColour: number,
-    readonly secondaryColour: number,
+    readonly type: "large_scenery";
+    readonly primaryColour: number;
+    readonly secondaryColour: number;
 }
 
 interface SmallSceneryData extends ElementData {
-    readonly type: "small_scenery",
-    readonly quadrant: number,
-    readonly primaryColour: number,
-    readonly secondaryColour: number,
+    readonly type: "small_scenery";
+    readonly quadrant: number;
+    readonly primaryColour: number;
+    readonly secondaryColour: number;
 }
 
 interface TrackData extends ElementData {
-    readonly type: "track",
-    readonly ride: number,
-    readonly trackType: number,
-    readonly brakeSpeed: number,
-    readonly colour: number,
-    readonly seatRotation: number,
-    readonly trackPlaceFlags: number,
-    readonly isFromTrackDesign: boolean,
+    readonly type: "track";
+    readonly ride: number;
+    readonly trackType: number;
+    readonly brakeSpeed: number;
+    readonly colour: number;
+    readonly seatRotation: number;
+    readonly trackPlaceFlags: number;
+    readonly isFromTrackDesign: boolean;
 }
 
 interface WallData extends ElementData {
-    readonly type: "wall",
-    readonly primaryColour: number,
-    readonly secondaryColour: number,
-    readonly tertiaryColour: number,
+    readonly type: "wall";
+    readonly primaryColour: number;
+    readonly secondaryColour: number;
+    readonly tertiaryColour: number;
+}
+
+/*
+ * SCATTER
+ */
+
+interface ScatterData {
+    readonly element: ElementData;
+    weight: number;
+}
+
+interface ScatterPattern {
+    readonly name: string;
+    readonly data: ScatterData[];
 }

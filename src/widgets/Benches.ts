@@ -17,9 +17,6 @@ class Benches {
     public static readonly instance: Benches = new Benches();
     private constructor() { }
 
-    private brushShape: number = 1;
-    private brushSize: number = 15;
-
     private entries: string[] = ["rct2.bench1"];
     private objects: Object[] = [undefined];
 
@@ -53,6 +50,7 @@ class Benches {
     public build(builder: BoxBuilder): void {
         Brush.build(builder);
         Brush.provider = (tiles: CoordsXY[]) => this.provide(tiles);
+        Brush.mode = "move";
         Brush.activate();
 
         this.objects = context.getAllObjects("footpath_addition");
