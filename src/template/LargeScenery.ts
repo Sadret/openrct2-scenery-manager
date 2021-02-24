@@ -16,14 +16,13 @@ const LargeScenery: IElement<LargeSceneryElement, LargeSceneryData>
     createFromTileData(coords: CoordsXY, element: LargeSceneryElement, ignoreSequenceIndex: boolean = false): LargeSceneryData {
         if (!ignoreSequenceIndex && element.sequence !== 0)
             return undefined;
-        const object: Object = context.getObject("large_scenery", element.object);
         return {
             type: "large_scenery",
             x: coords ?.x,
             y: coords ?.y,
             z: element.baseZ,
             direction: element.direction,
-            identifier: SceneryUtils.getIdentifier(object),
+            identifier: SceneryUtils.getIdentifier(element),
             primaryColour: element.primaryColour,
             secondaryColour: element.secondaryColour,
         };

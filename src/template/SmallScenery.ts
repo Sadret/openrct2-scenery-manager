@@ -13,14 +13,13 @@ import * as SceneryUtils from "../utils/SceneryUtils";
 class SmallScenery implements IElement<SmallSceneryElement, SmallSceneryData>{
 
     createFromTileData(coords: CoordsXY, element: SmallSceneryElement): SmallSceneryData {
-        const object: Object = context.getObject("small_scenery", element.object);
         return {
             type: "small_scenery",
             x: coords ?.x,
             y: coords ?.y,
             z: element.baseZ,
             direction: element.direction,
-            identifier: SceneryUtils.getIdentifier(object),
+            identifier: SceneryUtils.getIdentifier(element),
             quadrant: element.quadrant,
             primaryColour: element.primaryColour,
             secondaryColour: element.secondaryColour,

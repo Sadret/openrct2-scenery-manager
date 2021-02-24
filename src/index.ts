@@ -9,11 +9,12 @@
 
 import * as Updater from "./Updater";
 import * as Storage from "./persistence/Storage";
+import * as Shortcuts from "./Shortcuts";
 import Clipboard from "./widgets/Clipboard";
 import Library from "./widgets/Library";
 import LibraryView from "./widgets/LibraryView";
 import Scatter from "./widgets/Scatter";
-import SceneryManager from "./SceneryManager"
+import SceneryManager from "./SceneryManager";
 
 registerPlugin({
     name: "scenery-manager",
@@ -33,6 +34,7 @@ registerPlugin({
             LibraryView.folderView.open(Storage.library.getRoot());
             Scatter.library.open(Storage.scatter.getRoot());
             ui.registerMenuItem("Scenery Manager", () => SceneryManager.open());
+            Shortcuts.register();
         });
     },
 });

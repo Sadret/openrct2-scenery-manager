@@ -27,7 +27,7 @@ class Settings {
     public rotation: number = 0;
     public mirrored: boolean = false;
     public height: number = 0;
-    public ghost: boolean = false;
+    // public ghost: boolean = false;
 
     public build(builder: BoxBuilder): void {
         const rotationLabel: () => string = () => (this.rotation === 0 ? "none" : (this.rotation * 90 + " deg"));

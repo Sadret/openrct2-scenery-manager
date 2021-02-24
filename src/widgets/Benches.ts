@@ -74,7 +74,10 @@ class Benches {
                         const footpath: FootpathElement = <FootpathElement>element;
                         if (footpath.addition === null)
                             return (ui.showError("Cannot use this element...", "Footpath has no addition."), false);
-                        return (this.updateEntry(idx, this.getIndex(SceneryUtils.getIdentifier(context.getObject("footpath_addition", footpath.addition)))), true);
+                        return (this.updateEntry(idx, this.getIndex(SceneryUtils.getIdentifier({
+                            type: "footpath_addition",
+                            object: footpath.addition,
+                        }))), true);
                     }),
             });
             hbox.addTextButton({

@@ -15,10 +15,10 @@ import Footpath from "../template/Footpath";
 import FootpathAddition from "../template/FootpathAddition";
 import LargeScenery from "../template/LargeScenery";
 import SmallScenery from "../template/SmallScenery";
+import Template from "../template/Template";
 import Track from "../template/Track";
 import Wall from "../template/Wall";
 import * as CoordUtils from "../utils/CoordUtils";
-import Template from "../template/Template";
 
 /*
  * READ / PLACE / REMOVE METHODS

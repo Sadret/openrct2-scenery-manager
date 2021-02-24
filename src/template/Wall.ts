@@ -13,14 +13,13 @@ import * as SceneryUtils from "../utils/SceneryUtils";
 const Wall: IElement<WallElement, WallData> = {
 
     createFromTileData(coords: CoordsXY, element: WallElement): WallData {
-        const object: Object = context.getObject("wall", element.object);
         return {
             type: "wall",
             x: coords.x,
             y: coords.y,
             z: element.baseZ,
             direction: element.direction,
-            identifier: SceneryUtils.getIdentifier(object),
+            identifier: SceneryUtils.getIdentifier(element),
             primaryColour: element.primaryColour,
             secondaryColour: element.secondaryColour,
             tertiaryColour: element.tertiaryColour,

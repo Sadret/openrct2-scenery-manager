@@ -13,14 +13,13 @@ import * as SceneryUtils from "../utils/SceneryUtils";
 const Footpath: IElement<FootpathElement, FootpathData> = {
 
     createFromTileData(coords: CoordsXY, element: FootpathElement): FootpathData {
-        const object: Object = context.getObject("footpath", element.object);
         return {
             type: "footpath",
             x: coords.x,
             y: coords.y,
             z: element.baseZ,
             direction: undefined,
-            identifier: SceneryUtils.getIdentifier(object),
+            identifier: SceneryUtils.getIdentifier(element),
             slopeDirection: element.slopeDirection,
             isQueue: element.isQueue,
         };

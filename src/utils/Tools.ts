@@ -86,7 +86,6 @@ export function pick(accept: (element: BaseTileElement) => boolean): void {
     })
 }
 
-
 export function select(): void {
     let start = undefined;
     let end = undefined;

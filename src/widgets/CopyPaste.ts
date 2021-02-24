@@ -38,7 +38,7 @@ class CopyPaste {
         }
     }
 
-    public pasteTemplate(template: Template, onFinish: () => void): void {
+    public pasteTemplate(template: Template, onFinish: () => void = () => { }): void {
         const onMissingElement: Action = Storage.get<Action>("config.copyPaste.onMissingElement");
         const available: Template = template.filter(Template.isAvailable);
         if (available.elements.length !== template.elements.length)

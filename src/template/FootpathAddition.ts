@@ -14,14 +14,16 @@ const FootpathAddition: IElement<FootpathElement, FootpathAdditionData> = {
     createFromTileData(coords: CoordsXY, element: FootpathElement): FootpathAdditionData {
         if (element.addition === null)
             return undefined;
-        const object: Object = context.getObject("footpath_addition", element.addition);
         return {
             type: "footpath_addition",
             x: coords.x,
             y: coords.y,
             z: element.baseZ,
             direction: undefined,
-            identifier: SceneryUtils.getIdentifier(object),
+            identifier: SceneryUtils.getIdentifier({
+                type: "footpath_addition",
+                object: element.addition,
+            }),
         };
     },
 
