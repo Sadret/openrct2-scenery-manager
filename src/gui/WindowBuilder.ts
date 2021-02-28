@@ -131,6 +131,7 @@ export abstract class BoxBuilder {
             height: builder.getHeight(),
         }, 0);
         this.widgets.push(...builder.getWidgets());
+        this.popWidgetWidth();
     }
 
     addCheckbox(args: {

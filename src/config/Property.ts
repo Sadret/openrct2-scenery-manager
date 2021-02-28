@@ -9,7 +9,7 @@ export type Listener<T> = (value: T) => void;
 
 export class Property<T>{
     private value: T;
-    private listeners: Listener<T>[] = [];
+    private readonly listeners: Listener<T>[] = [];
 
     public constructor(defaultValue: T) {
         this.value = defaultValue;

@@ -16,5 +16,5 @@ export function setHandle(win: Window): void {
 }
 
 export function getWidget<T extends Widget>(name: string): T {
-    return handle.findWidget<T>(name);
+    return handle && handle.findWidget<T>(name);
 }
