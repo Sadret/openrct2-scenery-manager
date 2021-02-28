@@ -27,16 +27,16 @@ import * as CoordUtils from "../utils/CoordUtils";
 export function read(tiles: CoordsXY[]): ElementData[] {
     const elements: ElementData[] = [];
     tiles.forEach(
-        (coords: CoordsXY) => elements.push(...getSceneryData(coords))
+        coords => elements.push(...getSceneryData(coords))
     );
     return elements;
 }
 
 export function place(elements: ElementData[], ghost: boolean = false): ElementData[] {
     const result: ElementData[] = [];
-    elements.forEach((element: ElementData) => {
-        const action: PlaceAction = Template.getPlaceAction(element);
-        const args: PlaceActionArgs = {
+    elements.forEach(element => {
+        const action = Template.getPlaceAction(element);
+        const args = {
             ...Template.getPlaceArgs(element),
             flags: ghost ? 72 : 0,
         };
@@ -52,9 +52,9 @@ export function place(elements: ElementData[], ghost: boolean = false): ElementD
 }
 
 export function remove(elements: ElementData[], ghost: boolean = false) {
-    elements.forEach((element: ElementData) => {
-        const action: RemoveAction = Template.getRemoveAction(element);
-        const args: RemoveActionArgs = {
+    elements.forEach(element => {
+        const action = Template.getRemoveAction(element);
+        const args = {
             ...Template.getRemoveArgs(element),
             flags: ghost ? 72 : 0,
         };
@@ -71,34 +71,34 @@ export function remove(elements: ElementData[], ghost: boolean = false) {
 
 function getSceneryData(coords: CoordsXY): ElementData[] {
     const tileCoords = CoordUtils.worldToTileCoords(coords);
-    const tile: Tile = map.getTile(tileCoords.x, tileCoords.y);
+    const tile = map.getTile(tileCoords.x, tileCoords.y);
     const data: ElementData[] = [];
-    tile.elements.forEach((element: BaseTileElement) => {
+    tile.elements.forEach(element => {
         switch (element.type) {
             case "banner":
-                return data.push(Banner.createFromTileData(coords, <BannerElement>element));
+                return data.push(Banner.createFromTileData(coords, element));
             case "entrance":
-                return data.push(Entrance.createFromTileData(coords, <EntranceElement>element));
+                return data.push(Entrance.createFromTileData(coords, element));
             case "footpath":
-                data.push(Footpath.createFromTileData(coords, <FootpathElement>element));
-                const addition: FootpathAdditionData = FootpathAddition.createFromTileData(coords, <FootpathElement>element);
+                data.push(Footpath.createFromTileData(coords, element));
+                const addition = FootpathAddition.createFromTileData(coords, element);
                 if (addition !== undefined)
                     data.push(addition);
                 return;
             case "large_scenery":
-                const largeScenery: LargeSceneryData = LargeScenery.createFromTileData(coords, <LargeSceneryElement>element);
+                const largeScenery = LargeScenery.createFromTileData(coords, element);
                 if (largeScenery !== undefined)
                     data.push(largeScenery);
                 return;
             case "small_scenery":
-                return data.push(SmallScenery.createFromTileData(coords, <SmallSceneryElement>element));
+                return data.push(SmallScenery.createFromTileData(coords, element));
             case "track":
-                const track: TrackData = Track.createFromTileData(coords, <TrackElement>element);
+                const track = Track.createFromTileData(coords, element);
                 if (track !== undefined)
                     data.push(track);
                 return;
             case "wall":
-                return data.push(Wall.createFromTileData(coords, <WallElement>element));
+                return data.push(Wall.createFromTileData(coords, element));
             default:
                 return;
         }
@@ -120,7 +120,7 @@ export function getSurfaceHeight(coords: CoordsXY): number {
 
 export function getMedianSurfaceHeight(tiles: CoordsXY[]): number {
     const heights: number[] = tiles.map(
-        (coords: CoordsXY) => getSurfaceHeight(coords)
+        coords => getSurfaceHeight(coords)
     );
     heights.sort();
     return heights[Math.floor(heights.length / 2)];
@@ -134,7 +134,7 @@ const cache: { [key: string]: { [key: string]: Object; }; } = {};
 
 function loadCache(type: ObjectType): void {
     cache[type] = {};
-    context.getAllObjects(type).forEach((object: Object) => cache[type][getIdentifierFromObject(object)] = object);
+    context.getAllObjects(type).forEach(object => cache[type][getIdentifierFromObject(object)] = object);
 }
 
 export function getObject(data: ObjectData): Object {

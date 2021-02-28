@@ -15,6 +15,7 @@ import Library from "./widgets/Library";
 import LibraryView from "./widgets/LibraryView";
 import Scatter from "./widgets/Scatter";
 import SceneryManager from "./SceneryManager";
+import * as Configuration from "./config/Configuration";
 
 registerPlugin({
     name: "scenery-manager",
@@ -29,6 +30,7 @@ registerPlugin({
             return console.log("[scenery-manager] Loading cancelled: game runs in headless mode.");
 
         Updater.update(() => {
+            Configuration.load();
             Clipboard.folderView.open(Storage.clipboard.getRoot());
             Library.folderView.open(Storage.library.getRoot());
             LibraryView.folderView.open(Storage.library.getRoot());
