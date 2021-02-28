@@ -7,12 +7,26 @@
 
 import Template from "../template/Template";
 
-let template: Template = undefined;
+let templates: Template[] = [];
+let cursor: number = undefined;
 
 export function getTemplate(): Template {
-    return template;
+    if (cursor === undefined)
+        return undefined;
+    return templates[cursor];
 }
 
-export function setTemplate(value: Template): void {
-    template = value;
+export function addTemplate(template: Template): void {
+    cursor = templates.length;
+    templates.push(template);
+}
+
+export function prev(): void {
+    if (cursor !== undefined && cursor !== 0)
+        cursor--;
+}
+
+export function next(): void {
+    if (cursor !== undefined && cursor !== templates.length - 1)
+        cursor++;
 }

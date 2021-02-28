@@ -7,6 +7,7 @@
 
 /// <reference path="./../../openrct2.d.ts" />
 
+import * as Clipboard from "./core/Clipboard";
 import * as Core from "./core/Core";
 import Settings from "./config/Settings";
 import MainWindow from "./window/MainWindow";
@@ -42,6 +43,18 @@ export function register() {
         text: "[SM] Mirror template",
         bindings: ["CTRL+M", "GUI+M"],
         callback: () => Settings.mirrored.flip(),
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.prevTemplate",
+        text: "[SM] Previous template",
+        bindings: ["Q"],
+        callback: () => Clipboard.prev(),
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.nextTemplate",
+        text: "[SM] Next template",
+        bindings: ["E"],
+        callback: () => Clipboard.next(),
     });
 
     ui.registerShortcut({
