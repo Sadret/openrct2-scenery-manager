@@ -5,6 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+/// <reference path="./../../../openrct2.d.ts" />
+
 let handle: Window = undefined;
 
 export function getHandle(): Window {

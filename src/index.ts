@@ -16,6 +16,7 @@ import LibraryView from "./widgets/LibraryView";
 import Scatter from "./widgets/Scatter";
 import SceneryManager from "./SceneryManager";
 import * as Configuration from "./config/Configuration";
+import * as StartUp from "./StartUp";
 
 registerPlugin({
     name: "scenery-manager",
@@ -37,6 +38,8 @@ registerPlugin({
             Scatter.library.open(Storage.scatter.getRoot());
             ui.registerMenuItem("Scenery Manager", () => SceneryManager.open());
             Shortcuts.register();
+
+            StartUp.execute();
         });
     },
 });

@@ -9,8 +9,9 @@
 
 import * as Clipboard from "./core/Clipboard";
 import * as Core from "./core/Core";
+import * as Library from "./core/Library";
+import * as MainWindow from "./window/MainWindow";
 import Settings from "./config/Settings";
-import MainWindow from "./window/MainWindow";
 
 export function register() {
 
@@ -31,6 +32,12 @@ export function register() {
         text: "[SM] Paste template",
         bindings: ["CTRL+V", "GUI+V"],
         callback: Core.paste,
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.save",
+        text: "[SM] Save template to library",
+        bindings: ["CTRL+S", "GUI+S"],
+        callback: Library.save,
     });
     ui.registerShortcut({
         id: "scenery-manager.rotate",
