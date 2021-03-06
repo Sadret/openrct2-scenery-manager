@@ -10,7 +10,7 @@
 import BoxBuilder from "../gui/WindowBuilder";
 import { File } from "../persistence/File";
 import { StorageFileSystem } from "../persistence/Storage";
-import * as ArrayUtils from "../utils/ArrayUtils";
+import * as Arrays from "../utils/Arrays";
 import * as StringUtils from "../utils/StringUtils";
 import * as StartUp from "../StartUp";
 
@@ -99,7 +99,7 @@ export default abstract class LibraryWidget {
 
         const oldItems: ListViewItem[] | string[] = widget.items;
         const newItems: ListViewItem[] = this.getItems();
-        if (!ArrayUtils.deepEquals(oldItems, newItems))
+        if (!Arrays.deepEquals(oldItems, newItems))
             widget.items = this.getItems();
 
         const selectedCell = this.getSelectedCell();

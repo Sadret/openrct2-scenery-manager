@@ -27,3 +27,10 @@ export function findIdx<T>(arr: T[], callback: (value: T) => boolean): number {
             return idx;
     return undefined;
 }
+
+export function create<T>(size: number, fill: (idx: number) => T): T[] {
+    const data: T[] = [];
+    for (let i = 0; i < size; i++)
+        data.push(fill(i));
+    return data;
+}

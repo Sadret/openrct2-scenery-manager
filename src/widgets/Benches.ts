@@ -8,7 +8,7 @@
 import BoxBuilder from "../gui/WindowBuilder";
 import Brush from "../widgets/Brush";
 import SceneryManager from "../SceneryManager";
-import * as ArrayUtils from "../utils/ArrayUtils";
+import * as Arrays from "../utils/Arrays";
 import * as CoordUtils from "../utils/CoordUtils";
 import * as SceneryUtils from "../utils/SceneryUtils";
 import * as Tools from "../utils/Tools";
@@ -27,7 +27,7 @@ class Benches {
         return object === undefined ? "(empty)" : object.name + " (" + object.identifier + ")";
     }
     private getIndex(entry: string): number {
-        return entry === undefined ? 0 : ArrayUtils.findIdx<Object>(this.objects, (object: Object) => object !== undefined && object.identifier === entry);
+        return entry === undefined ? 0 : Arrays.findIdx<Object>(this.objects, (object: Object) => object !== undefined && object.identifier === entry);
     };
     private updateEntry: (entryIdx: number, objectIdx: number) => void = (entryIdx: number, objectIdx: number) => {
         this.entries[entryIdx] = this.objects[objectIdx].identifier;

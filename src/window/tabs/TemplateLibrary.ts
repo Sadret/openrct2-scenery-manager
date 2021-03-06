@@ -5,18 +5,18 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Clipboard from "../core/Clipboard";
-import * as Core from "../core/Core";
-import * as Library from "../core/Library";
-import * as Coords from "../utils/Coords";
-import * as Storage from "../persistence/Storage";
-import * as WindowManager from "../window/WindowManager";
-import { File } from "../persistence/File";
-import LibraryWidget from "../gui/LibraryWidget";
-import BoxBuilder from "../gui/WindowBuilder";
-import Template from "../template/Template";
+import * as Clipboard from "../../core/Clipboard";
+import * as Core from "../../core/Core";
+import * as Library from "../../core/Library";
+import * as Coords from "../../utils/Coords";
+import * as Storage from "../../persistence/Storage";
+import * as WindowManager from "../../window/WindowManager";
+import { File } from "../../persistence/File";
+import LibraryWidget from "../../gui/LibraryWidget";
+import BoxBuilder from "../../gui/WindowBuilder";
+import Template from "../../template/Template";
 
-const library: LibraryWidget = new class extends LibraryWidget {
+const library = new class extends LibraryWidget {
     constructor() {
         super("template_library", Storage.library);
         Library.addListener(() => this.update());

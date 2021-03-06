@@ -5,11 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Core from "../core/Core";
-import * as Strings from "../utils/Strings";
-import Settings from "../config/Settings";
-import BoxBuilder from "../gui/WindowBuilder";
-import { PropertyCheckboxWidget, PropertyToggleWidget, PropertySpinnerWidget } from "../gui/PropertyWidget";
+import * as Core from "../../core/Core";
+import * as Strings from "../../utils/Strings";
+import Settings from "../../config/Settings";
+import BoxBuilder from "../../gui/WindowBuilder";
+import { PropertyCheckboxWidget, PropertyToggleWidget, PropertySpinnerWidget } from "../../gui/PropertyWidget";
 
 const widgets = {
     filter: {},
@@ -19,10 +19,23 @@ const widgets = {
 };
 
 for (let key in Settings.filter)
-    widgets.filter[key] = new PropertyCheckboxWidget(Settings.filter[key], "settings.filter." + key);
-widgets.rotation = new PropertySpinnerWidget(Settings.rotation, "settings.rotation", value => (value & 3) === 0 ? "none" : ((value & 3) * 90 + " deg"));
-widgets.mirrored = new PropertyToggleWidget(Settings.mirrored, "settings.mirrored");
-widgets.height = new PropertySpinnerWidget(Settings.height, "settings.height");
+    widgets.filter[key] = new PropertyCheckboxWidget({
+        property: Settings.filter[key],
+        guiId: "settings.filter." + key,
+    });
+widgets.rotation = new PropertySpinnerWidget({
+    property: Settings.rotation,
+    guiId: "settings.rotation",
+    label: value => (value & 3) === 0 ? "none" : ((value & 3) * 90 + " deg"),
+});
+widgets.mirrored = new PropertyToggleWidget({
+    property: Settings.mirrored,
+    guiId: "settings.mirrored",
+});
+widgets.height = new PropertySpinnerWidget({
+    property: Settings.height,
+    guiId: "settings.height",
+});
 
 export function build(builder: BoxBuilder): void {
     const hbox = builder.getHBox([3, 2]);

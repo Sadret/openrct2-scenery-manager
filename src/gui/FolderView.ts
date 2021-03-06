@@ -9,7 +9,7 @@
 
 import BoxBuilder from "../gui/WindowBuilder";
 import { File } from "../persistence/File";
-import * as ArrayUtils from "../utils/ArrayUtils";
+import * as Arrays from "../utils/Arrays";
 import * as CoordUtils from "../utils/CoordUtils";
 import * as StringUtils from "../utils/StringUtils";
 
@@ -100,7 +100,7 @@ export class FolderView {
 
         const oldItems: ListViewItem[] | string[] = widget.items;
         const newItems: ListViewItem[] = this.getItems();
-        if (!ArrayUtils.deepEquals(oldItems, newItems))
+        if (!Arrays.deepEquals(oldItems, newItems))
             widget.items = this.getItems();
 
         const selectedCell = this.getSelectedCell();

@@ -6,8 +6,10 @@
  *****************************************************************************/
 
 import { BoxBuilder, TabBuilder } from "../gui/WindowBuilder";
-import * as CopyPaste from "./CopyPaste";
-import * as TemplateLibrary from "./TemplateLibrary";
+import * as Coloring from "./tabs/Coloring";
+import * as CopyPaste from "./tabs/CopyPaste";
+import * as Scatter from "./tabs/Scatter";
+import * as TemplateLibrary from "./tabs/TemplateLibrary";
 import * as WindowManager from "./WindowManager";
 
 interface Tab {
@@ -27,6 +29,16 @@ const tabsDesc = [{
         frameDuration: 4,
     },
     widget: TemplateLibrary,
+}, {
+    image: {
+        frameBase: 5221,
+        frameCount: 8,
+        frameDuration: 4,
+    },
+    widget: Coloring,
+}, {
+    image: 5459,
+    widget: Scatter,
 },];
 
 export function open(x?: number, y?: number, tabIndex: number = 0): void {
