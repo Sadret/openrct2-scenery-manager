@@ -14,14 +14,14 @@ export function deepEquals(a: any, b: any): boolean {
         return a === b;
 }
 
-export function find<T>(arr: T[], callback: (value: T) => boolean): T {
+export function find<T>(arr: T[], callback: (value: T) => boolean): T | undefined {
     for (let idx = 0; idx < arr.length; idx++)
         if (callback(arr[idx]))
             return arr[idx];
     return undefined;
 }
 
-export function findIdx<T>(arr: T[], callback: (value: T) => boolean): number {
+export function findIdx<T>(arr: T[], callback: (value: T) => boolean): number | undefined {
     for (let idx = 0; idx < arr.length; idx++)
         if (callback(arr[idx]))
             return idx;

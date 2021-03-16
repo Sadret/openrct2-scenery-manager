@@ -10,7 +10,7 @@
 import * as Clipboard from "./core/Clipboard";
 import * as Core from "./core/Core";
 import * as Library from "./core/Library";
-import * as MainWindow from "./window/MainWindow";
+import MainWindow from "./window/MainWindow";
 import Settings from "./config/Settings";
 
 export function register() {
@@ -116,13 +116,13 @@ export function register() {
         id: "scenery-manager.filter.all",
         text: "[SM] Enable all",
         bindings: ["CTRL+9", "GUI+9"],
-        callback: () => { for (const type in Settings.filter) Settings.filter[type].setValue(true); },
+        callback: () => Object.keys(Settings.filter).forEach(type => Settings.filter[type].setValue(true)),
     });
     ui.registerShortcut({
         id: "scenery-manager.filter.none",
         text: "[SM] Disable all",
         bindings: ["CTRL+0", "GUI+0"],
-        callback: () => { for (const type in Settings.filter) Settings.filter[type].setValue(false); },
+        callback: () => Object.keys(Settings.filter).forEach(type => Settings.filter[type].setValue(false)),
     });
 
     ui.registerShortcut({

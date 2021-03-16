@@ -5,13 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import IElement from "./IElement";
-import * as CoordUtils from "../utils/CoordUtils";
-import * as SceneryUtils from "../utils/SceneryUtils";
+import BaseElement from "./BaseElement";
+import * as Context from "../core/Context";
 
-const FootpathAddition: IElement<FootpathElement, FootpathAdditionData> = {
-
-    createFromTileData(coords: CoordsXY, element: FootpathElement): FootpathAdditionData {
+export default new class extends BaseElement<FootpathElement, FootpathAdditionData> {
+    createFromTileData(element: FootpathElement, coords: CoordsXY): FootpathAdditionData | undefined {
         if (element.addition === null)
             return undefined;
         return {
@@ -19,43 +17,27 @@ const FootpathAddition: IElement<FootpathElement, FootpathAdditionData> = {
             x: coords.x,
             y: coords.y,
             z: element.baseZ,
-            direction: undefined,
-            identifier: SceneryUtils.getIdentifier({
+            identifier: Context.getIdentifier({
                 type: "footpath_addition",
                 object: element.addition,
             }),
         };
-    },
-
-    rotate(element: FootpathAdditionData, rotation: number): FootpathAdditionData {
-        return {
-            ...element,
-            ...CoordUtils.rotate(element, rotation),
-        };
-    },
-    mirror(element: FootpathAdditionData): FootpathAdditionData {
-        return {
-            ...element,
-            ...CoordUtils.mirror(element),
-        }
-    },
+    }
 
     getPlaceArgs(element: FootpathAdditionData): FootpathAdditionPlaceArgs {
         return {
             ...element,
-            object: SceneryUtils.getObject(element).index + 1,
+            object: Context.getObject(element).index + 1,
         };
-    },
+    }
     getRemoveArgs(element: FootpathAdditionData): FootpathAdditionRemoveArgs {
         return element;
-    },
+    }
 
     getPlaceAction(): "footpathadditionplace" {
         return "footpathadditionplace";
-    },
+    }
     getRemoveAction(): "footpathadditionremove" {
         return "footpathadditionremove";
-    },
-
-};
-export default FootpathAddition;
+    }
+}();

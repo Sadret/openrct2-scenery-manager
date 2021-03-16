@@ -5,21 +5,19 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import IElement from "./IElement";
-import * as CoordUtils from "../utils/CoordUtils";
+import BaseElement from "./BaseElement";
 import * as Direction from "../utils/Direction";
-import * as SceneryUtils from "../utils/SceneryUtils";
+import * as Context from "../core/Context";
 
-class SmallScenery implements IElement<SmallSceneryElement, SmallSceneryData>{
-
-    createFromTileData(coords: CoordsXY, element: SmallSceneryElement): SmallSceneryData {
+export default new class extends BaseElement<SmallSceneryElement, SmallSceneryData>{
+    createFromTileData(element: SmallSceneryElement, coords?: CoordsXY): SmallSceneryData {
         return {
             type: "small_scenery",
-            x: coords ?.x,
-            y: coords ?.y,
+            x: coords === undefined ? Number.NaN : coords.x,
+            y: coords === undefined ? Number.NaN : coords.y,
             z: element.baseZ,
             direction: element.direction,
-            identifier: SceneryUtils.getIdentifier(element),
+            identifier: Context.getIdentifier(element),
             quadrant: element.quadrant,
             primaryColour: element.primaryColour,
             secondaryColour: element.secondaryColour,
@@ -28,8 +26,7 @@ class SmallScenery implements IElement<SmallSceneryElement, SmallSceneryData>{
 
     rotate(element: SmallSceneryData, rotation: number): SmallSceneryData {
         return {
-            ...element,
-            ...CoordUtils.rotate(element, rotation),
+            ...super.rotate(element, rotation),
             direction: Direction.rotate(element.direction, rotation),
             quadrant: this.isFullTile(element) ? element.quadrant : Direction.rotate(element.quadrant, rotation),
         };
@@ -51,8 +48,7 @@ class SmallScenery implements IElement<SmallSceneryElement, SmallSceneryData>{
         }
 
         return {
-            ...element,
-            ...CoordUtils.mirror(element),
+            ...super.mirror(element),
             direction: direction,
             quadrant: quadrant,
         };
@@ -61,13 +57,13 @@ class SmallScenery implements IElement<SmallSceneryElement, SmallSceneryData>{
     getPlaceArgs(element: SmallSceneryData): SmallSceneryPlaceArgs {
         return {
             ...element,
-            object: SceneryUtils.getObject(element).index,
+            object: Context.getObject(element).index,
         };
     }
     getRemoveArgs(element: SmallSceneryData): SmallSceneryRemoveArgs {
         return {
             ...element,
-            object: SceneryUtils.getObject(element).index,
+            object: Context.getObject(element).index,
         };
     }
 
@@ -100,9 +96,7 @@ class SmallScenery implements IElement<SmallSceneryElement, SmallSceneryData>{
     }
 
     hasFlag(element: SmallSceneryData, bit: number) {
-        const object: SmallSceneryObject = <SmallSceneryObject>SceneryUtils.getObject(element);
+        const object: SmallSceneryObject = <SmallSceneryObject>Context.getObject(element);
         return (object.flags & (1 << bit)) !== 0;
     }
-
-};
-export default new SmallScenery();
+}();

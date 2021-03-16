@@ -5,13 +5,16 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-export function rotate(direction: number, rotation: number): number {
-    if (direction === null)
-        return null;
-    return (direction + rotation) & 0x3;
+export function rotate(direction: number, rotation: number): number;
+export function rotate(direction: number | null, rotation: number): number | null;
+export function rotate(direction: number | null, rotation: number): number | null {
+    return direction && (direction + rotation) & 0x3;
 }
-export function mirror(direction: number, mirrored: boolean = true): number {
-    if (direction !== null && mirrored && direction & 0x1)
+
+export function mirror(direction: number, mirrored?: boolean): number;
+export function mirror(direction: number | null, mirrored?: boolean): number | null;
+export function mirror(direction: number | null, mirrored: boolean = true): number | null {
+    if (direction && mirrored && direction & 0x1)
         return direction ^ 0x2;
     return direction;
 }

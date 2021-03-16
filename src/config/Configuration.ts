@@ -8,8 +8,9 @@
 import { Property, BooleanProperty, NumberProperty } from "./Property";
 import * as Storage from "../persistence/Storage";
 
-type Action = "error" | "warning" | "ignore";
-type BrushShape = "square" | "circle";
+type C = {
+    [index: string]: C;
+} | Property<any>;
 
 const Configuration = {
     scatter: {
@@ -49,18 +50,21 @@ const Configuration = {
 }
 export default Configuration;
 
-export function load(obj: object = Configuration, path: string = "config") {
-    if (isObjLiteral(obj))
+export function load(obj: C = Configuration, path: string = "config"): void {
+    if (isProperty(obj)) {
+        if (Storage.has(path))
+            obj.setValue(Storage.get<any>(path));
+        obj.bind(value => Storage.set<any>(path, value));
+    } else
         for (let key in obj)
             load(obj[key], path + "." + key);
-    else {
-        if (Storage.has(path))
-            (<Property<any>>obj).setValue(Storage.get<any>(path));
-        (<Property<any>>obj).addListener(value => Storage.set<any>(path, value));
-    }
 }
 
-function isObjLiteral(_obj: Object) {
+function isProperty(obj: C): obj is Property<any> {
+    return !isObjLiteral(obj);
+}
+
+function isObjLiteral(_obj: object) {
     var _test = _obj;
     return (typeof _obj !== 'object' || _obj === null ?
         false :

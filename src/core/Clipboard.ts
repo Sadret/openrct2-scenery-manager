@@ -8,9 +8,9 @@
 import Template from "../template/Template";
 
 let templates: Template[] = [];
-let cursor: number = undefined;
+let cursor: number | undefined = undefined;
 
-export function getTemplate(): Template {
+export function getTemplate(): Template | undefined {
     if (cursor === undefined)
         return undefined;
     return templates[cursor];

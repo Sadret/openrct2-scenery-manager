@@ -8,33 +8,31 @@
 /// <reference path="./../../../openrct2.d.ts" />
 /// <reference path="./../definitions/Data.d.ts" />
 
-import * as CoordUtils from "../utils/CoordUtils";
-import * as SceneryUtils from "../utils/SceneryUtils";
+import * as Coordinates from "../utils/Coordinates";
+import * as MapIO from "../core/MapIO";
 
-export type BuildMode = "down" | "move" | "up";
 export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => TemplateData, onFinish?: () => void, mode: BuildMode = "down"): void {
-    let ghostData: ElementData[] = undefined;
-    let ghostCoords: CoordsXY = undefined;
+    let ghostData: ElementData[] = [];
+    let ghostCoords: CoordsXY = Coordinates.NULL;
     function removeGhost(): void {
-        if (ghostData !== undefined)
-            SceneryUtils.remove(ghostData, true);
-        ghostData = undefined;
-        ghostCoords = undefined;
-        ui.tileSelection.tiles = undefined;
+        MapIO.remove(ghostData, true);
+        ghostData = [];
+        ghostCoords = Coordinates.NULL;
+        ui.tileSelection.tiles = null;
     }
 
     function place(coords: CoordsXY, ghost: boolean, offset: CoordsXY = { x: 0, y: 0 }): void {
         removeGhost();
         const template: TemplateData = getTemplate(coords, offset);
         ui.tileSelection.tiles = template.tiles;
-        const elements: ElementData[] = SceneryUtils.place(template.elements, ghost);
+        const elements: ElementData[] = MapIO.place(template.elements, ghost);
         if (ghost) {
             ghostData = elements;
             ghostCoords = coords;
         };
     }
 
-    let screenCoords: CoordsXY = undefined;
+    let screenCoords: CoordsXY = Coordinates.NULL;
     ui.activateTool({
         id: "scenery-manager-builder",
         cursor: "cross_hair",
@@ -43,21 +41,22 @@ export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => Templ
         },
         onDown: e => {
             screenCoords = e.screenCoords;
-            place(e.mapCoords, mode === "up");
+            if (e.mapCoords !== undefined)
+                place(e.mapCoords, mode === "up");
         },
         onMove: e => {
             if (mode === "up" && e.isDown)
-                return place(ghostCoords, true, CoordUtils.sub(e.screenCoords, screenCoords));
-            const coords: CoordsXY = e.mapCoords;
+                return place(ghostCoords, true, Coordinates.sub(e.screenCoords, screenCoords));
+            const coords = e.mapCoords;
             if (coords === undefined || coords.x * coords.y === 0)
                 return removeGhost();
-            if (CoordUtils.equals(coords, ghostCoords))
+            if (Coordinates.equals(coords, ghostCoords))
                 return;
-            place(coords, mode !== "move" || !e.isDown, e.isDown ? CoordUtils.sub(e.screenCoords, screenCoords) : undefined);
+            place(coords, mode !== "move" || !e.isDown, e.isDown ? Coordinates.sub(e.screenCoords, screenCoords) : undefined);
         },
         onUp: e => {
             if (mode === "up")
-                place(ghostCoords, false, CoordUtils.sub(e.screenCoords, screenCoords));
+                place(ghostCoords, false, Coordinates.sub(e.screenCoords, screenCoords));
         },
         onFinish: () => {
             removeGhost();
@@ -74,11 +73,13 @@ export function pick(accept: (element: BaseTileElement) => boolean): void {
         cursor: "cross_hair",
         onStart: undefined,
         onDown: e => {
-            const tileCoords = CoordUtils.worldToTileCoords(e.mapCoords);
+            if (e.mapCoords === undefined || e.tileElementIndex === undefined)
+                return;
+            const tileCoords = Coordinates.worldToTileCoords(e.mapCoords);
             const tile: Tile = map.getTile(tileCoords.x, tileCoords.y);
             const element: BaseTileElement = tile.elements[e.tileElementIndex];
             if (accept(element))
-                ui.tool.cancel();
+                ui.tool ?.cancel();
         },
         onMove: undefined,
         onUp: undefined,
@@ -87,28 +88,29 @@ export function pick(accept: (element: BaseTileElement) => boolean): void {
 }
 
 export function select(): void {
-    let start = undefined;
-    let end = undefined;
-    let drag = false;
+    let start: CoordsXY = Coordinates.NULL;
+    let end: CoordsXY = Coordinates.NULL;
+    let drag: boolean = false;
 
     ui.activateTool({
-        id: "scenery-manager-selecter",
+        id: "scenery-manager-selector",
         cursor: "cross_hair",
         onStart: () => {
             ui.mainViewport.visibilityFlags |= 1 << 7;
         },
         onDown: e => {
             drag = true;
-            start = e.mapCoords;
+            if (e.mapCoords !== undefined)
+                start = e.mapCoords;
         },
         onMove: e => {
             if (e.mapCoords === undefined || e.mapCoords.x * e.mapCoords.y === 0)
                 return;
             if (drag) {
                 end = e.mapCoords;
-                ui.tileSelection.range = CoordUtils.span(start, end);
+                ui.tileSelection.range = Coordinates.span(start, end);
             } else if (start === undefined) {
-                ui.tileSelection.range = CoordUtils.span(e.mapCoords, e.mapCoords);
+                ui.tileSelection.range = Coordinates.span(e.mapCoords, e.mapCoords);
             }
         },
         onUp: () => {

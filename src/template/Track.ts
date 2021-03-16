@@ -5,13 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import IElement from "./IElement";
-import * as CoordUtils from "../utils/CoordUtils";
+import BaseElement from "./BaseElement";
 import * as Direction from "../utils/Direction";
 
-const Track: IElement<TrackElement, TrackData> = {
-
-    createFromTileData(coords: CoordsXY, element: TrackElement): TrackData {
+export default new class extends BaseElement<TrackElement, TrackData> {
+    createFromTileData(element: TrackElement, coords: CoordsXY): TrackData | undefined {
         if (element.sequence !== 0)
             return undefined;
         return {
@@ -20,59 +18,53 @@ const Track: IElement<TrackElement, TrackData> = {
             y: coords.y,
             z: element.baseZ,
             direction: element.direction,
-            identifier: undefined,
             ride: element.ride,
             trackType: element.trackType,
-            brakeSpeed: element.brakeBoosterSpeed,
-            colour: element.colourScheme,
-            seatRotation: element.seatRotation,
+            brakeSpeed: element.brakeBoosterSpeed || 0,
+            colour: element.colourScheme || 0,
+            seatRotation: element.seatRotation || 0,
             trackPlaceFlags:
                 Number(element.isInverted) << 1 |
                 Number(element.hasCableLift) << 2,
             isFromTrackDesign: false,
         };
-    },
+    }
 
     rotate(element: TrackData, rotation: number): TrackData {
         return {
-            ...element,
-            ...CoordUtils.rotate(element, rotation),
+            ...super.rotate(element, rotation),
             direction: Direction.rotate(element.direction, rotation),
         };
-    },
+    }
     mirror(element: TrackData): TrackData {
         return {
-            ...element,
-            ...CoordUtils.mirror(element),
+            ...super.mirror(element),
             direction: Direction.mirror(element.direction),
             trackType: mirrorMap[element.trackType],
-        };
-    },
+        }
+    }
 
     getPlaceArgs(element: TrackData): TrackPlaceArgs {
         return {
             ...element,
-            object: undefined,
             z: element.z - trackBlock[element.trackType],
             brakeSpeed: element.brakeSpeed === null ? 0 : element.brakeSpeed,
         };
-    },
+    }
     getRemoveArgs(element: TrackData): TrackRemoveArgs {
         return {
             ...element,
             sequence: 0,
         };
-    },
+    }
 
     getPlaceAction(): "trackplace" {
         return "trackplace";
-    },
+    }
     getRemoveAction(): "trackremove" {
         return "trackremove";
-    },
-
-};
-export default Track;
+    }
+}();
 
 const mirrorMap: number[] = [
     0,

@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import IElement from "./IElement";
+import BaseElement from "./BaseElement";
 import Banner from "./Banner";
 import Entrance from "./Entrance";
 import Footpath from "./Footpath";
@@ -14,10 +14,10 @@ import LargeScenery from "./LargeScenery";
 import SmallScenery from "./SmallScenery";
 import Track from "./Track";
 import Wall from "./Wall";
-import * as CoordUtils from "../utils/CoordUtils";
-import * as SceneryUtils from "../utils/SceneryUtils";
+import * as Coordinates from "../utils/Coordinates";
+import * as Context from "../core/Context";
 
-const map: { [key in ElementType]: IElement<BaseTileElement, ElementData> } = {
+const map: { [key in ElementType]: BaseElement<BaseTileElement, ElementData> } = {
     banner: Banner,
     entrance: Entrance,
     footpath: Footpath,
@@ -76,7 +76,7 @@ class Template implements TemplateData {
                     Template.get(element) ?.rotate(element, rotation)
                 ),
             tiles: this.tiles.map(
-                (tile: CoordsXY) => CoordUtils.rotate(tile, rotation)
+                (tile: CoordsXY) => Coordinates.rotate(tile, rotation)
             ),
         });
     }
@@ -89,18 +89,18 @@ class Template implements TemplateData {
                     Template.get(element) ?.mirror(element)
                 ),
             tiles: this.tiles.map(
-                (tile: CoordsXY) => CoordUtils.mirror(tile)
+                (tile: CoordsXY) => Coordinates.mirror(tile)
             ),
         });
     }
 
-    public static get(element: ElementData): IElement<BaseTileElement, ElementData> {
+    public static get(element: ElementData): BaseElement<BaseTileElement, ElementData> {
         return map[element.type];
     }
 
 
     public static isAvailable(element: ElementData): boolean {
-        return element.identifier === undefined || SceneryUtils.getObject(element) !== undefined;
+        return element.identifier === undefined || Context.getObject(element) !== undefined;
     }
 
     public static getPlaceArgs(element: ElementData): PlaceActionArgs {

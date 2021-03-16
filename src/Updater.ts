@@ -8,7 +8,7 @@
 /// <reference path="./definitions/Data.d.ts" />
 
 import * as Storage from "./persistence/Storage";
-import * as CoordUtils from "./utils/CoordUtils";
+import * as Coordinates from "./utils/Coordinates";
 import * as UiUtils from "./utils/UiUtils";
 import { File } from "./persistence/File";
 import Template from "./template/Template";
@@ -133,8 +133,8 @@ function update_111_120(): void {
         if (file.isFile()) {
             const template110: TemplateData_110 = file.getContent<TemplateData_110>();
 
-            const tiles = CoordUtils.toTiles(CoordUtils.span({ x: 0, y: 0 }, template110.size));
-            const center: CoordsXY = CoordUtils.center(tiles);
+            const tiles = Coordinates.toTiles(Coordinates.span({ x: 0, y: 0 }, template110.size));
+            const center: CoordsXY = Coordinates.center(tiles);
             const template120: TemplateData_120 = new Template({
                 elements: template110.elements.map(
                     (element: ElementData) => {

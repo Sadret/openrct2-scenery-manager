@@ -4,7 +4,7 @@ export default {
 	input: './src/index.ts',
 	output: {
 		format: 'iife',
-		file: './build/scenery-manager.js'
+		file: './build/out.js',
 	},
-	plugins: [typescript()]
+	plugins: [typescript()],
 };

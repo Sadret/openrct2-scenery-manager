@@ -20,44 +20,51 @@ type PlaceAction =
 
 
 interface PlaceActionArgs {
-    // all
     readonly flags?: number,
     readonly x: number,
     readonly y: number,
-    // almost all
     readonly z: number, // except entrance
-    readonly direction: number, // except footpath_addition, wall
-    readonly object: number, // except entrance, track
 }
 
 interface BannerPlaceArgs extends PlaceActionArgs {
+    readonly direction: number,
     readonly primaryColour: number,
 }
 
 interface EntrancePlaceArgs extends PlaceActionArgs {
+    readonly direction: number,
     readonly ride: number,
     readonly station: number,
     readonly isExit: boolean,
 }
 
 interface FootpathPlaceArgs extends PlaceActionArgs {
+    readonly direction: 0xFF;
+    readonly object: number,
     readonly slope: number,
 }
 
-interface FootpathAdditionPlaceArgs extends PlaceActionArgs { }
+interface FootpathAdditionPlaceArgs extends PlaceActionArgs {
+    readonly object: number,
+}
 
 interface LargeSceneryPlaceArgs extends PlaceActionArgs {
+    readonly direction: number,
+    readonly object: number,
     readonly primaryColour: number,
     readonly secondaryColour: number,
 }
 
 interface SmallSceneryPlaceArgs extends PlaceActionArgs {
+    readonly direction: number,
+    readonly object: number,
     readonly quadrant: number,
     readonly primaryColour: number,
     readonly secondaryColour: number,
 }
 
 interface TrackPlaceArgs extends PlaceActionArgs {
+    readonly direction: number,
     readonly ride: number,
     readonly trackType: number,
     readonly brakeSpeed: number,
@@ -68,6 +75,7 @@ interface TrackPlaceArgs extends PlaceActionArgs {
 }
 
 interface WallPlaceArgs extends PlaceActionArgs {
+    readonly object: number,
     readonly edge: number, // = direction
     readonly primaryColour: number,
     readonly secondaryColour: number,

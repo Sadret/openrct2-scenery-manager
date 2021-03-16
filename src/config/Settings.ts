@@ -17,7 +17,7 @@ const Settings = {
         small_scenery: new BooleanProperty(true),
         track: new BooleanProperty(true),
         wall: new BooleanProperty(true),
-    },
+    } as { [key: string]: BooleanProperty },
     rotation: new NumberProperty(0),
     mirrored: new BooleanProperty(false),
     height: new NumberProperty(0),

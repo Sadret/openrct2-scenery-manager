@@ -7,7 +7,7 @@
 
 import * as Clipboard from "../core/Clipboard";
 import * as MapIO from "../core/MapIO";
-import * as CoordUtils from "../utils/CoordUtils";
+import * as Coordinates from "../utils/Coordinates";
 import * as Tools from "../utils/Tools";
 import Settings from "../config/Settings";
 import Configuration from "../config/Configuration";
@@ -19,8 +19,8 @@ export function copy(): void {
     if (ui.tileSelection.range === null)
         return ui.showError("Can't copy area...", "Nothing selected!");
 
-    const tiles = CoordUtils.toTiles(ui.tileSelection.range);
-    const center = CoordUtils.center(tiles);
+    const tiles = Coordinates.toTiles(ui.tileSelection.range);
+    const center = Coordinates.center(tiles);
     Clipboard.addTemplate(new Template({
         elements: MapIO.read(tiles),
         tiles: tiles,

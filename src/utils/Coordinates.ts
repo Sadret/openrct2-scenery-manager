@@ -5,7 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../../../openrct2.d.ts" />
+/*
+ * CONSTANTS
+ */
+
+export const NULL = { x: 0, y: 0 };
 
 /*
  * CONVERSION FUNCTIONS
@@ -20,8 +24,6 @@ export function toTiles(range: MapRange): CoordsXY[] {
 }
 
 export function toMapRange(tiles: CoordsXY[]): MapRange {
-    if (tiles.length === 0)
-        return undefined;
     const xx: number[] = tiles.map((coords: CoordsXY) => coords.x);
     const yy: number[] = tiles.map((coords: CoordsXY) => coords.y);
     return {
@@ -136,7 +138,7 @@ export function circle(center: CoordsXY, diameter: number): CoordsXY[] {
     const range: number[] = [];
     for (let i = 0; i < diameter; i++)
         range.push(i);
-    return [].concat(
+    return ([] as CoordsXY[]).concat(
         ...range.map(
             (x: number) => range.map(
                 (y: number) => ({ x: x, y: y })

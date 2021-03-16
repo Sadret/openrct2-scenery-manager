@@ -5,11 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-export type Listener<T> = (value: T) => void;
-
 export class Property<T>{
     private value: T;
-    private readonly listeners: Listener<T>[] = [];
+    private readonly observers: Observer<T>[] = [];
 
     public constructor(defaultValue: T) {
         this.value = defaultValue;
@@ -22,12 +20,12 @@ export class Property<T>{
     public setValue(value: T): void {
         if (this.value !== value) {
             this.value = value;
-            this.listeners.forEach(listener => listener(this.value));
+            this.observers.forEach(observer => observer(value));
         }
     }
 
-    public addListener(listener: Listener<T>) {
-        this.listeners.push(listener);
+    public bind(observer: Observer<T>) {
+        this.observers.push(observer);
     }
 }
 
@@ -38,10 +36,10 @@ export class BooleanProperty extends Property<boolean>{
 }
 
 export class NumberProperty extends Property<number>{
-    public decrement() {
-        this.setValue(this.getValue() - 1);
+    public decrement(amount: number = 1) {
+        this.setValue(this.getValue() - amount);
     }
-    public increment() {
-        this.setValue(this.getValue() + 1);
+    public increment(amount: number = 1) {
+        this.setValue(this.getValue() + amount);
     }
 }

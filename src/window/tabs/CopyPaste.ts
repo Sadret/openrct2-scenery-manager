@@ -6,103 +6,111 @@
  *****************************************************************************/
 
 import * as Core from "../../core/Core";
-import * as Strings from "../../utils/Strings";
 import Settings from "../../config/Settings";
-import BoxBuilder from "../../gui/WindowBuilder";
-import { PropertyCheckboxWidget, PropertyToggleWidget, PropertySpinnerWidget } from "../../gui/PropertyWidget";
+import GUI from "../../gui/GUI";
 
-const widgets = {
-    filter: {},
-    rotation: undefined as PropertySpinnerWidget,
-    mirrored: undefined as PropertyToggleWidget,
-    height: undefined as PropertySpinnerWidget,
-};
-
-for (let key in Settings.filter)
-    widgets.filter[key] = new PropertyCheckboxWidget({
-        property: Settings.filter[key],
-        guiId: "settings.filter." + key,
-    });
-widgets.rotation = new PropertySpinnerWidget({
-    property: Settings.rotation,
-    guiId: "settings.rotation",
-    label: value => (value & 3) === 0 ? "none" : ((value & 3) * 90 + " deg"),
-});
-widgets.mirrored = new PropertyToggleWidget({
-    property: Settings.mirrored,
-    guiId: "settings.mirrored",
-});
-widgets.height = new PropertySpinnerWidget({
-    property: Settings.height,
-    guiId: "settings.height",
-});
-
-export function build(builder: BoxBuilder): void {
-    const hbox = builder.getHBox([3, 2]);
-    const vbox = hbox.getVBox();
-    // select, copy, paste
-    {
-        const group = vbox.getGroupBox();
-        group.addTextButton({
-            text: "Select area",
-            onClick: Core.select,
-        });
-        group.addTextButton({
-            text: "Copy area",
-            onClick: Core.copy,
-        });
-        group.addTextButton({
-            text: "Paste template",
-            onClick: Core.paste,
-        });
-        vbox.addGroupBox({
-            text: "Copy & Paste",
-        }, group);
-    }
-    // hack: make both sides the same height
-    vbox.addSpace(6);
-    // options
-    {
-        const group = vbox.getGroupBox();
-        {
-            const rotation = group.getHBox([1, 1]);
-            rotation.addLabel({
-                text: "Rotation:",
-            });
-            widgets.rotation.build(rotation);
-            group.addBox(rotation);
-        }
-        {
-            const mirrored = group.getHBox([1, 1]);
-            mirrored.addLabel({
-                text: "Mirrored:",
-            });
-            widgets.mirrored.build(mirrored);
-            group.addBox(mirrored);
-        }
-        {
-            const heightOffset = group.getHBox([1, 1]);
-            heightOffset.addLabel({
-                text: "Height offset:",
-            });
-            widgets.height.build(heightOffset);
-            group.addBox(heightOffset);
-        }
-        vbox.addGroupBox({
-            text: "Options",
-        }, group);
-    }
-    // finalize vbox
-    hbox.addBox(vbox);
-    // filter
-    {
-        const group = hbox.getGroupBox();
-        for (let key in Settings.filter)
-            widgets.filter[key].build(group, Strings.toDisplayString(key));
-        hbox.addGroupBox({
+export default new GUI.Tab(5465).add(
+    new GUI.HBox([3, 2]).add(
+        new GUI.VBox().add(
+            new GUI.GroupBox({
+                text: "Copy & Paste",
+            }).add(
+                new GUI.TextButton({
+                    text: "Select area",
+                    onClick: Core.select,
+                }),
+                new GUI.TextButton({
+                    text: "Copy area",
+                    onClick: Core.copy,
+                }),
+                new GUI.TextButton({
+                    text: "Paste template",
+                    onClick: Core.paste,
+                }),
+            ),
+            new GUI.Space(6),
+            new GUI.GroupBox({
+                text: "Options",
+            }).add(
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Label({
+                        text: "Rotation:",
+                    }),
+                    new GUI.Spinner({
+                        onDecrement: () => Settings.rotation.decrement(),
+                        onIncrement: () => Settings.rotation.increment(),
+                    }).bindText<number>(
+                        Settings.rotation,
+                        value => (value & 3) === 0 ? "none" : ((value & 3) * 90 + " deg"),
+                    ),
+                ),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Label({
+                        text: "Mirrored:",
+                    }),
+                    new GUI.TextButton({
+                        onClick: () => Settings.mirrored.flip(),
+                    }).bindText(
+                        Settings.mirrored,
+                        value => value ? "yes" : "no",
+                    ),
+                ),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Label({
+                        text: "Height offset:",
+                    }),
+                    new GUI.Spinner({
+                        onDecrement: () => Settings.height.decrement(),
+                        onIncrement: () => Settings.height.increment(),
+                    }).bindText(
+                        Settings.height,
+                    ),
+                ),
+            ),
+        ),
+        new GUI.GroupBox({
             text: "Filter",
-        }, group);
-    }
-    // finalize hbox
-    builder.addBox(hbox);
-}
+        }).add(
+            new GUI.Checkbox({
+                text: "Banner",
+            }).bindValue(
+                Settings.filter["banner"],
+            ),
+            new GUI.Checkbox({
+                text: "Entrance",
+            }).bindValue(
+                Settings.filter["entrance"],
+            ),
+            new GUI.Checkbox({
+                text: "Footpath",
+            }).bindValue(
+                Settings.filter["footpath"],
+            ),
+            new GUI.Checkbox({
+                text: "Footpath Addition",
+            }).bindValue(
+                Settings.filter["footpath_addition"],
+            ),
+            new GUI.Checkbox({
+                text: "Large Scenery",
+            }).bindValue(
+                Settings.filter["large_scenery"],
+            ),
+            new GUI.Checkbox({
+                text: "Small Scenery",
+            }).bindValue(
+                Settings.filter["small_scenery"],
+            ),
+            new GUI.Checkbox({
+                text: "Track",
+            }).bindValue(
+                Settings.filter["track"],
+            ),
+            new GUI.Checkbox({
+                text: "Wall",
+            }).bindValue(
+                Settings.filter["wall"],
+            ),
+        ),
+    ),
+);

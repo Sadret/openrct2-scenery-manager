@@ -28,7 +28,7 @@ export class File {
     readonly path: string;
 
     readonly name: string;
-    readonly parent: string;
+    readonly parent: string | undefined;
 
     constructor(fs: FileSystem, path: string) {
         this.fs = fs;
@@ -44,7 +44,7 @@ export class File {
         }
     }
 
-    static equals(file: File, other: File): boolean {
+    static equals(file: File | undefined, other: File | undefined): boolean {
         if (file === undefined && other === undefined)
             return true;
         if (file === undefined || other === undefined)
@@ -54,7 +54,7 @@ export class File {
 
     getPath(): string { return this.path; };
     getName(): string { return decode(this.name); };
-    getParent(): File {
+    getParent(): File | undefined {
         if (this.parent === undefined) return undefined;
         else return new File(this.fs, this.parent);
     };
@@ -66,7 +66,7 @@ export class File {
     getFiles(): File[] { return this.fs.getFiles(this); };
     getContent<T>(): T { return this.fs.getContent(this); };
 
-    addFolder(name: string): File {
+    addFolder(name: string): File | undefined {
         name = encode(name);
         const file: File = new File(this.fs, this.path + "/" + name);
         if (this.fs.createFolder(file))
@@ -74,7 +74,7 @@ export class File {
         else
             return undefined;
     };
-    addFile<T>(name: string, content: T): File {
+    addFile<T>(name: string, content: T): File | undefined {
         name = encode(name);
         const file: File = new File(this.fs, this.path + "/" + name);
         if (this.fs.createFile<T>(file, content))
@@ -83,10 +83,11 @@ export class File {
             return undefined;
     };
 
-    rename(name: string): File {
-        return this.move(this.getParent(), name);
+    rename(name: string): File | undefined {
+        const parent = this.getParent();
+        return parent && this.move(parent, name);
     };
-    copy(parent: File, name?: string): File {
+    copy(parent: File, name?: string): File | undefined {
         if (parent === undefined || name === "")
             return undefined;
         if (name === undefined)
@@ -98,7 +99,7 @@ export class File {
             return file;
         return undefined;
     };
-    move(parent: File, name?: string): File {
+    move(parent: File, name?: string): File | undefined {
         if (parent === undefined || name === "")
             return undefined;
         if (name === undefined)
@@ -113,6 +114,8 @@ export class File {
 
     delete(): boolean { return this.fs.delete(this); };
 }
+
+export class FileSystemError extends Error { }
 
 // forbidden chars: . (dot), / (forward slash)
 // escape char (see above): \ (backslash)

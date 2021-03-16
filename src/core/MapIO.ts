@@ -18,7 +18,7 @@ import SmallScenery from "../template/SmallScenery";
 import Template from "../template/Template";
 import Track from "../template/Track";
 import Wall from "../template/Wall";
-import * as CoordUtils from "../utils/CoordUtils";
+import * as Coordinates from "../utils/Coordinates";
 
 /*
  * READ / PLACE / REMOVE METHODS
@@ -70,35 +70,35 @@ export function remove(elements: ElementData[], ghost: boolean = false) {
  */
 
 function getSceneryData(coords: CoordsXY): ElementData[] {
-    const tileCoords = CoordUtils.worldToTileCoords(coords);
+    const tileCoords = Coordinates.worldToTileCoords(coords);
     const tile = map.getTile(tileCoords.x, tileCoords.y);
     const data: ElementData[] = [];
     tile.elements.forEach(element => {
         switch (element.type) {
             case "banner":
-                return data.push(Banner.createFromTileData(coords, element));
+                return data.push(Banner.createFromTileData(element, coords));
             case "entrance":
-                return data.push(Entrance.createFromTileData(coords, element));
+                return data.push(Entrance.createFromTileData(element, coords));
             case "footpath":
-                data.push(Footpath.createFromTileData(coords, element));
-                const addition = FootpathAddition.createFromTileData(coords, element);
+                data.push(Footpath.createFromTileData(element, coords));
+                const addition = FootpathAddition.createFromTileData(element, coords);
                 if (addition !== undefined)
                     data.push(addition);
                 return;
             case "large_scenery":
-                const largeScenery = LargeScenery.createFromTileData(coords, element);
+                const largeScenery = LargeScenery.createFromTileData(element, coords);
                 if (largeScenery !== undefined)
                     data.push(largeScenery);
                 return;
             case "small_scenery":
-                return data.push(SmallScenery.createFromTileData(coords, element));
+                return data.push(SmallScenery.createFromTileData(element, coords));
             case "track":
-                const track = Track.createFromTileData(coords, element);
+                const track = Track.createFromTileData(element, coords);
                 if (track !== undefined)
                     data.push(track);
                 return;
             case "wall":
-                return data.push(Wall.createFromTileData(coords, element));
+                return data.push(Wall.createFromTileData(element, coords));
             default:
                 return;
         }
@@ -111,11 +111,11 @@ function getSceneryData(coords: CoordsXY): ElementData[] {
  */
 
 export function getSurfaceHeight(coords: CoordsXY): number {
-    coords = CoordUtils.worldToTileCoords(coords);
+    coords = Coordinates.worldToTileCoords(coords);
     for (let element of map.getTile(coords.x, coords.y).elements)
         if (element.type === "surface")
             return element.baseZ;
-    return undefined;
+    return 0;
 }
 
 export function getMedianSurfaceHeight(tiles: CoordsXY[]): number {
@@ -124,34 +124,4 @@ export function getMedianSurfaceHeight(tiles: CoordsXY[]): number {
     );
     heights.sort();
     return heights[Math.floor(heights.length / 2)];
-}
-
-/*
- * IDENTIFIER TO OBJECT CONVERSION
- */
-
-const cache: { [key: string]: { [key: string]: Object; }; } = {};
-
-function loadCache(type: ObjectType): void {
-    cache[type] = {};
-    context.getAllObjects(type).forEach(object => cache[type][getIdentifierFromObject(object)] = object);
-}
-
-export function getObject(data: ObjectData): Object {
-    if (cache[data.type] === undefined)
-        loadCache(<ObjectType>data.type);
-    const object = cache[data.type][data.identifier];
-    if (object !== undefined && data.identifier !== getIdentifierFromObject(object))
-        loadCache(<ObjectType>data.type);
-    return cache[data.type][data.identifier];
-}
-
-function getIdentifierFromObject(object: Object): string {
-    if (object === null)
-        return undefined;
-    return object.identifier || object.legacyIdentifier;
-}
-
-export function getIdentifier(element: { type: ObjectType, object: number }): string {
-    return getIdentifierFromObject(context.getObject(element.type, element.object));
 }

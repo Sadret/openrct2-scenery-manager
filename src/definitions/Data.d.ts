@@ -38,23 +38,21 @@ interface ObjectData {
 }
 
 interface ElementData {
-    // all
     readonly type: ElementType;
     readonly x: number;
     readonly y: number;
-    // almost all
     readonly z: number; // except entrance
-    readonly direction: number; // except footpath, footpath_addition
-    readonly identifier: string; // except entrance, track
 }
 
 interface BannerData extends ElementData {
     readonly type: "banner";
+    readonly direction: number;
     readonly primaryColour: number;
 }
 
 interface EntranceData extends ElementData {
     readonly type: "entrance";
+    readonly direction: number;
     readonly ride: number;
     readonly station: number;
     readonly isExit: boolean;
@@ -62,22 +60,28 @@ interface EntranceData extends ElementData {
 
 interface FootpathData extends ElementData {
     readonly type: "footpath";
-    readonly slopeDirection: number;
+    readonly identifier: string;
+    readonly slopeDirection: number | null;
     readonly isQueue: boolean;
 }
 
 interface FootpathAdditionData extends ElementData {
     readonly type: "footpath_addition";
+    readonly identifier: string;
 }
 
 interface LargeSceneryData extends ElementData {
     readonly type: "large_scenery";
+    readonly direction: number;
+    readonly identifier: string;
     readonly primaryColour: number;
     readonly secondaryColour: number;
 }
 
 interface SmallSceneryData extends ElementData {
     readonly type: "small_scenery";
+    readonly direction: number;
+    readonly identifier: string;
     readonly quadrant: number;
     readonly primaryColour: number;
     readonly secondaryColour: number;
@@ -85,6 +89,7 @@ interface SmallSceneryData extends ElementData {
 
 interface TrackData extends ElementData {
     readonly type: "track";
+    readonly direction: number;
     readonly ride: number;
     readonly trackType: number;
     readonly brakeSpeed: number;
@@ -96,6 +101,8 @@ interface TrackData extends ElementData {
 
 interface WallData extends ElementData {
     readonly type: "wall";
+    readonly direction: number;
+    readonly identifier: string;
     readonly primaryColour: number;
     readonly secondaryColour: number;
     readonly tertiaryColour: number;
@@ -106,6 +113,6 @@ interface WallData extends ElementData {
  */
 
 interface ScatterData {
-    readonly element: ElementData;
+    readonly element: ElementData | undefined;
     readonly weight: number;
 }

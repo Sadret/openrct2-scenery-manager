@@ -1,17 +1,13 @@
 {
-    "name": "scenery-manager",
-    "version": "1.1.7",
-    "description": "Scenery Manager",
-    "scripts": {
-        "build": "rollup -c && babel ./build/scenery-manager.js --out-file ./build/scenery-manager.js"
-    },
+    "name": "rollup-test",
+    "version": "1.0.0",
+    "description": "Test project for rollup.",
+    "author": "Sadret",
+    "license": "GPL-3.0",
     "devDependencies": {
-        "@babel/core": "^7.9.0",
-        "@rollup/plugin-typescript": "^5.0.0",
-        "babel-cli": "^6.26.0",
-        "babel-preset-env": "^1.7.0",
-        "rollup": "^2.18.0",
-        "tslib": "^1.13.0",
-        "typescript": "^3.9.3"
+        "@rollup/plugin-typescript": "^8.2.0",
+        "rollup": "^2.40.0",
+        "tslib": "^2.1.0",
+        "typescript": "^4.2.3"
     }
 }

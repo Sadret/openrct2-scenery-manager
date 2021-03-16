@@ -5,130 +5,195 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import LibraryWidget from "../../gui/LibraryWidget";
-import * as Scatter from "../../core/Scatter";
+import * as Context from "../../core/Context";
+import * as MapIO from "../../core/MapIO";
+import * as Arrays from "../../utils/Arrays";
+import * as Tools from "../../utils/Tools";
+import Brush from "../widgets/Brush";
 import Configuration from "../../config/Configuration";
-import * as Storage from "../../persistence/Storage";
-import * as WindowManager from "../../window/WindowManager";
-import { File } from "../../persistence/File";
-import { PropertyCheckboxWidget, PropertySpinnerWidget, PropertyLabelWidget } from "../../gui/PropertyWidget";
-import BoxBuilder from "../../gui/WindowBuilder";
-import * as Brush from "../Brush";
-import { Property, NumberProperty } from "../../config/Property";
+import GUI from "../../gui/GUI";
+import SmallScenery from "../../template/SmallScenery";
+import LargeScenery from "../../template/LargeScenery";
+import Template from "../../template/Template";
+import { NumberProperty, Property } from "../../config/Property";
 
-const widgets = {
-    randomise: {
-        rotation: new PropertyCheckboxWidget({
-            property: Configuration.scatter.randomise.rotation,
-            guiId: "scatter.randomise.rotation",
-        }),
-        quadrant: new PropertyCheckboxWidget({
-            property: Configuration.scatter.randomise.quadrant,
-            guiId: "scatter.randomise.quadrant",
-        }),
-    },
-    data: [] as {
-        element: PropertyLabelWidget,
-        weight: PropertySpinnerWidget,
-    }[],
-    empty: new PropertySpinnerWidget({
-        property: new NumberProperty(undefined),
-        guiId: "scatter.pattern.empty",
-    })
-}
-widgets.data = Scatter.data.map((_, idx) => ({
-    element: new PropertyLabelWidget({
-        property: new Property<string>(undefined),
-        guiId: "scatter.pattern.element" + idx,
-    }),
-    weight: new PropertySpinnerWidget({
-        property: new NumberProperty(undefined),
-        guiId: "scatter.pattern.weight" + idx,
-    }),
+const data: Property<ScatterData>[] = Arrays.create<Property<ScatterData>>(5, () => new Property<ScatterData>({
+    element: undefined,
+    weight: 0,
 }));
+let empty: NumberProperty = new NumberProperty(100);
 
-const library = new class extends LibraryWidget {
-    constructor() {
-        super("scatter", Storage.scatter);
-        Scatter.addListener(() => this.update());
-    }
-    getWindow(): Window {
-        return WindowManager.getHandle();
-    }
-    getColumns(): ListViewColumn[] {
-        return [{
-            header: "Name",
-            ratioWidth: 4,
-        }, {
-            header: "Size",
-            ratioWidth: 1,
-        }, {
-            header: "Density",
-            ratioWidth: 1,
-        }];
-    }
-    getItem(file: File): ListViewItem {
-        const data: ScatterData[] = file.getContent<ScatterData[]>();
-        const density: number = data.reduce((previous: number, current: ScatterData) => previous + current.weight, 0);
-        return [file.name, String(data.length), String(density) + "%"];
-    }
-}();
-
-export function build(builder: BoxBuilder): void {
-    Brush.build(builder);
-    Brush.setProvider(tiles => Scatter.provide(tiles));
-    Brush.setMode(Configuration.scatter.dragToPlace.getValue() ? "move" : "down");
-    Brush.activate();
-
-    buildOptions(builder);
-    buildPattern(builder);
+function getLabel(element: ElementData | undefined): string {
+    return element === undefined ? "(empty)" : (Context.getObject(element).name + " (" + element.identifier + ")");
 }
 
-function buildOptions(builder: BoxBuilder): void {
-    const group = builder.getGroupBox();
-    const hbox = group.getHBox([1, 1]);
-    widgets.randomise.rotation.build(hbox, "Randomise rotation");
-    widgets.randomise.quadrant.build(hbox, "Randomise quadrant");
-    group.addBox(hbox);
-    builder.addGroupBox({
-        text: "Options",
-    }, group);
+function getRandomEntry(): ElementData | undefined {
+    let rnd = Math.random() * 100;
+    for (let i = 0; i < data.length; i++)
+        if ((rnd -= data[i].getValue().weight) < 0)
+            return data[i].getValue().element;
+    return undefined;
 }
 
-function buildPattern(builder: BoxBuilder): void {
-    const group = builder.getGroupBox();
+function provide(tiles: CoordsXY[]): TemplateData {
+    return {
+        elements: tiles.map<ElementData | undefined>((coords: CoordsXY) => {
+            let data: ElementData | undefined = getRandomEntry();
+            const z: number = MapIO.getSurfaceHeight(coords);
+            if (data === undefined || z == undefined)
+                return undefined;
 
-    widgets.data.forEach((entry, idx) => {
-        const isDisabled = entry.element === undefined;
+            if (Configuration.scatter.randomise.rotation.getValue())
+                data = Template.get(data).rotate(data, Math.floor(Math.random() * 4));
 
-        const hbox = group.getHBox([10, 4, 2, 2, 3,]);
-        entry.element.build(hbox, isDisabled);
-        entry.weight.build(hbox, isDisabled);
-        hbox.addTextButton({
-            text: "-10%",
-            onClick: () => Scatter.updateEntry(idx, - 10),
+            if (Configuration.scatter.randomise.quadrant.getValue())
+                if (data.type === "small_scenery")
+                    data = SmallScenery.setQuadrant(<SmallSceneryData>data, Math.floor(Math.random() * 4));
+
+            return {
+                ...data,
+                ...coords,
+                z: z,
+            };
+        }).filter<ElementData>((data: ElementData | undefined): data is ElementData => data !== undefined),
+        tiles: tiles,
+    };
+}
+
+function updateEntryElement(entry: Property<ScatterData>, clear: boolean): void {
+    empty.increment(entry.getValue().weight);
+
+    if (clear)
+        return entry.setValue({
+            element: undefined,
+            weight: 0,
         });
-        hbox.addTextButton({
-            text: "+10%",
-            onClick: () => Scatter.updateEntry(idx, + 10),
+
+    Tools.pick(
+        (element: BaseTileElement) => {
+            let data: ElementData | undefined;
+            switch (element.type) {
+                case "small_scenery":
+                    data = SmallScenery.createFromTileData(<SmallSceneryElement>element);
+                    break;
+                case "large_scenery":
+                    data = LargeScenery.createFromTileData(<LargeSceneryElement>element, undefined, true);
+                    break;
+                default:
+                    return (ui.showError("Cannot use this element...", "Element must be either small scenery or large scenery."), false);
+            }
+            entry.setValue({
+                element: data,
+                weight: 0,
+            });
+            return true;
         });
-        hbox.addTextButton({
-            text: "Pick",
-            onClick: () => console.log("pick entry " + idx),
-        });
-        group.addBox(hbox);
+}
+
+function updateEntryWeight(entry: Property<ScatterData>, delta: number): void {
+    let weight = entry.getValue().weight;
+    empty.increment(weight);
+    weight += delta;
+    if (weight < 0)
+        weight = 0;
+    if (weight > empty.getValue())
+        weight = empty.getValue();
+    empty.decrement(weight);
+    entry.setValue({
+        element: entry.getValue().element,
+        weight: weight,
     });
-
-    {
-        const hbox = group.getHBox([10, 4, 2, 2, 3,]);
-        hbox.addLabel({
-            text: "(empty)",
-            isDisabled: true,
-        });
-        widgets.empty.build(hbox);
-    }
-
-    builder.addGroupBox({
-        text: "Pattern",
-    }, group);
 }
+
+export default new GUI.Tab(5459).add(
+    new Brush(
+        tiles => provide(tiles),
+        Configuration.scatter.dragToPlace.getValue() ? "move" : "down",
+    ),
+    new GUI.GroupBox({
+        text: "Options",
+    }).add(
+        new GUI.HBox([1, 1]).add(
+            new GUI.Checkbox({
+                text: "Randomise rotation",
+            }).bindValue(
+                Configuration.scatter.randomise.rotation,
+            ),
+            new GUI.Checkbox({
+                text: "Randomise quadrant",
+            }).bindValue(
+                Configuration.scatter.randomise.quadrant,
+            ),
+        )
+    ),
+    new GUI.GroupBox({
+        text: "Pattern",
+    }).add(
+        ...data.map(entry =>
+            new GUI.HBox([10, 4, 2, 2, 3,]).add(
+                new GUI.Label({}).bindText(
+                    entry,
+                    data => getLabel(data.element),
+                ),
+                new GUI.Spinner({
+                    onDecrement: () => updateEntryWeight(entry, -1),
+                    onIncrement: () => updateEntryWeight(entry, +1),
+                }).bindIsDisabled(
+                    entry,
+                    data => data.element === undefined,
+                ).bindText(
+                    entry,
+                    data => String(data.weight) + "%",
+                ),
+                new GUI.TextButton({
+                    text: "-10%",
+                    onClick: () => updateEntryWeight(entry, -10),
+                }).bindIsDisabled(
+                    entry,
+                    data => data.element === undefined,
+                ),
+                new GUI.TextButton({
+                    text: "+10%",
+                    onClick: () => updateEntryWeight(entry, +10),
+                }).bindIsDisabled(
+                    entry,
+                    data => data.element === undefined,
+                ),
+                new GUI.TextButton({
+                    onClick: () => updateEntryElement(entry, entry.getValue().element !== undefined),
+                }).bindText(
+                    entry,
+                    data => data.element === undefined ? "Pick" : "Clear",
+                ),
+            )
+        ),
+        new GUI.HBox([10, 4, 2, 2, 3,]).add(
+            new GUI.Label({
+                text: "(empty)",
+                isDisabled: true,
+            }),
+            new GUI.Spinner({
+                isDisabled: true,
+            }).bindText(
+                empty,
+                value => String(value) + "%",
+            ),
+            new GUI.Space(),
+            new GUI.Space(),
+            new GUI.Space(),
+        ),
+        new GUI.Space(2),
+        new GUI.HBox([7, 7, 7]).add(
+            new GUI.TextButton({
+                text: "Save",
+            }),
+            new GUI.TextButton({
+                text: "Load",
+            }),
+            new GUI.TextButton({
+                text: "Clear all",
+                onClick: () => data.forEach(entry => updateEntryElement(entry, true)),
+            }),
+        ),
+    ),
+);

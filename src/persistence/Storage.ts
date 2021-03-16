@@ -6,7 +6,7 @@
  *****************************************************************************/
 
 /// <reference path="./../../../openrct2.d.ts" />
-import { File, FileSystem } from "../persistence/File";
+import { File, FileSystem, FileSystemError } from "../persistence/File";
 
 const namespace: string = "scenery-manager";
 const storagePrefix: string = namespace + ".";
@@ -15,7 +15,7 @@ export function has(key: string): boolean {
     return context.sharedStorage.has(storagePrefix + key);
 }
 
-export function get<T>(key: string): T {
+export function get<T>(key: string): T | undefined {
     return context.sharedStorage.get(storagePrefix + key);
 }
 
@@ -40,11 +40,11 @@ interface StorageFile<T> extends StorageElement {
 export class StorageFileSystem implements FileSystem {
     readonly root: string;
 
-    constructor(root: string) {
+    public constructor(root: string) {
         this.root = root;
     }
 
-    getRoot(): File {
+    public getRoot(): File {
         const file: File = new File(this, "");
         this.createFolder(file);
         return file;
@@ -54,15 +54,18 @@ export class StorageFileSystem implements FileSystem {
      * CONFIG HELPER METHODS
      */
 
-    getKey(file: File): string {
+    private getKey(file: File): string {
         return (this.root + file.getPath()).replace(/\//g, ".files.");
     }
 
-    getData<T extends StorageElement>(file: File): T {
-        return get<T>(this.getKey(file));
+    private getData<T extends StorageElement>(file: File): T {
+        const data = get<T>(this.getKey(file));
+        if (data === undefined)
+            throw new FileSystemError();
+        return data;
     }
 
-    setData<T extends StorageElement>(file: File, data: T): void {
+    private setData<T extends StorageElement | undefined>(file: File, data: T): void {
         set<T>(this.getKey(file), data);
     }
 
@@ -70,28 +73,44 @@ export class StorageFileSystem implements FileSystem {
      * INTERFACE IMPLEMENTATION
      */
 
-    exists(file: File): boolean { return has(this.getKey(file)); };
-    isFolder(file: File): boolean { return this.exists(file) && this.getData(file).type === "folder"; };
-    isFile(file: File): boolean { return this.exists(file) && this.getData(file).type === "file"; };
+    public exists(file: File): boolean {
+        return has(this.getKey(file));
+    };
+    public isFolder(file: File): boolean {
+        if (!this.exists(file))
+            return false;
+        const data = this.getData<StorageElement>(file);
+        return data !== undefined && data.type === "folder";
+    };
+    public isFile(file: File): boolean {
+        if (!this.exists(file))
+            return false;
+        const data = this.getData<StorageElement>(file);
+        return data !== undefined && data.type === "file";
+    };
 
-    getFiles(file: File): File[] {
+    public getFiles(file: File): File[] {
         if (!this.isFolder(file))
-            return undefined;
+            return [];
 
-        const files: { [key: string]: StorageElement } = this.getData<StorageFolder>(file).files;
+        const data = this.getData<StorageFolder>(file);
+        if (data === undefined)
+            return [];
+
         const result: File[] = [];
-        for (const name in files)
+        for (const name in data.files)
             result.push(new File(this, file.path + "/" + name));
         return result;
     };
-    getContent<T>(file: File): T {
+    public getContent<T>(file: File): T {
         if (!this.isFile(file))
-            return undefined;
+            throw new FileSystemError();
 
-        return this.getData<StorageFile<T>>(file).content;
+        const data = this.getData<StorageFile<T>>(file);
+        return data && data.content;
     };
 
-    createFolder(file: File): boolean {
+    public createFolder(file: File): boolean {
         if (this.exists(file))
             return false;
 
@@ -101,7 +120,7 @@ export class StorageFileSystem implements FileSystem {
         });
         return true;
     };
-    createFile<T>(file: File, content: T): boolean {
+    public createFile<T>(file: File, content: T): boolean {
         if (this.exists(file))
             return false;
 
@@ -112,26 +131,26 @@ export class StorageFileSystem implements FileSystem {
         return true;
     };
 
-    copy(src: File, dest: File): boolean {
-        return this.__copy_move(src, dest, false);
+    public copy(src: File, dest: File): boolean {
+        return this.copy_move(src, dest, false);
     };
-    move(src: File, dest: File): boolean {
-        return this.__copy_move(src, dest, true);
+    public move(src: File, dest: File): boolean {
+        return this.copy_move(src, dest, true);
     };
-    __copy_move(src: File, dest: File, move: boolean): boolean {
+    private copy_move(src: File, dest: File, move: boolean): boolean {
         if (!this.exists(src) || this.exists(dest))
             return false;
         if (move && this.isFolder(src) && dest.getPath().indexOf(src.getPath()) !== -1)
             return false;
 
-        this.setData(dest, this.__deepCopy(this.getData(src)));
+        this.setData(dest, this.deepCopy(this.getData(src)));
 
         if (move)
             this.delete(src);
 
         return true;
     }
-    setContent<T>(file: File, content: T): boolean {
+    public setContent<T>(file: File, content: T): boolean {
         if (!this.isFile(file))
             return false;
 
@@ -142,14 +161,15 @@ export class StorageFileSystem implements FileSystem {
         return true;
     };
 
-    delete(file: File): boolean {
+    public delete(file: File): boolean {
         if (!this.exists(file))
             return false;
 
         this.setData(file, undefined);
+        return true;
     };
 
-    __deepCopy<T>(data: StorageElement): StorageElement {
+    private deepCopy<T>(data: StorageElement): StorageElement {
         if (data.type === "file") {
             const file: StorageFile<T> = <StorageFile<T>>data;
             return <StorageElement>{
@@ -160,7 +180,7 @@ export class StorageFileSystem implements FileSystem {
             const folder: StorageFolder = <StorageFolder>data;
             const files: { [key: string]: StorageElement } = {};
             Object.keys(folder.files).forEach(key => {
-                files[key] = this.__deepCopy(folder.files[key]);
+                files[key] = this.deepCopy(folder.files[key]);
             })
             return <StorageElement>{
                 type: "folder",

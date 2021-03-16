@@ -8,15 +8,10 @@
 /// <reference path="./../../openrct2.d.ts" />
 
 import * as Updater from "./Updater";
-import * as Storage from "./persistence/Storage";
 import * as Shortcuts from "./Shortcuts";
-import Clipboard from "./widgets/Clipboard";
-import Library from "./widgets/Library";
-import LibraryView from "./widgets/LibraryView";
-import Scatter from "./widgets/Scatter";
-import SceneryManager from "./SceneryManager";
 import * as Configuration from "./config/Configuration";
 import * as StartUp from "./StartUp";
+import MainWindow from "./window/MainWindow";
 
 registerPlugin({
     name: "scenery-manager",
@@ -32,13 +27,8 @@ registerPlugin({
 
         Updater.update(() => {
             Configuration.load();
-            Clipboard.folderView.open(Storage.clipboard.getRoot());
-            Library.folderView.open(Storage.library.getRoot());
-            LibraryView.folderView.open(Storage.library.getRoot());
-            Scatter.library.open(Storage.scatter.getRoot());
-            ui.registerMenuItem("Scenery Manager", () => SceneryManager.open());
+            ui.registerMenuItem("Scenery Manager", () => MainWindow.open());
             Shortcuts.register();
-
             StartUp.execute();
         });
     },
