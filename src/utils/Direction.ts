@@ -8,7 +8,9 @@
 export function rotate(direction: number, rotation: number): number;
 export function rotate(direction: number | null, rotation: number): number | null;
 export function rotate(direction: number | null, rotation: number): number | null {
-    return direction && (direction + rotation) & 0x3;
+    if (direction === null)
+        return null;
+    return (direction + rotation) & 0x3;
 }
 
 export function mirror(direction: number, mirrored?: boolean): number;
