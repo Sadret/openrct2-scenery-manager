@@ -5,7 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../../../openrct2.d.ts" />
 import { File, FileSystem, FileSystemError } from "../persistence/File";
 
 const namespace: string = "scenery-manager";
@@ -51,6 +50,16 @@ export class StorageFileSystem implements FileSystem {
     }
 
     /*
+     * OBSERVER
+     */
+
+    readonly observers: Observer<File>[] = [];
+    public addObserver(observer: Observer<File>): void {
+        this.observers.push(observer);
+    }
+
+
+    /*
      * CONFIG HELPER METHODS
      */
 
@@ -67,6 +76,7 @@ export class StorageFileSystem implements FileSystem {
 
     private setData<T extends StorageElement | undefined>(file: File, data: T): void {
         set<T>(this.getKey(file), data);
+        this.observers.forEach(observer => observer(file));
     }
 
     /*
@@ -190,6 +200,7 @@ export class StorageFileSystem implements FileSystem {
     }
 }
 
-export const clipboard: StorageFileSystem = new StorageFileSystem("clipboard");
-export const library: StorageFileSystem = new StorageFileSystem("library");
-export const scatter: StorageFileSystem = new StorageFileSystem("scatter");
+export const libraries = {
+    templates: new StorageFileSystem("libraries.templates"),
+    scatter: new StorageFileSystem("libraries.scatter"),
+}

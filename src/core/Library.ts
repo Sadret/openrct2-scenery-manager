@@ -32,7 +32,7 @@ export function save(name?: string): void {
             callback: name => save(name),
         });
 
-    const file = Storage.library.getRoot().addFile<TemplateData>(name, data);
+    const file = Storage.libraries.templates.getRoot().addFile<TemplateData>(name, data);
     if (file === undefined)
         return ui.showError("Can't save template...", "Template with this name already exists!");
 

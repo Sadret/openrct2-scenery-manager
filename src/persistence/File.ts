@@ -6,6 +6,9 @@
  *****************************************************************************/
 
 export interface FileSystem {
+    getRoot(): File;
+    addObserver(observer: Observer<File>): void;
+
     exists(file: File): boolean;
     isFolder(file: File): boolean;
     isFile(file: File): boolean;
@@ -67,6 +70,8 @@ export class File {
     getContent<T>(): T { return this.fs.getContent(this); };
 
     addFolder(name: string): File | undefined {
+        if (name === "")
+            return undefined;
         name = encode(name);
         const file: File = new File(this.fs, this.path + "/" + name);
         if (this.fs.createFolder(file))
@@ -75,6 +80,8 @@ export class File {
             return undefined;
     };
     addFile<T>(name: string, content: T): File | undefined {
+        if (name === "")
+            return undefined;
         name = encode(name);
         const file: File = new File(this.fs, this.path + "/" + name);
         if (this.fs.createFile<T>(file, content))

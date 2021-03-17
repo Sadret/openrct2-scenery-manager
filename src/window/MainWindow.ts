@@ -8,5 +8,10 @@
 import GUI from "../gui/GUI";
 import CopyPaste from "./tabs/CopyPaste";
 import Scatter from "./tabs/Scatter";
+import TemplateLibrary from "./tabs/TemplateLibrary";
 
-export default new GUI.WindowManager(384, [CopyPaste, Scatter]);
+export default new GUI.WindowManager(384, [
+    CopyPaste,
+    TemplateLibrary,
+    Scatter,
+]);

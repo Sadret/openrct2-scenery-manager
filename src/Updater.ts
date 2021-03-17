@@ -111,8 +111,8 @@ function update_101_110(): void {
         }
     }
 
-    recurse(Storage.clipboard.getRoot());
-    recurse(Storage.library.getRoot());
+    recurse(Storage.libraries.templates.getRoot());
+    recurse(Storage.libraries.scatter.getRoot());
 }
 
 function update_110_111(): void { }
@@ -164,8 +164,8 @@ function update_111_120(): void {
         }
     }
 
-    recurse(Storage.clipboard.getRoot());
-    recurse(Storage.library.getRoot());
+    recurse(Storage.libraries.templates.getRoot());
+    recurse(Storage.libraries.scatter.getRoot());
 }
 
 function init(): void {
