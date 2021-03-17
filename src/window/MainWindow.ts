@@ -10,8 +10,16 @@ import CopyPaste from "./tabs/CopyPaste";
 import Scatter from "./tabs/Scatter";
 import TemplateLibrary from "./tabs/TemplateLibrary";
 
-export default new GUI.WindowManager(384, [
-    CopyPaste,
-    TemplateLibrary,
-    Scatter,
-]);
+export default new GUI.WindowManager(
+    {
+        width: 384,
+        height: 0,
+        classification: "scenery-manager.main",
+        title: "Scenery Manager",
+        colours: [7, 7, 6,], // shades of blue
+    }, [
+        CopyPaste,
+        TemplateLibrary,
+        Scatter,
+    ],
+);

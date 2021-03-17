@@ -5,11 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../definitions/Data.d.ts" />
-
 import * as Clipboard from "../core/Clipboard";
 import { File } from "../persistence/File";
 import * as Storage from "../persistence/Storage";
+import * as UiUtils from "../utils/UiUtils";
 
 export function save(name?: string): void {
     const data = Clipboard.getTemplate();
@@ -40,6 +39,13 @@ export function renameFile(file: File, name?: string): void {
 }
 
 export function deleteFile(file: File): void {
-    console.log("are you sure?");
-    file.delete();
+    UiUtils.showConfirm(
+        "Delete file " + file.getName(),
+        ["Are you sure you want to delete the file", file.getName() + "?"],
+        confirmed => {
+            if (confirmed)
+                file.delete();
+        },
+        "Delete",
+    );
 }
