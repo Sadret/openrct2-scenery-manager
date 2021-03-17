@@ -38,7 +38,7 @@ export default abstract class FileExplorer extends GUI.ListView {
 
     protected abstract getItem(file: File): ListViewItem;
 
-    private getSelectedFile(): File | undefined {
+    public getSelectedFile(): File | undefined {
         const idx = this.args.selectedCell ?.row;
         if (idx === undefined)
             return undefined;

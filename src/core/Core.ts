@@ -38,7 +38,7 @@ export function paste(): void {
         (coords, offset: CoordsXY) => {
             const template = Clipboard.getTemplate();
             if (template === undefined) {
-                ui.showError("Can't paste template...", "Nothing copied!");
+                ui.showError("Can't paste template...", "Clipboard is empty!");
                 return { elements: [], tiles: [] };
             }
 
