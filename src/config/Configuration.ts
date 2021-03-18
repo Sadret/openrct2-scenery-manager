@@ -30,7 +30,7 @@ const Configuration = {
     },
     brush: {
         shape: new Property<BrushShape>("circle"),
-        size: new NumberProperty(15),
+        size: new NumberProperty(15, 1),
     },
     copyPaste: {
         onMissingElement: new Property<Action>("error"),

@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-export class Property<T>{
+export class Property<T> implements Observable<T>{
     private value: T;
     private readonly observers: Observer<T>[] = [];
 
@@ -35,7 +35,24 @@ export class BooleanProperty extends Property<boolean>{
     }
 }
 
-export class NumberProperty extends Property<number>{
+export class NumberProperty extends Property<number> implements ObservableNumber {
+    private readonly minimum: number;
+    private readonly maximum: number;
+
+    constructor(
+        defaultValue: number,
+        minimum: number = Number.NEGATIVE_INFINITY,
+        maximum: number = Number.POSITIVE_INFINITY,
+    ) {
+        super(defaultValue);
+        this.minimum = minimum;
+        this.maximum = maximum;
+    }
+
+    setValue(value: number): void {
+        super.setValue(Math.max(this.minimum, Math.min(this.maximum, value)));
+    }
+
     public decrement(amount: number = 1) {
         this.setValue(this.getValue() - amount);
     }

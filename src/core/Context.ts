@@ -21,7 +21,7 @@ export function getObject(data: ObjectData): Object {
     return cache[data.type][data.identifier];
 }
 
-function getIdentifierFromObject(object: Object): string {
+export function getIdentifierFromObject(object: Object): string {
     return object.identifier || object.legacyIdentifier;
 }
 

@@ -34,9 +34,7 @@ class Brush extends GUI.GroupBox {
                     text: "Size:",
                 }),
                 new GUI.Spinner({
-                    onDecrement: () => Configuration.brush.size.decrement(),
-                    onIncrement: () => Configuration.brush.size.increment(),
-                }).bindText(
+                }).bindValue(
                     Configuration.brush.size,
                 ),
                 new GUI.Space(),

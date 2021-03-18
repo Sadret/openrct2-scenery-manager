@@ -60,9 +60,7 @@ export default new GUI.Tab(5465).add(
                         text: "Height offset:",
                     }),
                     new GUI.Spinner({
-                        onDecrement: () => Settings.height.decrement(),
-                        onIncrement: () => Settings.height.increment(),
-                    }).bindText(
+                    }).bindValue(
                         Settings.height,
                     ),
                 ),

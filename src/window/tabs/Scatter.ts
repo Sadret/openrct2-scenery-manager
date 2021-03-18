@@ -17,7 +17,7 @@ import LargeScenery from "../../template/LargeScenery";
 import Template from "../../template/Template";
 import { NumberProperty, Property } from "../../config/Property";
 
-const data: Property<ScatterData>[] = Arrays.create<Property<ScatterData>>(5, () => new Property<ScatterData>({
+const data = Arrays.create<Property<ScatterData>>(5, () => new Property<ScatterData>({
     element: undefined,
     weight: 0,
 }));
@@ -70,7 +70,7 @@ function updateEntryElement(entry: Property<ScatterData>, clear: boolean): void 
         });
 
     Tools.pick(
-        (element: BaseTileElement) => {
+        element => {
             let data: ElementData | undefined;
             switch (element.type) {
                 case "small_scenery":
@@ -87,7 +87,8 @@ function updateEntryElement(entry: Property<ScatterData>, clear: boolean): void 
                 weight: 0,
             });
             return true;
-        });
+        }
+    );
 }
 
 function updateEntryWeight(entry: Property<ScatterData>, delta: number): void {
@@ -124,7 +125,7 @@ export default new GUI.Tab(5459).add(
             }).bindValue(
                 Configuration.scatter.randomise.quadrant,
             ),
-        )
+        ),
     ),
     new GUI.GroupBox({
         text: "Pattern",
@@ -165,7 +166,7 @@ export default new GUI.Tab(5459).add(
                     entry,
                     data => data.element === undefined ? "Pick" : "Clear",
                 ),
-            )
+            ),
         ),
         new GUI.HBox([10, 4, 2, 2, 3,]).add(
             new GUI.Label({
