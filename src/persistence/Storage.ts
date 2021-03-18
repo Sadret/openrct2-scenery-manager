@@ -202,5 +202,5 @@ export class StorageFileSystem implements FileSystem {
 
 export const libraries = {
     templates: new StorageFileSystem("libraries.templates"),
-    scatter: new StorageFileSystem("libraries.scatter"),
+    scatterPattern: new StorageFileSystem("libraries.scatterPattern"),
 }

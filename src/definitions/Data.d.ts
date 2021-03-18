@@ -116,3 +116,5 @@ interface ScatterData {
     readonly element: ElementData | undefined;
     readonly weight: number;
 }
+
+type ScatterPattern = ScatterData[];

@@ -9,7 +9,7 @@ import GUI from "../../gui/GUI";
 import { File, FileSystem } from "../../persistence/File";
 import * as Strings from "../../utils/Strings";
 
-export default abstract class FileExplorer extends GUI.ListView {
+export default abstract class extends GUI.ListView {
     private path: File | undefined = undefined;
     private files: File[] = [];
 
@@ -22,7 +22,11 @@ export default abstract class FileExplorer extends GUI.ListView {
         }, height);
     }
 
-    protected watch(fs: FileSystem): void {
+    public getPath(): File | undefined {
+        return this.path;
+    }
+
+    public watch(fs: FileSystem): void {
         this.openFolder(fs.getRoot());
         fs.addObserver(file => {
             if (this.path === undefined)
@@ -55,8 +59,8 @@ export default abstract class FileExplorer extends GUI.ListView {
             else
                 return this.openFile(file);
         }
-        else
-            this.setSelectedCell({ row: row, column: 0 });
+        this.setSelectedCell({ row: row, column: 0 });
+        this.onSelect();
     }
 
     public openFolder(file: File | undefined): void {
@@ -105,5 +109,6 @@ export default abstract class FileExplorer extends GUI.ListView {
         this.setItems(items);
     }
 
-    protected abstract openFile(file: File): void;
-}
+    protected openFile(_file: File): void { };
+    protected onSelect(): void { };
+};

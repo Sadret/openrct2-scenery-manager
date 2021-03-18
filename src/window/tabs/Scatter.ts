@@ -16,6 +16,7 @@ import SmallScenery from "../../template/SmallScenery";
 import LargeScenery from "../../template/LargeScenery";
 import Template from "../../template/Template";
 import { NumberProperty, Property } from "../../config/Property";
+import * as ScatterPatternDialog from "../dialogs/ScatterPatternDialog";
 
 const data = Arrays.create<Property<ScatterData>>(5, () => new Property<ScatterData>({
     element: undefined,
@@ -60,15 +61,16 @@ function provide(tiles: CoordsXY[]): TemplateData {
     };
 }
 
-function updateEntryElement(entry: Property<ScatterData>, clear: boolean): void {
+function clearEntry(entry: Property<ScatterData>): void {
     empty.increment(entry.getValue().weight);
+    entry.setValue({
+        element: undefined,
+        weight: 0,
+    });
+}
 
-    if (clear)
-        return entry.setValue({
-            element: undefined,
-            weight: 0,
-        });
-
+function updateEntryElement(entry: Property<ScatterData>): void {
+    clearEntry(entry);
     Tools.pick(
         element => {
             let data: ElementData | undefined;
@@ -89,6 +91,11 @@ function updateEntryElement(entry: Property<ScatterData>, clear: boolean): void 
             return true;
         }
     );
+}
+
+function loadPattern(pattern: ScatterPattern): void {
+    data.forEach(entry => clearEntry(entry));
+    pattern.forEach((entry, idx) => data[idx].setValue(entry));
 }
 
 function updateEntryWeight(entry: Property<ScatterData>, delta: number): void {
@@ -161,7 +168,7 @@ export default new GUI.Tab(5459).add(
                     data => data.element === undefined,
                 ),
                 new GUI.TextButton({
-                    onClick: () => updateEntryElement(entry, entry.getValue().element !== undefined),
+                    onClick: () => (entry.getValue().element === undefined) ? updateEntryElement(entry) : clearEntry(entry),
                 }).bindText(
                     entry,
                     data => data.element === undefined ? "Pick" : "Clear",
@@ -187,13 +194,15 @@ export default new GUI.Tab(5459).add(
         new GUI.HBox([7, 7, 7]).add(
             new GUI.TextButton({
                 text: "Save",
+                onClick: () => ScatterPatternDialog.save(data.map(property => property.getValue())),
             }),
             new GUI.TextButton({
                 text: "Load",
+                onClick: () => ScatterPatternDialog.load(loadPattern),
             }),
             new GUI.TextButton({
                 text: "Clear all",
-                onClick: () => data.forEach(entry => updateEntryElement(entry, true)),
+                onClick: () => data.forEach(entry => clearEntry(entry)),
             }),
         ),
     ),
