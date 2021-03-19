@@ -6,120 +6,86 @@
  *****************************************************************************/
 
 import GUI from "../../gui/GUI";
-import { File, FileSystem } from "../../persistence/File";
-import * as Arrays from "../../utils/Arrays";
-import * as Strings from "../../utils/Strings";
+import { File } from "../../persistence/File";
+import FileView from "./FileView";
+import * as UiUtils from "../../utils/UiUtils";
 
-export default class extends GUI.ListView {
-    private folder: File | undefined = undefined;
-    private files: File[] = [];
+export default class extends GUI.VBox {
+    constructor(
+        fileView: FileView,
+        allowFileCreation: boolean = false,
+    ) {
+        super();
 
-    public constructor(columns: ListViewColumn[], height: number) {
-        super({
-            columns: columns,
-            scrollbars: "vertical",
-            showColumnHeaders: true,
-            onClick: (row: number) => this.onClick(row),
-        }, height);
-    }
-
-    public getFolder(): File | undefined {
-        return this.folder;
-    }
-
-    public watch(fs: FileSystem): void {
-        this.openFolder(fs.getRoot());
-        fs.addObserver(file => {
-            if (this.folder === undefined)
-                return;
-            if (
-                !this.folder.exists() || // folder or parent deleted
-                File.equals(this.folder, file) || // folder changed
-                File.equals(this.folder, file.getParent()) // direct child changed
-            )
-                return this.openFolder(this.folder); // reload
-        });
-    }
-
-    protected getItem(file: File): ListViewItem {
-        return [file.getName()];
-    };
-
-    public setSelectedFile(file: File | undefined): void {
-        const idx = Arrays.findIdx(this.files, file2 => File.equals(file, file2));
-        if (idx === undefined)
-            this.setSelectedCell(undefined);
-        else
-            this.setSelectedCell({ row: idx, column: 0 });
-    }
-
-    public getSelectedFile(): File | undefined {
-        const idx = this.args.selectedCell ?.row;
-        if (idx === undefined)
-            return undefined;
-        return idx === undefined ? undefined : this.files[idx];
-    }
-
-    private onClick(row: number): void {
-        if (row === this.args.selectedCell ?.row) {
-            const file = this.getSelectedFile();
-            if (file === undefined)
-                return;
-            else if (file.isFolder())
-                return this.openFolder(file);
-            else
-                return this.openFile(file);
-        }
-        this.setSelectedCell({ row: row, column: 0 });
-        this.onSelect(this.getSelectedFile());
-    }
-
-    public openFolder(file: File | undefined): void {
-        if (file === undefined) {
-            this.folder = undefined;
-            this.setSelectedCell(undefined);
-            this.setItems([]);
-            return;
-        }
-        if (!file.isFolder())
-            return this.openFolder(file.getParent());
-
-        this.folder = file;
-        this.files = [];
-        this.setSelectedCell(undefined);
-
-        const items = [] as ListViewItem[];
-
-        const add = (file: File, info: ListViewItem) => {
-            this.files.push(file);
-            items.push(info);
-        };
-
-        const parent = this.folder.getParent();
-        if (parent !== undefined)
-            add(parent, ["../"]);
-
-        this.folder.getFiles(
-        ).filter(
-            (file: File) => file.isFolder()
-        ).sort(
-            (a: File, b: File) => Strings.compare(a.getName(), b.getName())
-        ).forEach(
-            (file: File) => add(file, [file.getName() + "/"])
+        this.add(
+            new GUI.Label({}).bindText(fileView.path),
+            fileView,
+            new GUI.HBox([1, 1, 1, 1]).add(
+                new GUI.TextButton({
+                    text: "New folder",
+                    onClick: () => ui.showTextInput({
+                        title: "New folder",
+                        description: "Enter a name for the new folder:",
+                        callback: name => {
+                            const folder = fileView.getFolder() ?.addFolder(name);
+                            if (folder === undefined)
+                                return ui.showError("Cannot create new folder...", "File or folder with this name already exists!");
+                        },
+                    }),
+                }),
+                new GUI.TextButton({
+                    text: "New file",
+                    isDisabled: !allowFileCreation,
+                    onClick: () => ui.showTextInput({
+                        title: "New file",
+                        description: "Enter a name for the new file:",
+                        callback: name => {
+                            const file = fileView.getFolder() ?.addFile(name, undefined);
+                            if (file === undefined)
+                                return ui.showError("Cannot create new file...", "File or folder with this name already exists!");
+                            this.onFileCreation(file);
+                        },
+                    }),
+                }),
+                new GUI.TextButton({
+                    text: "Rename",
+                    onClick: () => {
+                        const file = fileView.getSelectedFile();
+                        if (file === undefined)
+                            return ui.showError("Cannot rename file or folder...", "No file or folder selected!");
+                        const type = file.isFile() ? "file" : "folder";
+                        ui.showTextInput({
+                            title: `Rename ${type}`,
+                            description: `Enter a new name for this ${type}:`,
+                            callback: name => {
+                                const file2 = file.rename(name);
+                                if (file2 === undefined)
+                                    return ui.showError(`Cannot rename ${type}...`, "File or folder with this name already exists!");
+                                fileView.setSelectedFile(file2);
+                            },
+                        });
+                    },
+                }),
+                new GUI.TextButton({
+                    text: "Delete",
+                    onClick: () => {
+                        const file = fileView.getSelectedFile();
+                        if (file === undefined)
+                            return ui.showError("Cannot delete file or folder...", "No file or folder selected!");
+                        const type = file.isFile() ? "file" : "folder";
+                        UiUtils.showConfirm(
+                            `Delete ${type}`,
+                            [`Do you really want to delete this ${type}?`,],
+                            confirmed => {
+                                if (confirmed)
+                                    file.delete();
+                            },
+                        );
+                    },
+                }),
+            ),
         );
-
-        this.folder.getFiles(
-        ).filter(
-            (file: File) => file.isFile()
-        ).sort(
-            (a: File, b: File) => Strings.compare(a.getName(), b.getName())
-        ).forEach(
-            (file: File) => add(file, this.getItem(file))
-        );
-
-        this.setItems(items);
     }
 
-    protected openFile(_file: File): void { };
-    protected onSelect(_file?: File): void { };
+    protected onFileCreation(_file: File): void { }
 };

@@ -28,7 +28,7 @@ export function update(load: () => void): void {
                 "- Any other plug-in could overwrite that file.",
                 "",
                 "I hope you enjoy this plug-in!",
-            ], 350);
+            ]);
             init();
             return load();
 

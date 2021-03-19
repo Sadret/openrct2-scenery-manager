@@ -16,25 +16,11 @@ import SmallScenery from "../../template/SmallScenery";
 import LargeScenery from "../../template/LargeScenery";
 import Template from "../../template/Template";
 import { NumberProperty, Property } from "../../config/Property";
-import * as Dialogs from "../Dialogs";
+import Dialog from "../Dialog";
 import { File } from "../../persistence/File";
 import * as Storage from "../../persistence/Storage";
-
-const model = {
-    fs: Storage.libraries.scatterPattern,
-    columns: [{
-        header: "Name",
-        ratioWidth: 5,
-    }, {
-        header: "Density",
-        ratioWidth: 1,
-    }],
-    getItem: (file: File) => {
-        const data = file.getContent<ScatterPattern | undefined>();
-        const density = data && data.reduce<number>((sum, entry) => sum + entry.weight, 0);
-        return [file.getName(), density === undefined ? "" : (String(density) + "%")];
-    },
-};
+import FileExplorer from "../widgets/FileExplorer";
+import ScatterPatternView from "../widgets/ScatterPatternView";
 
 const data = Arrays.create<Property<ScatterData>>(5, () => new Property<ScatterData>({
     element: undefined,
@@ -215,21 +201,47 @@ export default new GUI.Tab(5459).add(
         new GUI.HBox([7, 7, 7]).add(
             new GUI.TextButton({
                 text: "Save",
-                onClick: () => Dialogs.open({
-                    ...model,
-                    access: "write",
-                    action: "Save",
-                    openFile: file => file.setContent<ScatterPattern>(savePattern()),
-                }),
+                onClick: () => new Dialog(
+                    "Save pattern",
+                    new class extends FileExplorer {
+                        onFileCreation(file: File): void {
+                            file.setContent<ScatterPattern>(savePattern());
+                            this.getWindow() ?.close();
+                        }
+                    }(
+                        new class extends ScatterPatternView {
+                            constructor() {
+                                super();
+                                this.watch(Storage.libraries.scatterPattern);
+                            }
+
+                            openFile(file: File): void {
+                                file.setContent<ScatterPattern>(savePattern());
+                                this.getWindow() ?.close();
+                            }
+                        }(),
+                        true,
+                    ),
+                ),
             }),
             new GUI.TextButton({
                 text: "Load",
-                onClick: () => Dialogs.open({
-                    ...model,
-                    access: "read",
-                    action: "Load",
-                    openFile: file => loadPattern(file.getContent<ScatterPattern>()),
-                }),
+                onClick: () => new Dialog(
+                    "Load template",
+                    new FileExplorer(
+                        new class extends ScatterPatternView {
+                            constructor() {
+                                super();
+                                this.watch(Storage.libraries.scatterPattern);
+                            }
+
+                            openFile(file: File): void {
+                                loadPattern(file.getContent<ScatterPattern>());
+                                this.getWindow() ?.close();
+                            }
+                        }(),
+                    ),
+                ),
             }),
             new GUI.TextButton({
                 text: "Clear all",

@@ -9,7 +9,6 @@
 
 import * as Clipboard from "./core/Clipboard";
 import * as Core from "./core/Core";
-import * as Library from "./core/Library";
 import MainWindow from "./window/MainWindow";
 import Settings from "./config/Settings";
 
@@ -37,7 +36,13 @@ export function register() {
         id: "scenery-manager.save",
         text: "[SM] Save template to library",
         bindings: ["CTRL+S", "GUI+S"],
-        callback: Library.save,
+        callback: Clipboard.save,
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.load",
+        text: "[SM] Load template from library",
+        bindings: ["CTRL+L", "GUI+L"],
+        callback: Clipboard.load,
     });
     ui.registerShortcut({
         id: "scenery-manager.rotate",
