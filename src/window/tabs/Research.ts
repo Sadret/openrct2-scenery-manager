@@ -1,0 +1,51 @@
+/*****************************************************************************
+ * Copyright (c) 2020-2021 Sadret
+ *
+ * The OpenRCT2 plug-in "Scenery Manager" is licensed
+ * under the GNU General Public License version 3.
+ *****************************************************************************/
+
+import GUI from "../../gui/GUI";
+
+export default new GUI.Tab(
+    {
+        frameBase: 5327,
+        frameCount: 8,
+        frameDuration: 4,
+    },
+    8,
+    GUI.Margin.uniform(8),
+).add(
+    new GUI.Label({ text: "Version: 1.2.0", }),
+    new GUI.GroupBox({ text: "Latest changes" }).add(
+        new GUI.Label({ text: "- Scatter tool for random scenery placement." }),
+        new GUI.Label({ text: "- Use mouse to adjust height and rotation of templates." }),
+        new GUI.Label({ text: "- Brush for benches, litter bins, etc." }),
+        new GUI.Label({ text: "- [BETA] Trackitecture is now supported." }),
+    ),
+    new GUI.GroupBox({ text: "Known problems" }).add(
+        new GUI.Label({ text: "- Sloped fences and walls do not copy." }),
+        new GUI.Label({ text: "- Banner text and colour do not copy." }),
+        new GUI.Label({ text: "- Large scenery does not mirror." }),
+        new GUI.Label({ text: "- Ghost banners sometimes does not show." }),
+        new GUI.Label({ text: "- Scroll position resets when list content changes." }),
+    ),
+    new GUI.GroupBox({ text: "Planned features" }).add(
+        new GUI.Label({ text: "- Colour brush." }),
+        new GUI.Label({ text: "- Path replacing tool." }),
+        new GUI.Label({ text: "- Flood fill tool." }),
+        new GUI.Space(0),
+        new GUI.Label({ text: "- Blueprint placing." }),
+        new GUI.Label({ text: "- Localisation (language support)." }),
+        new GUI.Label({ text: "- Share your creations online." }),
+        new GUI.Space(0),
+        new GUI.Label({ text: "- (Edit history and undo function.)" }),
+        new GUI.Label({ text: "- (Instancing system.)" }),
+        new GUI.Space(0),
+        new GUI.Label({ text: "- Whatever you propose." }),
+    ),
+    new GUI.VBox().add(
+        new GUI.Label({ text: "Visit GitHub for future updates or to report any issues:" }),
+        new GUI.Label({ text: "https://github.com/Sadret/openrct2-scenery-manager" }),
+    ),
+);
