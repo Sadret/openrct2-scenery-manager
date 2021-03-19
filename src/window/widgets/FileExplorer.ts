@@ -7,40 +7,51 @@
 
 import GUI from "../../gui/GUI";
 import { File, FileSystem } from "../../persistence/File";
+import * as Arrays from "../../utils/Arrays";
 import * as Strings from "../../utils/Strings";
 
-export default abstract class extends GUI.ListView {
-    private path: File | undefined = undefined;
+export default class extends GUI.ListView {
+    private folder: File | undefined = undefined;
     private files: File[] = [];
 
-    protected constructor(args: ListViewArgs, height: number) {
+    public constructor(columns: ListViewColumn[], height: number) {
         super({
-            ...args,
+            columns: columns,
             scrollbars: "vertical",
             showColumnHeaders: true,
             onClick: (row: number) => this.onClick(row),
         }, height);
     }
 
-    public getPath(): File | undefined {
-        return this.path;
+    public getFolder(): File | undefined {
+        return this.folder;
     }
 
     public watch(fs: FileSystem): void {
         this.openFolder(fs.getRoot());
         fs.addObserver(file => {
-            if (this.path === undefined)
+            if (this.folder === undefined)
                 return;
             if (
-                !this.path.exists() || // folder or parent deleted
-                File.equals(this.path, file) || // folder changed
-                File.equals(this.path, file.getParent()) // direct child changed
+                !this.folder.exists() || // folder or parent deleted
+                File.equals(this.folder, file) || // folder changed
+                File.equals(this.folder, file.getParent()) // direct child changed
             )
-                return this.openFolder(this.path); // reload
+                return this.openFolder(this.folder); // reload
         });
     }
 
-    protected abstract getItem(file: File): ListViewItem;
+    protected getItem(file: File): ListViewItem {
+        return [file.getName()];
+    };
+
+    public setSelectedFile(file: File | undefined): void {
+        const idx = Arrays.findIdx(this.files, file2 => File.equals(file, file2));
+        if (idx === undefined)
+            this.setSelectedCell(undefined);
+        else
+            this.setSelectedCell({ row: idx, column: 0 });
+    }
 
     public getSelectedFile(): File | undefined {
         const idx = this.args.selectedCell ?.row;
@@ -60,12 +71,12 @@ export default abstract class extends GUI.ListView {
                 return this.openFile(file);
         }
         this.setSelectedCell({ row: row, column: 0 });
-        this.onSelect();
+        this.onSelect(this.getSelectedFile());
     }
 
     public openFolder(file: File | undefined): void {
         if (file === undefined) {
-            this.path = undefined;
+            this.folder = undefined;
             this.setSelectedCell(undefined);
             this.setItems([]);
             return;
@@ -73,7 +84,7 @@ export default abstract class extends GUI.ListView {
         if (!file.isFolder())
             return this.openFolder(file.getParent());
 
-        this.path = file;
+        this.folder = file;
         this.files = [];
         this.setSelectedCell(undefined);
 
@@ -84,11 +95,11 @@ export default abstract class extends GUI.ListView {
             items.push(info);
         };
 
-        const parent = this.path.getParent();
+        const parent = this.folder.getParent();
         if (parent !== undefined)
             add(parent, ["../"]);
 
-        this.path.getFiles(
+        this.folder.getFiles(
         ).filter(
             (file: File) => file.isFolder()
         ).sort(
@@ -97,7 +108,7 @@ export default abstract class extends GUI.ListView {
             (file: File) => add(file, [file.getName() + "/"])
         );
 
-        this.path.getFiles(
+        this.folder.getFiles(
         ).filter(
             (file: File) => file.isFile()
         ).sort(
@@ -110,5 +121,5 @@ export default abstract class extends GUI.ListView {
     }
 
     protected openFile(_file: File): void { };
-    protected onSelect(): void { };
+    protected onSelect(_file?: File): void { };
 };

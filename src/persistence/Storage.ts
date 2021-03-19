@@ -109,7 +109,7 @@ export class StorageFileSystem implements FileSystem {
 
         const result: File[] = [];
         for (const name in data.files)
-            result.push(new File(this, file.path + "/" + name));
+            result.push(new File(this, file.getPath() + "/" + name));
         return result;
     };
     public getContent<T>(file: File): T {

@@ -6,21 +6,43 @@
  *****************************************************************************/
 
 import GUI from "../../gui/GUI";
-import { File } from "../../persistence/File";
 import * as Storage from "../../persistence/Storage";
 import * as Clipboard from "../../core/Clipboard";
 import * as Core from "../../core/Core";
 import * as Library from "../../core/Library";
 import Template from "../../template/Template";
 import * as StartUp from "../../StartUp";
-import TemplateExplorer from "../widgets/TemplateExplorer";
+import FileExplorer from "../widgets/FileExplorer";
+import * as Coordinates from "../../utils/Coordinates";
+import { File } from "../../persistence/File";
 
-const explorer = new class extends TemplateExplorer {
+const explorer = new class extends FileExplorer {
     constructor() {
-        super(256);
+        super(
+            [{
+                header: "Name",
+                ratioWidth: 5,
+            }, {
+                header: "Width",
+                ratioWidth: 1,
+            }, {
+                header: "Length",
+                ratioWidth: 1,
+            }, {
+                header: "Size",
+                ratioWidth: 1,
+            }],
+            256,
+        );
     }
 
-    protected openFile(file: File): void {
+    getItem(file: File): ListViewItem {
+        const data = file.getContent<TemplateData>();
+        const size = Coordinates.getSize(Coordinates.toMapRange(data.tiles));
+        return [file.getName(), String(size.x), String(size.y), String(data.elements.length)];
+    }
+
+    openFile(file: File): void {
         Clipboard.addTemplate(new Template(file.getContent<TemplateData>()));
         Core.paste();
     }

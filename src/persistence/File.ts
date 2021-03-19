@@ -27,11 +27,11 @@ export interface FileSystem {
 }
 
 export class File {
-    readonly fs: FileSystem;
-    readonly path: string;
+    private readonly fs: FileSystem;
+    private readonly path: string;
 
-    readonly name: string;
-    readonly parent: string | undefined;
+    private readonly name: string;
+    private readonly parent: string | undefined;
 
     constructor(fs: FileSystem, path: string) {
         this.fs = fs;
@@ -122,7 +122,7 @@ export class File {
     delete(): boolean { return this.fs.delete(this); };
 }
 
-export class FileSystemError extends Error { }
+export class FileSystemError extends Error { };
 
 // forbidden chars: . (dot), / (forward slash)
 // escape char (see above): \ (backslash)

@@ -16,7 +16,25 @@ import SmallScenery from "../../template/SmallScenery";
 import LargeScenery from "../../template/LargeScenery";
 import Template from "../../template/Template";
 import { NumberProperty, Property } from "../../config/Property";
-import * as ScatterPatternDialog from "../dialogs/ScatterPatternDialog";
+import * as Dialogs from "../Dialogs";
+import { File } from "../../persistence/File";
+import * as Storage from "../../persistence/Storage";
+
+const model = {
+    fs: Storage.libraries.scatterPattern,
+    columns: [{
+        header: "Name",
+        ratioWidth: 5,
+    }, {
+        header: "Density",
+        ratioWidth: 1,
+    }],
+    getItem: (file: File) => {
+        const data = file.getContent<ScatterPattern | undefined>();
+        const density = data && data.reduce<number>((sum, entry) => sum + entry.weight, 0);
+        return [file.getName(), density === undefined ? "" : (String(density) + "%")];
+    },
+};
 
 const data = Arrays.create<Property<ScatterData>>(5, () => new Property<ScatterData>({
     element: undefined,
@@ -91,6 +109,9 @@ function updateEntryElement(entry: Property<ScatterData>): void {
             return true;
         }
     );
+}
+function savePattern(): ScatterPattern {
+    return data.map(property => property.getValue());
 }
 
 function loadPattern(pattern: ScatterPattern): void {
@@ -194,11 +215,21 @@ export default new GUI.Tab(5459).add(
         new GUI.HBox([7, 7, 7]).add(
             new GUI.TextButton({
                 text: "Save",
-                onClick: () => ScatterPatternDialog.save(data.map(property => property.getValue())),
+                onClick: () => Dialogs.open({
+                    ...model,
+                    access: "write",
+                    action: "Save",
+                    openFile: file => file.setContent<ScatterPattern>(savePattern()),
+                }),
             }),
             new GUI.TextButton({
                 text: "Load",
-                onClick: () => ScatterPatternDialog.load(loadPattern),
+                onClick: () => Dialogs.open({
+                    ...model,
+                    access: "read",
+                    action: "Load",
+                    openFile: file => loadPattern(file.getContent<ScatterPattern>()),
+                }),
             }),
             new GUI.TextButton({
                 text: "Clear all",
