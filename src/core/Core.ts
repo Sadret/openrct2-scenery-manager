@@ -44,8 +44,8 @@ export function paste(): void {
 
             let rotation = Settings.rotation.getValue();
             if (Configuration.copyPaste.cursor.rotation.enabled.getValue()) {
-                const sensitivity = Configuration.copyPaste.cursor.rotation.sensitivity.getValue();
-                const diff = offset.x + (1 << sensitivity) >> sensitivity + 1;
+                const insensitivity = 10 - Configuration.copyPaste.cursor.rotation.sensitivity.getValue();
+                const diff = offset.x + (1 << insensitivity) >> insensitivity + 1;
                 if (Configuration.copyPaste.cursor.rotation.flip.getValue())
                     rotation += diff;
                 else

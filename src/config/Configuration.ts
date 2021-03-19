@@ -13,21 +13,6 @@ type C = {
 } | Property<any>;
 
 const Configuration = {
-    scatter: {
-        randomise: {
-            rotation: new BooleanProperty(true),
-            quadrant: new BooleanProperty(true),
-        },
-        library: {
-            show: new BooleanProperty(true),
-            confirm: {
-                overwrite: new BooleanProperty(true),
-                delete: new BooleanProperty(true),
-            },
-            onMissingElement: new Property<Action>("error"),
-        },
-        dragToPlace: new BooleanProperty(false),
-    },
     brush: {
         shape: new Property<BrushShape>("circle"),
         size: new NumberProperty(15, 1),
@@ -38,14 +23,21 @@ const Configuration = {
             height: {
                 enabled: new BooleanProperty(false),
                 smallSteps: new BooleanProperty(false),
-                enable: new BooleanProperty(false),
             },
             rotation: {
                 enabled: new BooleanProperty(false),
                 flip: new BooleanProperty(false),
-                sensitivity: new NumberProperty(6),
+                sensitivity: new NumberProperty(4, 0, 10),
             },
         },
+    },
+    scatter: {
+        randomise: {
+            rotation: new BooleanProperty(true),
+            quadrant: new BooleanProperty(true),
+        },
+        dragToPlace: new BooleanProperty(false),
+        onMissingElement: new Property<Action>("error"),
     },
 }
 export default Configuration;

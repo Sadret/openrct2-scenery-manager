@@ -7,6 +7,7 @@
 
 import GUI from "../gui/GUI";
 import Benches from "./tabs/Benches";
+import Configuration from "./tabs/Configuration";
 import CopyPaste from "./tabs/CopyPaste";
 import Scatter from "./tabs/Scatter";
 import TemplateLibrary from "./tabs/TemplateLibrary";
@@ -23,5 +24,6 @@ export default new GUI.WindowManager(
         TemplateLibrary,
         Scatter,
         Benches,
+        Configuration,
     ],
 );
