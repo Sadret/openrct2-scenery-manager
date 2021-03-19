@@ -8,7 +8,6 @@
 import GUI from "../../gui/GUI";
 import * as Storage from "../../persistence/Storage";
 import * as Clipboard from "../../core/Clipboard";
-import * as Core from "../../core/Core";
 import Template from "../../template/Template";
 import * as StartUp from "../../StartUp";
 import { File } from "../../persistence/File";
@@ -29,8 +28,7 @@ export default new GUI.Tab({
 
             openFile(file: File): void {
                 Clipboard.addTemplate(new Template(file.getContent<TemplateData>()));
-                Core.paste();
             }
-        }()
+        }(),
     ),
 );

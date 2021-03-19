@@ -58,12 +58,15 @@ class Brush extends GUI.GroupBox {
     }
 
     private activate() {
-        Tools.build((coords: CoordsXY) => {
-            const size: number = Configuration.brush.size.getValue();
-            const shape: BrushShape = Configuration.brush.shape.getValue();
-            const tiles: CoordsXY[] = shape === "square" ? Coordinates.square(coords, size) : Coordinates.circle(coords, size);
-            return this.provider(tiles);
-        }, undefined, this.mode);
+        Tools.build(
+            (coords: CoordsXY) => {
+                const size: number = Configuration.brush.size.getValue();
+                const shape: BrushShape = Configuration.brush.shape.getValue();
+                const tiles: CoordsXY[] = shape === "square" ? Coordinates.square(coords, size) : Coordinates.circle(coords, size);
+                return this.provider(tiles);
+            },
+            this.mode,
+        );
     }
 }
 export default Brush;

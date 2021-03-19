@@ -16,7 +16,7 @@ import SmallScenery from "../../template/SmallScenery";
 import LargeScenery from "../../template/LargeScenery";
 import Template from "../../template/Template";
 import { NumberProperty, Property } from "../../config/Property";
-import Dialog from "../Dialog";
+import Dialog from "../../utils/Dialog";
 import { File } from "../../persistence/File";
 import * as Storage from "../../persistence/Storage";
 import FileExplorer from "../widgets/FileExplorer";

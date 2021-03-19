@@ -8,7 +8,7 @@
 import GUI from "../../gui/GUI";
 import { File } from "../../persistence/File";
 import FileView from "./FileView";
-import * as UiUtils from "../../utils/UiUtils";
+import Dialog from "../../utils/Dialog";
 
 export default class extends GUI.VBox {
     constructor(
@@ -73,7 +73,7 @@ export default class extends GUI.VBox {
                         if (file === undefined)
                             return ui.showError("Cannot delete file or folder...", "No file or folder selected!");
                         const type = file.isFile() ? "file" : "folder";
-                        UiUtils.showConfirm(
+                        Dialog.showConfirm(
                             `Delete ${type}`,
                             [`Do you really want to delete this ${type}?`,],
                             confirmed => {

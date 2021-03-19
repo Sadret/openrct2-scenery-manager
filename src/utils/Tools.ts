@@ -5,13 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../../../openrct2.d.ts" />
-/// <reference path="./../definitions/Data.d.ts" />
-
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
 
-export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => TemplateData, onFinish?: () => void, mode: BuildMode = "down"): void {
+export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => TemplateData, mode: BuildMode = "down"): void {
     let ghostData: ElementData[] = [];
     let ghostCoords: CoordsXY = Coordinates.NULL;
     function removeGhost(): void {
@@ -62,7 +59,6 @@ export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => Templ
             removeGhost();
             ui.tileSelection.tiles = null;
             ui.mainViewport.visibilityFlags &= ~(1 << 7);
-            if (onFinish !== undefined) onFinish();
         },
     });
 }

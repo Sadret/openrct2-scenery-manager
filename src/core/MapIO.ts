@@ -5,10 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./../../../openrct2.d.ts" />
-/// <reference path="./../definitions/Actions.d.ts" />
-/// <reference path="./../definitions/Data.d.ts" />
-
 import Banner from "../template/Banner";
 import Entrance from "../template/Entrance";
 import Footpath from "../template/Footpath";

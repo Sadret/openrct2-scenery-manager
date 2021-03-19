@@ -5,8 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Core from "../../core/Core";
-import Settings from "../../config/Settings";
+import * as Clipboard from "../../core/Clipboard";
 import GUI from "../../gui/GUI";
 
 export default new GUI.Tab(5465).add(
@@ -17,15 +16,15 @@ export default new GUI.Tab(5465).add(
             }).add(
                 new GUI.TextButton({
                     text: "Select area",
-                    onClick: Core.select,
+                    onClick: Clipboard.select,
                 }),
                 new GUI.TextButton({
                     text: "Copy area",
-                    onClick: Core.copy,
+                    onClick: Clipboard.copy,
                 }),
                 new GUI.TextButton({
                     text: "Paste template",
-                    onClick: Core.paste,
+                    onClick: Clipboard.paste,
                 }),
             ),
             new GUI.Space(6),
@@ -37,10 +36,10 @@ export default new GUI.Tab(5465).add(
                         text: "Rotation:",
                     }),
                     new GUI.Spinner({
-                        onDecrement: () => Settings.rotation.decrement(),
-                        onIncrement: () => Settings.rotation.increment(),
+                        onDecrement: () => Clipboard.settings.rotation.decrement(),
+                        onIncrement: () => Clipboard.settings.rotation.increment(),
                     }).bindText<number>(
-                        Settings.rotation,
+                        Clipboard.settings.rotation,
                         value => (value & 3) === 0 ? "none" : ((value & 3) * 90 + " deg"),
                     ),
                 ),
@@ -49,9 +48,9 @@ export default new GUI.Tab(5465).add(
                         text: "Mirrored:",
                     }),
                     new GUI.TextButton({
-                        onClick: () => Settings.mirrored.flip(),
+                        onClick: () => Clipboard.settings.mirrored.flip(),
                     }).bindText(
-                        Settings.mirrored,
+                        Clipboard.settings.mirrored,
                         value => value ? "yes" : "no",
                     ),
                 ),
@@ -61,7 +60,7 @@ export default new GUI.Tab(5465).add(
                     }),
                     new GUI.Spinner({
                     }).bindValue(
-                        Settings.height,
+                        Clipboard.settings.height,
                     ),
                 ),
             ),
@@ -72,42 +71,42 @@ export default new GUI.Tab(5465).add(
             new GUI.Checkbox({
                 text: "Banner",
             }).bindValue(
-                Settings.filter["banner"],
+                Clipboard.settings.filter["banner"],
             ),
             new GUI.Checkbox({
                 text: "Entrance",
             }).bindValue(
-                Settings.filter["entrance"],
+                Clipboard.settings.filter["entrance"],
             ),
             new GUI.Checkbox({
                 text: "Footpath",
             }).bindValue(
-                Settings.filter["footpath"],
+                Clipboard.settings.filter["footpath"],
             ),
             new GUI.Checkbox({
                 text: "Footpath Addition",
             }).bindValue(
-                Settings.filter["footpath_addition"],
+                Clipboard.settings.filter["footpath_addition"],
             ),
             new GUI.Checkbox({
                 text: "Large Scenery",
             }).bindValue(
-                Settings.filter["large_scenery"],
+                Clipboard.settings.filter["large_scenery"],
             ),
             new GUI.Checkbox({
                 text: "Small Scenery",
             }).bindValue(
-                Settings.filter["small_scenery"],
+                Clipboard.settings.filter["small_scenery"],
             ),
             new GUI.Checkbox({
                 text: "Track",
             }).bindValue(
-                Settings.filter["track"],
+                Clipboard.settings.filter["track"],
             ),
             new GUI.Checkbox({
                 text: "Wall",
             }).bindValue(
-                Settings.filter["wall"],
+                Clipboard.settings.filter["wall"],
             ),
         ),
     ),

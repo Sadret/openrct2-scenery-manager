@@ -5,18 +5,16 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-/// <reference path="./definitions/Data.d.ts" />
-
 import * as Storage from "./persistence/Storage";
 import * as Coordinates from "./utils/Coordinates";
-import * as UiUtils from "./utils/UiUtils";
+import Dialog from "./utils/Dialog";
 import { File } from "./persistence/File";
 import Template from "./template/Template";
 
 export function update(load: () => void): void {
     switch (Storage.get<String>("version")) {
         case undefined:
-            UiUtils.showAlert("Welcome to Scenery Manager!", [
+            Dialog.showAlert("Welcome to Scenery Manager!", [
                 "Thank you for using Scenery Manager!",
                 "",
                 "You can access the plug-in via the map menu in the upper toolbar.",
@@ -36,7 +34,7 @@ export function update(load: () => void): void {
         case "1.0.1":
         case "1.1.0":
         case "1.1.1":
-            return UiUtils.showConfirm("Welcome to Scenery Manager!", [
+            return Dialog.showConfirm("Welcome to Scenery Manager!", [
                 "Your clipboard and library contain templates",
                 "from a previous version of Scenery Manager.",
                 "",
@@ -68,7 +66,7 @@ export function update(load: () => void): void {
             return load();
 
         default:
-            return UiUtils.showConfirm("Welcome to Scenery Manager!", [
+            return Dialog.showConfirm("Welcome to Scenery Manager!", [
                 "Your clipboard and library contain templates",
                 "from an unknown version of this plug-in.",
                 "",
