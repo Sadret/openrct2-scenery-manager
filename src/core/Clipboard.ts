@@ -127,7 +127,7 @@ export function copy(): void {
 }
 
 export function paste(): void {
-    Tools.build(
+    const reload = Tools.build(
         (coords, offset: CoordsXY) => {
             const template = getTemplate();
             if (template === undefined) {
@@ -161,4 +161,6 @@ export function paste(): void {
         },
         "up",
     );
+    settings.rotation.bind(reload);
+    settings.mirrored.bind(reload);
 }

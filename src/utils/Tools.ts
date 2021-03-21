@@ -8,25 +8,32 @@
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
 
-export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => TemplateData, mode: BuildMode = "down"): void {
-    let ghostData: ElementData[] = [];
-    let ghostCoords: CoordsXY = Coordinates.NULL;
+export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => TemplateData, mode: BuildMode = "down"): () => void {
+    let ghost = undefined as {
+        data: ElementData[],
+        coords: CoordsXY,
+        offset: CoordsXY,
+    } | undefined;
+
     function removeGhost(): void {
-        MapIO.remove(ghostData, true);
-        ghostData = [];
-        ghostCoords = Coordinates.NULL;
+        if (ghost === undefined)
+            return;
+        MapIO.remove(ghost.data, true);
+        ghost = undefined;
         ui.tileSelection.tiles = null;
     }
 
-    function place(coords: CoordsXY, ghost: boolean, offset: CoordsXY = { x: 0, y: 0 }): void {
+    function place(coords: CoordsXY, isGhost: boolean, offset: CoordsXY = { x: 0, y: 0 }): void {
         removeGhost();
         const template: TemplateData = getTemplate(coords, offset);
         ui.tileSelection.tiles = template.tiles;
-        const elements: ElementData[] = MapIO.place(template.elements, ghost);
-        if (ghost) {
-            ghostData = elements;
-            ghostCoords = coords;
-        };
+        const elements: ElementData[] = MapIO.place(template.elements, isGhost);
+        if (isGhost)
+            ghost = {
+                data: elements,
+                coords: coords,
+                offset: offset,
+            };
     }
 
     let screenCoords: CoordsXY = Coordinates.NULL;
@@ -42,18 +49,18 @@ export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => Templ
                 place(e.mapCoords, mode === "up");
         },
         onMove: e => {
-            if (mode === "up" && e.isDown)
-                return place(ghostCoords, true, Coordinates.sub(e.screenCoords, screenCoords));
+            if (mode === "up" && e.isDown && ghost !== undefined) // ghost should always be there
+                return place(ghost.coords, true, Coordinates.sub(e.screenCoords, screenCoords));
             const coords = e.mapCoords;
             if (coords === undefined || coords.x * coords.y === 0)
                 return removeGhost();
-            if (Coordinates.equals(coords, ghostCoords))
+            if (ghost !== undefined && Coordinates.equals(coords, ghost.coords)) // ghost should always be there
                 return;
             place(coords, mode !== "move" || !e.isDown, e.isDown ? Coordinates.sub(e.screenCoords, screenCoords) : undefined);
         },
         onUp: e => {
-            if (mode === "up")
-                place(ghostCoords, false, Coordinates.sub(e.screenCoords, screenCoords));
+            if (mode === "up" && ghost !== undefined) // ghost should always be there
+                place(ghost.coords, false, Coordinates.sub(e.screenCoords, screenCoords));
         },
         onFinish: () => {
             removeGhost();
@@ -61,6 +68,11 @@ export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => Templ
             ui.mainViewport.visibilityFlags &= ~(1 << 7);
         },
     });
+
+    return () => {
+        if (ghost !== undefined)
+            place(ghost.coords, true, ghost.offset);
+    }
 }
 
 export function pick(accept: (element: BaseTileElement) => boolean): void {
