@@ -75,10 +75,11 @@ export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => Templ
     }
 }
 
-export function pick(accept: (element: BaseTileElement) => boolean): void {
+export function pick(accept: (element: BaseTileElement) => boolean, filter?: ToolFilter[]): void {
     ui.activateTool({
         id: "scenery-manager-picker",
         cursor: "cross_hair",
+        filter: filter,
         onStart: undefined,
         onDown: e => {
             if (e.mapCoords === undefined || e.tileElementIndex === undefined)
@@ -95,7 +96,7 @@ export function pick(accept: (element: BaseTileElement) => boolean): void {
     })
 }
 
-export function select(): void {
+export function select(filter?: ToolFilter[]): void {
     let start: CoordsXY = Coordinates.NULL;
     let end: CoordsXY = Coordinates.NULL;
     let drag: boolean = false;
@@ -103,6 +104,7 @@ export function select(): void {
     ui.activateTool({
         id: "scenery-manager-selector",
         cursor: "cross_hair",
+        filter: filter,
         onStart: () => {
             ui.mainViewport.visibilityFlags |= 1 << 7;
         },

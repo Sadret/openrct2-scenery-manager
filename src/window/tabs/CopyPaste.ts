@@ -14,18 +14,26 @@ export default new GUI.Tab(5465).add(
             new GUI.GroupBox({
                 text: "Copy & Paste",
             }).add(
-                new GUI.TextButton({
-                    text: "Select area",
-                    onClick: Clipboard.select,
-                }),
-                new GUI.TextButton({
-                    text: "Copy area",
-                    onClick: Clipboard.copy,
-                }),
-                new GUI.TextButton({
-                    text: "Paste template",
-                    onClick: Clipboard.paste,
-                }),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.TextButton({
+                        text: "Select",
+                        onClick: Clipboard.select,
+                    }),
+                    new GUI.TextButton({
+                        text: "Copy",
+                        onClick: Clipboard.copy,
+                    }),
+                ),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.TextButton({
+                        text: "Save",
+                        onClick: Clipboard.save,
+                    }),
+                    new GUI.TextButton({
+                        text: "Paste",
+                        onClick: Clipboard.paste,
+                    }),
+                ),
             ),
             new GUI.Space(6),
             new GUI.GroupBox({
@@ -61,6 +69,17 @@ export default new GUI.Tab(5465).add(
                     new GUI.Spinner({
                     }).bindValue(
                         Clipboard.settings.height,
+                    ),
+                ),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Label({
+                        text: "Selection mode:",
+                    }),
+                    new GUI.Dropdown({
+                    }).bindValue<boolean>(
+                        Clipboard.settings.selectBySurface,
+                        [true, false],
+                        selectBySurface => selectBySurface ? "surface" : "scenery",
                     ),
                 ),
             ),

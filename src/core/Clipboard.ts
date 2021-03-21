@@ -31,7 +31,13 @@ export const settings = {
     rotation: new NumberProperty(0),
     mirrored: new BooleanProperty(false),
     height: new NumberProperty(0),
+    selectBySurface: new BooleanProperty(true),
 };
+
+settings.selectBySurface.bind(_ => {
+    if (ui.tool !== null && ui.tool.id === "scenery-manager-selector")
+        ui.tool.cancel(), select();
+});
 
 let templates: Template[] = [];
 let cursor: number | undefined = undefined;
@@ -106,7 +112,9 @@ export function load(): void {
     );
 }
 
-export const select = Tools.select;
+export function select() {
+    Tools.select(settings.selectBySurface.getValue() ? ["terrain"] : undefined);
+}
 
 export function copy(): void {
     if (ui.tileSelection.range === null)

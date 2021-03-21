@@ -60,7 +60,7 @@ export default new GUI.Tab({
                 enabled => !enabled,
             ),
         ),
-        new GUI.HBox([1, 10, 10]).add(
+        new GUI.HBox([1, 15, 5]).add(
             new GUI.Space(),
             new GUI.Label({
                 text: "Sensitivity:",
