@@ -5,8 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { Property, BooleanProperty, NumberProperty } from "./Property";
 import * as Storage from "../persistence/Storage";
+
+import BooleanProperty from "./BooleanProperty";
+import NumberProperty from "./NumberProperty";
+import Property from "./Property";
 
 type C = {
     [index: string]: C;

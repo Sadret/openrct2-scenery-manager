@@ -5,9 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { File } from "../../persistence/File";
-import FileView from "./FileView";
 import * as Coordinates from "../../utils/Coordinates";
+
+import FileView from "./FileView";
 
 export default class extends FileView {
     constructor(height?: number) {
@@ -29,7 +29,7 @@ export default class extends FileView {
         );
     }
 
-    getItem(file: File): ListViewItem {
+    getItem(file: IFile): ListViewItem {
         const data = file.getContent<TemplateData | undefined>();
         if (data === undefined)
             return [file.getName()];

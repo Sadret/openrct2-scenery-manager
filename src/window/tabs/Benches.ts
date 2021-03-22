@@ -5,15 +5,17 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Context from "../../core/Context";
-import * as MapIO from "../../core/MapIO";
-import * as Coordinates from "../../utils/Coordinates";
 import * as Arrays from "../../utils/Arrays";
+import * as Context from "../../core/Context";
+import * as Coordinates from "../../utils/Coordinates";
+import * as MapIO from "../../core/MapIO";
+
+import Brush from "../../tools/Brush";
 import BrushBox from "../widgets/BrushBox";
 import GUI from "../../gui/GUI";
-import { NumberProperty, Property } from "../../config/Property";
-import Brush from "../../tools/Brush";
+import NumberProperty from "../../config/NumberProperty";
 import Picker from "../../tools/Picker";
+import Property from "../../config/Property";
 
 const NUM = 8; // max 11
 const size = new NumberProperty(4, 1, NUM);

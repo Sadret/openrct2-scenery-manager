@@ -5,8 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import BaseElement from "./BaseElement";
 import * as Context from "../core/Context";
+
+import BaseElement from "./BaseElement";
 
 export default new class extends BaseElement<FootpathElement, FootpathAdditionData> {
     createFromTileData(element: FootpathElement, coords: CoordsXY): FootpathAdditionData | undefined {

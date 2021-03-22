@@ -8,7 +8,6 @@
 import Configuration from "../../config/Configuration";
 import GUI from "../../gui/GUI";
 
-
 export default new GUI.Tab({
     frameBase: 5205,
     frameCount: 16,

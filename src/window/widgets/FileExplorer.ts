@@ -5,10 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import GUI from "../../gui/GUI";
-import { File } from "../../persistence/File";
-import FileView from "./FileView";
 import Dialog from "../../utils/Dialog";
+import FileView from "./FileView";
+import GUI from "../../gui/GUI";
 
 export default class extends GUI.VBox {
     constructor(
@@ -87,5 +86,5 @@ export default class extends GUI.VBox {
         );
     }
 
-    protected onFileCreation(_file: File): void { }
+    protected onFileCreation(_file: IFile): void { }
 };

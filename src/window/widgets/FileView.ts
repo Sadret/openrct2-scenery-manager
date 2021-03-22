@@ -5,15 +5,16 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { Property } from "../../config/Property";
-import GUI from "../../gui/GUI";
-import { File, FileSystem } from "../../persistence/File";
 import * as Arrays from "../../utils/Arrays";
 import * as Strings from "../../utils/Strings";
 
+import File from "../../persistence/File";
+import GUI from "../../gui/GUI";
+import Property from "../../config/Property";
+
 export default class extends GUI.ListView {
-    private folder: File | undefined = undefined;
-    private files: File[] = [];
+    private folder: IFile | undefined = undefined;
+    private files: IFile[] = [];
     public readonly path = new Property<string>("");
 
     public constructor(columns: ListViewColumn[], height: number = 256) {
@@ -25,11 +26,11 @@ export default class extends GUI.ListView {
         }, height);
     }
 
-    public getFolder(): File | undefined {
+    public getFolder(): IFile | undefined {
         return this.folder;
     }
 
-    public watch(fs: FileSystem): void {
+    public watch(fs: IFileSystem): void {
         this.openFolder(fs.getRoot());
         fs.addObserver(file => {
             if (this.folder === undefined)
@@ -43,11 +44,11 @@ export default class extends GUI.ListView {
         });
     }
 
-    protected getItem(file: File): ListViewItem {
+    protected getItem(file: IFile): ListViewItem {
         return [file.getName()];
     };
 
-    public setSelectedFile(file: File | undefined): void {
+    public setSelectedFile(file: IFile | undefined): void {
         const idx = Arrays.findIdx(this.files, file2 => File.equals(file, file2));
         if (idx === undefined)
             this.setSelectedCell(undefined);
@@ -55,7 +56,7 @@ export default class extends GUI.ListView {
             this.setSelectedCell({ row: idx, column: 0 });
     }
 
-    public getSelectedFile(): File | undefined {
+    public getSelectedFile(): IFile | undefined {
         const idx = this.args.selectedCell ?.row;
         if (idx === undefined)
             return undefined;
@@ -76,7 +77,7 @@ export default class extends GUI.ListView {
         this.onSelect(this.getSelectedFile());
     }
 
-    public openFolder(file: File | undefined): void {
+    public openFolder(file: IFile | undefined): void {
         if (file === undefined) {
             this.folder = undefined;
             this.path.setValue("");
@@ -94,7 +95,7 @@ export default class extends GUI.ListView {
 
         const items = [] as ListViewItem[];
 
-        const add = (file: File, info: ListViewItem) => {
+        const add = (file: IFile, info: ListViewItem) => {
             this.files.push(file);
             items.push(info);
         };
@@ -105,25 +106,25 @@ export default class extends GUI.ListView {
 
         this.folder.getFiles(
         ).filter(
-            (file: File) => file.isFolder()
+            (file: IFile) => file.isFolder()
         ).sort(
-            (a: File, b: File) => Strings.compare(a.getName(), b.getName())
+            (a: IFile, b: IFile) => Strings.compare(a.getName(), b.getName())
         ).forEach(
-            (file: File) => add(file, [file.getName() + "/"])
+            (file: IFile) => add(file, [file.getName() + "/"])
         );
 
         this.folder.getFiles(
         ).filter(
-            (file: File) => file.isFile()
+            (file: IFile) => file.isFile()
         ).sort(
-            (a: File, b: File) => Strings.compare(a.getName(), b.getName())
+            (a: IFile, b: IFile) => Strings.compare(a.getName(), b.getName())
         ).forEach(
-            (file: File) => add(file, this.getItem(file))
+            (file: IFile) => add(file, this.getItem(file))
         );
 
         this.setItems(items);
     }
 
-    protected openFile(_file: File): void { };
-    protected onSelect(_file?: File): void { };
+    protected openFile(_file: IFile): void { };
+    protected onSelect(_file?: IFile): void { };
 };

@@ -5,13 +5,13 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import GUI from "../../gui/GUI";
-import * as Storage from "../../persistence/Storage";
 import * as Clipboard from "../../core/Clipboard";
-import Template from "../../template/Template";
 import * as StartUp from "../../StartUp";
-import { File } from "../../persistence/File";
+import * as Storage from "../../persistence/Storage";
+
 import FileExplorer from "../widgets/FileExplorer";
+import GUI from "../../gui/GUI";
+import Template from "../../template/Template";
 import TemplateView from "../widgets/TemplateView";
 
 export default new GUI.Tab({
@@ -26,7 +26,7 @@ export default new GUI.Tab({
                 StartUp.addTask(() => this.watch(Storage.libraries.templates));
             }
 
-            openFile(file: File): void {
+            openFile(file: IFile): void {
                 Clipboard.addTemplate(new Template(file.getContent<TemplateData>()));
             }
         }(),

@@ -5,9 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import Tool from "./Tool";
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
+
+import Tool from "./Tool";
 
 export default abstract class Builder extends Tool {
     protected mode: BuildMode = "down";

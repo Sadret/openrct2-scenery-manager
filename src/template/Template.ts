@@ -5,8 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import BaseElement from "./BaseElement";
+import * as Context from "../core/Context";
+import * as Coordinates from "../utils/Coordinates";
+
 import Banner from "./Banner";
+import BaseElement from "./BaseElement";
 import Entrance from "./Entrance";
 import Footpath from "./Footpath";
 import FootpathAddition from "./FootpathAddition";
@@ -14,8 +17,6 @@ import LargeScenery from "./LargeScenery";
 import SmallScenery from "./SmallScenery";
 import Track from "./Track";
 import Wall from "./Wall";
-import * as Coordinates from "../utils/Coordinates";
-import * as Context from "../core/Context";
 
 const map: { [key in ElementType]: BaseElement<BaseTileElement, ElementData> } = {
     banner: Banner,
@@ -28,7 +29,7 @@ const map: { [key in ElementType]: BaseElement<BaseTileElement, ElementData> } =
     wall: Wall,
 }
 
-class Template implements TemplateData {
+export default class Template implements TemplateData {
     public readonly elements: ElementData[];
     public readonly tiles: CoordsXY[];
 
@@ -117,4 +118,3 @@ class Template implements TemplateData {
         return Template.get(element) ?.getRemoveAction();
     }
 }
-export default Template;

@@ -5,7 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { File } from "../../persistence/File";
 import FileView from "./FileView";
 
 export default class extends FileView {
@@ -22,7 +21,7 @@ export default class extends FileView {
         );
     }
 
-    getItem(file: File): ListViewItem {
+    getItem(file: IFile): ListViewItem {
         const data = file.getContent<ScatterPattern | undefined>();
         const density = data && data.reduce<number>((sum, entry) => sum + entry.weight, 0);
         return [file.getName(), density === undefined ? "" : (String(density) + "%")];

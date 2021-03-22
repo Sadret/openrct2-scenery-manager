@@ -5,6 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Coordinates from "../utils/Coordinates";
+
 import Banner from "../template/Banner";
 import Entrance from "../template/Entrance";
 import Footpath from "../template/Footpath";
@@ -14,7 +16,6 @@ import SmallScenery from "../template/SmallScenery";
 import Template from "../template/Template";
 import Track from "../template/Track";
 import Wall from "../template/Wall";
-import * as Coordinates from "../utils/Coordinates";
 
 /*
  * READ / PLACE / REMOVE METHODS

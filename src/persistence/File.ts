@@ -5,35 +5,14 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-export interface FileSystem {
-    getRoot(): File;
-    addObserver(observer: Observer<File>): void;
-
-    exists(file: File): boolean;
-    isFolder(file: File): boolean;
-    isFile(file: File): boolean;
-
-    getFiles(file: File): File[];
-    getContent<T>(file: File): T;
-
-    createFolder(file: File): boolean;
-    createFile<T>(file: File, content: T): boolean;
-
-    copy(src: File, dest: File): boolean;
-    move(src: File, dest: File): boolean;
-    setContent<T>(file: File, content: T): boolean;
-
-    delete(file: File): boolean;
-}
-
-export class File {
-    private readonly fs: FileSystem;
+export default class File implements IFile {
+    private readonly fs: IFileSystem;
     private readonly path: string;
 
     private readonly name: string;
     private readonly parent: string | undefined;
 
-    constructor(fs: FileSystem, path: string) {
+    constructor(fs: IFileSystem, path: string) {
         this.fs = fs;
         this.path = path;
 
@@ -47,7 +26,7 @@ export class File {
         }
     }
 
-    static equals(file: File | undefined, other: File | undefined): boolean {
+    public static equals(file: IFile | undefined, other: IFile | undefined): boolean {
         if (file === undefined && other === undefined)
             return true;
         if (file === undefined || other === undefined)
@@ -55,74 +34,72 @@ export class File {
         return file.getPath() === other.getPath();
     }
 
-    getPath(): string { return this.path; };
-    getName(): string { return decode(this.name); };
-    getParent(): File | undefined {
+    public getPath(): string { return this.path; };
+    public getName(): string { return decode(this.name); };
+    public getParent(): IFile | undefined {
         if (this.parent === undefined) return undefined;
         else return new File(this.fs, this.parent);
     };
 
-    exists(): boolean { return this.fs.exists(this); };
-    isFolder(): boolean { return this.fs.isFolder(this); };
-    isFile(): boolean { return this.fs.isFile(this); };
+    public exists(): boolean { return this.fs.exists(this); };
+    public isFolder(): boolean { return this.fs.isFolder(this); };
+    public isFile(): boolean { return this.fs.isFile(this); };
 
-    getFiles(): File[] { return this.fs.getFiles(this); };
-    getContent<T>(): T { return this.fs.getContent(this); };
+    public getFiles(): IFile[] { return this.fs.getFiles(this); };
+    public getContent<T>(): T { return this.fs.getContent(this); };
 
-    addFolder(name: string): File | undefined {
+    public addFolder(name: string): IFile | undefined {
         if (name === "")
             return undefined;
         name = encode(name);
-        const file: File = new File(this.fs, this.path + "/" + name);
+        const file: IFile = new File(this.fs, this.path + "/" + name);
         if (this.fs.createFolder(file))
             return file;
         else
             return undefined;
     };
-    addFile<T>(name: string, content: T): File | undefined {
+    public addFile<T>(name: string, content: T): IFile | undefined {
         if (name === "")
             return undefined;
         name = encode(name);
-        const file: File = new File(this.fs, this.path + "/" + name);
+        const file: IFile = new File(this.fs, this.path + "/" + name);
         if (this.fs.createFile<T>(file, content))
             return file;
         else
             return undefined;
     };
 
-    rename(name: string): File | undefined {
+    public rename(name: string): IFile | undefined {
         const parent = this.getParent();
         return parent && this.move(parent, name);
     };
-    copy(parent: File, name?: string): File | undefined {
+    public copy(parent: IFile, name?: string): IFile | undefined {
         if (parent === undefined || name === "")
             return undefined;
         if (name === undefined)
             name = this.name;
         else
             name = encode(name);
-        const file: File = new File(this.fs, parent.path + "/" + name);
+        const file: IFile = new File(this.fs, parent.getPath() + "/" + name);
         if (this.fs.copy(this, file))
             return file;
         return undefined;
     };
-    move(parent: File, name?: string): File | undefined {
+    public move(parent: IFile, name?: string): IFile | undefined {
         if (parent === undefined || name === "")
             return undefined;
         if (name === undefined)
             name = this.name;
         else
             name = encode(name);
-        const file: File = new File(this.fs, parent.path + "/" + name);
+        const file: IFile = new File(this.fs, parent.getPath() + "/" + name);
         if (this.fs.move(this, file))
             return file;
     };
-    setContent<T>(content: T): boolean { return this.fs.setContent(this, content); };
+    public setContent<T>(content: T): boolean { return this.fs.setContent(this, content); };
 
-    delete(): boolean { return this.fs.delete(this); };
+    public delete(): boolean { return this.fs.delete(this); };
 }
-
-export class FileSystemError extends Error { };
 
 // forbidden chars: . (dot), / (forward slash)
 // escape char (see above): \ (backslash)
@@ -135,14 +112,14 @@ function replaceAll(text: string, search: string, replacement: string): string {
     return text.split(search).join(replacement);
 }
 
-export function encode(text: string): string {
+function encode(text: string): string {
     text = replaceAll(text, escape(""), escape(escape("")));
     text = replaceAll(text, ".", escape("d"));
     text = replaceAll(text, "/", escape("s"));
     return text;
 }
 
-export function decode(text: string): string {
+function decode(text: string): string {
     text = replaceAll(text, escape("s"), "/");
     text = replaceAll(text, escape("d"), ".");
     text = replaceAll(text, escape(escape("")), escape(""));

@@ -5,8 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import Tool from "./Tool";
 import * as Coordinates from "../utils/Coordinates";
+
+import Tool from "./Tool";
 
 export default class Selector extends Tool {
     private start: CoordsXY = Coordinates.NULL;

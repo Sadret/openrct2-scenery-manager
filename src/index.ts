@@ -7,10 +7,11 @@
 
 /// <reference path="./../../openrct2.d.ts" />
 
-import * as Updater from "./Updater";
-import * as Shortcuts from "./Shortcuts";
 import * as Configuration from "./config/Configuration";
+import * as Shortcuts from "./Shortcuts";
 import * as StartUp from "./StartUp";
+import * as Updater from "./Updater";
+
 import MainWindow from "./window/MainWindow";
 
 registerPlugin({

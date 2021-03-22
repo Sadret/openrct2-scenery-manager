@@ -6,9 +6,11 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
+
 import Builder from "./Builder";
-import { NumberProperty, Property } from "../config/Property";
 import Configuration from "../config/Configuration";
+import NumberProperty from "../config/NumberProperty";
+import Property from "../config/Property";
 
 export default abstract class Brush extends Builder {
     public readonly size: NumberProperty = Configuration.brush.size;

@@ -5,18 +5,19 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import Template from "../template/Template";
-import * as Storage from "../persistence/Storage";
-import { File } from "../persistence/File";
-import FileExplorer from "../window/widgets/FileExplorer";
-import TemplateView from "../window/widgets/TemplateView";
-import Dialog from "../utils/Dialog";
-import { BooleanProperty, NumberProperty } from "../config/Property";
-import * as MapIO from "../core/MapIO";
 import * as Coordinates from "../utils/Coordinates";
-import Configuration from "../config/Configuration";
-import Selector from "../tools/Selector";
+import * as MapIO from "../core/MapIO";
+import * as Storage from "../persistence/Storage";
+
+import BooleanProperty from "../config/BooleanProperty";
 import Builder from "../tools/Builder";
+import Configuration from "../config/Configuration";
+import Dialog from "../utils/Dialog";
+import FileExplorer from "../window/widgets/FileExplorer";
+import NumberProperty from "../config/NumberProperty";
+import Selector from "../tools/Selector";
+import Template from "../template/Template";
+import TemplateView from "../window/widgets/TemplateView";
 
 export const settings = {
     filter: {
@@ -127,7 +128,7 @@ export function save(): void {
     new Dialog(
         "Save template",
         new class extends FileExplorer {
-            onFileCreation(file: File): void {
+            onFileCreation(file: IFile): void {
                 file.setContent<TemplateData>(data);
                 this.getWindow() ?.close();
             }
@@ -138,7 +139,7 @@ export function save(): void {
                     this.watch(Storage.libraries.templates);
                 }
 
-                openFile(file: File): void {
+                openFile(file: IFile): void {
                     file.setContent<TemplateData>(data);
                     this.getWindow() ?.close();
                 }
@@ -158,7 +159,7 @@ export function load(): void {
                     this.watch(Storage.libraries.templates);
                 }
 
-                openFile(file: File): void {
+                openFile(file: IFile): void {
                     addTemplate(new Template(file.getContent<TemplateData>()));
                     this.getWindow() ?.close();
                 }

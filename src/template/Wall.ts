@@ -5,9 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import BaseElement from "./BaseElement";
-import * as Direction from "../utils/Direction";
 import * as Context from "../core/Context";
+import * as Direction from "../utils/Direction";
+
+import BaseElement from "./BaseElement";
 
 export default new class extends BaseElement<WallElement, WallData> {
     createFromTileData(element: WallElement, coords: CoordsXY): WallData {

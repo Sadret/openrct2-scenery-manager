@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 import * as Clipboard from "../../core/Clipboard";
+
 import GUI from "../../gui/GUI";
 
 export default new GUI.Tab(5465).add(

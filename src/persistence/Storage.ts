@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import { File, FileSystem, FileSystemError } from "../persistence/File";
+import File from "./File";
 
 const namespace: string = "scenery-manager";
 const storagePrefix: string = namespace + ".";
@@ -36,7 +36,7 @@ interface StorageFile<T> extends StorageElement {
     content: T;
 }
 
-export class StorageFileSystem implements FileSystem {
+export class StorageFileSystem implements IFileSystem {
     readonly root: string;
 
     public constructor(root: string) {
@@ -70,7 +70,7 @@ export class StorageFileSystem implements FileSystem {
     private getData<T extends StorageElement>(file: File): T {
         const data = get<T>(this.getKey(file));
         if (data === undefined)
-            throw new FileSystemError();
+            throw new Error();
         return data;
     }
 
@@ -114,7 +114,7 @@ export class StorageFileSystem implements FileSystem {
     };
     public getContent<T>(file: File): T {
         if (!this.isFile(file))
-            throw new FileSystemError();
+            throw new Error();
 
         const data = this.getData<StorageFile<T>>(file);
         return data && data.content;

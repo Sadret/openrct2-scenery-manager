@@ -5,23 +5,24 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Arrays from "../../utils/Arrays";
 import * as Context from "../../core/Context";
 import * as MapIO from "../../core/MapIO";
-import * as Arrays from "../../utils/Arrays";
-import Configuration from "../../config/Configuration";
-import GUI from "../../gui/GUI";
-import SmallScenery from "../../template/SmallScenery";
-import LargeScenery from "../../template/LargeScenery";
-import Template from "../../template/Template";
-import { NumberProperty, Property } from "../../config/Property";
-import Dialog from "../../utils/Dialog";
-import { File } from "../../persistence/File";
 import * as Storage from "../../persistence/Storage";
-import FileExplorer from "../widgets/FileExplorer";
-import ScatterPatternView from "../widgets/ScatterPatternView";
-import Picker from "../../tools/Picker";
-import BrushBox from "../widgets/BrushBox";
+
 import Brush from "../../tools/Brush";
+import BrushBox from "../widgets/BrushBox";
+import Configuration from "../../config/Configuration";
+import Dialog from "../../utils/Dialog";
+import FileExplorer from "../widgets/FileExplorer";
+import GUI from "../../gui/GUI";
+import LargeScenery from "../../template/LargeScenery";
+import NumberProperty from "../../config/NumberProperty";
+import Picker from "../../tools/Picker";
+import Property from "../../config/Property";
+import ScatterPatternView from "../widgets/ScatterPatternView";
+import SmallScenery from "../../template/SmallScenery";
+import Template from "../../template/Template";
 
 const data = Arrays.create<Property<ScatterData>>(5, () => new Property<ScatterData>({
     element: undefined,
@@ -221,7 +222,7 @@ export default new GUI.Tab(5459).add(
                 onClick: () => new Dialog(
                     "Save pattern",
                     new class extends FileExplorer {
-                        onFileCreation(file: File): void {
+                        onFileCreation(file: IFile): void {
                             file.setContent<ScatterPattern>(savePattern());
                             this.getWindow() ?.close();
                         }
@@ -232,7 +233,7 @@ export default new GUI.Tab(5459).add(
                                 this.watch(Storage.libraries.scatterPattern);
                             }
 
-                            openFile(file: File): void {
+                            openFile(file: IFile): void {
                                 file.setContent<ScatterPattern>(savePattern());
                                 this.getWindow() ?.close();
                             }
@@ -252,7 +253,7 @@ export default new GUI.Tab(5459).add(
                                 this.watch(Storage.libraries.scatterPattern);
                             }
 
-                            openFile(file: File): void {
+                            openFile(file: IFile): void {
                                 loadPattern(file.getContent<ScatterPattern>());
                                 this.getWindow() ?.close();
                             }

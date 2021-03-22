@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 import * as Clipboard from "./core/Clipboard";
+
 import MainWindow from "./window/MainWindow";
 
 export function register() {

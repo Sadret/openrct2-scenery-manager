@@ -5,10 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Storage from "./persistence/Storage";
 import * as Coordinates from "./utils/Coordinates";
+import * as Storage from "./persistence/Storage";
+
 import Dialog from "./utils/Dialog";
-import { File } from "./persistence/File";
 import Template from "./template/Template";
 
 export function update(load: () => void): void {
@@ -96,7 +96,7 @@ function update_101_110(): void {
         readonly surfaceHeight: number,
     }
 
-    function recurse(file: File): void {
+    function recurse(file: IFile): void {
         if (file.isFile()) {
             const template: TemplateData_101 = file.getContent<TemplateData_101>();
             file.setContent<TemplateData_110>({
@@ -105,7 +105,7 @@ function update_101_110(): void {
                 surfaceHeight: template.surfaceHeight,
             });
         } else {
-            file.getFiles().forEach((child: File) => recurse(child));
+            file.getFiles().forEach((child: IFile) => recurse(child));
         }
     }
 
@@ -127,7 +127,7 @@ function update_111_120(): void {
         readonly tiles: CoordsXY[],
     }
 
-    function recurse(file: File): void {
+    function recurse(file: IFile): void {
         if (file.isFile()) {
             const template110: TemplateData_110 = file.getContent<TemplateData_110>();
 
@@ -158,7 +158,7 @@ function update_111_120(): void {
                 tiles: template120.tiles,
             });
         } else {
-            file.getFiles().forEach((child: File) => recurse(child));
+            file.getFiles().forEach((child: IFile) => recurse(child));
         }
     }
 

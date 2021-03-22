@@ -5,8 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import GUI from "../../gui/GUI";
 import Brush from "../../tools/Brush";
+import GUI from "../../gui/GUI";
 
 const shapes: BrushShape[] = ["square", "circle"];
 
