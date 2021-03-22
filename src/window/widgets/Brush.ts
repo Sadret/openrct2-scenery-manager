@@ -16,10 +16,12 @@ type TemplateProvider = (tiles: CoordsXY[]) => TemplateData;
 class Brush extends GUI.GroupBox {
     private readonly provider: TemplateProvider;
     private readonly mode: BuildMode;
+    private readonly filter: ToolFilter[] | undefined;
 
     public constructor(
         provider: TemplateProvider,
         mode: BuildMode,
+        filter?: ToolFilter[],
     ) {
         super({
             text: "Brush",
@@ -27,6 +29,7 @@ class Brush extends GUI.GroupBox {
 
         this.provider = provider;
         this.mode = mode;
+        this.filter = filter;
 
         this.add(
             new GUI.HBox([2, 4, 1, 2, 4, 1, 4]).add(
@@ -66,6 +69,7 @@ class Brush extends GUI.GroupBox {
                 return this.provider(tiles);
             },
             this.mode,
+            this.filter,
         );
     }
 }

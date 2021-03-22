@@ -37,6 +37,8 @@ export const settings = {
 settings.selectBySurface.bind(_ => {
     if (ui.tool !== null && ui.tool.id === "scenery-manager-selector")
         ui.tool.cancel(), select();
+    if (ui.tool !== null && ui.tool.id === "scenery-manager-builder")
+        ui.tool.cancel(), paste();
 });
 
 let templates: Template[] = [];
@@ -168,6 +170,7 @@ export function paste(): void {
             );
         },
         "up",
+        settings.selectBySurface.getValue() ? ["terrain"] : undefined,
     );
     settings.rotation.bind(reload);
     settings.mirrored.bind(reload);

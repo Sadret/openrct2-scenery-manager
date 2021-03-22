@@ -124,6 +124,7 @@ export default new GUI.Tab(5459).add(
     new Brush(
         tiles => provide(tiles),
         Configuration.scatter.dragToPlace.getValue() ? "move" : "down",
+        ["terrain"],
     ),
     new GUI.GroupBox({
         text: "Options",

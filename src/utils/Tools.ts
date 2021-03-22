@@ -8,7 +8,7 @@
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
 
-export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => TemplateData, mode: BuildMode = "down"): () => void {
+export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => TemplateData, mode: BuildMode = "down", filter?: ToolFilter[]): () => void {
     let ghost = undefined as {
         data: ElementData[],
         coords: CoordsXY,
@@ -40,6 +40,7 @@ export function build(getTemplate: (coords: CoordsXY, offset: CoordsXY) => Templ
     ui.activateTool({
         id: "scenery-manager-builder",
         cursor: "cross_hair",
+        filter: filter,
         onStart: () => {
             ui.mainViewport.visibilityFlags |= 1 << 7;
         },
