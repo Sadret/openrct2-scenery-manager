@@ -73,11 +73,11 @@ export default new GUI.Tab(5465).add(
                 ),
                 new GUI.HBox([1, 1]).add(
                     new GUI.Label({
-                        text: "Selection mode:",
+                        text: "Cursor mode:",
                     }),
                     new GUI.Dropdown({
                     }).bindValue<boolean>(
-                        Clipboard.settings.selectBySurface,
+                        Clipboard.settings.pickBySurface,
                         [true, false],
                         selectBySurface => selectBySurface ? "surface" : "scenery",
                     ),

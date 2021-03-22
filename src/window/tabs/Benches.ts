@@ -9,10 +9,11 @@ import * as Context from "../../core/Context";
 import * as MapIO from "../../core/MapIO";
 import * as Coordinates from "../../utils/Coordinates";
 import * as Arrays from "../../utils/Arrays";
-import * as Tools from "../../utils/Tools";
-import Brush from "../widgets/Brush";
+import BrushBox from "../widgets/BrushBox";
 import GUI from "../../gui/GUI";
 import { NumberProperty, Property } from "../../config/Property";
+import Brush from "../../tools/Brush";
+import Picker from "../../tools/Picker";
 
 const NUM = 8; // max 11
 const size = new NumberProperty(4, 1, NUM);
@@ -53,8 +54,8 @@ function updateEntry(entry: Property<Object | undefined>, clear: boolean): void 
     if (clear)
         return entry.setValue(undefined);
 
-    Tools.pick(
-        element => {
+    new class extends Picker {
+        protected accept(element: BaseTileElement): boolean {
             if (element.type !== "footpath")
                 return (ui.showError("Cannot use this element...", "Element must be a footpath addition."), false);
             const footpath: FootpathElement = <FootpathElement>element;
@@ -63,13 +64,23 @@ function updateEntry(entry: Property<Object | undefined>, clear: boolean): void 
             entry.setValue(context.getObject("footpath_addition", footpath.addition));
             return true;
         }
-    );
+    }(
+        "sm-picker-benches",
+    ).activate();
 }
 
 export default new GUI.Tab(5464).add(
-    new Brush(
-        tiles => provide(tiles),
-        "move",
+    new BrushBox(
+        new class extends Brush {
+            constructor() {
+                super("sm-brush-benches");
+                this.mode = "move";
+            }
+
+            protected getTemplateFromTiles(tiles: CoordsXY[], _offset: CoordsXY): TemplateData {
+                return provide(tiles);
+            }
+        }(),
     ),
     new GUI.GroupBox({
         text: "Options",

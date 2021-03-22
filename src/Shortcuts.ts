@@ -53,10 +53,10 @@ export function register() {
         callback: () => Clipboard.settings.mirrored.flip(),
     });
     ui.registerShortcut({
-        id: "scenery-manager.selectionMode",
-        text: "[SM] Toggle selection mode",
+        id: "scenery-manager.cursorMode",
+        text: "[SM] Toggle cursor mode",
         bindings: ["CTRL+T", "GUI+T"],
-        callback: () => Clipboard.settings.selectBySurface.flip(),
+        callback: () => Clipboard.settings.pickBySurface.flip(),
     });
     ui.registerShortcut({
         id: "scenery-manager.prevTemplate",

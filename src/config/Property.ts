@@ -26,6 +26,7 @@ export class Property<T> implements Observable<T>{
 
     public bind(observer: Observer<T>) {
         this.observers.push(observer);
+        observer(this.value);
     }
 }
 

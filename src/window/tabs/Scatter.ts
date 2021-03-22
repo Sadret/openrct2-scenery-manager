@@ -8,8 +8,6 @@
 import * as Context from "../../core/Context";
 import * as MapIO from "../../core/MapIO";
 import * as Arrays from "../../utils/Arrays";
-import * as Tools from "../../utils/Tools";
-import Brush from "../widgets/Brush";
 import Configuration from "../../config/Configuration";
 import GUI from "../../gui/GUI";
 import SmallScenery from "../../template/SmallScenery";
@@ -21,6 +19,9 @@ import { File } from "../../persistence/File";
 import * as Storage from "../../persistence/Storage";
 import FileExplorer from "../widgets/FileExplorer";
 import ScatterPatternView from "../widgets/ScatterPatternView";
+import Picker from "../../tools/Picker";
+import BrushBox from "../widgets/BrushBox";
+import Brush from "../../tools/Brush";
 
 const data = Arrays.create<Property<ScatterData>>(5, () => new Property<ScatterData>({
     element: undefined,
@@ -75,8 +76,8 @@ function clearEntry(entry: Property<ScatterData>): void {
 
 function updateEntryElement(entry: Property<ScatterData>): void {
     clearEntry(entry);
-    Tools.pick(
-        element => {
+    new class extends Picker {
+        protected accept(element: BaseTileElement): boolean {
             let data: ElementData | undefined;
             switch (element.type) {
                 case "small_scenery":
@@ -94,7 +95,9 @@ function updateEntryElement(entry: Property<ScatterData>): void {
             });
             return true;
         }
-    );
+    }(
+        "sm-picker-scatter",
+    ).activate();
 }
 function savePattern(): ScatterPattern {
     return data.map(property => property.getValue());
@@ -121,10 +124,23 @@ function updateEntryWeight(entry: Property<ScatterData>, delta: number): void {
 }
 
 export default new GUI.Tab(5459).add(
-    new Brush(
-        tiles => provide(tiles),
-        Configuration.scatter.dragToPlace.getValue() ? "move" : "down",
-        ["terrain"],
+    new BrushBox(
+        new class extends Brush {
+            constructor() {
+                super(
+                    "sm-brush-scatter",
+                    undefined,
+                    ["terrain"],
+                );
+                Configuration.scatter.dragToPlace.bind(
+                    value => this.mode = value ? "move" : "down",
+                );
+            }
+
+            protected getTemplateFromTiles(tiles: CoordsXY[], _offset: CoordsXY): TemplateData {
+                return provide(tiles);
+            }
+        }(),
     ),
     new GUI.GroupBox({
         text: "Options",

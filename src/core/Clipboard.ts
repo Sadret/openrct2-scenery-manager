@@ -14,8 +14,9 @@ import Dialog from "../utils/Dialog";
 import { BooleanProperty, NumberProperty } from "../config/Property";
 import * as MapIO from "../core/MapIO";
 import * as Coordinates from "../utils/Coordinates";
-import * as Tools from "../utils/Tools";
 import Configuration from "../config/Configuration";
+import Selector from "../tools/Selector";
+import Builder from "../tools/Builder";
 
 export const settings = {
     filter: {
@@ -31,15 +32,67 @@ export const settings = {
     rotation: new NumberProperty(0),
     mirrored: new BooleanProperty(false),
     height: new NumberProperty(0),
-    selectBySurface: new BooleanProperty(true),
+    pickBySurface: new BooleanProperty(true),
 };
 
-settings.selectBySurface.bind(_ => {
-    if (ui.tool !== null && ui.tool.id === "scenery-manager-selector")
-        ui.tool.cancel(), select();
-    if (ui.tool !== null && ui.tool.id === "scenery-manager-builder")
-        ui.tool.cancel(), paste();
-});
+const selector = new Selector(
+    "sm-selector-clipboard",
+);
+
+const builder = new class extends Builder {
+    constructor() {
+        super(
+            "sm-builder-clipboard",
+        );
+        this.mode = "up";
+    }
+
+    protected getTemplate(coords: CoordsXY, offset: CoordsXY): TemplateData {
+        const template = getTemplate();
+        if (template === undefined) {
+            ui.showError("Can't paste template...", "Clipboard is empty!");
+            this.cancel();
+            return { elements: [], tiles: [] };
+        }
+
+        let rotation = settings.rotation.getValue();
+        if (Configuration.copyPaste.cursor.rotation.enabled.getValue()) {
+            const insensitivity = 10 - Configuration.copyPaste.cursor.rotation.sensitivity.getValue();
+            const diff = offset.x + (1 << insensitivity) >> insensitivity + 1;
+            if (Configuration.copyPaste.cursor.rotation.flip.getValue())
+                rotation += diff;
+            else
+                rotation -= diff;
+        }
+        let height = MapIO.getSurfaceHeight(coords) + 8 * settings.height.getValue();
+        if (Configuration.copyPaste.cursor.height.enabled.getValue()) {
+            const step = Configuration.copyPaste.cursor.height.smallSteps.getValue() ? 8 : 16;
+            height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
+        }
+        return template.filter(
+            Template.isAvailable
+        ).filter(
+            element => settings.filter[element.type].getValue()
+        ).transform(
+            settings.mirrored.getValue(), rotation, { ...coords, z: height }
+        ).filter(
+            element => element.z > 0
+        );
+    }
+}();
+
+settings.pickBySurface.bind(
+    value => {
+        const filter = value ? ["terrain" as ToolFilter] : undefined;
+        selector.filter = filter;
+        selector.restart();
+        builder.filter = filter;
+        builder.restart();
+    }
+);
+
+settings.rotation.bind(() => builder.rebuild());
+settings.mirrored.bind(() => builder.rebuild());
 
 let templates: Template[] = [];
 let cursor: number | undefined = undefined;
@@ -115,7 +168,7 @@ export function load(): void {
 }
 
 export function select() {
-    Tools.select(settings.selectBySurface.getValue() ? ["terrain"] : undefined);
+    selector.activate();
 }
 
 export function copy(): void {
@@ -137,41 +190,5 @@ export function copy(): void {
 }
 
 export function paste(): void {
-    const reload = Tools.build(
-        (coords, offset: CoordsXY) => {
-            const template = getTemplate();
-            if (template === undefined) {
-                ui.showError("Can't paste template...", "Clipboard is empty!");
-                return { elements: [], tiles: [] };
-            }
-
-            let rotation = settings.rotation.getValue();
-            if (Configuration.copyPaste.cursor.rotation.enabled.getValue()) {
-                const insensitivity = 10 - Configuration.copyPaste.cursor.rotation.sensitivity.getValue();
-                const diff = offset.x + (1 << insensitivity) >> insensitivity + 1;
-                if (Configuration.copyPaste.cursor.rotation.flip.getValue())
-                    rotation += diff;
-                else
-                    rotation -= diff;
-            }
-            let height = MapIO.getSurfaceHeight(coords) + 8 * settings.height.getValue();
-            if (Configuration.copyPaste.cursor.height.enabled.getValue()) {
-                const step = Configuration.copyPaste.cursor.height.smallSteps.getValue() ? 8 : 16;
-                height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
-            }
-            return template.filter(
-                Template.isAvailable
-            ).filter(
-                element => settings.filter[element.type].getValue()
-            ).transform(
-                settings.mirrored.getValue(), rotation, { ...coords, z: height }
-            ).filter(
-                element => element.z > 0
-            );
-        },
-        "up",
-        settings.selectBySurface.getValue() ? ["terrain"] : undefined,
-    );
-    settings.rotation.bind(reload);
-    settings.mirrored.bind(reload);
+    builder.activate();
 }
