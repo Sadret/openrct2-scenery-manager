@@ -5,8 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import GUI from "../../gui/GUI";
 import Configuration from "../../config/Configuration";
+import GUI from "../../gui/GUI";
+
 
 export default new GUI.Tab({
     frameBase: 5205,
@@ -35,7 +36,7 @@ export default new GUI.Tab({
         new GUI.HBox([1, 20]).add(
             new GUI.Space(),
             new GUI.Checkbox({
-                text: "Enable small step size (not suited for footpaths)",
+                text: "Enable small step size (not suited for footpaths or tracks)",
             }).bindValue(
                 Configuration.copyPaste.cursor.height.smallSteps,
             ).bindIsDisabled(
