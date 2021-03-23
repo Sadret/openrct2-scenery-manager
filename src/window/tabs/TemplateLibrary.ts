@@ -11,7 +11,6 @@ import * as Storage from "../../persistence/Storage";
 
 import FileExplorer from "../widgets/FileExplorer";
 import GUI from "../../gui/GUI";
-import Template from "../../template/Template";
 import TemplateView from "../widgets/TemplateView";
 
 export default new GUI.Tab({
@@ -27,7 +26,7 @@ export default new GUI.Tab({
             }
 
             openFile(file: IFile): void {
-                Clipboard.addTemplate(new Template(file.getContent<TemplateData>()));
+                Clipboard.load(file);
             }
         }(),
     ),

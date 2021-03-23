@@ -99,7 +99,6 @@ export default class Template implements TemplateData {
         return map[element.type];
     }
 
-
     public static isAvailable(element: ElementData): boolean {
         return element.identifier === undefined || Context.getObject(element) !== undefined;
     }

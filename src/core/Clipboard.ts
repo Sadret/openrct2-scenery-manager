@@ -171,20 +171,33 @@ export function next(): void {
 export function save(file?: IFile): void {
     if (file === undefined)
         return saveDialog.open();
+    saveDialog.close();
 
     const data = getTemplate();
     if (data === undefined)
         return ui.showError("Can't save template...", "Nothing copied!");
     file.setContent<TemplateData>(data);
-    saveDialog.close();
 }
 
 export function load(file?: IFile): void {
     if (file === undefined)
         return loadDialog.open();
-
-    addTemplate(new Template(file.getContent<TemplateData>()));
     loadDialog.close();
+
+    const template = new Template(file.getContent<TemplateData>());
+    const available = template.filter(Template.isAvailable);
+
+    if (available.elements.length !== template.elements.length) {
+        const action = Configuration.copyPaste.onMissingElement.getValue();
+        switch (action) {
+            case "error":
+                return ui.showError("Can't load template...", "Template includes scenery which is unavailable.");
+            case "warning":
+                ui.showError("Can't load entire template...", "Template includes scenery which is unavailable.");
+        }
+    }
+
+    addTemplate(available);
 }
 
 export function select() {
