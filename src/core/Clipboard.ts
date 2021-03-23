@@ -205,22 +205,25 @@ export function select() {
     selector.activate();
 }
 
-export function copy(): void {
+export function copy(cut: boolean = false): void {
     if (ui.tileSelection.range === null)
         return ui.showError("Can't copy area...", "Nothing selected!");
 
     const tiles = Coordinates.toTiles(ui.tileSelection.range);
     const center = Coordinates.center(tiles);
 
-    const elements = MapIO.read(tiles);
+    const elements = MapIO.read(tiles).filter(
+        element => settings.filter[element.type].getValue()
+    );
     MapIO.sort(elements);
+
+    if (cut)
+        MapIO.remove(elements);
 
     addTemplate(new Template({
         elements: elements,
         tiles: tiles,
-    }).filter(
-        element => settings.filter[element.type].getValue()
-    ).translate({
+    }).translate({
         x: -center.x,
         y: -center.y,
         z: -MapIO.getMedianSurfaceHeight(tiles),
@@ -229,4 +232,8 @@ export function copy(): void {
 
 export function paste(): void {
     builder.activate();
+}
+
+export function cut(): void {
+    copy(true);
 }

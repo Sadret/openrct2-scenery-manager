@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 import * as Clipboard from "../../core/Clipboard";
+import * as Strings from "../../utils/Strings";
 
 import GUI from "../../gui/GUI";
 
@@ -27,16 +28,25 @@ export default new GUI.Tab(5465).add(
                 ),
                 new GUI.HBox([1, 1]).add(
                     new GUI.TextButton({
-                        text: "Save",
-                        onClick: Clipboard.save,
+                        text: "Load",
+                        onClick: Clipboard.load,
                     }),
                     new GUI.TextButton({
                         text: "Paste",
                         onClick: Clipboard.paste,
                     }),
                 ),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.TextButton({
+                        text: "Save",
+                        onClick: Clipboard.save,
+                    }),
+                    new GUI.TextButton({
+                        text: "Cut",
+                        onClick: Clipboard.cut,
+                    }),
+                ),
             ),
-            new GUI.Space(6),
             new GUI.GroupBox({
                 text: "Options",
             }).add(
@@ -88,46 +98,14 @@ export default new GUI.Tab(5465).add(
         new GUI.GroupBox({
             text: "Filter",
         }).add(
-            new GUI.Checkbox({
-                text: "Banner",
-            }).bindValue(
-                Clipboard.settings.filter["banner"],
+            ...Object.keys(Clipboard.settings.filter).map(key =>
+                new GUI.Checkbox({
+                    text: Strings.toDisplayString(key),
+                }).bindValue(
+                    Clipboard.settings.filter[key],
+                ),
             ),
-            new GUI.Checkbox({
-                text: "Entrance",
-            }).bindValue(
-                Clipboard.settings.filter["entrance"],
-            ),
-            new GUI.Checkbox({
-                text: "Footpath",
-            }).bindValue(
-                Clipboard.settings.filter["footpath"],
-            ),
-            new GUI.Checkbox({
-                text: "Footpath Addition",
-            }).bindValue(
-                Clipboard.settings.filter["footpath_addition"],
-            ),
-            new GUI.Checkbox({
-                text: "Large Scenery",
-            }).bindValue(
-                Clipboard.settings.filter["large_scenery"],
-            ),
-            new GUI.Checkbox({
-                text: "Small Scenery",
-            }).bindValue(
-                Clipboard.settings.filter["small_scenery"],
-            ),
-            new GUI.Checkbox({
-                text: "Track",
-            }).bindValue(
-                Clipboard.settings.filter["track"],
-            ),
-            new GUI.Checkbox({
-                text: "Wall",
-            }).bindValue(
-                Clipboard.settings.filter["wall"],
-            ),
+            new GUI.Space(6), // vfill
         ),
     ),
 );

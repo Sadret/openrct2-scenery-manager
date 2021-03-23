@@ -30,6 +30,12 @@ export function register() {
         callback: Clipboard.paste,
     });
     ui.registerShortcut({
+        id: "scenery-manager.cut",
+        text: "[SM] Cut (copy and delete) area",
+        bindings: ["CTRL+X", "GUI+X"],
+        callback: Clipboard.cut,
+    });
+    ui.registerShortcut({
         id: "scenery-manager.save",
         text: "[SM] Save template to library",
         bindings: ["CTRL+S", "GUI+S"],
