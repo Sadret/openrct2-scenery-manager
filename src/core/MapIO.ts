@@ -122,3 +122,18 @@ export function getMedianSurfaceHeight(tiles: CoordsXY[]): number {
     heights.sort();
     return heights[Math.floor(heights.length / 2)];
 }
+
+const priority = [
+    "wall",
+    "footpath",
+    "footpath_addition",
+    "banner",
+    "entrance",
+    "large_scenery",
+    "small_scenery",
+    "track",
+];
+
+export function sort(elements: ElementData[]): void {
+    elements.sort((a, b) => priority.indexOf(a.type) - priority.indexOf(b.type));
+}

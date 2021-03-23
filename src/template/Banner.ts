@@ -38,6 +38,7 @@ export default new class extends BaseElement<BannerElement, BannerData> {
         return {
             ...element,
             z: element.z - 16,
+            object: 0,
         };
     }
     getRemoveArgs(element: BannerData): BannerRemoveArgs {

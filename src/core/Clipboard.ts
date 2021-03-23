@@ -95,6 +95,7 @@ settings.pickBySurface.bind(
 
 settings.rotation.bind(() => builder.rebuild());
 settings.mirrored.bind(() => builder.rebuild());
+Object.keys(settings.filter).forEach(key => settings.filter[key].bind(() => builder.rebuild()));
 
 const saveDialog = new Dialog(
     "Save template",
@@ -210,8 +211,12 @@ export function copy(): void {
 
     const tiles = Coordinates.toTiles(ui.tileSelection.range);
     const center = Coordinates.center(tiles);
+
+    const elements = MapIO.read(tiles);
+    MapIO.sort(elements);
+
     addTemplate(new Template({
-        elements: MapIO.read(tiles),
+        elements: elements,
         tiles: tiles,
     }).filter(
         element => settings.filter[element.type].getValue()

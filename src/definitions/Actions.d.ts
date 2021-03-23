@@ -28,6 +28,7 @@ interface PlaceActionArgs {
 
 interface BannerPlaceArgs extends PlaceActionArgs {
     readonly direction: number,
+    readonly object: number,
     readonly primaryColour: number,
 }
 

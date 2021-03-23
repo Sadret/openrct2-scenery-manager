@@ -191,7 +191,7 @@ export class StorageFileSystem implements IFileSystem {
             const files: { [key: string]: StorageElement } = {};
             Object.keys(folder.files).forEach(key => {
                 files[key] = this.deepCopy(folder.files[key]);
-            })
+            });
             return <StorageElement>{
                 type: "folder",
                 files: files,
