@@ -27,7 +27,14 @@ export default class Dialog extends GUI.WindowManager {
             ),
         );
         if (open)
-            this.open(true);
+            this.open();
+    }
+
+    public open(x: number | boolean = true, y?: number): void {
+        if (typeof x === "boolean")
+            super.open(x);
+        else
+            super.open(x, y);
     }
 
     public static showAlert(

@@ -7,6 +7,7 @@
 
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
+import * as StartUp from "../StartUp";
 import * as Storage from "../persistence/Storage";
 
 import BooleanProperty from "../config/BooleanProperty";
@@ -95,6 +96,48 @@ settings.pickBySurface.bind(
 settings.rotation.bind(() => builder.rebuild());
 settings.mirrored.bind(() => builder.rebuild());
 
+const saveDialog = new Dialog(
+    "Save template",
+    new class extends FileExplorer {
+        onFileCreation(file: IFile): void {
+            save(file);
+        }
+    }(
+        new class extends TemplateView {
+            constructor() {
+                super();
+                StartUp.addTask(() => this.watch(Storage.libraries.templates));
+            }
+
+            openFile(file: IFile): void {
+                save(file);
+            }
+        }(),
+        true,
+    ),
+    undefined,
+    false,
+);
+
+const loadDialog = new Dialog(
+    "Load template",
+    new FileExplorer(
+        new class extends TemplateView {
+            constructor() {
+                super();
+                StartUp.addTask(() => this.watch(Storage.libraries.templates));
+            }
+
+            openFile(file: IFile): void {
+                load(file);
+            }
+        }(),
+    ),
+    undefined,
+    false,
+);
+
+
 let templates: Template[] = [];
 let cursor: number | undefined = undefined;
 
@@ -107,65 +150,41 @@ export function getTemplate(): Template | undefined {
 export function addTemplate(template: Template): void {
     cursor = templates.length;
     templates.push(template);
-    paste();
+    builder.rebuild(); // rebuild if already active
+    paste(); // paste if not active
 }
 
 export function prev(): void {
-    if (cursor !== undefined && cursor !== 0)
+    if (cursor !== undefined && cursor !== 0) {
         cursor--;
+        builder.rebuild(); // rebuild if already active
+    }
 }
 
 export function next(): void {
-    if (cursor !== undefined && cursor !== templates.length - 1)
+    if (cursor !== undefined && cursor !== templates.length - 1) {
         cursor++;
+        builder.rebuild(); // rebuild if already active
+    }
 }
 
-export function save(): void {
+export function save(file?: IFile): void {
+    if (file === undefined)
+        return saveDialog.open();
+
     const data = getTemplate();
     if (data === undefined)
         return ui.showError("Can't save template...", "Nothing copied!");
-
-    new Dialog(
-        "Save template",
-        new class extends FileExplorer {
-            onFileCreation(file: IFile): void {
-                file.setContent<TemplateData>(data);
-                this.getWindow() ?.close();
-            }
-        }(
-            new class extends TemplateView {
-                constructor() {
-                    super();
-                    this.watch(Storage.libraries.templates);
-                }
-
-                openFile(file: IFile): void {
-                    file.setContent<TemplateData>(data);
-                    this.getWindow() ?.close();
-                }
-            }(),
-            true,
-        ),
-    );
+    file.setContent<TemplateData>(data);
+    saveDialog.close();
 }
 
-export function load(): void {
-    new Dialog(
-        "Load template",
-        new FileExplorer(
-            new class extends TemplateView {
-                constructor() {
-                    super();
-                    this.watch(Storage.libraries.templates);
-                }
+export function load(file?: IFile): void {
+    if (file === undefined)
+        return loadDialog.open();
 
-                openFile(file: IFile): void {
-                    addTemplate(new Template(file.getContent<TemplateData>()));
-                    this.getWindow() ?.close();
-                }
-            }(),
-        ),
-    );
+    addTemplate(new Template(file.getContent<TemplateData>()));
+    loadDialog.close();
 }
 
 export function select() {
