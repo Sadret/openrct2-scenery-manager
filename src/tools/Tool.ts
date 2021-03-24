@@ -20,7 +20,7 @@ export default class Tool {
         this.filter = filter;
     }
 
-    protected isActive(): boolean {
+    public isActive(): boolean {
         return ui.tool !== null && ui.tool.id === this.id;
     }
 

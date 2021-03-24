@@ -139,7 +139,7 @@ const loadDialog = new Dialog(
 );
 
 
-let templates: Template[] = [];
+const templates: Template[] = [];
 let cursor: number | undefined = undefined;
 
 export function getTemplate(): Template | undefined {
@@ -148,35 +148,41 @@ export function getTemplate(): Template | undefined {
     return templates[cursor];
 }
 
-export function addTemplate(template: Template): void {
+function addTemplate(template: Template): void {
+    settings.rotation.setValue(0);
     cursor = templates.length;
     templates.push(template);
     builder.rebuild(); // rebuild if already active
     paste(); // paste if not active
 }
 
+/*
+ * HOTKEY / GUI EXPORTS
+ */
+
 export function prev(): void {
     if (cursor !== undefined && cursor !== 0) {
         cursor--;
-        builder.rebuild(); // rebuild if already active
+        builder.rebuild();
     }
 }
 
 export function next(): void {
     if (cursor !== undefined && cursor !== templates.length - 1) {
         cursor++;
-        builder.rebuild(); // rebuild if already active
+        builder.rebuild();
     }
 }
 
 export function save(file?: IFile): void {
+    const data = getTemplate();
+    if (data === undefined)
+        return ui.showError("Can't save template...", "Nothing copied!");
+
     if (file === undefined)
         return saveDialog.open();
     saveDialog.close();
 
-    const data = getTemplate();
-    if (data === undefined)
-        return ui.showError("Can't save template...", "Nothing copied!");
     file.setContent<TemplateData>(data);
 }
 
@@ -236,4 +242,22 @@ export function paste(): void {
 
 export function cut(): void {
     copy(true);
+}
+
+export function rotate(): void {
+    if (builder.isActive())
+        settings.rotation.increment();
+}
+
+export function deleteTemplate(): void {
+    if (cursor === undefined)
+        return ui.showError("Can't delete template...", "Clipboard is empty!");
+    templates.splice(cursor, 1);
+    if (templates.length === cursor)
+        cursor--;
+    if (templates.length === 0) {
+        cursor = undefined;
+        return builder.cancel();
+    }
+    builder.rebuild();
 }

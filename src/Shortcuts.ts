@@ -31,27 +31,27 @@ export function register() {
     });
     ui.registerShortcut({
         id: "scenery-manager.cut",
-        text: "[SM] Cut (copy and delete) area",
+        text: "[SM] Cut area",
         bindings: ["CTRL+X", "GUI+X"],
         callback: Clipboard.cut,
     });
     ui.registerShortcut({
         id: "scenery-manager.save",
         text: "[SM] Save template to library",
-        bindings: ["CTRL+S", "GUI+S"],
+        bindings: ["SHIFT+S"],
         callback: Clipboard.save,
     });
     ui.registerShortcut({
         id: "scenery-manager.load",
         text: "[SM] Load template from library",
-        bindings: ["CTRL+L", "GUI+L"],
+        bindings: ["SHIFT+L"],
         callback: Clipboard.load,
     });
     ui.registerShortcut({
         id: "scenery-manager.rotate",
         text: "[SM] Rotate template",
-        bindings: ["CTRL+R", "GUI+R"],
-        callback: () => Clipboard.settings.rotation.increment(),
+        bindings: ["Z"],
+        callback: Clipboard.rotate,
     });
     ui.registerShortcut({
         id: "scenery-manager.mirrored",
@@ -76,6 +76,12 @@ export function register() {
         text: "[SM] Next template",
         bindings: ["E"],
         callback: () => Clipboard.next(),
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.deleteTemplate",
+        text: "[SM] Delete template from clipboard",
+        bindings: ["CTRL+D"],
+        callback: () => Clipboard.deleteTemplate(),
     });
 
     ui.registerShortcut({

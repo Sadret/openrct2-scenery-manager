@@ -55,11 +55,10 @@ export default new GUI.Tab(5465).add(
                         text: "Rotation:",
                     }),
                     new GUI.Spinner({
-                        onDecrement: () => Clipboard.settings.rotation.decrement(),
-                        onIncrement: () => Clipboard.settings.rotation.increment(),
-                    }).bindText<number>(
+                    }).bindValue(
                         Clipboard.settings.rotation,
                         value => (value & 3) === 0 ? "none" : ((value & 3) * 90 + " deg"),
+                        false,
                     ),
                 ),
                 new GUI.HBox([1, 1]).add(
