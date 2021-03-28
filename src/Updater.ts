@@ -5,64 +5,57 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "./utils/Coordinates";
 import * as Storage from "./persistence/Storage";
 
 import Dialog from "./utils/Dialog";
-import Template from "./template/Template";
 
 export function update(load: () => void): void {
     switch (Storage.get<String>("version")) {
         case undefined:
-            Dialog.showAlert("Welcome to Scenery Manager!", [
-                "Thank you for using Scenery Manager!",
-                "",
-                "You can access the plug-in via the map menu in the upper toolbar.",
-                "",
-                "Your scenery templates will be stored in the plugin.store.json",
-                "file in your OpenRCT2 user directory.",
-                "Keep in mind that:",
-                "- Your data will be irrecoverably lost if that file gets deleted.",
-                "- Any other plug-in could overwrite that file.",
-                "",
-                "I hope you enjoy this plug-in!",
-            ]);
-            init();
+            Dialog.showAlert(
+                "Welcome to Scenery Manager!",
+                [
+                    "Thank you for using Scenery Manager!",
+                    "",
+                    "You can access the plug-in via the map menu in the upper toolbar.",
+                    "",
+                    "Your scenery templates will be stored in the plugin.store.json",
+                    "file in your OpenRCT2 user directory.",
+                    "Keep in mind that:",
+                    "- Your data will be irrecoverably lost if that file gets deleted.",
+                    "- Any other plug-in could overwrite that file.",
+                    "",
+                    "I hope you enjoy this plug-in!",
+                ],
+            );
+            setVersion();
             return load();
 
         case "1.0.0":
         case "1.0.1":
         case "1.1.0":
         case "1.1.1":
-            return Dialog.showConfirm("Welcome to Scenery Manager!", [
-                "Your clipboard and library contain templates",
-                "from a previous version of Scenery Manager.",
-                "",
-                "To continue, you need to update the save file.",
-                "",
-                "This cannot be undone and will not work with",
-                "previous versions of the plug-in.",
-            ], (confirmed: boolean) => {
-                if (!confirmed)
-                    return;
-                switch (Storage.get<String>("version")) {
-                    case "1.0.0":
-                        update_100_101();
-                    case "1.0.1":
-                        update_101_110();
-                    case "1.1.0":
-                        update_110_111();
-                    case "1.1.1":
-                        update_111_120();
-                }
-                init();
-                load();
-            }, "Continue", "Cancel");
+            Dialog.showAlert(
+                "Welcome to Scenery Manager!",
+                [
+                    "Your clipboard and library contain templates",
+                    "from a previous version of Scenery Manager.",
+                    "",
+                    "Unfortunately, this version of Scenery Manager",
+                    "is unable to handle these files.",
+                    "",
+                    "If you want to keep your templates, please update",
+                    "to version 1.1.7 first.",
+                ],
+            );
+            setVersion();
+            return load();
 
         case "1.2.0":
         case "1.2.1":
-            init();
         case "1.2.2":
+            update_12x_130();
+            setVersion();
             return load();
 
         default:
@@ -81,130 +74,46 @@ export function update(load: () => void): void {
     }
 }
 
-function update_100_101(): void { }
-
-function update_101_110(): void {
-    interface TemplateData_101 {
-        readonly data: ElementData[],
-        readonly size: CoordsXY,
-        readonly surfaceHeight: number,
-    }
-
-    interface TemplateData_110 {
-        readonly elements: ElementData[],
-        readonly size: CoordsXY,
-        readonly surfaceHeight: number,
-    }
-
+function update_12x_130(): void {
     function recurse(file: IFile): void {
         if (file.isFile()) {
-            const template: TemplateData_101 = file.getContent<TemplateData_101>();
-            file.setContent<TemplateData_110>({
-                elements: template.data,
-                size: template.size,
-                surfaceHeight: template.surfaceHeight,
-            });
-        } else {
-            file.getFiles().forEach((child: IFile) => recurse(child));
-        }
-    }
-
-    recurse(Storage.libraries.templates.getRoot());
-    recurse(Storage.libraries.scatterPattern.getRoot());
-}
-
-function update_110_111(): void { }
-
-function update_111_120(): void {
-    interface TemplateData_110 {
-        readonly elements: ElementData[],
-        readonly size: CoordsXY,
-        readonly surfaceHeight: number,
-    }
-
-    interface TemplateData_120 {
-        readonly elements: ElementData[],
-        readonly tiles: CoordsXY[],
-    }
-
-    function recurse(file: IFile): void {
-        if (file.isFile()) {
-            const template110: TemplateData_110 = file.getContent<TemplateData_110>();
-
-            const tiles = Coordinates.toTiles(Coordinates.span({ x: 0, y: 0 }, template110.size));
-            const center: CoordsXY = Coordinates.center(tiles);
-            const template120: TemplateData_120 = new Template({
-                elements: template110.elements.map(
-                    (element: ElementData) => {
-                        if (element.type !== "footpath")
+            const templateOld = file.getContent<TemplateData>();
+            const templateNew = {
+                ...templateOld,
+                elements: templateOld.elements.map(
+                    element => {
+                        if (element.type !== "track")
                             return element;
-                        const slope: number = (<any>element).slope;
-                        return <FootpathData><any>{
+                        return {
                             ...element,
-                            slope: undefined,
-                            slopeDirection: (slope & 0x4) ? slope & 0x3 : null,
-                        }
+                            brakeSpeed: (<TrackData>element).brakeSpeed || 0,
+                        };
                     }
                 ),
-                tiles: tiles,
-            }).translate({
-                x: -center.x,
-                y: -center.y,
-                z: -template110.surfaceHeight * 8,
-            });
-
-            file.setContent<TemplateData_120>({
-                elements: template120.elements,
-                tiles: template120.tiles,
-            });
+            };
+            file.setContent<TemplateData>(templateNew);
         } else {
             file.getFiles().forEach((child: IFile) => recurse(child));
         }
     }
 
-    recurse(Storage.libraries.templates.getRoot());
-    recurse(Storage.libraries.scatterPattern.getRoot());
+    const clipboardOld = new Storage.StorageFileSystem("clipboard");
+    const libraryOld = new Storage.StorageFileSystem("library");
+
+    recurse(clipboardOld.getRoot());
+    recurse(libraryOld.getRoot());
+
+    Storage.set<any>(
+        "libraries.templates.files.Old clipboard",
+        Storage.get<any>("clipboard"),
+    );
+    Storage.set<any>(
+        "libraries.templates.files.Old library",
+        Storage.get<any>("library"),
+    );
+    console.log("updated");
 }
 
-function init(): void {
-    // version
-    Storage.set<string>("version", "1.2.2");
-
-    // config
-    Storage.set<object>("config", {
-        "scatter": {
-            "randomise": {
-                "rotation": true,
-                "quadrant": true,
-            },
-            "library": {
-                "show": true,
-                "confirm": {
-                    "overwrite": true,
-                    "delete": true,
-                },
-                "onMissingElement": "error",
-            },
-            "dragToPlace": false,
-        },
-        "brush": {
-            "shape": "circle",
-            "size": 15,
-        },
-        "copyPaste": {
-            "onMissingElement": "error",
-            "cursor": {
-                "height": {
-                    "enabled": false,
-                    "smallSteps": false,
-                    "enable": false,
-                },
-                "rotation": {
-                    "enabled": false,
-                    "flip": false,
-                    "sensitivity": 6,
-                },
-            },
-        },
-    });
+function setVersion(): void {
+    Storage.set<string>("version", "1.3.0");
 }
