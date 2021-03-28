@@ -1,3 +1,12 @@
+1.2.0
+------------------------------------------------------------------------
+- Feature: [#2] Hotkey support.
+- Feature: [#12] Toggle area selection tool and placing scenery cursor.
+- Feature: [#16] Cut (copy and remove) templates.
+- Improvement: Complete overhaul of the main window.
+- Improvement: Complete overhaul of the file dialogs.
+- Fix: [#20] Brush tool controls bugged.
+
 1.1.7
 ------------------------------------------------------------------------
 - Feature: Scatter tool for random scenery placement.

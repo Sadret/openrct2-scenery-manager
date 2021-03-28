@@ -150,6 +150,7 @@ export function getTemplate(): Template | undefined {
 
 function addTemplate(template: Template): void {
     settings.rotation.setValue(0);
+    settings.mirrored.setValue(false);
     cursor = templates.length;
     templates.push(template);
     builder.rebuild(); // rebuild if already active
@@ -247,6 +248,11 @@ export function cut(): void {
 export function rotate(): void {
     if (builder.isActive())
         settings.rotation.increment();
+}
+
+export function mirror(): void {
+    if (builder.isActive())
+        settings.mirrored.flip();
 }
 
 export function deleteTemplate(): void {

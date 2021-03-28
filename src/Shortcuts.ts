@@ -57,7 +57,7 @@ export function register() {
         id: "scenery-manager.mirrored",
         text: "[SM] Mirror template",
         bindings: ["CTRL+M", "GUI+M"],
-        callback: () => Clipboard.settings.mirrored.flip(),
+        callback: Clipboard.mirror,
     });
     ui.registerShortcut({
         id: "scenery-manager.cursorMode",

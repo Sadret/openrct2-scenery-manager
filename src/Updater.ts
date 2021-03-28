@@ -61,6 +61,9 @@ export function update(load: () => void): void {
             setVersion();
             return load();
 
+        case "1.3.0":
+            return load();
+
         default:
             return Dialog.showConfirm(
                 "Welcome to Scenery Manager!",

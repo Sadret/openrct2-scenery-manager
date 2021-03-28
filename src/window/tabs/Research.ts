@@ -18,17 +18,16 @@ export default new GUI.Tab(
 ).add(
     new GUI.Label({ text: "Version: 1.2.0", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
-        new GUI.Label({ text: "- Scatter tool for random scenery placement." }),
-        new GUI.Label({ text: "- Use mouse to adjust height and rotation of templates." }),
-        new GUI.Label({ text: "- Brush for benches, litter bins, etc." }),
+        new GUI.Label({ text: "- Hotkeys for most operations." }),
+        new GUI.Label({ text: "- Cut (copy and remove) templates." }),
         new GUI.Label({ text: "- [BETA] Trackitecture is now supported." }),
     ),
     new GUI.GroupBox({ text: "Known problems" }).add(
-        new GUI.Label({ text: "- Sloped fences and walls do not copy." }),
+        new GUI.Label({ text: "- Copy / paste does not work well on sloped surfaces." }),
         new GUI.Label({ text: "- Banner text and colour do not copy." }),
         new GUI.Label({ text: "- Large scenery does not mirror." }),
-        new GUI.Label({ text: "- Ghost banners sometimes does not show." }),
         new GUI.Label({ text: "- Scroll position resets when list content changes." }),
+        new GUI.Label({ text: "- Queue layouts do not copy correctly." }),
     ),
     new GUI.GroupBox({ text: "Planned features" }).add(
         new GUI.Label({ text: "- Colour brush." }),
