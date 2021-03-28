@@ -49,7 +49,6 @@ export default new class extends BaseElement<TrackElement, TrackData> {
         return {
             ...element,
             z: element.z - trackBlock[element.trackType],
-            brakeSpeed: element.brakeSpeed === null ? 0 : element.brakeSpeed,
         };
     }
     getRemoveArgs(element: TrackData): TrackRemoveArgs {
