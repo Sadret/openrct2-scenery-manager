@@ -42,12 +42,14 @@ export default class Dialog extends GUI.WindowManager {
         message: string[],
         callback?: () => void,
         okText: string = "OK",
+        width?: number,
     ) {
         Dialog.show(
             title,
             message,
             [okText],
             callback,
+            width,
         );
     }
 
@@ -55,6 +57,7 @@ export default class Dialog extends GUI.WindowManager {
         title: string,
         message: string[],
         callback: (confirmed: boolean) => void,
+        width?: number,
         okText: string = "OK",
         cancelText: string = "Cancel",
     ) {
@@ -62,7 +65,8 @@ export default class Dialog extends GUI.WindowManager {
             title,
             message,
             [okText, cancelText],
-            buttonIdx => callback(buttonIdx === 0)
+            buttonIdx => callback(buttonIdx === 0),
+            width,
         );
     }
 
@@ -71,7 +75,7 @@ export default class Dialog extends GUI.WindowManager {
         message: string[],
         buttons: string[],
         callback: (buttonIdx: number) => void = () => { },
-        width: number = 256,
+        width: number = 384,
     ) {
         return new class extends Dialog {
             constructor() {

@@ -12,6 +12,7 @@ import Dialog from "./utils/Dialog";
 export function update(load: () => void): void {
     switch (Storage.get<String>("version")) {
         case undefined:
+            showHotkeyAlert();
             Dialog.showAlert(
                 "Welcome to Scenery Manager!",
                 [
@@ -35,6 +36,7 @@ export function update(load: () => void): void {
         case "1.0.1":
         case "1.1.0":
         case "1.1.1":
+            showHotkeyAlert();
             Dialog.showAlert(
                 "Welcome to Scenery Manager!",
                 [
@@ -54,23 +56,31 @@ export function update(load: () => void): void {
         case "1.2.0":
         case "1.2.1":
         case "1.2.2":
+            showHotkeyAlert();
             update_12x_130();
             setVersion();
             return load();
 
         default:
-            return Dialog.showConfirm("Welcome to Scenery Manager!", [
-                "Your clipboard and library contain templates",
-                "from an unknown version of this plug-in.",
-                "",
-                "Did you downgrade from a newer version?",
-                "",
-                "You can continue, but it may permanently",
-                "break your saved templates.",
-            ], (confirmed: boolean) => {
-                if (confirmed)
-                    load();
-            }, "Continue", "Cancel");
+            return Dialog.showConfirm(
+                "Welcome to Scenery Manager!",
+                [
+                    "Your clipboard and library contain templates",
+                    "from an unknown version of this plug-in.",
+                    "",
+                    "Did you downgrade from a newer version?",
+                    "",
+                    "You can continue, but it may permanently",
+                    "break your saved templates.",
+                ],
+                (confirmed: boolean) => {
+                    if (confirmed)
+                        load();
+                },
+                undefined,
+                "Continue",
+                "Cancel",
+            );
     }
 }
 
@@ -116,4 +126,22 @@ function update_12x_130(): void {
 
 function setVersion(): void {
     Storage.set<string>("version", "1.3.0");
+}
+
+function showHotkeyAlert(): void {
+    Dialog.showAlert(
+        "Welcome to Scenery Manager!",
+        [
+            "Scenery Manager now supports hotkeys!",
+            "These are the most important ones, but there are many more:",
+            "",
+            "Select area: CTRL + A",
+            "Copy area: CTRL + C",
+            "Paste area: CTRL + V",
+            "Rotate template: Z",
+            "",
+            "If you want to change the default bindings, go to the",
+            "'Controls and Interface' tab of OpenRCT2's 'Options' window.",
+        ],
+    );
 }

@@ -79,6 +79,7 @@ export default class extends GUI.VBox {
                                 if (confirmed)
                                     file.delete();
                             },
+                            256,
                         );
                     },
                 }),

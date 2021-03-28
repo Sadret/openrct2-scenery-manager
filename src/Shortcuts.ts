@@ -80,7 +80,7 @@ export function register() {
     ui.registerShortcut({
         id: "scenery-manager.deleteTemplate",
         text: "[SM] Delete template from clipboard",
-        bindings: ["CTRL+D"],
+        bindings: ["CTRL+D", "GUI+D"],
         callback: () => Clipboard.deleteTemplate(),
     });
 
