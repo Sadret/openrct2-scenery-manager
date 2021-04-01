@@ -255,6 +255,10 @@ export function mirror(): void {
         settings.mirrored.flip();
 }
 
+export function togglePickBySurface(): void {
+    settings.pickBySurface.flip();
+}
+
 export function deleteTemplate(): void {
     if (cursor === undefined)
         return ui.showError("Can't delete template...", "Clipboard is empty!");
@@ -265,5 +269,18 @@ export function deleteTemplate(): void {
         cursor = undefined;
         return builder.cancel();
     }
+    builder.rebuild();
+}
+
+export function decreaseHeight(): void {
+    settings.height.decrement();
+    builder.rebuild();
+}
+export function resetHeight(): void {
+    settings.height.setValue(0);
+    builder.rebuild();
+}
+export function increaseHeight(): void {
+    settings.height.increment();
     builder.rebuild();
 }

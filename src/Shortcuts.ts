@@ -48,6 +48,25 @@ export function register() {
         callback: Clipboard.load,
     });
     ui.registerShortcut({
+        id: "scenery-manager.prevTemplate",
+        text: "[SM] Previous template",
+        bindings: ["Q"],
+        callback: Clipboard.prev,
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.nextTemplate",
+        text: "[SM] Next template",
+        bindings: ["E"],
+        callback: Clipboard.next,
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.deleteTemplate",
+        text: "[SM] Delete template from clipboard",
+        bindings: ["CTRL+D", "GUI+D"],
+        callback: Clipboard.deleteTemplate,
+    });
+
+    ui.registerShortcut({
         id: "scenery-manager.rotate",
         text: "[SM] Rotate template",
         bindings: ["Z"],
@@ -63,25 +82,25 @@ export function register() {
         id: "scenery-manager.cursorMode",
         text: "[SM] Toggle cursor mode",
         bindings: ["CTRL+T", "GUI+T"],
-        callback: () => Clipboard.settings.pickBySurface.flip(),
+        callback: Clipboard.togglePickBySurface,
     });
     ui.registerShortcut({
-        id: "scenery-manager.prevTemplate",
-        text: "[SM] Previous template",
-        bindings: ["Q"],
-        callback: () => Clipboard.prev(),
+        id: "scenery-manager.settings.decreaseHeight",
+        text: "[SM] Decrease template height",
+        bindings: ["J"],
+        callback: Clipboard.decreaseHeight,
     });
     ui.registerShortcut({
-        id: "scenery-manager.nextTemplate",
-        text: "[SM] Next template",
-        bindings: ["E"],
-        callback: () => Clipboard.next(),
+        id: "scenery-manager.settings.resetHeight",
+        text: "[SM] Reset template height",
+        bindings: ["K"],
+        callback: Clipboard.resetHeight,
     });
     ui.registerShortcut({
-        id: "scenery-manager.deleteTemplate",
-        text: "[SM] Delete template from clipboard",
-        bindings: ["CTRL+D", "GUI+D"],
-        callback: () => Clipboard.deleteTemplate(),
+        id: "scenery-manager.settings.increaseHeight",
+        text: "[SM] Increase template height",
+        bindings: ["L"],
+        callback: Clipboard.increaseHeight,
     });
 
     ui.registerShortcut({

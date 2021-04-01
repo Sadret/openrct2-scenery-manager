@@ -43,7 +43,7 @@ You can also use the `[CTRL + 1]` through `[CTRL + 0]` hotkeys.
 
 #### Additional Copy & Paste Features
 
-- You can paste the template at a certain height offset, which you can set in the 'Options' area of the first tab.
+- You can paste the template at a certain height offset, which you can set in the 'Options' area of the first tab. Alternatively, you can use the `[J]`, `[K]` and `[L]` hotkeys to decrease, reset and increase the height offset.
 
 - Another way to change the height is by enabling 'height offset with mouse cursor' in the settings tab. If enabled, hold down the mouse button in paste mode and then move the cursor up and down to adjust the height of the template.
 
