@@ -16,7 +16,7 @@ export default new GUI.Tab(
     8,
     GUI.Margin.uniform(8),
 ).add(
-    new GUI.Label({ text: "Version: 1.2.0", }),
+    new GUI.Label({ text: "Version: 1.2.1", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
         new GUI.Label({ text: "- Hotkeys for most operations." }),
         new GUI.Label({ text: "- Cut (copy and remove) templates." }),
