@@ -37,7 +37,7 @@ interface StorageFile<T> extends StorageElement {
 }
 
 export class StorageFileSystem implements IFileSystem {
-    readonly root: string;
+    private readonly root: string;
 
     public constructor(root: string) {
         this.root = root;
@@ -53,7 +53,7 @@ export class StorageFileSystem implements IFileSystem {
      * OBSERVER
      */
 
-    readonly observers: Observer<File>[] = [];
+    private readonly observers: Observer<File>[] = [];
     public addObserver(observer: Observer<File>): void {
         this.observers.push(observer);
     }
