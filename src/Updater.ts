@@ -62,6 +62,9 @@ export function update(load: () => void): void {
             return load();
 
         case "1.3.0":
+            update_130_131();
+            setVersion();
+        case "1.3.1":
             return load();
 
         default:
@@ -116,6 +119,7 @@ function update_12x_130(): void {
     recurse(clipboardOld.getRoot());
     recurse(libraryOld.getRoot());
 
+    Storage.libraries.templates.getRoot(); // init storage
     Storage.set<any>(
         "libraries.templates.files.Old clipboard",
         Storage.get<any>("clipboard"),
@@ -124,11 +128,18 @@ function update_12x_130(): void {
         "libraries.templates.files.Old library",
         Storage.get<any>("library"),
     );
-    console.log("updated");
 }
 
+function update_130_131(): void {
+    Storage.set<any>(
+        "libraries.templates.type",
+        "folder",
+    );
+}
+
+
 function setVersion(): void {
-    Storage.set<string>("version", "1.3.0");
+    Storage.set<string>("version", "1.3.1");
 }
 
 function showHotkeyAlert(): void {
