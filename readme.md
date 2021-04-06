@@ -13,7 +13,7 @@ On Windows, this is usually at `C:Users\{User}\Documents\OpenRCT2\plugin`.
 
 #### User Interface
 
-The preferred way to work with this plug-in is to use hotkeys. Nevertheless, everything can also be done via the Scenery Manager window.\
+The preferred way to work with this plug-in is to use hotkeys. Nevertheless, everything can also be done via the Scenery Manager window.
 
 To open the window the graphical user interface, click on "Scenery Manager" in the map menu in the upper toolbar of OpenRCT2, or simply press the `[W]` key.
 
