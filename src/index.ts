@@ -8,6 +8,7 @@
 /// <reference path="./../../openrct2.d.ts" />
 
 import * as Configuration from "./config/Configuration";
+import * as MapIO from "./core/MapIO";
 import * as Shortcuts from "./Shortcuts";
 import * as StartUp from "./StartUp";
 import * as Updater from "./Updater";
@@ -28,6 +29,7 @@ registerPlugin({
 
         Updater.update(() => {
             Configuration.load();
+            context.subscribe("interval.tick", MapIO.tick);
             ui.registerMenuItem("Scenery Manager", () => MainWindow.open());
             Shortcuts.register();
             StartUp.execute();

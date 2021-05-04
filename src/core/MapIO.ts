@@ -30,22 +30,45 @@ export function read(tiles: CoordsXY[]): ElementData[] {
 }
 
 export function place(elements: ElementData[], ghost: boolean = false): ElementData[] {
+    if (!ghost)
+        console.log("Placing elements", elements.length);
     const result: ElementData[] = [];
-    elements.forEach(element => {
-        const action = Template.getPlaceAction(element);
-        const args = {
-            ...Template.getPlaceArgs(element),
-            flags: ghost ? 72 : 0,
-        };
-        context.queryAction(action, args, queryResult => {
-            if (queryResult.error === 0)
-                context.executeAction(action, args, executeResult => {
-                    if (executeResult.error === 0)
-                        result.push(element);
-                });
-        });
-    });
+    if (ghost)
+        elements.forEach(element => placeSingle(element, ghost, result));
+    else
+        queue.push(...elements);
     return result;
+}
+
+export function placeSingle(element: ElementData, ghost: boolean = false, result?: ElementData[]): void {
+    const action = Template.getPlaceAction(element);
+    const args = {
+        ...Template.getPlaceArgs(element),
+        flags: ghost ? 72 : 0,
+    };
+    context.queryAction(action, args, queryResult => {
+        if (queryResult.error === 0)
+            context.executeAction(action, args, executeResult => {
+                if (executeResult.error === 0 && result !== undefined)
+                    result.push(element);
+                busy = false;
+            });
+        else
+            busy = false;
+    });
+}
+
+const queue: ElementData[] = [];
+let busy = false;
+export function tick(): void {
+    while (!busy) {
+        const element = queue.shift();
+        if (element === undefined)
+            return;
+        if (element.type === "small_scenery")
+            busy = true;
+        placeSingle(element, false);
+    }
 }
 
 export function remove(elements: ElementData[], ghost: boolean = false) {
