@@ -30,13 +30,13 @@ export function read(tiles: CoordsXY[]): ElementData[] {
 }
 
 export function place(elements: ElementData[], ghost: boolean = false): ElementData[] {
-    if (!ghost)
-        console.log("Placing elements", elements.length);
     const result: ElementData[] = [];
-    if (ghost)
-        elements.forEach(element => placeSingle(element, ghost, result));
-    else
-        queue.push(...elements);
+    elements.forEach(element => {
+        if (ghost || element.type !== "small_scenery")
+            placeSingle(element, ghost, result);
+        else
+            queue.push(element);
+    })
     return result;
 }
 
