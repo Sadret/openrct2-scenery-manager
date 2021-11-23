@@ -75,7 +75,7 @@ export default class Template implements TemplateData {
             elements: this.elements.map(
                 (element: ElementData) =>
                     Template.get(element) ?.rotate(element, rotation)
-                ),
+            ),
             tiles: this.tiles.map(
                 (tile: CoordsXY) => Coordinates.rotate(tile, rotation)
             ),
@@ -88,7 +88,7 @@ export default class Template implements TemplateData {
             elements: this.elements.map(
                 (element: ElementData) =>
                     Template.get(element) ?.mirror(element)
-                ),
+            ),
             tiles: this.tiles.map(
                 (tile: CoordsXY) => Coordinates.mirror(tile)
             ),
@@ -99,8 +99,8 @@ export default class Template implements TemplateData {
         return map[element.type];
     }
 
-    public static isAvailable(element: ElementData): boolean {
-        return element.identifier === undefined || Context.getObject(element) !== undefined;
+    public static isAvailable(element: ElementData | ObjectData): boolean {
+        return !("identifier" in element) || Context.getObject(element) !== undefined;
     }
 
     public static getPlaceArgs(element: ElementData): PlaceActionArgs {

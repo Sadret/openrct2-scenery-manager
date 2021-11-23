@@ -90,7 +90,7 @@ const loadDialog = new Dialog(
     false,
 );
 
-function getLabel(element: ElementData | undefined): string {
+function getLabel(element?: ObjectData): string {
     return element === undefined ? "(empty)" : (Context.getObject(element).name + " (" + element.identifier + ")");
 }
 
@@ -132,7 +132,7 @@ function provide(tiles: CoordsXY[]): TemplateData {
 function updateEntryElement(entry: Entry): void {
     new class extends Picker {
         protected accept(element: BaseTileElement): boolean {
-            let data: ElementData | undefined;
+            let data: ObjectData | undefined;
             switch (element.type) {
                 case "small_scenery":
                     data = SmallScenery.createFromTileData(<SmallSceneryElement>element);

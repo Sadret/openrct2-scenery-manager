@@ -5,14 +5,14 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-const cache: { [key: string]: { [key: string]: Object; }; } = {};
+const cache: { [key: string]: { [key: string]: LoadedObject; }; } = {};
 
 function loadCache(type: ObjectType): void {
     cache[type] = {};
     context.getAllObjects(type).forEach(object => cache[type][getIdentifierFromObject(object)] = object);
 }
 
-export function getObject(data: ObjectData): Object {
+export function getObject(data: ObjectData): LoadedObject {
     if (cache[data.type] === undefined)
         loadCache(<ObjectType>data.type);
     const object = cache[data.type][data.identifier];
@@ -21,7 +21,7 @@ export function getObject(data: ObjectData): Object {
     return cache[data.type][data.identifier];
 }
 
-export function getIdentifierFromObject(object: Object): string {
+export function getIdentifierFromObject(object: LoadedObject): string {
     return object.identifier || object.legacyIdentifier;
 }
 

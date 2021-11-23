@@ -19,17 +19,17 @@ import Property from "../../config/Property";
 
 const NUM = 8; // max 11
 const size = new NumberProperty(4, 1, NUM);
-const entries = Arrays.create<Property<Object | undefined>>(NUM,
-    idx => new Property<Object | undefined>(idx === 0 ? Context.getObject({
+const entries = Arrays.create<Property<LoadedObject | undefined>>(NUM,
+    idx => new Property<LoadedObject | undefined>(idx === 0 ? Context.getObject(<ObjectData>{
         type: "footpath_addition",
         identifier: "rct2.bench1",
     }) : undefined),
 );
 
-const objects = context.getAllObjects("footpath_addition") as (Object | undefined)[];
+const objects = context.getAllObjects("footpath_addition") as (LoadedObject | undefined)[];
 objects.unshift(undefined);
 
-function getLabel(object: Object | undefined) {
+function getLabel(object: LoadedObject | undefined) {
     return object === undefined ? "(empty)" : object.name + " (" + object.identifier + ")";
 }
 
@@ -52,7 +52,7 @@ function provide(tiles: CoordsXY[]): TemplateData {
     };
 }
 
-function updateEntry(entry: Property<Object | undefined>, clear: boolean): void {
+function updateEntry(entry: Property<LoadedObject | undefined>, clear: boolean): void {
     if (clear)
         return entry.setValue(undefined);
 
@@ -106,7 +106,7 @@ export default new GUI.Tab(5464).add(
                 }).bindIsDisabled(
                     size,
                     size => size <= idx,
-                ).bindValue<object | undefined>(
+                ).bindValue<LoadedObject | undefined>(
                     entry,
                     objects,
                     getLabel,

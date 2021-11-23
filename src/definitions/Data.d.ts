@@ -32,16 +32,15 @@ interface TemplateData {
  * ELEMENT DATA
  */
 
-interface ObjectData {
-    readonly type: ElementType;
-    readonly identifier: string; // except entrance, track
-}
-
 interface ElementData {
     readonly type: ElementType;
     readonly x: number;
     readonly y: number;
     readonly z: number; // except entrance
+}
+
+interface ObjectData extends ElementData {
+    readonly identifier: string;
 }
 
 interface BannerData extends ElementData {
@@ -113,7 +112,7 @@ interface WallData extends ElementData {
  */
 
 interface ScatterData {
-    readonly element: ElementData;
+    readonly element: ObjectData;
     readonly weight: number;
 }
 
