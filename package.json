@@ -1,13 +1,18 @@
 {
-    "name": "rollup-test",
+    "name": "openrct2-scenery-manager",
     "version": "1.2.1",
-    "description": "Test project for rollup.",
+    "description": "OpenRCT2 Scenery Manager Plug-In",
     "author": "Sadret",
     "license": "GPL-3.0",
+    "scripts": {
+        "build-develop": "rollup -c rollup.config.develop.js",
+        "build-release": "rollup -c rollup.config.release.js"
+    },
     "devDependencies": {
-        "@rollup/plugin-typescript": "^8.2.0",
-        "rollup": "^2.40.0",
-        "tslib": "^2.1.0",
-        "typescript": "^4.2.3"
+        "@rollup/plugin-typescript": "^8.2.5",
+        "rollup": "^2.55.1",
+        "rollup-plugin-terser": "^7.0.2",
+        "tslib": "^2.3.0",
+        "typescript": "^4.3.5"
     }
 }
