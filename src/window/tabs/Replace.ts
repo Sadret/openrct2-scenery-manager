@@ -26,7 +26,7 @@ const types: SceneryObjectType[] = [
 ];
 
 type SceneryObjectInfo = {
-    type: SceneryObjectType,
+    type: string,
     name: string,
     identifier: string,
     count: number,
@@ -45,7 +45,7 @@ const library = {
 types.forEach(type => {
     context.getAllObjects(type).forEach(object => {
         library[type][object.index] = {
-            type: type,
+            type: Strings.toDisplayString(type),
             name: object.name,
             identifier: object.identifier,
             count: 0,
@@ -78,14 +78,18 @@ const listView: GUI.ListView = new GUI.ListView({
     columns: [{
         header: "Type",
         width: 128,
+        canSort: true,
     }, {
         header: "Name",
         width: 256,
+        canSort: true,
     }, {
         header: "Identifier",
         width: 256,
+        canSort: true,
     }, {
         header: "Count",
+        canSort: true,
     },],
 }, 384);
 
@@ -108,20 +112,65 @@ function updateItems(): void {
             return name.includes(search) || identifier.includes(search);
         }
     );
-
-    listView.setItems(items.map(info => [
-        Strings.toDisplayString(info.type),
+    listView.setItemsAndOnClick(items, info => [
+        info.type,
         info.name,
         info.identifier,
         String(info.count),
-    ]));
-    listView.setOnClick(index => onClick(items[index]));
+    ], onClick);
+    return;
 }
 filterProp.bind(updateItems);
 searchProp.bind(updateItems);
 
 function onClick(info: SceneryObjectInfo): void {
-    console.log(info);
+    new GUI.WindowManager(
+        {
+            width: 384,
+            height: 0,
+            classification: "scenery-manager.objectInfo",
+            title: `${info.name} (${info.type})`,
+            colours: [1, 1, 0,], // shades of gray
+        },
+        new GUI.Window().add(
+            new GUI.HBox([1, 3]).add(
+                new GUI.VBox().add(
+                    new GUI.Label({
+                        text: "Type:",
+                    }),
+                    new GUI.Label({
+                        text: "Name:",
+                    }),
+                    new GUI.Label({
+                        text: "Identifier:",
+                    }),
+                    new GUI.Label({
+                        text: "Count:",
+                    }),
+                ),
+                new GUI.VBox().add(
+                    new GUI.Label({
+                        text: info.type,
+                    }),
+                    new GUI.Label({
+                        text: info.name,
+                    }),
+                    new GUI.Label({
+                        text: info.identifier,
+                    }),
+                    new GUI.Label({
+                        text: String(info.count),
+                    }),
+                ),
+            ),
+            new GUI.HBox([1, 1]).add(
+                new GUI.TextButton({
+                    text: `Delete all ${info.count} instances`,
+                    isDisabled: info.count === 0,
+                })
+            ),
+        ),
+    ).open(listView.getWindow());
 }
 
 export default new GUI.Tab({
