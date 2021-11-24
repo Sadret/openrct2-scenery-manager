@@ -11,7 +11,7 @@ import Tool from "./Tool";
 
 export default abstract class Picker extends Tool {
     protected abstract accept(
-        element: BaseTileElement,
+        element: TileElement,
     ): boolean;
 
     public onDown(
@@ -21,7 +21,7 @@ export default abstract class Picker extends Tool {
             return;
         const tileCoords = Coordinates.worldToTileCoords(e.mapCoords);
         const tile: Tile = map.getTile(tileCoords.x, tileCoords.y);
-        const element: BaseTileElement = tile.elements[e.tileElementIndex];
+        const element: TileElement = tile.elements[e.tileElementIndex];
         if (this.accept(element))
             this.cancel();
     }

@@ -32,15 +32,16 @@ interface TemplateData {
  * ELEMENT DATA
  */
 
+interface ObjectData {
+    readonly type: ObjectType;
+    readonly identifier: string;
+}
+
 interface ElementData {
     readonly type: ElementType;
     readonly x: number;
     readonly y: number;
     readonly z: number; // except entrance
-}
-
-interface ObjectData extends ElementData {
-    readonly identifier: string;
 }
 
 interface BannerData extends ElementData {
@@ -59,7 +60,8 @@ interface EntranceData extends ElementData {
 
 interface FootpathData extends ElementData {
     readonly type: "footpath";
-    readonly identifier: string;
+    readonly surfaceIdentifier: string;
+    readonly railingsIdentifier: string;
     readonly slopeDirection: number | null;
     readonly isQueue: boolean;
 }
@@ -111,8 +113,10 @@ interface WallData extends ElementData {
  * SCATTER
  */
 
+type ScatterElement = SmallSceneryData | LargeSceneryData;
+
 interface ScatterData {
-    readonly element: ObjectData;
+    readonly element: ScatterElement;
     readonly weight: number;
 }
 

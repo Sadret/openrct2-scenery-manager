@@ -1,9 +1,13 @@
-1.2.1
+1.3.0 (2021-??-??)
+------------------------------------------------------------------------
+- Feature: [#24] NSF (.park) support.
+
+1.2.1 (2021-04-01)
 ------------------------------------------------------------------------
 - Fix: [#22] Library does not work.
 - Feature: Height offset shortcut keys.
 
-1.2.0
+1.2.0 (2021-03-28)
 ------------------------------------------------------------------------
 - Feature: [#2] Hotkey support.
 - Feature: [#12] Toggle area selection tool and placing scenery cursor.
@@ -12,16 +16,16 @@
 - Improvement: Complete overhaul of the file dialogs.
 - Fix: [#20] Brush tool controls bugged.
 
-1.1.7
+1.1.7 (2021-02-05)
 ------------------------------------------------------------------------
 - Feature: Scatter tool for random scenery placement.
 - Fix: Square brush now correctly implemented.
 
-1.1.6
+1.1.6 (2021-02-02)
 ------------------------------------------------------------------------
 - Feature: Adjustment of height and rotation of templates via mouse.
 
-1.1.5
+1.1.5 (2021-02-02)
 ------------------------------------------------------------------------
 - Feature: Footpath addition brush for benches, litter bins, etc.
 - Removed: "Absolute Height" option for pasting.
@@ -29,24 +33,24 @@
 - Fix: [#10] "Error on missing element" option now working as intended.
 - Fix: [#11][#14] Removed deprecated raw data access of the plug-in API.
 
-1.1.4
+1.1.4 (2021-01-02)
 ------------------------------------------------------------------------
 - Fix: Rotating a template with missing elements results in a crash.
 - Fix: [#5] Ghost objects form when dragging a template over water.
 
-1.1.3
+1.1.3 (2021-01-02)
 ------------------------------------------------------------------------
 - Fix: Updater can now correctly handle v1.0.0.
 
-1.1.2
+1.1.2 (2020-12-24)
 ------------------------------------------------------------------------
 - Fix: Copying wrong data of large scenery prevents pasting.
 
-1.1.1
+1.1.1 (2020-12-23)
 ------------------------------------------------------------------------
 - Feature: Add configuration: behaviour if element unavailable
 
-1.1.0
+1.1.0 (2020-12-20)
 ------------------------------------------------------------------------
 - Feature: [BETA] Trackitecture support.
 - Fix: [#6] Bad error when running under headless.

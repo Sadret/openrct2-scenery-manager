@@ -42,7 +42,9 @@ interface EntrancePlaceArgs extends PlaceActionArgs {
 interface FootpathPlaceArgs extends PlaceActionArgs {
     readonly direction: 0xFF;
     readonly object: number,
+    readonly railingsObject: number,
     readonly slope: number,
+    readonly constructFlags: number,
 }
 
 interface FootpathAdditionPlaceArgs extends PlaceActionArgs {

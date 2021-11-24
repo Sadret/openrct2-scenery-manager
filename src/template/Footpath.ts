@@ -17,7 +17,14 @@ export default new class extends BaseElement<FootpathElement, FootpathData> {
             x: coords.x,
             y: coords.y,
             z: element.baseZ,
-            identifier: Context.getIdentifier(element),
+            surfaceIdentifier: Context.getIdentifier({
+                type: "footpath_surface",
+                object: element.surfaceObject,
+            }),
+            railingsIdentifier: Context.getIdentifier({
+                type: "footpath_railings",
+                object: element.railingsObject,
+            }),
             slopeDirection: element.slopeDirection,
             isQueue: element.isQueue,
         };
@@ -39,9 +46,17 @@ export default new class extends BaseElement<FootpathElement, FootpathData> {
     getPlaceArgs(element: FootpathData): FootpathPlaceArgs {
         return {
             ...element,
-            object: Context.getObject(element).index | Number(element.isQueue) << 7,
+            object: Context.getObject({
+                type: "footpath_surface",
+                identifier: element.surfaceIdentifier,
+            }).index,
+            railingsObject: Context.getObject({
+                type: "footpath_railings",
+                identifier: element.railingsIdentifier,
+            }).index,
             slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
             direction: 0xFF, // = INVALID_DIRECTION
+            constructFlags: Number(element.isQueue),
         };
     }
     getRemoveArgs(element: FootpathData): FootpathRemoveArgs {

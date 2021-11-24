@@ -131,14 +131,14 @@ function provide(tiles: CoordsXY[]): TemplateData {
 
 function updateEntryElement(entry: Entry): void {
     new class extends Picker {
-        protected accept(element: BaseTileElement): boolean {
-            let data: ObjectData | undefined;
+        protected accept(element: TileElement): boolean {
+            let data: ScatterElement | undefined;
             switch (element.type) {
                 case "small_scenery":
-                    data = SmallScenery.createFromTileData(<SmallSceneryElement>element);
+                    data = SmallScenery.createFromTileData(element);
                     break;
                 case "large_scenery":
-                    data = LargeScenery.createFromTileData(<LargeSceneryElement>element, undefined, true);
+                    data = LargeScenery.createFromTileData(element, undefined, true);
                     break;
                 default:
                     return (ui.showError("Cannot use this element...", "Element must be either small scenery or large scenery."), false);

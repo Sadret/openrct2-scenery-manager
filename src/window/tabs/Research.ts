@@ -16,11 +16,9 @@ export default new GUI.Tab(
     8,
     GUI.Margin.uniform(8),
 ).add(
-    new GUI.Label({ text: "Version: 1.2.1", }),
+    new GUI.Label({ text: "Version: 1.3.0", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
-        new GUI.Label({ text: "- Hotkeys for most operations." }),
-        new GUI.Label({ text: "- Cut (copy and remove) templates." }),
-        new GUI.Label({ text: "- [BETA] Trackitecture is now supported." }),
+        new GUI.Label({ text: "- NSF (.park) support." }),
     ),
     new GUI.GroupBox({ text: "Known problems" }).add(
         new GUI.Label({ text: "- Copy / paste does not work well on sloped surfaces." }),
