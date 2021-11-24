@@ -9,8 +9,8 @@ import Configuration from "../../config/Configuration";
 import GUI from "../../gui/GUI";
 
 export default new GUI.Tab({
-    frameBase: 5205,
-    frameCount: 16,
+    frameBase: 5201,
+    frameCount: 4,
     frameDuration: 4,
 }).add(
     new GUI.GroupBox({
