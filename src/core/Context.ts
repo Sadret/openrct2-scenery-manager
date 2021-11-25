@@ -28,3 +28,10 @@ export function getIdentifierFromObject(object: LoadedObject): string {
 export function getIdentifier(element: { type: ObjectType, object: number }): string {
     return getIdentifierFromObject(context.getObject(element.type, element.object));
 }
+
+export function queryExecuteAction(action: ActionType, args: object, callback?: (result: GameActionResult) => void): void {
+    context.queryAction(action, args, queryResult => {
+        if (queryResult.error === 0)
+            context.executeAction(action, args, callback);
+    });
+}

@@ -5,6 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Context from "./Context";
 import * as Coordinates from "../utils/Coordinates";
 
 import Banner from "../template/Banner";
@@ -37,12 +38,9 @@ export function place(elements: ElementData[], ghost: boolean = false): ElementD
             ...Template.getPlaceArgs(element),
             flags: ghost ? 72 : 0,
         };
-        context.queryAction(action, args, queryResult => {
-            if (queryResult.error === 0)
-                context.executeAction(action, args, executeResult => {
-                    if (executeResult.error === 0)
-                        result.push(element);
-                });
+        Context.queryExecuteAction(action, args, executeResult => {
+            if (executeResult.error === 0)
+                result.push(element);
         });
     });
     return result;
@@ -55,10 +53,7 @@ export function remove(elements: ElementData[], ghost: boolean = false) {
             ...Template.getRemoveArgs(element),
             flags: ghost ? 72 : 0,
         };
-        context.queryAction(action, args, queryResult => {
-            if (queryResult.error === 0)
-                context.executeAction(action, args, () => { });
-        });
+        Context.queryExecuteAction(action, args);
     });
 }
 
@@ -104,6 +99,50 @@ function getSceneryData(coords: CoordsXY): ElementData[] {
 }
 
 /*
+ * FIND / REPLACE METHODS
+ */
+
+export function forEachElement(fun: (element: ElementData) => void): void {
+    for (let x = 0; x < map.size.x; x++)
+        for (let y = 0; y < map.size.y; y++)
+            getSceneryData(Coordinates.tileToWorldCoords({ x: x, y: y })).forEach(fun);
+}
+
+export function find(filter: SceneryObjectFilter): ElementData[] {
+    const elements: ElementData[] = [];
+    forEachElement(element => {
+        switch (element.type) {
+            case "large_scenery":
+            case "small_scenery":
+            case "wall":
+                if (!eqIfDef(filter.type, element.type))
+                    return;
+                if (!eqIfDef(filter.identifier, element.identifier))
+                    return;
+                break;
+            case "footpath":
+                switch (filter.type) {
+                    case "footpath_surface":
+                        if (!eqIfDef(filter.identifier, element.surfaceIdentifier))
+                            return;
+                        break;
+                    case "footpath_railings":
+                        if (!eqIfDef(filter.identifier, element.railingsIdentifier))
+                            return;
+                        break;
+                    default:
+                        return;
+                }
+                break;
+            default:
+                return;
+        }
+        elements.push(element);
+    });
+    return elements;
+}
+
+/*
  * UTILITY METHODS
  */
 
@@ -136,4 +175,8 @@ const priority = [
 
 export function sort(elements: ElementData[]): void {
     elements.sort((a, b) => priority.indexOf(a.type) - priority.indexOf(b.type));
+}
+
+function eqIfDef(a?: string, b?: string) {
+    return a === undefined || b === undefined || a === b;
 }

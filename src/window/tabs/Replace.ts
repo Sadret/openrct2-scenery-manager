@@ -5,73 +5,55 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as MapIO from "../../core/MapIO";
+import * as Objects from "../../utils/Objects";
 import * as Strings from "../../utils/Strings";
 
 import GUI from "../../gui/GUI";
 import Property from "../../config/Property";
 
-type SceneryObjectType =
-    "footpath_surface" |
-    "footpath_railings" |
-    "small_scenery" |
-    "large_scenery" |
-    "wall";
-
 const types: SceneryObjectType[] = [
     "footpath_surface",
     "footpath_railings",
+    "footpath_addition",
     "small_scenery",
     "large_scenery",
     "wall",
 ];
 
-type SceneryObjectInfo = {
-    type: string,
-    name: string,
-    identifier: string,
-    count: number,
-};
-
-// cf. Template.ts
 const library = {
-    footpath_surface: [] as SceneryObjectInfo[],
-    footpath_railings: [] as SceneryObjectInfo[],
-    small_scenery: [] as SceneryObjectInfo[],
-    large_scenery: [] as SceneryObjectInfo[],
-    ride: [] as SceneryObjectInfo[],
-    wall: [] as SceneryObjectInfo[],
-};
+    footpath_surface: {} as { [key: string]: SceneryObjectInfo },
+    footpath_railings: {} as { [key: string]: SceneryObjectInfo },
+    footpath_addition: {} as { [key: string]: SceneryObjectInfo },
+    small_scenery: {} as { [key: string]: SceneryObjectInfo },
+    large_scenery: {} as { [key: string]: SceneryObjectInfo },
+    wall: {} as { [key: string]: SceneryObjectInfo },
+}
 
 types.forEach(type => {
-    context.getAllObjects(type).forEach(object => {
-        library[type][object.index] = {
-            type: Strings.toDisplayString(type),
+    context.getAllObjects(type).forEach(
+        object => library[type][object.identifier] = {
+            type: type,
             name: object.name,
             identifier: object.identifier,
             count: 0,
-        };
-    });
+        }
+    );
 });
 
-for (let x = 0; x < map.size.x; x++)
-    for (let y = 0; y < map.size.y; y++)
-        map.getTile(x, y).elements.forEach(
-            element => {
-                switch (element.type) {
-                    case "large_scenery":
-                        if (element.sequence !== 0)
-                            break;
-                    case "small_scenery":
-                    case "wall":
-                        library[element.type][element.object].count++;
-                        break;
-                    case "footpath":
-                        library["footpath_surface"][element.surfaceObject].count++;
-                        library["footpath_railings"][element.railingsObject].count++;
-                        break;
-                }
-            }
-        );
+MapIO.forEachElement(element => {
+    switch (element.type) {
+        case "footpath_addition":
+        case "large_scenery":
+        case "small_scenery":
+        case "wall":
+            return library[element.type][element.identifier].count++;
+        case "footpath":
+            library["footpath_surface"][element.surfaceIdentifier].count++;
+            library["footpath_railings"][element.railingsIdentifier].count++;
+            return;
+    }
+});
 
 const listView: GUI.ListView = new GUI.ListView({
     showColumnHeaders: true,
@@ -103,7 +85,7 @@ function updateItems(): void {
     ).map(
         type => library[type]
     ).reduce(
-        (acc, val) => acc.concat(val), []
+        (acc, val) => acc.concat(Objects.values(val)), [] as SceneryObjectInfo[]
     ).filter(
         info => {
             const name = info.name.toLowerCase();
@@ -113,7 +95,7 @@ function updateItems(): void {
         }
     );
     listView.setItemsAndOnClick(items, info => [
-        info.type,
+        Strings.toDisplayString(info.type),
         info.name,
         info.identifier,
         String(info.count),
@@ -129,7 +111,7 @@ function onClick(info: SceneryObjectInfo): void {
             width: 384,
             height: 0,
             classification: "scenery-manager.objectInfo",
-            title: `${info.name} (${info.type})`,
+            title: `${info.name} (${Strings.toDisplayString(info.type)})`,
             colours: [1, 1, 0,], // shades of gray
         },
         new GUI.Window().add(
@@ -150,7 +132,7 @@ function onClick(info: SceneryObjectInfo): void {
                 ),
                 new GUI.VBox().add(
                     new GUI.Label({
-                        text: info.type,
+                        text: Strings.toDisplayString(info.type),
                     }),
                     new GUI.Label({
                         text: info.name,
@@ -163,10 +145,19 @@ function onClick(info: SceneryObjectInfo): void {
                     }),
                 ),
             ),
+            new GUI.Space(),
             new GUI.HBox([1, 1]).add(
                 new GUI.TextButton({
                     text: `Delete all ${info.count} instances`,
                     isDisabled: info.count === 0,
+                    onClick: () => {
+                        MapIO.remove(
+                            MapIO.find({
+                                type: info.type,
+                                identifier: info.identifier,
+                            })
+                        );
+                    },
                 })
             ),
         ),
