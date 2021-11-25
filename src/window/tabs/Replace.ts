@@ -36,21 +36,29 @@ types.forEach(type => {
             type: type,
             name: object.name,
             identifier: object.identifier,
-            count: 0,
+            mapCount: 0,
+            parkCount: 0,
         }
     );
 });
 
-MapIO.forEachElement(element => {
+MapIO.forEachElement((element, tile) => {
     switch (element.type) {
         case "footpath_addition":
         case "large_scenery":
         case "small_scenery":
         case "wall":
-            return library[element.type][element.identifier].count++;
+            library[element.type][element.identifier].mapCount++;
+            if (MapIO.hasOwnership(tile))
+                library[element.type][element.identifier].parkCount++;
+            return;
         case "footpath":
-            library["footpath_surface"][element.surfaceIdentifier].count++;
-            library["footpath_railings"][element.railingsIdentifier].count++;
+            library["footpath_surface"][element.surfaceIdentifier].mapCount++;
+            library["footpath_railings"][element.railingsIdentifier].mapCount++;
+            if (MapIO.hasOwnership(tile)) {
+                library["footpath_surface"][element.surfaceIdentifier].parkCount++;
+                library["footpath_railings"][element.railingsIdentifier].parkCount++;
+            }
             return;
     }
 });
@@ -70,7 +78,11 @@ const listView: GUI.ListView = new GUI.ListView({
         width: 256,
         canSort: true,
     }, {
-        header: "Count",
+        header: "On Map",
+        width: 64 - 12,
+        canSort: true,
+    }, {
+        header: "In Park",
         canSort: true,
     },],
 }, 384);
@@ -98,7 +110,8 @@ function updateItems(): void {
         Strings.toDisplayString(info.type),
         info.name,
         info.identifier,
-        String(info.count),
+        String(info.mapCount),
+        String(info.parkCount),
     ], onClick);
     return;
 }
@@ -141,15 +154,18 @@ function onClick(info: SceneryObjectInfo): void {
                         text: info.identifier,
                     }),
                     new GUI.Label({
-                        text: String(info.count),
+                        text: String(info.mapCount),
+                    }),
+                    new GUI.Label({
+                        text: String(info.parkCount),
                     }),
                 ),
             ),
             new GUI.Space(),
             new GUI.HBox([1, 1]).add(
                 new GUI.TextButton({
-                    text: `Delete all ${info.count} instances`,
-                    isDisabled: info.count === 0,
+                    text: `Delete all ${info.parkCount} instances`,
+                    isDisabled: info.parkCount === 0,
                     onClick: () => {
                         MapIO.remove(
                             MapIO.find({

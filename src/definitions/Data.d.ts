@@ -122,7 +122,8 @@ interface SceneryObjectInfo {
     type: SceneryObjectType;
     name: string;
     identifier: string;
-    count: number;
+    mapCount: number;
+    parkCount: number;
 };
 
 interface SceneryObjectFilter {

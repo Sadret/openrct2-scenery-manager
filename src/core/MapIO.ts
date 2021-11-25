@@ -25,12 +25,13 @@ import Wall from "../template/Wall";
 export function read(tiles: CoordsXY[]): ElementData[] {
     const elements: ElementData[] = [];
     tiles.forEach(
-        coords => elements.push(...getSceneryData(coords))
+        coords => elements.push(...getSceneryDataFromWorldCoords(coords))
     );
     return elements;
 }
 
 export function place(elements: ElementData[], ghost: boolean = false): ElementData[] {
+    console.log(elements);
     const result: ElementData[] = [];
     elements.forEach(element => {
         const action = Template.getPlaceAction(element);
@@ -61,36 +62,42 @@ export function remove(elements: ElementData[], ghost: boolean = false) {
  * DATA CREATION
  */
 
-function getSceneryData(coords: CoordsXY): ElementData[] {
+function getSceneryDataFromWorldCoords(coords: CoordsXY): ElementData[] {
     const tileCoords = Coordinates.worldToTileCoords(coords);
-    const tile = map.getTile(tileCoords.x, tileCoords.y);
+    console.log(coords);
+    console.log(getSceneryData(map.getTile(tileCoords.x, tileCoords.y)))
+    return getSceneryData(map.getTile(tileCoords.x, tileCoords.y));
+}
+
+function getSceneryData(tile: Tile): ElementData[] {
+    const worldCoords = Coordinates.tileToWorldCoords(tile);
     const data: ElementData[] = [];
     tile.elements.forEach(element => {
         switch (element.type) {
             case "banner":
-                return data.push(Banner.createFromTileData(element, coords));
+                return data.push(Banner.createFromTileData(element, worldCoords));
             case "entrance":
-                return data.push(Entrance.createFromTileData(element, coords));
+                return data.push(Entrance.createFromTileData(element, worldCoords));
             case "footpath":
-                data.push(Footpath.createFromTileData(element, coords));
-                const addition = FootpathAddition.createFromTileData(element, coords);
+                data.push(Footpath.createFromTileData(element, worldCoords));
+                const addition = FootpathAddition.createFromTileData(element, worldCoords);
                 if (addition !== undefined)
                     data.push(addition);
                 return;
             case "large_scenery":
-                const largeScenery = LargeScenery.createFromTileData(element, coords);
+                const largeScenery = LargeScenery.createFromTileData(element, worldCoords);
                 if (largeScenery !== undefined)
                     data.push(largeScenery);
                 return;
             case "small_scenery":
-                return data.push(SmallScenery.createFromTileData(element, coords));
+                return data.push(SmallScenery.createFromTileData(element, worldCoords));
             case "track":
-                const track = Track.createFromTileData(element, coords);
+                const track = Track.createFromTileData(element, worldCoords);
                 if (track !== undefined)
                     data.push(track);
                 return;
             case "wall":
-                return data.push(Wall.createFromTileData(element, coords));
+                return data.push(Wall.createFromTileData(element, worldCoords));
             default:
                 return;
         }
@@ -102,10 +109,10 @@ function getSceneryData(coords: CoordsXY): ElementData[] {
  * FIND / REPLACE METHODS
  */
 
-export function forEachElement(fun: (element: ElementData) => void): void {
+export function forEachElement(fun: (element: ElementData, tile: Tile) => void): void {
     for (let x = 0; x < map.size.x; x++)
         for (let y = 0; y < map.size.y; y++)
-            getSceneryData(Coordinates.tileToWorldCoords({ x: x, y: y })).forEach(fun);
+            (tile => getSceneryData(tile).forEach(element => fun(element, tile)))(map.getTile(x, y));
 }
 
 export function find(filter: SceneryObjectFilter): ElementData[] {
@@ -146,12 +153,21 @@ export function find(filter: SceneryObjectFilter): ElementData[] {
  * UTILITY METHODS
  */
 
-export function getSurfaceHeight(coords: CoordsXY): number {
-    coords = Coordinates.worldToTileCoords(coords);
-    for (let element of map.getTile(coords.x, coords.y).elements)
+export function hasOwnership(tile: Tile): boolean {
+    const surface = getSurface(tile);
+    return surface !== undefined && surface.hasOwnership;
+}
+
+function getSurface(tile: Tile): SurfaceElement | undefined {
+    for (let element of tile.elements)
         if (element.type === "surface")
-            return element.baseZ;
-    return 0;
+            return element;
+}
+
+export function getSurfaceHeight(coords: CoordsXY): number {
+    const tileCoords = Coordinates.worldToTileCoords(coords);
+    const surface = getSurface(map.getTile(tileCoords.x, tileCoords.y));
+    return surface === undefined ? 0 : surface.baseZ;
 }
 
 export function getMedianSurfaceHeight(tiles: CoordsXY[]): number {
