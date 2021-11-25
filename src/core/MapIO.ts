@@ -8,30 +8,21 @@
 import * as Context from "./Context";
 import * as Coordinates from "../utils/Coordinates";
 
-import Banner from "../template/Banner";
-import Entrance from "../template/Entrance";
-import Footpath from "../template/Footpath";
-import FootpathAddition from "../template/FootpathAddition";
-import LargeScenery from "../template/LargeScenery";
-import SmallScenery from "../template/SmallScenery";
 import Template from "../template/Template";
-import Track from "../template/Track";
-import Wall from "../template/Wall";
 
 /*
- * READ / PLACE / REMOVE METHODS
+ * READ / PLACE / REMOVE
  */
 
 export function read(tiles: CoordsXY[]): ElementData[] {
     const elements: ElementData[] = [];
     tiles.forEach(
-        coords => elements.push(...getSceneryDataFromWorldCoords(coords))
+        coords => elements.push(...Template.getSceneryData(getTile(Coordinates.toTileCoords(coords))))
     );
     return elements;
 }
 
 export function place(elements: ElementData[], ghost: boolean = false): ElementData[] {
-    console.log(elements);
     const result: ElementData[] = [];
     elements.forEach(element => {
         const action = Template.getPlaceAction(element);
@@ -59,60 +50,13 @@ export function remove(elements: ElementData[], ghost: boolean = false) {
 }
 
 /*
- * DATA CREATION
- */
-
-function getSceneryDataFromWorldCoords(coords: CoordsXY): ElementData[] {
-    const tileCoords = Coordinates.worldToTileCoords(coords);
-    console.log(coords);
-    console.log(getSceneryData(map.getTile(tileCoords.x, tileCoords.y)))
-    return getSceneryData(map.getTile(tileCoords.x, tileCoords.y));
-}
-
-function getSceneryData(tile: Tile): ElementData[] {
-    const worldCoords = Coordinates.tileToWorldCoords(tile);
-    const data: ElementData[] = [];
-    tile.elements.forEach(element => {
-        switch (element.type) {
-            case "banner":
-                return data.push(Banner.createFromTileData(element, worldCoords));
-            case "entrance":
-                return data.push(Entrance.createFromTileData(element, worldCoords));
-            case "footpath":
-                data.push(Footpath.createFromTileData(element, worldCoords));
-                const addition = FootpathAddition.createFromTileData(element, worldCoords);
-                if (addition !== undefined)
-                    data.push(addition);
-                return;
-            case "large_scenery":
-                const largeScenery = LargeScenery.createFromTileData(element, worldCoords);
-                if (largeScenery !== undefined)
-                    data.push(largeScenery);
-                return;
-            case "small_scenery":
-                return data.push(SmallScenery.createFromTileData(element, worldCoords));
-            case "track":
-                const track = Track.createFromTileData(element, worldCoords);
-                if (track !== undefined)
-                    data.push(track);
-                return;
-            case "wall":
-                return data.push(Wall.createFromTileData(element, worldCoords));
-            default:
-                return;
-        }
-    });
-    return data;
-}
-
-/*
- * FIND / REPLACE METHODS
+ * ITERATOR / FIND / REPLACE METHODS
  */
 
 export function forEachElement(fun: (element: ElementData, tile: Tile) => void): void {
     for (let x = 0; x < map.size.x; x++)
         for (let y = 0; y < map.size.y; y++)
-            (tile => getSceneryData(tile).forEach(element => fun(element, tile)))(map.getTile(x, y));
+            (tile => Template.getSceneryData(tile).forEach(element => fun(element, tile)))(getTile({ tx: x, ty: y }));
 }
 
 export function find(filter: SceneryObjectFilter): ElementData[] {
@@ -153,6 +97,10 @@ export function find(filter: SceneryObjectFilter): ElementData[] {
  * UTILITY METHODS
  */
 
+export function getTile(coords: TileCoords): Tile {
+    return map.getTile(coords.tx, coords.ty);
+}
+
 export function hasOwnership(tile: Tile): boolean {
     const surface = getSurface(tile);
     return surface !== undefined && surface.hasOwnership;
@@ -164,19 +112,14 @@ function getSurface(tile: Tile): SurfaceElement | undefined {
             return element;
 }
 
-export function getSurfaceHeight(coords: CoordsXY): number {
-    const tileCoords = Coordinates.worldToTileCoords(coords);
-    const surface = getSurface(map.getTile(tileCoords.x, tileCoords.y));
+export function getSurfaceHeight(tile: Tile): number {
+    const surface = getSurface(tile);
     return surface === undefined ? 0 : surface.baseZ;
 }
 
-export function getMedianSurfaceHeight(tiles: CoordsXY[]): number {
-    const heights: number[] = tiles.map(
-        coords => getSurfaceHeight(coords)
-    );
-    heights.sort();
-    return heights[Math.floor(heights.length / 2)];
-}
+/*
+ * UTILITY
+ */
 
 const priority = [
     "wall",

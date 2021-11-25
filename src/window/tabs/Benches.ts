@@ -38,7 +38,7 @@ function provide(tiles: CoordsXY[]): TemplateData {
         elements: MapIO.read(tiles).filter(
             (element: ElementData) => element.type === "footpath"
         ).map<FootpathAdditionData | undefined>(element => {
-            const idx = Coordinates.parity(Coordinates.worldToTileCoords(element), size.getValue());
+            const idx = Coordinates.parity(Coordinates.toTileCoords(element), size.getValue());
             const entry = entries[idx].getValue();
             return entry === undefined ? undefined : {
                 ...element,

@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 import * as Arrays from "../../utils/Arrays";
+import * as Coordinates from "../../utils/Coordinates";
 import * as Context from "../../core/Context";
 import * as MapIO from "../../core/MapIO";
 import * as StartUp from "../../StartUp";
@@ -108,7 +109,7 @@ function provide(tiles: CoordsXY[]): TemplateData {
     return {
         elements: tiles.map<ElementData | undefined>((coords: CoordsXY) => {
             let data: ElementData | undefined = getRandomData();
-            const z: number = MapIO.getSurfaceHeight(coords);
+            const z: number = MapIO.getSurfaceHeight(MapIO.getTile(Coordinates.toTileCoords(coords)));
             if (data === undefined || z == undefined)
                 return undefined;
 

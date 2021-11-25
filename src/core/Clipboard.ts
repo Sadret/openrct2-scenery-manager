@@ -66,7 +66,7 @@ const builder = new class extends Builder {
             else
                 rotation -= diff;
         }
-        let height = MapIO.getSurfaceHeight(coords) + 8 * settings.height.getValue();
+        let height = MapIO.getSurfaceHeight(MapIO.getTile(Coordinates.toTileCoords(coords))) + 8 * settings.height.getValue();
         if (Configuration.copyPaste.cursor.height.enabled.getValue()) {
             const step = Configuration.copyPaste.cursor.height.smallSteps.getValue() ? 8 : 16;
             height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
@@ -227,13 +227,21 @@ export function copy(cut: boolean = false): void {
     if (cut)
         MapIO.remove(elements);
 
+    const heights: number[] = tiles.map(
+        Coordinates.toTileCoords
+    ).map(
+        MapIO.getTile
+    ).map(
+        MapIO.getSurfaceHeight
+    ).sort();
+
     addTemplate(new Template({
         elements: elements,
         tiles: tiles,
     }).translate({
         x: -center.x,
         y: -center.y,
-        z: -MapIO.getMedianSurfaceHeight(tiles),
+        z: -heights[Math.floor(heights.length / 2)],
     }));
 }
 

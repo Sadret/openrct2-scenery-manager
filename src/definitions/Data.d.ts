@@ -6,6 +6,15 @@
  *****************************************************************************/
 
 /*
+ * MAP COORDINATES
+ */
+
+interface TileCoords {
+    tx: number,
+    ty: number;
+}
+
+/*
  * TEMPLATES
  */
 

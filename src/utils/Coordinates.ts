@@ -37,12 +37,16 @@ export function toMapRange(tiles: CoordsXY[]): MapRange {
     }
 }
 
-export function worldToTileCoords(coords: CoordsXY): CoordsXY {
-    return { x: coords.x / 32, y: coords.y / 32 };
+export function toTileCoords(coords: CoordsXY): TileCoords {
+    return { tx: coords.x / 32, ty: coords.y / 32 };
 }
 
-export function tileToWorldCoords(coords: CoordsXY): CoordsXY {
-    return { x: coords.x * 32, y: coords.y * 32 };
+export function toWorldCoords(coords: TileCoords): CoordsXY {
+    return { x: coords.tx * 32, y: coords.ty * 32 };
+}
+
+export function getTileCoords(tile: Tile): TileCoords {
+    return { tx: tile.x, ty: tile.y };
 }
 
 /*
@@ -127,8 +131,13 @@ export function centered(center: CoordsXY, size: CoordsXY): MapRange {
     };
 }
 
-export function getSize(range: MapRange): CoordsXY {
-    return add(worldToTileCoords(sub(range.rightBottom, range.leftTop)), { x: 1, y: 1 });
+export function getSize(range: MapRange): TileCoords {
+    return toTileCoords(
+        add(
+            sub(range.rightBottom, range.leftTop),
+            toWorldCoords({ tx: 1, ty: 1 }),
+        )
+    );
 }
 
 export function circle(center: CoordsXY, diameter: number): CoordsXY[] {
@@ -138,16 +147,16 @@ export function circle(center: CoordsXY, diameter: number): CoordsXY[] {
     const range: number[] = [];
     for (let i = 0; i < diameter; i++)
         range.push(i);
-    return ([] as CoordsXY[]).concat(
+    return ([] as TileCoords[]).concat(
         ...range.map(
             (x: number) => range.map(
-                (y: number) => ({ x: x, y: y })
+                (y: number) => ({ tx: x, ty: y })
             )
         )
     ).filter(
-        (c: CoordsXY) => (c.x - m) * (c.x - m) + (c.y - m) * (c.y - m) <= r2
+        (c: TileCoords) => (c.tx - m) * (c.tx - m) + (c.ty - m) * (c.ty - m) <= r2
     ).map(
-        (c: CoordsXY) => add(tileToWorldCoords(c), start)
+        (c: TileCoords) => add(toWorldCoords(c), start)
     );
 }
 
@@ -165,6 +174,6 @@ export function equals(u: CoordsXY, v: CoordsXY): boolean {
     return u.x === v.x && u.y === v.y;
 }
 
-export function parity(coords: CoordsXY, mod: number) {
-    return (coords.x + coords.y) % mod;
+export function parity(coords: TileCoords, mod: number) {
+    return (coords.tx + coords.ty) % mod;
 }

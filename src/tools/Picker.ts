@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
+import * as MapIO from "../core/MapIO";
 
 import Tool from "./Tool";
 
@@ -19,8 +20,8 @@ export default abstract class Picker extends Tool {
     ): void {
         if (e.mapCoords === undefined || e.tileElementIndex === undefined)
             return;
-        const tileCoords = Coordinates.worldToTileCoords(e.mapCoords);
-        const tile: Tile = map.getTile(tileCoords.x, tileCoords.y);
+        const tileCoords = Coordinates.toTileCoords(e.mapCoords);
+        const tile: Tile = MapIO.getTile(tileCoords);
         const element: TileElement = tile.elements[e.tileElementIndex];
         if (this.accept(element))
             this.cancel();

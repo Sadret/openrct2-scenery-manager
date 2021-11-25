@@ -34,6 +34,6 @@ export default class extends FileView {
         if (data === undefined)
             return [file.getName()];
         const size = Coordinates.getSize(Coordinates.toMapRange(data.tiles));
-        return [file.getName(), String(size.x), String(size.y), String(data.elements.length)];
+        return [file.getName(), String(size.tx), String(size.ty), String(data.elements.length)];
     }
 };
