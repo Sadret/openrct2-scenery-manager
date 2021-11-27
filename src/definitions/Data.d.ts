@@ -94,6 +94,7 @@ interface TrackData extends ElementBaseData {
     readonly direction: number;
     readonly ride: number;
     readonly trackType: number;
+    readonly rideType: number;
     readonly brakeSpeed: number;
     readonly colour: number;
     readonly seatRotation: number;

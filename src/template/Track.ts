@@ -21,6 +21,7 @@ export default new class extends BaseElement<TrackElement, TrackData> {
             direction: element.direction,
             ride: element.ride,
             trackType: element.trackType,
+            rideType: element.rideType,
             brakeSpeed: element.brakeBoosterSpeed || 0,
             colour: element.colourScheme || 0,
             seatRotation: element.seatRotation || 0,
