@@ -59,6 +59,23 @@ export function forEachElement(fun: (element: ElementData, tile: Tile) => void):
             (tile => Template.getSceneryData(tile).forEach(element => fun(element, tile)))(getTile({ tx: x, ty: y }));
 }
 
+export function async_forEachElement(fun: (element: ElementData, tile: Tile) => void, callback: (done: boolean, progress: number) => void = () => { }, x = 0, y = 0): void {
+    const now = Date.now()
+    for (; x < map.size.x; x++) {
+        for (; y < map.size.y; y++) {
+            if (Date.now() - now < 10)
+                (tile => Template.getSceneryData(tile).forEach(element => fun(element, tile)))(getTile({ tx: x, ty: y }));
+            else {
+                callback(false, (y + x * map.size.y) / map.size.x / map.size.y);
+                context.setTimeout(() => async_forEachElement(fun, callback, x, y), 1);
+                return;
+            }
+        }
+        y = 0;
+    }
+    callback(true, 1);
+}
+
 export function find(filter: SceneryObjectFilter): ElementData[] {
     const elements: ElementData[] = [];
     forEachElement(element => {

@@ -5,6 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Context from "../../core/Context";
 import * as MapIO from "../../core/MapIO";
 import * as Objects from "../../utils/Objects";
 import * as Strings from "../../utils/Strings";
@@ -30,38 +31,46 @@ const library = {
     wall: {} as { [key: string]: SceneryObjectInfo },
 }
 
-types.forEach(type => {
-    context.getAllObjects(type).forEach(
-        object => library[type][object.identifier] = {
-            type: type,
-            name: object.name,
-            identifier: object.identifier,
-            mapCount: 0,
-            parkCount: 0,
-        }
-    );
-});
+function reload(): void {
+    reloadButton.setText("loading...");
 
-MapIO.forEachElement((element, tile) => {
-    switch (element.type) {
-        case "footpath_addition":
-        case "large_scenery":
-        case "small_scenery":
-        case "wall":
-            library[element.type][element.identifier].mapCount++;
-            if (MapIO.hasOwnership(tile))
-                library[element.type][element.identifier].parkCount++;
-            return;
-        case "footpath":
-            library["footpath_surface"][element.surfaceIdentifier].mapCount++;
-            library["footpath_railings"][element.railingsIdentifier].mapCount++;
-            if (MapIO.hasOwnership(tile)) {
-                library["footpath_surface"][element.surfaceIdentifier].parkCount++;
-                library["footpath_railings"][element.railingsIdentifier].parkCount++;
+    types.forEach(type => {
+        library[type] = {};
+        context.getAllObjects(type).forEach(
+            object => library[type][Context.getIdentifierFromObject(object)] = {
+                type: type,
+                name: object.name,
+                identifier: Context.getIdentifierFromObject(object),
+                mapCount: 0,
+                parkCount: 0,
             }
-            return;
-    }
-});
+        );
+    });
+
+    MapIO.async_forEachElement((element, tile) => {
+        switch (element.type) {
+            case "footpath_addition":
+            case "large_scenery":
+            case "small_scenery":
+            case "wall":
+                library[element.type][element.identifier].mapCount++;
+                if (MapIO.hasOwnership(tile))
+                    library[element.type][element.identifier].parkCount++;
+                return;
+            case "footpath":
+                library["footpath_surface"][element.surfaceIdentifier].mapCount++;
+                library["footpath_railings"][element.railingsIdentifier].mapCount++;
+                if (MapIO.hasOwnership(tile)) {
+                    library["footpath_surface"][element.surfaceIdentifier].parkCount++;
+                    library["footpath_railings"][element.railingsIdentifier].parkCount++;
+                }
+                return;
+        }
+    }, (done, progress) => {
+        reloadButton.setText(done ? "reload" : `loading ${Math.round(progress * 100)}%`);
+        updateItems();
+    });
+}
 
 const listView: GUI.ListView = new GUI.ListView({
     showColumnHeaders: true,
@@ -86,6 +95,10 @@ const listView: GUI.ListView = new GUI.ListView({
         canSort: true,
     },],
 }, 384);
+
+const reloadButton = new GUI.TextButton({
+    onClick: reload,
+});
 
 const filterProp = new Property<"all" | SceneryObjectType>("all");
 const searchProp = new Property<string>("");
@@ -113,7 +126,6 @@ function updateItems(): void {
         String(info.mapCount),
         String(info.parkCount),
     ], onClick);
-    return;
 }
 filterProp.bind(updateItems);
 searchProp.bind(updateItems);
@@ -184,8 +196,9 @@ export default new GUI.Tab({
     frameBase: 5221,
     frameCount: 8,
     frameDuration: 4,
-}, undefined, undefined, 768).add(
-    new GUI.HBox([1, 3]).add(
+}, undefined, undefined, 768, reload).add(
+    reloadButton,
+    new GUI.HBox([3, 8, 1,]).add(
         new GUI.Label({
             text: "Search for name or identifier:",
         }),
