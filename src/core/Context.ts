@@ -26,6 +26,8 @@ export function getIdentifierFromObject(object: LoadedObject): string {
 }
 
 export function getIdentifier(element: { type: ObjectType, object: number }): string {
+    if (element.object === null)
+        throw new Error();
     return getIdentifierFromObject(context.getObject(element.type, element.object));
 }
 

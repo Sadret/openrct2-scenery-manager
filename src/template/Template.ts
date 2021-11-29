@@ -121,33 +121,37 @@ export default class Template implements TemplateData {
         const worldCoords = Coordinates.toWorldCoords(Coordinates.getTileCoords(tile));
         const data: ElementData[] = [];
         tile.elements.forEach(element => {
-            switch (element.type) {
-                case "banner":
-                    return data.push(Banner.createFromTileData(element, worldCoords));
-                case "entrance":
-                    return data.push(Entrance.createFromTileData(element, worldCoords));
-                case "footpath":
-                    data.push(Footpath.createFromTileData(element, worldCoords));
-                    const addition = FootpathAddition.createFromTileData(element, worldCoords);
-                    if (addition !== undefined)
-                        data.push(addition);
-                    return;
-                case "large_scenery":
-                    const largeScenery = LargeScenery.createFromTileData(element, worldCoords);
-                    if (largeScenery !== undefined)
-                        data.push(largeScenery);
-                    return;
-                case "small_scenery":
-                    return data.push(SmallScenery.createFromTileData(element, worldCoords));
-                case "track":
-                    const track = Track.createFromTileData(element, worldCoords);
-                    if (track !== undefined)
-                        data.push(track);
-                    return;
-                case "wall":
-                    return data.push(Wall.createFromTileData(element, worldCoords));
-                default:
-                    return;
+            // catch Errors caused by missing object IDs
+            try {
+                switch (element.type) {
+                    case "banner":
+                        return data.push(Banner.createFromTileData(element, worldCoords));
+                    case "entrance":
+                        return data.push(Entrance.createFromTileData(element, worldCoords));
+                    case "footpath":
+                        data.push(Footpath.createFromTileData(element, worldCoords));
+                        const addition = FootpathAddition.createFromTileData(element, worldCoords);
+                        if (addition !== undefined)
+                            data.push(addition);
+                        return;
+                    case "large_scenery":
+                        const largeScenery = LargeScenery.createFromTileData(element, worldCoords);
+                        if (largeScenery !== undefined)
+                            data.push(largeScenery);
+                        return;
+                    case "small_scenery":
+                        return data.push(SmallScenery.createFromTileData(element, worldCoords));
+                    case "track":
+                        const track = Track.createFromTileData(element, worldCoords);
+                        if (track !== undefined)
+                            data.push(track);
+                        return;
+                    case "wall":
+                        return data.push(Wall.createFromTileData(element, worldCoords));
+                    default:
+                        return;
+                }
+            } catch (e) {
             }
         });
         return data;

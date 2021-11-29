@@ -162,7 +162,10 @@ function onClick(info: SceneryObjectInfo): void {
                         text: "Identifier:",
                     }),
                     new GUI.Label({
-                        text: "Count:",
+                        text: "On Map:",
+                    }),
+                    new GUI.Label({
+                        text: "In Park:",
                     }),
                 ),
                 new GUI.VBox().add(
@@ -186,7 +189,7 @@ function onClick(info: SceneryObjectInfo): void {
             new GUI.Space(),
             new GUI.HBox([1, 1]).add(
                 new GUI.TextButton({
-                    text: `Delete all ${info.parkCount} instances`,
+                    text: `Delete all occurences in park`,
                     isDisabled: info.parkCount === 0,
                     onClick: () => {
                         MapIO.remove(
