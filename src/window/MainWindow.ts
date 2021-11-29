@@ -10,7 +10,7 @@ import Benches from "./tabs/Benches";
 import Configuration from "./tabs/Configuration";
 import CopyPaste from "./tabs/CopyPaste";
 import GUI from "../gui/GUI";
-import Replace from "./tabs/Replace";
+import ObjectList from "./tabs/ObjectList";
 import Research from "./tabs/Research";
 import Scatter from "./tabs/Scatter";
 import TemplateLibrary from "./tabs/TemplateLibrary";
@@ -27,7 +27,7 @@ export default new GUI.WindowManager(
         TemplateLibrary,
         Scatter,
         Benches,
-        Replace,
+        ObjectList,
         Configuration,
         Research,
         About,

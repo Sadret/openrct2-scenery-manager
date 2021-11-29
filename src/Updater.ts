@@ -9,7 +9,7 @@ import * as Storage from "./persistence/Storage";
 
 import Dialog from "./utils/Dialog";
 
-export function update(load: () => void): void {
+export function update(load: Task): void {
     switch (Storage.get<String>("version")) {
         case undefined:
             showHotkeyAlert();

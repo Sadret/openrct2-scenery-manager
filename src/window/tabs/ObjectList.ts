@@ -10,8 +10,10 @@ import * as MapIO from "../../core/MapIO";
 import * as Objects from "../../utils/Objects";
 import * as Strings from "../../utils/Strings";
 
+import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
 import Property from "../../config/Property";
+import Selector from "../../tools/Selector";
 
 const types: SceneryObjectType[] = [
     "footpath_surface",
@@ -47,7 +49,7 @@ function reload(): void {
         );
     });
 
-    MapIO.async_forEachElement((element, tile) => {
+    MapIO.forEachElement((element, tile) => {
         switch (element.type) {
             case "footpath_addition":
             case "large_scenery":
@@ -66,10 +68,35 @@ function reload(): void {
                 }
                 return;
         }
-    }, (done, progress) => {
+    }, selectionOnlyProp.getValue() ? (ui.tileSelection.range || ui.tileSelection.tiles) : undefined, (done, progress) => {
         reloadButton.setText(done ? "reload" : `loading ${Math.round(progress * 100)}%`);
         updateItems();
     });
+}
+
+function updateItems(): void {
+    const filterType = filterProp.getValue();
+    const items = types.filter(
+        type => filterType === "all" || filterType === type
+    ).map(
+        type => library[type]
+    ).reduce(
+        (acc, val) => acc.concat(Objects.values(val)), [] as SceneryObjectInfo[]
+    ).filter(
+        info => {
+            const name = info.name.toLowerCase();
+            const identifier = info.identifier.toLowerCase();
+            const search = searchProp.getValue().toLowerCase();
+            return name.includes(search) || identifier.includes(search);
+        }
+    );
+    listView.setItemsAndOnClick(items, info => [
+        Strings.toDisplayString(info.type),
+        info.name,
+        info.identifier,
+        String(info.mapCount),
+        String(info.parkCount),
+    ], onClick);
 }
 
 const listView: GUI.ListView = new GUI.ListView({
@@ -100,35 +127,18 @@ const reloadButton = new GUI.TextButton({
     onClick: reload,
 });
 
+const selectionOnlyProp = new BooleanProperty(false);
 const filterProp = new Property<"all" | SceneryObjectType>("all");
 const searchProp = new Property<string>("");
 
-function updateItems(): void {
-    const filterType = filterProp.getValue();
-    const items = types.filter(
-        type => filterType === "all" || filterType === type
-    ).map(
-        type => library[type]
-    ).reduce(
-        (acc, val) => acc.concat(Objects.values(val)), [] as SceneryObjectInfo[]
-    ).filter(
-        info => {
-            const name = info.name.toLowerCase();
-            const identifier = info.identifier.toLowerCase();
-            const search = searchProp.getValue().toLowerCase();
-            return name.includes(search) || identifier.includes(search);
-        }
-    );
-    listView.setItemsAndOnClick(items, info => [
-        Strings.toDisplayString(info.type),
-        info.name,
-        info.identifier,
-        String(info.mapCount),
-        String(info.parkCount),
-    ], onClick);
-}
 filterProp.bind(updateItems);
 searchProp.bind(updateItems);
+selectionOnlyProp.bind(reload);
+
+Selector.onSelect(() => {
+    if (listView.getWindow() !== undefined && selectionOnlyProp.getValue())
+        reload();
+});
 
 function onClick(info: SceneryObjectInfo): void {
     new GUI.WindowManager(
@@ -193,11 +203,20 @@ function onClick(info: SceneryObjectInfo): void {
 }
 
 export default new GUI.Tab({
-    frameBase: 5221,
+    frameBase: 5245,
     frameCount: 8,
     frameDuration: 4,
 }, undefined, undefined, 768, reload).add(
-    reloadButton,
+    new GUI.HBox([1, 1, 1,]).add(
+        reloadButton,
+        new GUI.Checkbox({
+            text: "Selected area only",
+        }).bindValue(selectionOnlyProp),
+        new GUI.TextButton({
+            text: "Select area",
+            onClick: Selector.activate,
+        }),
+    ),
     new GUI.HBox([3, 8, 1,]).add(
         new GUI.Label({
             text: "Search for name or identifier:",

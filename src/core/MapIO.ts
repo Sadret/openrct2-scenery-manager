@@ -9,6 +9,7 @@ import * as Context from "./Context";
 import * as Coordinates from "../utils/Coordinates";
 
 import Template from "../template/Template";
+import TileIterator from "../utils/TileIterator";
 
 /*
  * READ / PLACE / REMOVE
@@ -53,30 +54,39 @@ export function remove(elements: ElementData[], ghost: boolean = false) {
  * ITERATOR / FIND / REPLACE METHODS
  */
 
-export function forEachElement(fun: (element: ElementData, tile: Tile) => void): void {
-    for (let x = 0; x < map.size.x; x++)
-        for (let y = 0; y < map.size.y; y++)
-            (tile => Template.getSceneryData(tile).forEach(element => fun(element, tile)))(getTile({ tx: x, ty: y }));
+export function forEachElement(
+    fun: (element: ElementData, tile: Tile) => void,
+    selection: MapRange | CoordsXY[] | undefined = undefined,
+    callback: (done: boolean, progress: number) => void = () => { },
+): void {
+    _forEachElement(
+        fun,
+        new TileIterator(selection),
+        callback,
+    );
 }
 
-export function async_forEachElement(fun: (element: ElementData, tile: Tile) => void, callback: (done: boolean, progress: number) => void = () => { }, x = 0, y = 0): void {
-    const now = Date.now()
-    for (; x < map.size.x; x++) {
-        for (; y < map.size.y; y++) {
-            if (Date.now() - now < 10)
-                (tile => Template.getSceneryData(tile).forEach(element => fun(element, tile)))(getTile({ tx: x, ty: y }));
-            else {
-                callback(false, (y + x * map.size.y) / map.size.x / map.size.y);
-                context.setTimeout(() => async_forEachElement(fun, callback, x, y), 1);
-                return;
-            }
-        }
-        y = 0;
+function _forEachElement(
+    fun: (element: ElementData, tile: Tile) => void,
+    iterator: TileIterator,
+    callback: (done: boolean, progress: number) => void = () => { },
+): void {
+    const now = Date.now();
+    while (Date.now() - now < 10) {
+        if (iterator.done())
+            return callback(true, 1);
+
+        const tile = getTile(iterator.next());
+        Template.getSceneryData(tile).forEach(element => fun(element, tile));
     }
-    callback(true, 1);
+    callback(false, iterator.progress());
+    context.setTimeout(() => _forEachElement(fun, iterator, callback), 1);
 }
 
-export function find(filter: SceneryObjectFilter): ElementData[] {
+export function find(
+    filter: SceneryObjectFilter,
+    callback: (done: boolean, progress: number) => void = () => { },
+): ElementData[] {
     const elements: ElementData[] = [];
     forEachElement(element => {
         switch (element.type) {
@@ -106,7 +116,7 @@ export function find(filter: SceneryObjectFilter): ElementData[] {
                 return;
         }
         elements.push(element);
-    });
+    }, undefined, callback);
     return elements;
 }
 

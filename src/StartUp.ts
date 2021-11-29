@@ -5,7 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-type Task = () => void;
 const tasks: Task[] = [];
 
 export function addTask(task: Task) {

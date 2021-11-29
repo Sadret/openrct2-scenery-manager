@@ -37,10 +37,6 @@ export const settings = {
     pickBySurface: new BooleanProperty(true),
 };
 
-const selector = new Selector(
-    "sm-selector-clipboard",
-);
-
 const builder = new class extends Builder {
     constructor() {
         super(
@@ -86,8 +82,8 @@ const builder = new class extends Builder {
 settings.pickBySurface.bind(
     value => {
         const filter = value ? ["terrain" as ToolFilter] : undefined;
-        selector.filter = filter;
-        selector.restart();
+        Selector.instance.filter = filter;
+        Selector.instance.restart();
         builder.filter = filter;
         builder.restart();
     }
@@ -206,10 +202,6 @@ export function load(file?: IFile): void {
     }
 
     addTemplate(available);
-}
-
-export function select() {
-    selector.activate();
 }
 
 export function copy(cut: boolean = false): void {

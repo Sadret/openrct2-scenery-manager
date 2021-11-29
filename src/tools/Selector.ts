@@ -10,9 +10,24 @@ import * as Coordinates from "../utils/Coordinates";
 import Tool from "./Tool";
 
 export default class Selector extends Tool {
+    public static readonly instance = new Selector();
+    private static readonly callbacks: Task[] = [];
+
+    public static activate(): void {
+        Selector.instance.activate();
+    }
+
+    public static onSelect(callback: Task): void {
+        Selector.callbacks.push(callback);
+    }
+
     private start: CoordsXY = Coordinates.NULL;
     private end: CoordsXY = Coordinates.NULL;
     private drag: boolean = false;
+
+    private constructor() {
+        super("sm-selector");
+    }
 
     public onStart(): void {
         ui.mainViewport.visibilityFlags |= 1 << 7;
@@ -43,6 +58,7 @@ export default class Selector extends Tool {
         _e: ToolEventArgs,
     ): void {
         this.drag = false;
+        Selector.callbacks.forEach(callback => callback());
     }
     public onFinish(): void {
         ui.tileSelection.range = null;

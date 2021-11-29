@@ -45,7 +45,7 @@ export default class Dialog extends GUI.WindowManager {
     public static showAlert(
         title: string,
         message: string[],
-        callback?: () => void,
+        callback?: Task,
         okText: string = "OK",
         width?: number,
     ) {

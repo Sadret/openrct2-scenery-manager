@@ -34,7 +34,7 @@ export default abstract class Builder extends Tool {
             return;
         MapIO.remove(this.ghost.data, true);
         this.ghost = undefined;
-        ui.tileSelection.tiles = null;
+        ui.tileSelection.tiles = [];
     }
 
     private place(
@@ -84,7 +84,7 @@ export default abstract class Builder extends Tool {
     }
     public onFinish(): void {
         this.removeGhost();
-        ui.tileSelection.tiles = null;
+        ui.tileSelection.tiles = [];
         ui.mainViewport.visibilityFlags &= ~(1 << 7);
     }
 }

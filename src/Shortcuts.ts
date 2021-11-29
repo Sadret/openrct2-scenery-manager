@@ -8,6 +8,7 @@
 import * as Clipboard from "./core/Clipboard";
 
 import MainWindow from "./window/MainWindow";
+import Selector from "./tools/Selector";
 
 export function register() {
 
@@ -15,7 +16,7 @@ export function register() {
         id: "scenery-manager.select",
         text: "[SM] Select area",
         bindings: ["CTRL+A", "GUI+A"],
-        callback: Clipboard.select,
+        callback: Selector.activate,
     });
     ui.registerShortcut({
         id: "scenery-manager.copy",

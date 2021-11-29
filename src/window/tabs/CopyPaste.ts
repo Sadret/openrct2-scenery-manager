@@ -9,6 +9,7 @@ import * as Clipboard from "../../core/Clipboard";
 import * as Strings from "../../utils/Strings";
 
 import GUI from "../../gui/GUI";
+import Selector from "../../tools/Selector";
 
 export default new GUI.Tab(5465).add(
     new GUI.HBox([3, 2]).add(
@@ -19,7 +20,7 @@ export default new GUI.Tab(5465).add(
                 new GUI.HBox([1, 1]).add(
                     new GUI.TextButton({
                         text: "Select",
-                        onClick: Clipboard.select,
+                        onClick: Selector.activate,
                     }),
                     new GUI.TextButton({
                         text: "Copy",
