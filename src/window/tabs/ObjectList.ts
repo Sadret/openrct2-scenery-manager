@@ -17,6 +17,9 @@ import OverlayTab from "../widgets/OverlayTab";
 import Property from "../../config/Property";
 import Selector from "../../tools/Selector";
 
+type Usage = "all" | "on_map" | "in_park";
+const usages: Usage[] = ["all", "on_map", "in_park"];
+
 const types: SceneryObjectType[] = [
     "footpath_surface",
     "footpath_railings",
@@ -95,7 +98,7 @@ function refresh(): void {
 }
 
 function updateItems(): void {
-    const filterType = filterProp.getValue();
+    const filterType = typeProp.getValue();
     const items = types.filter(
         type => filterType === "all" || filterType === type
     ).map(
@@ -104,6 +107,11 @@ function updateItems(): void {
         (acc, val) => acc.concat(Objects.values(val)), [] as SceneryObjectInfo[]
     ).filter(
         info => {
+            if (info.mapCount === 0 && usageProp.getValue() === "on_map")
+                return false;
+            if (info.parkCount === 0 && usageProp.getValue() === "in_park")
+                return false;
+
             const name = info.name.toLowerCase();
             const identifier = info.identifier.toLowerCase();
             const search = searchProp.getValue().toLowerCase();
@@ -153,12 +161,14 @@ const replaceButton = new GUI.TextButton({
 
 const loading = new Loading();
 
-const selectionOnlyProp = new BooleanProperty(false);
-const filterProp = new Property<"all" | SceneryObjectType>("all");
+const typeProp = new Property<"all" | SceneryObjectType>("all");
 const searchProp = new Property<string>("");
+const usageProp = new Property<Usage>("all");
+const selectionOnlyProp = new BooleanProperty(false);
 
-filterProp.bind(updateItems);
+typeProp.bind(updateItems);
 searchProp.bind(updateItems);
+usageProp.bind(updateItems);
 selectionOnlyProp.bind(refresh);
 
 Selector.onSelect(() => {
@@ -253,48 +263,34 @@ export default new OverlayTab(loading, {
     frameCount: 8,
     frameDuration: 4,
 }, undefined, undefined, 768, refresh).add(
-    new GUI.HBox([3, 8, 1,]).add(
-        new GUI.Label({
-            text: "Search for name or identifier:",
-        }),
-        new GUI.TextBox({
-        }).bindValue(searchProp),
-        new GUI.TextButton({
-            text: "Clear",
-            onClick: () => searchProp.setValue(""),
-        })
-    ),
     new GUI.GroupBox({
         text: "Filter",
     }).add(
-        new GUI.HBox([10, 10, 2, 8, 1, 2, 8, 1, 2, 8, 1]).add(
+        new GUI.HBox([1, 3, 1, 1, 2, 1, 2, 3, 1]).add(
             new GUI.Label({
                 text: "Type:"
             }),
             new GUI.Dropdown({
-            }).bindValue(filterProp, [
+            }).bindValue(typeProp, [
                 "all",
                 ...types,
             ], Strings.toDisplayString),
             new GUI.Space(),
-            new GUI.Checkbox({
-                text: "Primary Colour:",
+            new GUI.Label({
+                text: "Usage:"
             }),
-            new GUI.ColourPicker({
-            }),
+            new GUI.Dropdown({
+            }).bindValue(usageProp, usages, Strings.toDisplayString),
             new GUI.Space(),
-            new GUI.Checkbox({
-                text: "Secondary Colour:",
+            new GUI.Label({
+                text: "Name / Identifier:",
             }),
-            new GUI.ColourPicker({
-                isDisabled: true,
-            }),
-            new GUI.Space(),
-            new GUI.Checkbox({
-                text: "Secondary Colour:",
-            }),
-            new GUI.ColourPicker({
-            }),
+            new GUI.TextBox({
+            }).bindValue(searchProp),
+            new GUI.TextButton({
+                text: "Clear",
+                onClick: () => searchProp.setValue(""),
+            })
         ),
     ),
     listView,
