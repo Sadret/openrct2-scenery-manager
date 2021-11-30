@@ -83,6 +83,30 @@ function _forEachElement(
     context.setTimeout(() => _forEachElement(fun, iterator, callback), 1);
 }
 
+export function filter(
+    element: ElementData,
+    filter: SceneryObjectFilter,
+): boolean {
+    switch (element.type) {
+        case "large_scenery":
+        case "small_scenery":
+        case "wall":
+        case "footpath_addition":
+            return eqIfDef(filter.type, element.type) && eqIfDef(filter.identifier, element.identifier);
+        case "footpath":
+            switch (filter.type) {
+                case "footpath_surface":
+                    return eqIfDef(filter.identifier, element.surfaceIdentifier);
+                case "footpath_railings":
+                    return eqIfDef(filter.identifier, element.railingsIdentifier);
+                default:
+                    return false;
+            }
+        default:
+            return false;
+    }
+}
+
 export function find(
     filter: SceneryObjectFilter,
     callback: (done: boolean, progress: number) => void = () => { },

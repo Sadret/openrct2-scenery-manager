@@ -69,7 +69,7 @@ function reload(): void {
                 return;
         }
     }, selectionOnlyProp.getValue() ? (ui.tileSelection.range || ui.tileSelection.tiles) : undefined, (done, progress) => {
-        reloadButton.setText(done ? "reload" : `loading ${Math.round(progress * 100)}%`);
+        reloadButton.setText(done ? "Reload" : `Loading ${Math.round(progress * 100)}%`);
         updateItems();
     });
 }
@@ -141,6 +141,23 @@ Selector.onSelect(() => {
 });
 
 function onClick(info: SceneryObjectInfo): void {
+    const removeButton = new GUI.TextButton({
+        text: `Remove [Desc]`,
+        isDisabled: info.parkCount === 0,
+        onClick: () => {
+            MapIO.forEachElement(element => {
+                if (MapIO.filter(element, {
+                    type: info.type,
+                    identifier: info.identifier,
+                }))
+                    MapIO.remove([element]);
+            }, selectionOnlyProp.getValue() ? (ui.tileSelection.range || ui.tileSelection.tiles) : undefined, (done, progress) => {
+                removeButton.setText(`Removing ${done ? "done" : Math.round(progress * 100)}%`);
+                if (done)
+                    console.log("update list");
+            });
+        },
+    });
     new GUI.WindowManager(
         {
             width: 384,
@@ -188,18 +205,7 @@ function onClick(info: SceneryObjectInfo): void {
             ),
             new GUI.Space(),
             new GUI.HBox([1, 1]).add(
-                new GUI.TextButton({
-                    text: `Delete all occurences in park`,
-                    isDisabled: info.parkCount === 0,
-                    onClick: () => {
-                        MapIO.remove(
-                            MapIO.find({
-                                type: info.type,
-                                identifier: info.identifier,
-                            })
-                        );
-                    },
-                })
+                removeButton,
             ),
         ),
     ).open(listView.getWindow());
@@ -227,7 +233,7 @@ export default new GUI.Tab({
         new GUI.TextBox({
         }).bindValue(searchProp),
         new GUI.TextButton({
-            text: "clear",
+            text: "Clear",
             onClick: () => searchProp.setValue(""),
         })
     ),

@@ -43,8 +43,6 @@ export default class TileIterator {
 
     private value: { coords: TileCoords, progress: number } | undefined;
 
-    // private result: IteratorResult<{ coords: CoordsXY, progress: number }>;
-
     constructor(selection: MapRange | CoordsXY[] | undefined) {
         this.iterator = tileIterator(selection);
         this.advance();
