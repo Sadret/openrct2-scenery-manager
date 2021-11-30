@@ -33,8 +33,8 @@ const library = {
     wall: {} as { [key: string]: SceneryObjectInfo },
 }
 
-function reload(): void {
-    reloadButton.setText("loading...");
+function refresh(): void {
+    refreshButton.setText("loading...");
 
     types.forEach(type => {
         library[type] = {};
@@ -69,7 +69,7 @@ function reload(): void {
                 return;
         }
     }, selectionOnlyProp.getValue() ? (ui.tileSelection.range || ui.tileSelection.tiles) : undefined, (done, progress) => {
-        reloadButton.setText(done ? "Reload" : `Loading ${Math.round(progress * 100)}%`);
+        refreshButton.setText(done ? "Refresh" : `Refreshing ${Math.round(progress * 100)}%`);
         updateItems();
     });
 }
@@ -123,8 +123,12 @@ const listView: GUI.ListView = new GUI.ListView({
     },],
 }, 384);
 
-const reloadButton = new GUI.TextButton({
-    onClick: reload,
+const refreshButton = new GUI.TextButton({
+    onClick: refresh,
+});
+const replaceButton = new GUI.TextButton({
+    text: "Replace",
+    onClick: () => console.log("replace"),
 });
 
 const selectionOnlyProp = new BooleanProperty(false);
@@ -133,11 +137,11 @@ const searchProp = new Property<string>("");
 
 filterProp.bind(updateItems);
 searchProp.bind(updateItems);
-selectionOnlyProp.bind(reload);
+selectionOnlyProp.bind(refresh);
 
 Selector.onSelect(() => {
     if (listView.getWindow() !== undefined && selectionOnlyProp.getValue())
-        reload();
+        refresh();
 });
 
 function onClick(info: SceneryObjectInfo): void {
@@ -153,8 +157,10 @@ function onClick(info: SceneryObjectInfo): void {
                     MapIO.remove([element]);
             }, selectionOnlyProp.getValue() ? (ui.tileSelection.range || ui.tileSelection.tiles) : undefined, (done, progress) => {
                 removeButton.setText(`Removing ${done ? "done" : Math.round(progress * 100)}%`);
-                if (done)
-                    console.log("update list");
+                if (done) {
+                    removeButton.getWindow() ?.close();
+                    refresh();
+                }
             });
         },
     });
@@ -206,6 +212,15 @@ function onClick(info: SceneryObjectInfo): void {
             new GUI.Space(),
             new GUI.HBox([1, 1]).add(
                 removeButton,
+                replaceButton,
+            ),
+            new GUI.HBox([3, 1]).add(
+                new GUI.Label({
+                    text: "Replace with:"
+                }),
+                new GUI.TextButton({
+                    text: "Choose...",
+                })
             ),
         ),
     ).open(listView.getWindow());
@@ -215,17 +230,7 @@ export default new GUI.Tab({
     frameBase: 5245,
     frameCount: 8,
     frameDuration: 4,
-}, undefined, undefined, 768, reload).add(
-    new GUI.HBox([1, 1, 1,]).add(
-        reloadButton,
-        new GUI.Checkbox({
-            text: "Selected area only",
-        }).bindValue(selectionOnlyProp),
-        new GUI.TextButton({
-            text: "Select area",
-            onClick: Selector.activate,
-        }),
-    ),
+}, undefined, undefined, 768, refresh).add(
     new GUI.HBox([3, 8, 1,]).add(
         new GUI.Label({
             text: "Search for name or identifier:",
@@ -271,4 +276,14 @@ export default new GUI.Tab({
         ),
     ),
     listView,
+    new GUI.HBox([1, 1, 1,]).add(
+        refreshButton,
+        new GUI.Checkbox({
+            text: "Selected area only",
+        }).bindValue(selectionOnlyProp),
+        new GUI.TextButton({
+            text: "Select area",
+            onClick: Selector.activate,
+        }),
+    ),
 );
