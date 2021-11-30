@@ -12,6 +12,8 @@ import * as Strings from "../../utils/Strings";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
+import Loading from "../widgets/Loading";
+import OverlayTab from "../widgets/OverlayTab";
 import Property from "../../config/Property";
 import Selector from "../../tools/Selector";
 
@@ -33,8 +35,18 @@ const library = {
     wall: {} as { [key: string]: SceneryObjectInfo },
 }
 
+let busy = false;
+let requested = false;
 function refresh(): void {
-    refreshButton.setText("loading...");
+    if (busy) {
+        requested = true;
+        return;
+    }
+    requested = false;
+    busy = true;
+
+    loading.setIsVisible(true);
+    refreshButton.setText("Refreshing...");
 
     types.forEach(type => {
         library[type] = {};
@@ -70,7 +82,15 @@ function refresh(): void {
         }
     }, selectionOnlyProp.getValue() ? (ui.tileSelection.range || ui.tileSelection.tiles) : undefined, (done, progress) => {
         refreshButton.setText(done ? "Refresh" : `Refreshing ${Math.round(progress * 100)}%`);
+        loading.setProgress(progress);
         updateItems();
+        if (done) {
+            loading.setIsVisible(false);
+            loading.setProgress(undefined);
+            busy = false;
+            if (requested)
+                refresh();
+        }
     });
 }
 
@@ -130,6 +150,8 @@ const replaceButton = new GUI.TextButton({
     text: "Replace",
     onClick: () => console.log("replace"),
 });
+
+const loading = new Loading();
 
 const selectionOnlyProp = new BooleanProperty(false);
 const filterProp = new Property<"all" | SceneryObjectType>("all");
@@ -226,7 +248,7 @@ function onClick(info: SceneryObjectInfo): void {
     ).open(listView.getWindow());
 }
 
-export default new GUI.Tab({
+export default new OverlayTab(loading, {
     frameBase: 5245,
     frameCount: 8,
     frameDuration: 4,
