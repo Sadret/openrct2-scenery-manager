@@ -25,10 +25,10 @@ export function getIdentifierFromObject(object: LoadedObject): string {
     return object.identifier || object.legacyIdentifier;
 }
 
-export function getIdentifier(element: { type: ObjectType, object: number }): string {
-    if (element.object === null)
-        throw new Error();
-    return getIdentifierFromObject(context.getObject(element.type, element.object));
+export function getIdentifier(element: { type: ObjectType, object: number }): string;
+export function getIdentifier(element: { type: ObjectType, object: number | null }): string | null;
+export function getIdentifier(element: { type: ObjectType, object: number | null }): string | null {
+    return element.object === null ? null : getIdentifierFromObject(context.getObject(element.type, element.object));
 }
 
 export function queryExecuteAction(action: ActionType, args: object, callback?: (result: GameActionResult) => void): void {

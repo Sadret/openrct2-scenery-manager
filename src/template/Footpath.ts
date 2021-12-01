@@ -12,14 +12,15 @@ import BaseElement from "./BaseElement";
 
 export default new class extends BaseElement<FootpathElement, FootpathData> {
     createFromTileData(element: FootpathElement, coords: CoordsXY): FootpathData {
+        const isLegacy = element.object !== 0xFFFF;
         return {
             type: "footpath",
             x: coords.x,
             y: coords.y,
             z: element.baseZ,
             surfaceIdentifier: Context.getIdentifier({
-                type: "footpath_surface",
-                object: element.surfaceObject,
+                type: isLegacy ? "footpath" : "footpath_surface",
+                object: isLegacy ? element.object : element.surfaceObject as number,
             }),
             railingsIdentifier: Context.getIdentifier({
                 type: "footpath_railings",
@@ -44,19 +45,20 @@ export default new class extends BaseElement<FootpathElement, FootpathData> {
     }
 
     getPlaceArgs(element: FootpathData): FootpathPlaceArgs {
+        const isLegacy = element.railingsIdentifier === null;
         return {
             ...element,
             object: Context.getObject({
-                type: "footpath_surface",
+                type: isLegacy ? "footpath" : "footpath_surface",
                 identifier: element.surfaceIdentifier,
             }).index,
-            railingsObject: Context.getObject({
+            railingsObject: isLegacy ? 0 : Context.getObject({
                 type: "footpath_railings",
                 identifier: element.railingsIdentifier,
             }).index,
             slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
             direction: 0xFF, // = INVALID_DIRECTION
-            constructFlags: Number(element.isQueue),
+            constructFlags: Number(element.isQueue) + (Number(isLegacy) << 1),
         };
     }
     getRemoveArgs(element: FootpathData): FootpathRemoveArgs {

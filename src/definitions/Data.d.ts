@@ -62,7 +62,7 @@ interface EntranceData extends ElementBaseData {
 interface FootpathData extends ElementBaseData {
     readonly type: "footpath";
     readonly surfaceIdentifier: string;
-    readonly railingsIdentifier: string;
+    readonly railingsIdentifier: string | null;
     readonly slopeDirection: number | null;
     readonly isQueue: boolean;
 }

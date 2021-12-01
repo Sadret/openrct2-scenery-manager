@@ -187,6 +187,6 @@ export function sort(elements: ElementData[]): void {
     elements.sort((a, b) => priority.indexOf(a.type) - priority.indexOf(b.type));
 }
 
-function eqIfDef(a?: string, b?: string) {
-    return a === undefined || b === undefined || a === b;
+function eqIfDef(a: any, b: any) {
+    return !a || !b || a === b;
 }

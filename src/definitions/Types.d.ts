@@ -14,6 +14,7 @@ type ElementType =
     "wall";
 
 type SceneryObjectType =
+    "footpath" |
     "footpath_surface" |
     "footpath_railings" |
     "footpath_addition" |

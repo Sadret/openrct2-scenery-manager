@@ -21,6 +21,7 @@ type Usage = "all" | "on_map" | "in_park";
 const usages: Usage[] = ["all", "on_map", "in_park"];
 
 const types: SceneryObjectType[] = [
+    "footpath",
     "footpath_surface",
     "footpath_railings",
     "footpath_addition",
@@ -30,6 +31,7 @@ const types: SceneryObjectType[] = [
 ];
 
 const library = {
+    footpath: {} as { [key: string]: SceneryObjectInfo },
     footpath_surface: {} as { [key: string]: SceneryObjectInfo },
     footpath_railings: {} as { [key: string]: SceneryObjectInfo },
     footpath_addition: {} as { [key: string]: SceneryObjectInfo },
@@ -40,7 +42,9 @@ const library = {
 
 let busy = false;
 let requested = false;
-function refresh(): void {
+function refresh(force = false): void {
+    if (!force && listView.getWindow() === undefined)
+        return;
     if (busy) {
         requested = true;
         return;
@@ -75,11 +79,18 @@ function refresh(): void {
                     library[element.type][element.identifier].parkCount++;
                 return;
             case "footpath":
-                library["footpath_surface"][element.surfaceIdentifier].mapCount++;
-                library["footpath_railings"][element.railingsIdentifier].mapCount++;
-                if (MapIO.hasOwnership(tile)) {
-                    library["footpath_surface"][element.surfaceIdentifier].parkCount++;
-                    library["footpath_railings"][element.railingsIdentifier].parkCount++;
+                const isLegacy = element.railingsIdentifier === null;
+                if (isLegacy) {
+                    library["footpath"][element.surfaceIdentifier].mapCount++;
+                    if (MapIO.hasOwnership(tile))
+                        library["footpath"][element.surfaceIdentifier].parkCount++;
+                } else {
+                    library["footpath_surface"][element.surfaceIdentifier].mapCount++;
+                    library["footpath_railings"][element.railingsIdentifier].mapCount++;
+                    if (MapIO.hasOwnership(tile)) {
+                        library["footpath_surface"][element.surfaceIdentifier].parkCount++;
+                        library["footpath_railings"][element.railingsIdentifier].parkCount++;
+                    }
                 }
                 return;
         }
@@ -172,7 +183,7 @@ usageProp.bind(updateItems);
 selectionOnlyProp.bind(refresh);
 
 Selector.onSelect(() => {
-    if (listView.getWindow() !== undefined && selectionOnlyProp.getValue())
+    if (selectionOnlyProp.getValue())
         refresh();
 });
 
@@ -262,7 +273,7 @@ export default new OverlayTab(loading, {
     frameBase: 5245,
     frameCount: 8,
     frameDuration: 4,
-}, undefined, undefined, 768, refresh).add(
+}, undefined, undefined, 768, () => refresh(true)).add(
     new GUI.GroupBox({
         text: "Filter",
     }).add(
