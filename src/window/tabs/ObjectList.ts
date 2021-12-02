@@ -15,6 +15,7 @@ import GUI from "../../gui/GUI";
 import Loading from "../widgets/Loading";
 import OverlayTab from "../widgets/OverlayTab";
 import Property from "../../config/Property";
+import ReplaceWindow from "../ReplaceWindow";
 import Selector from "../../tools/Selector";
 
 type Usage = "all" | "on_map" | "in_park";
@@ -135,7 +136,7 @@ function updateItems(): void {
         info.identifier,
         String(info.mapCount),
         String(info.parkCount),
-    ], onClick);
+    ], info => new ReplaceWindow().open(listView.getWindow()));
 }
 
 const listView: GUI.ListView = new GUI.ListView({
@@ -165,10 +166,6 @@ const listView: GUI.ListView = new GUI.ListView({
 const refreshButton = new GUI.TextButton({
     onClick: refresh,
 });
-const replaceButton = new GUI.TextButton({
-    text: "Replace",
-    onClick: () => console.log("replace"),
-});
 
 const loading = new Loading();
 
@@ -186,88 +183,6 @@ Selector.onSelect(() => {
     if (selectionOnlyProp.getValue())
         refresh();
 });
-
-function onClick(info: SceneryObjectInfo): void {
-    const removeButton = new GUI.TextButton({
-        text: `Remove [Desc]`,
-        isDisabled: info.parkCount === 0,
-        onClick: () => {
-            MapIO.forEachElement(element => {
-                if (MapIO.filter(element, {
-                    type: info.type,
-                    identifier: info.identifier,
-                }))
-                    MapIO.remove([element]);
-            }, selectionOnlyProp.getValue() ? (ui.tileSelection.range || ui.tileSelection.tiles) : undefined, (done, progress) => {
-                removeButton.setText(`Removing ${done ? "done" : Math.round(progress * 100)}%`);
-                if (done) {
-                    removeButton.getWindow() ?.close();
-                    refresh();
-                }
-            });
-        },
-    });
-    new GUI.WindowManager(
-        {
-            width: 384,
-            height: 0,
-            classification: "scenery-manager.objectInfo",
-            title: `${info.name} (${Strings.toDisplayString(info.type)})`,
-            colours: [1, 1, 0,], // shades of gray
-        },
-        new GUI.Window().add(
-            new GUI.HBox([1, 3]).add(
-                new GUI.VBox().add(
-                    new GUI.Label({
-                        text: "Type:",
-                    }),
-                    new GUI.Label({
-                        text: "Name:",
-                    }),
-                    new GUI.Label({
-                        text: "Identifier:",
-                    }),
-                    new GUI.Label({
-                        text: "On Map:",
-                    }),
-                    new GUI.Label({
-                        text: "In Park:",
-                    }),
-                ),
-                new GUI.VBox().add(
-                    new GUI.Label({
-                        text: Strings.toDisplayString(info.type),
-                    }),
-                    new GUI.Label({
-                        text: info.name,
-                    }),
-                    new GUI.Label({
-                        text: info.identifier,
-                    }),
-                    new GUI.Label({
-                        text: String(info.mapCount),
-                    }),
-                    new GUI.Label({
-                        text: String(info.parkCount),
-                    }),
-                ),
-            ),
-            new GUI.Space(),
-            new GUI.HBox([1, 1]).add(
-                removeButton,
-                replaceButton,
-            ),
-            new GUI.HBox([3, 1]).add(
-                new GUI.Label({
-                    text: "Replace with:"
-                }),
-                new GUI.TextButton({
-                    text: "Choose...",
-                })
-            ),
-        ),
-    ).open(listView.getWindow());
-}
 
 export default new OverlayTab(loading, {
     frameBase: 5245,

@@ -21,3 +21,9 @@ type SceneryObjectType =
     "small_scenery" |
     "large_scenery" |
     "wall";
+
+type SceneryFilterType =
+    "footpath" |
+    "small_scenery" |
+    "large_scenery" |
+    "wall";

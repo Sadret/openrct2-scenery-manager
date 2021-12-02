@@ -33,7 +33,10 @@ export default class extends GUI.Tab {
 
     public build(width: number, position: CoordsXY = { x: 0, y: 0 }): BuildDescriptor {
         const desc = super.build(width, position);
-        desc.widgets.push(...this.overlay.buildOverlay(width, desc.height, position).widgets);
+        desc.widgets.push(...this.overlay.buildOverlay(width, desc.height - this.margin.top, {
+            x: position.x,
+            y: position.x + this.margin.top,
+        }).widgets);
         return desc;
     }
 }

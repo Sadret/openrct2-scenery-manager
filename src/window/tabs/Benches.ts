@@ -57,10 +57,10 @@ function updateEntry(entry: Property<LoadedObject | undefined>, clear: boolean):
         return entry.setValue(undefined);
 
     new class extends Picker {
-        protected accept(element: BaseTileElement): boolean {
+        protected accept(element: TileElement): boolean {
             if (element.type !== "footpath")
                 return (ui.showError("Cannot use this element...", "Element must be a footpath addition."), false);
-            const footpath: FootpathElement = <FootpathElement>element;
+            const footpath = element;
             if (footpath.addition === null)
                 return (ui.showError("Cannot use this element...", "Footpath has no addition."), false);
             entry.setValue(context.getObject("footpath_addition", footpath.addition));
