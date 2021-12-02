@@ -8,6 +8,7 @@
 import * as Clipboard from "./core/Clipboard";
 
 import MainWindow from "./window/MainWindow";
+import ReplaceWindow from "./window/ReplaceWindow";
 import Selector from "./tools/Selector";
 
 export function register() {
@@ -172,4 +173,10 @@ export function register() {
         callback: () => MainWindow.open(),
     });
 
+    ui.registerShortcut({
+        id: "scenery-manager.openReplaceWindow",
+        text: "[SM] Open 'Object Replace' window",
+        bindings: ["CTRL+R", "GUI+R"],
+        callback: () => new ReplaceWindow().open(),
+    });
 }
