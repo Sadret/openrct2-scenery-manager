@@ -8,7 +8,7 @@
 import * as Clipboard from "./core/Clipboard";
 
 import MainWindow from "./window/MainWindow";
-import ReplaceWindow from "./window/ReplaceWindow";
+import Replace from "./window/tabs/Replace";
 import Selector from "./tools/Selector";
 
 export function register() {
@@ -177,6 +177,9 @@ export function register() {
         id: "scenery-manager.openReplaceWindow",
         text: "[SM] Open 'Object Replace' window",
         bindings: ["CTRL+R", "GUI+R"],
-        callback: () => new ReplaceWindow().open(),
+        callback: () => {
+            MainWindow.open();
+            MainWindow.setActiveTab(Replace);
+        },
     });
 }

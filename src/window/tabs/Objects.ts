@@ -6,19 +6,23 @@
  *****************************************************************************/
 
 import * as ObjectIndex from "../../core/ObjectIndex";
+import * as Replace from "../tabs/Replace";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
 import Loading from "../widgets/Loading";
+import MainWindow from "../MainWindow";
 import ObjectList from "../widgets/ObjectList";
 import OverlayTab from "../widgets/OverlayTab";
-import ReplaceWindow from "../ReplaceWindow";
 import Selector from "../../tools/Selector";
 
 const objectList: ObjectList = new ObjectList(
     ObjectIndex.getSceneryObjectIndex(() => { }, []),
     true,
-    info => new ReplaceWindow(info).open(objectList.getWindow()),
+    info => {
+        Replace.setElement(info);
+        MainWindow.setActiveTab(Replace.default);
+    },
 );
 
 let busy = false;

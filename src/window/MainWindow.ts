@@ -11,6 +11,7 @@ import Configuration from "./tabs/Configuration";
 import CopyPaste from "./tabs/CopyPaste";
 import GUI from "../gui/GUI";
 import Objects from "./tabs/Objects";
+import Replace from "./tabs/Replace";
 import Research from "./tabs/Research";
 import Scatter from "./tabs/Scatter";
 import TemplateLibrary from "./tabs/TemplateLibrary";
@@ -28,6 +29,7 @@ export default new GUI.WindowManager(
         Scatter,
         Benches,
         Objects,
+        Replace,
         Configuration,
         Research,
         About,
