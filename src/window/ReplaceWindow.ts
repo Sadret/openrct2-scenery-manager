@@ -9,11 +9,26 @@ import GUI from "../gui/GUI";
 import SceneryFilterGroup from "./widgets/SceneryFilterGroup";
 
 export default class extends GUI.WindowManager {
-    constructor() {
+    constructor(info?: SceneryObjectInfo) {
         const find = new SceneryFilterGroup("Find");
         const replace = new SceneryFilterGroup("Replace with", true);
 
         find.type.bind(type => replace.type.setValue(type));
+
+        if (info !== undefined) {
+            switch (info.type) {
+                case "footpath":
+                case "footpath_surface":
+                case "footpath_railings":
+                case "footpath_addition":
+                    ui.showError("Not implemented yet...", "(Footpath)");
+                    break;
+                default:
+                    find.type.setValue(info.type);
+                    find.object.setValue(info.identifier);
+                    break;
+            }
+        }
 
         super(
             {

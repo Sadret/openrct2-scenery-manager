@@ -1,6 +1,16 @@
-type Action = "error" | "warning" | "ignore";
-type BrushShape = "square" | "circle";
-type BuildMode = "down" | "move" | "up";
+type Action =
+    "error" |
+    "warning" |
+    "ignore";
+
+type BrushShape =
+    "square" |
+    "circle";
+
+type BuildMode =
+    "down" |
+    "move" |
+    "up";
 
 // no surface or corrupt, but footpath_addition
 type ElementType =
@@ -11,15 +21,6 @@ type ElementType =
     "large_scenery" |
     "small_scenery" |
     "track" |
-    "wall";
-
-type SceneryObjectType =
-    "footpath" |
-    "footpath_surface" |
-    "footpath_railings" |
-    "footpath_addition" |
-    "small_scenery" |
-    "large_scenery" |
     "wall";
 
 type SceneryFilterType =

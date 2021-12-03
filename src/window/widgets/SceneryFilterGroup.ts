@@ -9,6 +9,7 @@ import * as Context from "../../core/Context";
 import * as Strings from "../../utils/Strings";
 
 import GUI from "../../gui/GUI";
+import ObjectChooser from "../ObjectChooser";
 import Picker from "../../tools/Picker";
 import Property from "../../config/Property";
 
@@ -20,11 +21,11 @@ const filterTypes: SceneryFilterType[] = [
 ];
 
 export default class extends GUI.GroupBox {
-    readonly type = new Property<SceneryFilterType>("small_scenery");
-    private readonly object = new Property<string | undefined>(undefined);
-    private readonly primaryColour = new Property<number | undefined>(undefined);
-    private readonly secondaryColour = new Property<number | undefined>(undefined);
-    private readonly tertiaryColour = new Property<number | undefined>(undefined);
+    public readonly type = new Property<SceneryFilterType>("small_scenery");
+    public readonly object = new Property<string | undefined>(undefined);
+    public readonly primaryColour = new Property<number | undefined>(undefined);
+    public readonly secondaryColour = new Property<number | undefined>(undefined);
+    public readonly tertiaryColour = new Property<number | undefined>(undefined);
 
     constructor(title: string, forceType: boolean = false) {
         super({
@@ -153,6 +154,27 @@ export default class extends GUI.GroupBox {
                         }),
                         new GUI.TextButton({
                             text: "Select from List",
+                            onClick: () => new ObjectChooser(
+                                this.type.getValue(),
+                                info => {
+                                    if (forceType && info.type !== this.type.getValue()) {
+                                        ui.showError("Cannot use this object...", "Object's type must match type to replace.");
+                                        return false;
+                                    }
+                                    switch (info.type) {
+                                        case "footpath":
+                                        case "footpath_surface":
+                                        case "footpath_railings":
+                                        case "footpath_addition":
+                                            ui.showError("Not implemented yet...", "(Footpath)");
+                                            return false;
+                                        default:
+                                            this.type.setValue(info.type);
+                                            this.object.setValue(info.identifier);
+                                            return true;
+                                    }
+                                }
+                            ).open(true),
                         }),
                     ),
                     new GUI.TextButton({

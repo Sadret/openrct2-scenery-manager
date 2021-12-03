@@ -128,18 +128,29 @@ type ScatterPattern = ScatterData[];
  * SCENERY OBJECTS
  */
 
+type SceneryObjectType =
+    "footpath" |
+    "footpath_surface" |
+    "footpath_railings" |
+    "footpath_addition" |
+    "small_scenery" |
+    "large_scenery" |
+    "wall";
+
 interface SceneryObjectInfo {
     type: SceneryObjectType;
     name: string;
     identifier: string;
-    mapCount: number;
-    parkCount: number;
+    onMap: number,
+    inPark: number,
 };
 
-interface SceneryObjectFilter {
-    type?: SceneryObjectType;
-    identifier?: string;
-    primaryColour?: number;
-    secondaryColour?: number;
-    tertiaryColour?: number;
+interface SceneryObjectIndex {
+    footpath: { [key: string]: SceneryObjectInfo },
+    footpath_surface: { [key: string]: SceneryObjectInfo },
+    footpath_railings: { [key: string]: SceneryObjectInfo },
+    footpath_addition: { [key: string]: SceneryObjectInfo },
+    small_scenery: { [key: string]: SceneryObjectInfo },
+    large_scenery: { [key: string]: SceneryObjectInfo },
+    wall: { [key: string]: SceneryObjectInfo },
 }
