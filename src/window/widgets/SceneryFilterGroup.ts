@@ -346,7 +346,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                             n => n !== undefined,
                         ).bindIsVisible(
                             this.type,
-                            type => type !== "footpath",
+                            type => type === "wall",
                         ),
                         new GUI.ColourPicker({
                         }).bindValue(
@@ -356,13 +356,13 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                             n => n === undefined,
                         ).bindIsVisible(
                             this.type,
-                            type => type !== "footpath",
+                            type => type === "wall",
                         ),
                         new GUI.TextButton({
                             text: "Advanced",
                         }).bindIsVisible(
                             this.type,
-                            type => type !== "footpath",
+                            type => type === "wall",
                         ),
                     ),
                 ),

@@ -88,6 +88,9 @@ function findAndDelete(replace: boolean): void {
                                 identifier: replaceValue(element.identifier, replaceGroup.identifier),
                                 primaryColour: replaceValue(element.primaryColour, replaceGroup.primaryColour),
                                 secondaryColour: replaceValue(element.secondaryColour, replaceGroup.secondaryColour),
+                                ...element.type === "wall" ? {
+                                    tertiaryColour: replaceValue(element.tertiaryColour, replaceGroup.tertiaryColour),
+                                } : {},
                             }]);
                     }) : undefined;
                     return MapIO.removeElement(element, false, callback);
