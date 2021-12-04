@@ -18,7 +18,7 @@ import SmallScenery from "./SmallScenery";
 import Track from "./Track";
 import Wall from "./Wall";
 
-const map: { [key in ElementType]: BaseElement<BaseTileElement, ElementData> } = {
+const map: { [key in ElementType]: BaseElement<TileElement, ElementData> } = {
     banner: Banner,
     entrance: Entrance,
     footpath: Footpath,

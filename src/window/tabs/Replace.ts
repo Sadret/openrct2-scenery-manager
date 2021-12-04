@@ -21,9 +21,16 @@ export function setElement(info: SceneryObjectInfo): void {
     switch (info.type) {
         case "footpath":
         case "footpath_surface":
+            findGroup.type.setValue("footpath");
+            findGroup.identifier.setValue(info.identifier);
+            break;
         case "footpath_railings":
+            findGroup.type.setValue("footpath");
+            findGroup.railings.setValue(info.identifier);
+            break;
         case "footpath_addition":
-            ui.showError("Not implemented yet...", "(Footpath)");
+            findGroup.type.setValue("footpath");
+            findGroup.addition.setValue(info.identifier);
             break;
         default:
             findGroup.type.setValue(info.type);
@@ -43,12 +50,26 @@ function replaceValue<T>(value: T, property: Property<T | undefined>): T {
     return propValue === undefined ? value : propValue;
 }
 
-function findAndDelete(replace: boolean) {
+function findAndDelete(replace: boolean): void {
     MapIO.forEachElement(
         element => {
             if (element.type !== findGroup.type.getValue())
                 return;
             switch (element.type) {
+                case "footpath":
+                    if (!eqIfDef(element.surfaceIdentifier, findGroup.identifier.getValue()))
+                        return;
+                    if (!eqIfDef(element.railingsIdentifier, findGroup.railings.getValue()))
+                        return;
+                    const callbackFp = replace ? ((removed: boolean) => {
+                        if (removed)
+                            MapIO.place([{
+                                ...element,
+                                surfaceIdentifier: replaceValue(element.surfaceIdentifier, replaceGroup.identifier),
+                                railingsIdentifier: replaceValue(element.railingsIdentifier, replaceGroup.railings),
+                            }]);
+                    }) : undefined;
+                    return MapIO.removeElement(element, false, callbackFp);
                 case "wall":
                     if (!eqIfDef(element.tertiaryColour, findGroup.tertiaryColour.getValue()))
                         return;
@@ -70,8 +91,6 @@ function findAndDelete(replace: boolean) {
                             }]);
                     }) : undefined;
                     return MapIO.removeElement(element, false, callback);
-                case "footpath":
-                    return ui.showError("TODO", "footpath");
             }
         },
         selectionOnlyProp.getValue() ? (ui.tileSelection.range || ui.tileSelection.tiles) : undefined,
