@@ -22,7 +22,7 @@ const filterTypes: SceneryFilterType[] = [
 
 export default class extends GUI.GroupBox {
     public readonly type = new Property<SceneryFilterType>("small_scenery");
-    public readonly object = new Property<string | undefined>(undefined);
+    public readonly identifier = new Property<string | undefined>(undefined);
     public readonly primaryColour = new Property<number | undefined>(undefined);
     public readonly secondaryColour = new Property<number | undefined>(undefined);
     public readonly tertiaryColour = new Property<number | undefined>(undefined);
@@ -32,7 +32,7 @@ export default class extends GUI.GroupBox {
             text: title,
         });
 
-        this.type.bind(_ => this.object.setValue(undefined));
+        this.type.bind(_ => this.identifier.setValue(undefined));
 
         this.add(
             new GUI.HBox([1, 1, 1]).add(
@@ -51,7 +51,7 @@ export default class extends GUI.GroupBox {
                     new GUI.Checkbox({
                         text: "Object:",
                     }).bindValue(
-                        this.object,
+                        this.identifier,
                         isChecked => isChecked ? "" : undefined,
                         s => s !== undefined,
                     ),
@@ -90,29 +90,26 @@ export default class extends GUI.GroupBox {
                         ),
                     new GUI.Label({
                     }).bindText(
-                        this.object,
+                        this.identifier,
                         s => s === undefined ? "" : s,
                     ),
                     new GUI.ColourPicker({
-                    }).bindColour(
+                    }).bindValue(
                         this.primaryColour,
-                        n => n || 0,
                     ).bindIsDisabled(
                         this.primaryColour,
                         n => n === undefined,
                     ),
                     new GUI.ColourPicker({
-                    }).bindColour(
+                    }).bindValue(
                         this.secondaryColour,
-                        n => n || 0,
                     ).bindIsDisabled(
                         this.secondaryColour,
                         n => n === undefined,
                     ),
                     new GUI.ColourPicker({
-                    }).bindColour(
+                    }).bindValue(
                         this.tertiaryColour,
-                        n => n || 0,
                     ).bindIsDisabled(
                         this.tertiaryColour,
                         n => n === undefined,
@@ -140,7 +137,7 @@ export default class extends GUI.GroupBox {
                                             case "large_scenery":
                                             case "wall":
                                                 thiz.type.setValue(element.type);
-                                                thiz.object.setValue(Context.getIdentifier(element));
+                                                thiz.identifier.setValue(Context.getIdentifier(element));
                                                 return true;
                                             default:
                                                 ui.showError("Cannot use this element...", "Element must be footpath, small scenery, large scenery or wall.");
@@ -170,7 +167,7 @@ export default class extends GUI.GroupBox {
                                             return false;
                                         default:
                                             this.type.setValue(info.type);
-                                            this.object.setValue(info.identifier);
+                                            this.identifier.setValue(info.identifier);
                                             return true;
                                     }
                                 }
