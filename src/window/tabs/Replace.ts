@@ -9,12 +9,13 @@ import * as MapIO from "../../core/MapIO";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
+import Property from "../../config/Property";
 import SceneryFilterGroup from "../widgets/SceneryFilterGroup";
 import Selector from "../../tools/Selector";
 
-const find = new SceneryFilterGroup("Find");
-const replace = new SceneryFilterGroup("Replace with", true);
-find.type.bind(type => replace.type.setValue(type));
+const findGroup = new SceneryFilterGroup("Find");
+const replaceGroup = new SceneryFilterGroup("Replace with", true);
+findGroup.type.bind(type => replaceGroup.type.setValue(type));
 
 export function setElement(info: SceneryObjectInfo): void {
     switch (info.type) {
@@ -25,8 +26,8 @@ export function setElement(info: SceneryObjectInfo): void {
             ui.showError("Not implemented yet...", "(Footpath)");
             break;
         default:
-            find.type.setValue(info.type);
-            find.identifier.setValue(info.identifier);
+            findGroup.type.setValue(info.type);
+            findGroup.identifier.setValue(info.identifier);
             break;
     }
 }
@@ -37,24 +38,38 @@ function eqIfDef<T>(a: T | undefined, b: T | undefined) {
     return a === undefined || b === undefined || a === b;
 }
 
-function findAndDelete() {
+function replaceValue<T>(value: T, property: Property<T | undefined>): T {
+    const propValue = property.getValue();
+    return propValue === undefined ? value : propValue;
+}
+
+function findAndDelete(replace: boolean) {
     MapIO.forEachElement(
         element => {
-            if (element.type !== find.type.getValue())
+            if (element.type !== findGroup.type.getValue())
                 return;
             switch (element.type) {
                 case "wall":
-                    if (!eqIfDef(element.tertiaryColour, find.tertiaryColour.getValue()))
+                    if (!eqIfDef(element.tertiaryColour, findGroup.tertiaryColour.getValue()))
                         return;
                 case "small_scenery":
                 case "large_scenery":
-                    if (!eqIfDef(element.identifier, find.identifier.getValue()))
+                    if (!eqIfDef(element.identifier, findGroup.identifier.getValue()))
                         return;
-                    if (!eqIfDef(element.primaryColour, find.primaryColour.getValue()))
+                    if (!eqIfDef(element.primaryColour, findGroup.primaryColour.getValue()))
                         return;
-                    if (!eqIfDef(element.secondaryColour, find.secondaryColour.getValue()))
+                    if (!eqIfDef(element.secondaryColour, findGroup.secondaryColour.getValue()))
                         return;
-                    return MapIO.remove([element]);
+                    const callback = replace ? ((removed: boolean) => {
+                        if (removed)
+                            MapIO.place([{
+                                ...element,
+                                identifier: replaceValue(element.identifier, replaceGroup.identifier),
+                                primaryColour: replaceValue(element.primaryColour, replaceGroup.primaryColour),
+                                secondaryColour: replaceValue(element.secondaryColour, replaceGroup.secondaryColour),
+                            }]);
+                    }) : undefined;
+                    return MapIO.removeElement(element, false, callback);
                 case "footpath":
                     return ui.showError("TODO", "footpath");
             }
@@ -68,7 +83,7 @@ export default new GUI.Tab({
     frameCount: 16,
     frameDuration: 4,
 }, undefined, undefined, 384).add(
-    find,
+    findGroup,
     new GUI.HBox(
         [1, 1, 1],
         undefined,
@@ -82,10 +97,10 @@ export default new GUI.Tab({
         new GUI.Space(),
         new GUI.TextButton({
             text: "Find and Delete",
-            onClick: findAndDelete,
+            onClick: () => findAndDelete(false),
         }),
     ),
-    replace,
+    replaceGroup,
     new GUI.HBox(
         [1, 1, 1],
         undefined,
@@ -99,6 +114,7 @@ export default new GUI.Tab({
         new GUI.Space(),
         new GUI.TextButton({
             text: "Find and Replace",
+            onClick: () => findAndDelete(true),
         }),
     ),
     new GUI.HBox(

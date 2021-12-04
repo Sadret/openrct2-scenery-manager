@@ -39,15 +39,21 @@ export function place(elements: ElementData[], ghost: boolean = false): ElementD
     return result;
 }
 
-export function remove(elements: ElementData[], ghost: boolean = false) {
-    elements.forEach(element => {
-        const action = Template.getRemoveAction(element);
-        const args = {
-            ...Template.getRemoveArgs(element),
-            flags: ghost ? 72 : 0,
-        };
-        Context.queryExecuteAction(action, args);
-    });
+export function remove(elements: ElementData[], ghost: boolean = false): void {
+    elements.forEach(element => removeElement(element, ghost));
+}
+
+export function removeElement(
+    element: ElementData,
+    ghost: boolean = false,
+    callback?: (removed: boolean) => void,
+): void {
+    const action = Template.getRemoveAction(element);
+    const args = {
+        ...Template.getRemoveArgs(element),
+        flags: ghost ? 72 : 0,
+    };
+    Context.queryExecuteAction(action, args, callback && (executeResult => callback(executeResult.error === 0)));
 }
 
 /*
