@@ -7,7 +7,7 @@
 
 import FileView from "./FileView";
 
-export default class extends FileView {
+export default class extends FileView<ScatterPattern> {
     constructor(height?: number) {
         super(
             [{
@@ -21,8 +21,8 @@ export default class extends FileView {
         );
     }
 
-    getItem(file: IFile): ListViewItem {
-        const data = file.getContent<ScatterPattern | undefined>();
+    getItem(file: IFile<ScatterPattern>): ListViewItem {
+        const data = file.getContent();
         const density = data && data.reduce<number>((sum, entry) => sum + entry.weight, 0);
         return [file.getName(), density === undefined ? "" : (String(density) + "%")];
     }

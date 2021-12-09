@@ -5,46 +5,46 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-interface IFile {
+interface IFile<T> {
     getPath(): string;
     getName(): string;
-    getParent(): File | undefined;
+    getParent(): IFile<T> | undefined;
 
     exists(): boolean;
     isFolder(): boolean;
     isFile(): boolean;
 
-    getFiles(): File[];
-    getContent<T>(): T;
+    getFiles(): IFile<T>[];
+    getContent(): T;
 
-    addFolder(name: string): File | undefined;
-    addFile<T>(name: string, content: T): File | undefined;
+    addFolder(name: string): IFile<T> | undefined;
+    addFile(name: string, content: T): IFile<T> | undefined;
 
-    rename(name: string): File | undefined;
-    copy(parent: File, name?: string): File | undefined;
-    move(parent: File, name?: string): File | undefined;
-    setContent<T>(content: T): boolean;
+    rename(name: string): IFile<T> | undefined;
+    copy(parent: IFile<T>, name?: string): IFile<T> | undefined;
+    move(parent: IFile<T>, name?: string): IFile<T> | undefined;
+    setContent(content: T): boolean;
 
     delete(): boolean;
 }
 
-interface IFileSystem {
-    getRoot(): IFile;
-    addObserver(observer: Observer<IFile>): void;
+interface IFileSystem<T> {
+    getRoot(): IFile<T>;
+    addObserver(observer: Observer<IFile<T>>): void;
 
-    exists(file: IFile): boolean;
-    isFolder(file: IFile): boolean;
-    isFile(file: IFile): boolean;
+    exists(file: IFile<T>): boolean;
+    isFolder(file: IFile<T>): boolean;
+    isFile(file: IFile<T>): boolean;
 
-    getFiles(file: IFile): File[];
-    getContent<T>(file: IFile): T;
+    getFiles(file: IFile<T>): IFile<T>[];
+    getContent(file: IFile<T>): T;
 
-    createFolder(file: IFile): boolean;
-    createFile<T>(file: IFile, content: T): boolean;
+    createFolder(file: IFile<T>): boolean;
+    createFile(file: IFile<T>, content: T): boolean;
 
-    copy(src: IFile, dest: IFile): boolean;
-    move(src: IFile, dest: IFile): boolean;
-    setContent<T>(file: IFile, content: T): boolean;
+    copy(src: IFile<T>, dest: IFile<T>): boolean;
+    move(src: IFile<T>, dest: IFile<T>): boolean;
+    setContent(file: IFile<T>, content: T): boolean;
 
-    delete(file: IFile): boolean;
+    delete(file: IFile<T>): boolean;
 }

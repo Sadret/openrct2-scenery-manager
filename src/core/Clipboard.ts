@@ -7,14 +7,12 @@
 
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
-import * as StartUp from "../StartUp";
 import * as Storage from "../persistence/Storage";
 
 import BooleanProperty from "../config/BooleanProperty";
 import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
 import Dialog from "../utils/Dialog";
-import FileExplorer from "../window/widgets/FileExplorer";
 import NumberProperty from "../config/NumberProperty";
 import Selector from "../tools/Selector";
 import Template from "../template/Template";
@@ -93,48 +91,6 @@ settings.rotation.bind(() => builder.rebuild());
 settings.mirrored.bind(() => builder.rebuild());
 Object.keys(settings.filter).forEach(key => settings.filter[key].bind(() => builder.rebuild()));
 
-const saveDialog = new Dialog(
-    "Save template",
-    new class extends FileExplorer {
-        onFileCreation(file: IFile): void {
-            save(file);
-        }
-    }(
-        new class extends TemplateView {
-            constructor() {
-                super();
-                StartUp.addTask(() => this.watch(Storage.libraries.templates));
-            }
-
-            openFile(file: IFile): void {
-                save(file);
-            }
-        }(),
-        true,
-    ),
-    undefined,
-    false,
-);
-
-const loadDialog = new Dialog(
-    "Load template",
-    new FileExplorer(
-        new class extends TemplateView {
-            constructor() {
-                super();
-                StartUp.addTask(() => this.watch(Storage.libraries.templates));
-            }
-
-            openFile(file: IFile): void {
-                load(file);
-            }
-        }(),
-    ),
-    undefined,
-    false,
-);
-
-
 const templates: Template[] = [];
 let cursor: number | undefined = undefined;
 
@@ -171,37 +127,43 @@ export function next(): void {
     }
 }
 
-export function save(file?: IFile): void {
+export function save(): void {
     const data = getTemplate();
     if (data === undefined)
         return ui.showError("Can't save template...", "Nothing copied!");
 
-    if (file === undefined)
-        return saveDialog.open();
-    saveDialog.close();
-
-    file.setContent<TemplateData>(data);
+    Dialog.showSave({
+        title: "Save template",
+        fileSystem: Storage.libraries.templates,
+        fileView: new TemplateView(),
+        fileContent: data,
+    });
 }
 
-export function load(file?: IFile): void {
-    if (file === undefined)
-        return loadDialog.open();
-    loadDialog.close();
+export function load(data?: TemplateData): void {
+    if (data === undefined)
+        Dialog.showLoad({
+            title: "Load template",
+            fileSystem: Storage.libraries.templates,
+            fileView: new TemplateView(),
+            onLoad: load,
+        });
+    else {
+        const template = new Template(data);
+        const available = template.filter(Template.isAvailable);
 
-    const template = new Template(file.getContent<TemplateData>());
-    const available = template.filter(Template.isAvailable);
-
-    if (available.elements.length !== template.elements.length) {
-        const action = Configuration.copyPaste.onMissingElement.getValue();
-        switch (action) {
-            case "error":
-                return ui.showError("Can't load template...", "Template includes scenery which is unavailable.");
-            case "warning":
-                ui.showError("Can't load entire template...", "Template includes scenery which is unavailable.");
+        if (available.elements.length !== template.elements.length) {
+            const action = Configuration.copyPaste.onMissingElement.getValue();
+            switch (action) {
+                case "error":
+                    return ui.showError("Can't load template...", "Template includes scenery which is unavailable.");
+                case "warning":
+                    ui.showError("Can't load entire template...", "Template includes scenery which is unavailable.");
+            }
         }
-    }
 
-    addTemplate(available);
+        addTemplate(available);
+    }
 }
 
 export function copy(cut: boolean = false): void {

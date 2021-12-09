@@ -9,9 +9,9 @@ import Dialog from "../../utils/Dialog";
 import FileView from "./FileView";
 import GUI from "../../gui/GUI";
 
-export default class extends GUI.VBox {
+export default class FileExplorer<T> extends GUI.VBox {
     constructor(
-        fileView: FileView,
+        fileView: FileView<T>,
         allowFileCreation: boolean = false,
     ) {
         super();
@@ -35,16 +35,21 @@ export default class extends GUI.VBox {
                 new GUI.TextButton({
                     text: "New file",
                     isDisabled: !allowFileCreation,
-                    onClick: () => ui.showTextInput({
-                        title: "New file",
-                        description: "Enter a name for the new file:",
-                        callback: name => {
-                            const file = fileView.getFolder() ?.addFile(name, undefined);
-                            if (file === undefined)
-                                return ui.showError("Cannot create new file...", "File or folder with this name already exists!");
-                            this.onFileCreation(file);
-                        },
-                    }),
+                    onClick: () => {
+                        const content = this.createFile();
+                        if (content === undefined)
+                            return ui.showError("Cannot create new file...", "No file content available!");
+                        ui.showTextInput({
+                            title: "New file",
+                            description: "Enter a name for the new file:",
+                            callback: name => {
+                                const file = fileView.getFolder() ?.addFile(name, content);
+                                if (file === undefined)
+                                    return ui.showError("Cannot create new file...", "File or folder with this name already exists!");
+                                this.onFileCreation(file);
+                            },
+                        });
+                    },
                 }),
                 new GUI.TextButton({
                     text: "Rename",
@@ -72,20 +77,21 @@ export default class extends GUI.VBox {
                         if (file === undefined)
                             return ui.showError("Cannot delete file or folder...", "No file or folder selected!");
                         const type = file.isFile() ? "file" : "folder";
-                        Dialog.showConfirm(
-                            `Delete ${type}`,
-                            [`Do you really want to delete this ${type}?`,],
-                            confirmed => {
+                        Dialog.showConfirm({
+                            title: `Delete ${type}`,
+                            message: [`Do you really want to delete this ${type}?`,],
+                            callback: confirmed => {
                                 if (confirmed)
                                     file.delete();
                             },
-                            256,
-                        );
+                            width: 256,
+                        });
                     },
                 }),
             ),
         );
     }
 
-    protected onFileCreation(_file: IFile): void { }
+    public createFile(): T | undefined { return undefined; };
+    public onFileCreation(_file: IFile<T>): void { };
 };

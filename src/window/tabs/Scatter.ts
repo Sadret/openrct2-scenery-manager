@@ -9,14 +9,12 @@ import * as Arrays from "../../utils/Arrays";
 import * as Coordinates from "../../utils/Coordinates";
 import * as Context from "../../core/Context";
 import * as MapIO from "../../core/MapIO";
-import * as StartUp from "../../StartUp";
 import * as Storage from "../../persistence/Storage";
 
 import Brush from "../../tools/Brush";
 import BrushBox from "../widgets/BrushBox";
 import Configuration from "../../config/Configuration";
 import Dialog from "../../utils/Dialog";
-import FileExplorer from "../widgets/FileExplorer";
 import GUI from "../../gui/GUI";
 import LargeScenery from "../../template/LargeScenery";
 import NumberProperty from "../../config/NumberProperty";
@@ -47,49 +45,6 @@ function updateEmpty() {
         )
     );
 }
-
-const saveDialog = new Dialog(
-    "Save pattern",
-    new class extends FileExplorer {
-        onFileCreation(file: IFile): void {
-            file.setContent<ScatterPattern>(savePattern());
-            this.getWindow() ?.close();
-        }
-    }(
-        new class extends ScatterPatternView {
-            constructor() {
-                super();
-                StartUp.addTask(() => this.watch(Storage.libraries.scatterPattern));
-            }
-
-            openFile(file: IFile): void {
-                file.setContent<ScatterPattern>(savePattern());
-                this.getWindow() ?.close();
-            }
-        }(),
-        true,
-    ),
-    undefined,
-    false,
-);
-const loadDialog = new Dialog(
-    "Load template",
-    new FileExplorer(
-        new class extends ScatterPatternView {
-            constructor() {
-                super();
-                StartUp.addTask(() => this.watch(Storage.libraries.scatterPattern));
-            }
-
-            openFile(file: IFile): void {
-                loadPattern(file.getContent<ScatterPattern>());
-                this.getWindow() ?.close();
-            }
-        }(),
-    ),
-    undefined,
-    false,
-);
 
 function getLabel(element?: ObjectData): string {
     return element === undefined ? "(empty)" : (Context.getObject(element).name + " (" + element.identifier + ")");
@@ -155,30 +110,44 @@ function updateEntryElement(entry: Entry): void {
     ).activate();
 }
 
-function savePattern(): ScatterPattern {
-    return entries.map(
+function save(): void {
+    const data = entries.map(
         entry => entry.getValue()
     ).filter<ScatterData>(
         (data: ScatterData | undefined): data is ScatterData => data !== undefined
     );
+
+    Dialog.showSave({
+        title: "Save pattern",
+        fileSystem: Storage.libraries.scatterPattern,
+        fileView: new ScatterPatternView(),
+        fileContent: data,
+    });
 }
 
-function loadPattern(pattern: ScatterPattern): void {
-    const available = pattern.filter(
-        data => Template.isAvailable(data.element)
-    );
+function load(): void {
+    Dialog.showLoad({
+        title: "Load pattern",
+        fileSystem: Storage.libraries.scatterPattern,
+        fileView: new ScatterPatternView(),
+        onLoad: pattern => {
+            const available = pattern.filter(
+                data => Template.isAvailable(data.element)
+            );
 
-    if (available.length !== pattern.length) {
-        const action = Configuration.scatter.onMissingElement.getValue();
-        switch (action) {
-            case "error":
-                return ui.showError("Can't load pattern...", "Pattern includes scenery which is unavailable.");
-            case "warning":
-                ui.showError("Can't load entire template...", "Pattern includes scenery which is unavailable.");
-        }
-    }
+            if (available.length !== pattern.length) {
+                const action = Configuration.scatter.onMissingElement.getValue();
+                switch (action) {
+                    case "error":
+                        return ui.showError("Can't load pattern...", "Pattern includes scenery which is unavailable.");
+                    case "warning":
+                        ui.showError("Can't load entire template...", "Pattern includes scenery which is unavailable.");
+                }
+            }
 
-    entries.forEach((entry, idx) => entry.setValue(available[idx]));
+            entries.forEach((entry, idx) => entry.setValue(available[idx]));
+        },
+    });
 }
 
 function updateEntryWeight(entry: Entry, delta: number): void {
@@ -294,11 +263,11 @@ export default new GUI.Tab(5459).add(
         new GUI.HBox([7, 7, 7]).add(
             new GUI.TextButton({
                 text: "Save",
-                onClick: () => saveDialog.open(),
+                onClick: save,
             }),
             new GUI.TextButton({
                 text: "Load",
-                onClick: () => loadDialog.open(),
+                onClick: load,
             }),
             new GUI.TextButton({
                 text: "Clear all",

@@ -9,7 +9,7 @@ import * as Coordinates from "../../utils/Coordinates";
 
 import FileView from "./FileView";
 
-export default class extends FileView {
+export default class extends FileView<TemplateData> {
     constructor(height?: number) {
         super(
             [{
@@ -29,8 +29,10 @@ export default class extends FileView {
         );
     }
 
-    getItem(file: IFile): ListViewItem {
-        const data = file.getContent<TemplateData | undefined>();
+    getItem(file: IFile<TemplateData>): ListViewItem {
+        const data = file.getContent();
+        if (data === undefined)
+            console.log("TemplateView_34: undefined");
         if (data === undefined)
             return [file.getName()];
         const size = Coordinates.getSize(Coordinates.toMapRange(data.tiles));

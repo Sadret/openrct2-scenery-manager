@@ -7,44 +7,42 @@
 
 import File from "./File";
 
-const namespace: string = "scenery-manager";
-const storagePrefix: string = namespace + ".";
+const namespace = "scenery-manager";
+const storagePrefix = namespace + ".";
 
 export function has(key: string): boolean {
     return context.sharedStorage.has(storagePrefix + key);
 }
 
-export function get<T>(key: string): T | undefined {
+export function get<S>(key: string): S | undefined {
     return context.sharedStorage.get(storagePrefix + key);
 }
 
-export function set<T>(key: string, value: T): void {
+export function set<S>(key: string, value: S): void {
     context.sharedStorage.set(storagePrefix + key, value);
 }
 
-interface StorageElement {
-    type: "folder" | "file";
-}
-
-interface StorageFolder extends StorageElement {
+interface StorageFolder<T> {
     type: "folder";
-    files: { [key: string]: StorageElement };
+    files: { [key: string]: StorageElement<T> };
 }
 
-interface StorageFile<T> extends StorageElement {
+interface StorageFile<T> {
     type: "file";
     content: T;
 }
 
-export class StorageFileSystem implements IFileSystem {
+type StorageElement<T> = StorageFolder<T> | StorageFile<T>;
+
+export class StorageFileSystem<T> implements IFileSystem<T> {
     private readonly root: string;
 
     public constructor(root: string) {
         this.root = root;
     }
 
-    public getRoot(): File {
-        const file: File = new File(this, "");
+    public getRoot(): File<T> {
+        const file = new File<T>(this, "");
         this.createFolder(file);
         return file;
     }
@@ -53,8 +51,8 @@ export class StorageFileSystem implements IFileSystem {
      * OBSERVER
      */
 
-    private readonly observers: Observer<File>[] = [];
-    public addObserver(observer: Observer<File>): void {
+    private readonly observers: Observer<File<T>>[] = [];
+    public addObserver(observer: Observer<File<T>>): void {
         this.observers.push(observer);
     }
 
@@ -63,19 +61,19 @@ export class StorageFileSystem implements IFileSystem {
      * CONFIG HELPER METHODS
      */
 
-    private getKey(file: File): string {
+    private getKey(file: File<T>): string {
         return (this.root + file.getPath()).replace(/\//g, ".files.");
     }
 
-    private getData<T extends StorageElement>(file: File): T {
-        const data = get<T>(this.getKey(file));
+    private getData<S extends StorageElement<T>>(file: File<T>): S {
+        const data = get<S>(this.getKey(file));
         if (data === undefined)
             throw new Error();
         return data;
     }
 
-    private setData<T extends StorageElement | undefined>(file: File, data: T): void {
-        set<T>(this.getKey(file), data);
+    private setData<S extends StorageElement<T> | undefined>(file: File<T>, data: S): void {
+        set<S>(this.getKey(file), data);
         this.observers.forEach(observer => observer(file));
     }
 
@@ -83,36 +81,36 @@ export class StorageFileSystem implements IFileSystem {
      * INTERFACE IMPLEMENTATION
      */
 
-    public exists(file: File): boolean {
+    public exists(file: File<T>): boolean {
         return has(this.getKey(file));
     };
-    public isFolder(file: File): boolean {
+    public isFolder(file: File<T>): boolean {
         if (!this.exists(file))
             return false;
-        const data = this.getData<StorageElement>(file);
+        const data = this.getData<StorageElement<T>>(file);
         return data !== undefined && data.type === "folder";
     };
-    public isFile(file: File): boolean {
+    public isFile(file: File<T>): boolean {
         if (!this.exists(file))
             return false;
-        const data = this.getData<StorageElement>(file);
+        const data = this.getData<StorageElement<T>>(file);
         return data !== undefined && data.type === "file";
     };
 
-    public getFiles(file: File): File[] {
+    public getFiles(file: File<T>): File<T>[] {
         if (!this.isFolder(file))
             return [];
 
-        const data = this.getData<StorageFolder>(file);
+        const data = this.getData<StorageFolder<T>>(file);
         if (data === undefined)
             return [];
 
-        const result: File[] = [];
+        const result = [] as File<T>[];
         for (const name in data.files)
-            result.push(new File(this, file.getPath() + "/" + name));
+            result.push(new File<T>(this, file.getPath() + "/" + name));
         return result;
     };
-    public getContent<T>(file: File): T {
+    public getContent(file: File<T>): T {
         if (!this.isFile(file))
             throw new Error();
 
@@ -120,17 +118,17 @@ export class StorageFileSystem implements IFileSystem {
         return data && data.content;
     };
 
-    public createFolder(file: File): boolean {
+    public createFolder(file: File<T>): boolean {
         if (this.exists(file))
             return false;
 
-        this.setData<StorageFolder>(file, {
+        this.setData<StorageFolder<T>>(file, {
             type: "folder",
             files: {},
         });
         return true;
     };
-    public createFile<T>(file: File, content: T): boolean {
+    public createFile(file: File<T>, content: T): boolean {
         if (this.exists(file))
             return false;
 
@@ -141,26 +139,26 @@ export class StorageFileSystem implements IFileSystem {
         return true;
     };
 
-    public copy(src: File, dest: File): boolean {
+    public copy(src: File<T>, dest: File<T>): boolean {
         return this.copy_move(src, dest, false);
     };
-    public move(src: File, dest: File): boolean {
+    public move(src: File<T>, dest: File<T>): boolean {
         return this.copy_move(src, dest, true);
     };
-    private copy_move(src: File, dest: File, move: boolean): boolean {
+    private copy_move(src: File<T>, dest: File<T>, move: boolean): boolean {
         if (!this.exists(src) || this.exists(dest))
             return false;
         if (move && this.isFolder(src) && dest.getPath().indexOf(src.getPath()) !== -1)
             return false;
 
-        this.setData(dest, this.deepCopy(this.getData(src)));
+        this.setData(dest, this.deepCopy(this.getData<StorageElement<T>>(src)));
 
         if (move)
             this.delete(src);
 
         return true;
     }
-    public setContent<T>(file: File, content: T): boolean {
+    public setContent(file: File<T>, content: T): boolean {
         if (!this.isFile(file))
             return false;
 
@@ -171,7 +169,7 @@ export class StorageFileSystem implements IFileSystem {
         return true;
     };
 
-    public delete(file: File): boolean {
+    public delete(file: File<T>): boolean {
         if (!this.exists(file))
             return false;
 
@@ -179,20 +177,20 @@ export class StorageFileSystem implements IFileSystem {
         return true;
     };
 
-    private deepCopy<T>(data: StorageElement): StorageElement {
+    private deepCopy<T>(data: StorageElement<T>): StorageElement<T> {
         if (data.type === "file") {
-            const file: StorageFile<T> = <StorageFile<T>>data;
-            return <StorageElement>{
+            const file = <StorageFile<T>>data;
+            return {
                 type: "file",
                 content: file.content,
             };
         } else {
-            const folder: StorageFolder = <StorageFolder>data;
-            const files: { [key: string]: StorageElement } = {};
+            const folder = <StorageFolder<T>>data;
+            const files = {} as { [key: string]: StorageElement<T> };
             Object.keys(folder.files).forEach(key => {
                 files[key] = this.deepCopy(folder.files[key]);
             });
-            return <StorageElement>{
+            return <StorageElement<T>>{
                 type: "folder",
                 files: files,
             };
@@ -201,6 +199,6 @@ export class StorageFileSystem implements IFileSystem {
 }
 
 export const libraries = {
-    templates: new StorageFileSystem("libraries.templates"),
-    scatterPattern: new StorageFileSystem("libraries.scatterPattern"),
+    templates: new StorageFileSystem<TemplateData>("libraries.templates"),
+    scatterPattern: new StorageFileSystem<ScatterPattern>("libraries.scatterPattern"),
 }
