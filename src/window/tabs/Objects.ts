@@ -5,6 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as MapIO from "../../core/MapIO";
 import * as ObjectIndex from "../../core/ObjectIndex";
 import * as Replace from "../tabs/Replace";
 
@@ -42,7 +43,7 @@ function refresh(force = false): void {
 
     const index = ObjectIndex.getSceneryObjectIndex(
         (done, progress) => updateProgress(done, progress, index),
-        selectionOnlyProp.getValue() ? (ui.tileSelection.range || ui.tileSelection.tiles) : undefined,
+        selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined,
     );
 }
 function updateProgress(done: boolean, progress: number, index: SceneryObjectIndex): void {

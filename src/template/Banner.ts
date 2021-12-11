@@ -5,50 +5,54 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Direction from "../utils/Direction";
+import * as Coordinates from "../utils/Coordinates";
+import * as Directions from "../utils/Directions";
 
-import BaseElement from "./BaseElement";
+export function rotate(element: BannerElement, rotation: number): BannerElement {
+    return {
+        ...element,
+        direction: Directions.rotate(element.direction, rotation),
+    };
+}
 
-export default new class extends BaseElement<BannerElement, BannerData> {
-    createFromTileData(element: BannerElement, coords: CoordsXY): BannerData {
-        return {
-            type: "banner",
-            x: coords.x,
-            y: coords.y,
-            z: element.baseZ,
-            direction: element.direction,
-            primaryColour: 0,
-        };
-    }
+export function mirror(element: BannerElement): BannerElement {
+    return {
+        ...element,
+        direction: Directions.mirror(element.direction),
+    };
+}
 
-    rotate(element: BannerData, rotation: number): BannerData {
-        return {
-            ...super.rotate(element, rotation),
-            direction: Direction.rotate(element.direction, rotation),
-        };
-    }
-    mirror(element: BannerData): BannerData {
-        return {
-            ...super.mirror(element),
-            direction: Direction.mirror(element.direction),
-        }
-    }
+export function copy(src: BannerElement, dst: BannerElement): void {
+    dst.direction = src.direction;
+    dst.bannerIndex = src.bannerIndex;
+}
 
-    getPlaceArgs(element: BannerData): BannerPlaceArgs {
-        return {
+export function getPlaceActionData(
+    tile: TileData,
+    element: BannerElement,
+): PlaceActionData[] {
+    return [{
+        type: "bannerplace",
+        args: {
             ...element,
-            z: element.z - 16,
+            ...Coordinates.toWorldCoords(tile),
+            z: element.baseZ - 16,
             object: 0,
-        };
-    }
-    getRemoveArgs(element: BannerData): BannerRemoveArgs {
-        return element;
-    }
+            primaryColour: 0,
+        },
+    }];
+}
 
-    getPlaceAction(): "bannerplace" {
-        return "bannerplace";
-    }
-    getRemoveAction(): "bannerremove" {
-        return "bannerremove";
-    }
-}();
+export function getRemoveActionData(
+    tile: TileData,
+    element: BannerElement,
+): RemoveActionData[] {
+    return [{
+        type: "bannerremove",
+        args: {
+            ...element,
+            ...Coordinates.toWorldCoords(tile),
+            z: element.baseZ,
+        },
+    }];
+}

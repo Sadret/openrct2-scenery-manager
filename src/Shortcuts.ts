@@ -82,9 +82,15 @@ export function register() {
     });
     ui.registerShortcut({
         id: "scenery-manager.cursorMode",
-        text: "[SM] Toggle cursor mode",
+        text: "[SM] Cycle cursor mode",
         bindings: ["CTRL+T", "GUI+T"],
-        callback: Clipboard.togglePickBySurface,
+        callback: Clipboard.cycleCursorMode,
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.placeMode",
+        text: "[SM] Cycle place mode",
+        bindings: ["CTRL+G", "GUI+G"],
+        callback: Clipboard.cyclePlaceMode,
     });
     ui.registerShortcut({
         id: "scenery-manager.settings.decreaseHeight",
@@ -174,8 +180,8 @@ export function register() {
     });
 
     ui.registerShortcut({
-        id: "scenery-manager.openReplaceWindow",
-        text: "[SM] Open 'Object Replace' window",
+        id: "scenery-manager.openReplaceTab",
+        text: "[SM] Open 'Object Replace' tab",
         bindings: ["CTRL+R", "GUI+R"],
         callback: () => {
             MainWindow.open();

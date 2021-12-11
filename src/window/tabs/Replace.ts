@@ -51,53 +51,54 @@ function replaceValue<T>(value: T, property: Property<T | undefined>): T {
 }
 
 function findAndDelete(replace: boolean): void {
-    MapIO.forEachElement(
-        element => {
-            if (element.type !== findGroup.type.getValue())
-                return;
-            switch (element.type) {
-                case "footpath":
-                    if (!eqIfDef(element.surfaceIdentifier, findGroup.identifier.getValue()))
-                        return;
-                    if (!eqIfDef(element.railingsIdentifier, findGroup.railings.getValue()))
-                        return;
-                    const callbackFp = replace ? ((removed: boolean) => {
-                        if (removed)
-                            MapIO.place([{
-                                ...element,
-                                surfaceIdentifier: replaceValue(element.surfaceIdentifier, replaceGroup.identifier),
-                                railingsIdentifier: replaceValue(element.railingsIdentifier, replaceGroup.railings),
-                            }]);
-                    }) : undefined;
-                    return MapIO.removeElement(element, false, callbackFp);
-                case "wall":
-                    if (!eqIfDef(element.tertiaryColour, findGroup.tertiaryColour.getValue()))
-                        return;
-                case "small_scenery":
-                case "large_scenery":
-                    if (!eqIfDef(element.identifier, findGroup.identifier.getValue()))
-                        return;
-                    if (!eqIfDef(element.primaryColour, findGroup.primaryColour.getValue()))
-                        return;
-                    if (!eqIfDef(element.secondaryColour, findGroup.secondaryColour.getValue()))
-                        return;
-                    const callback = replace ? ((removed: boolean) => {
-                        if (removed)
-                            MapIO.place([{
-                                ...element,
-                                identifier: replaceValue(element.identifier, replaceGroup.identifier),
-                                primaryColour: replaceValue(element.primaryColour, replaceGroup.primaryColour),
-                                secondaryColour: replaceValue(element.secondaryColour, replaceGroup.secondaryColour),
-                                ...element.type === "wall" ? {
-                                    tertiaryColour: replaceValue(element.tertiaryColour, replaceGroup.tertiaryColour),
-                                } : {},
-                            }]);
-                    }) : undefined;
-                    return MapIO.removeElement(element, false, callback);
-            }
-        },
-        selectionOnlyProp.getValue() ? (ui.tileSelection.range || ui.tileSelection.tiles) : undefined,
-    );
+    // TODO: Replace
+    // MapIO.forEachElement(
+    //     element => {
+    //         if (element.type !== findGroup.type.getValue())
+    //             return;
+    // switch (element.type) {
+    //     case "footpath":
+    //         if (!eqIfDef(element.surfaceIdentifier, findGroup.identifier.getValue()))
+    //             return;
+    //         if (!eqIfDef(element.railingsIdentifier, findGroup.railings.getValue()))
+    //             return;
+    //         const callbackFp = replace ? ((removed: boolean) => {
+    //             if (removed)
+    //                 MapIO.place([{
+    //                     ...element,
+    //                     surfaceIdentifier: replaceValue(element.surfaceIdentifier, replaceGroup.identifier),
+    //                     railingsIdentifier: replaceValue(element.railingsIdentifier, replaceGroup.railings),
+    //                 }]);
+    //         }) : undefined;
+    //         return MapIO.removeElement(element, false, callbackFp);
+    //     case "wall":
+    //         if (!eqIfDef(element.tertiaryColour, findGroup.tertiaryColour.getValue()))
+    //             return;
+    //     case "small_scenery":
+    //     case "large_scenery":
+    //         if (!eqIfDef(element.identifier, findGroup.identifier.getValue()))
+    //             return;
+    //         if (!eqIfDef(element.primaryColour, findGroup.primaryColour.getValue()))
+    //             return;
+    //         if (!eqIfDef(element.secondaryColour, findGroup.secondaryColour.getValue()))
+    //             return;
+    //         const callback = replace ? ((removed: boolean) => {
+    //             if (removed)
+    //                 MapIO.place([{
+    //                     ...element,
+    //                     identifier: replaceValue(element.identifier, replaceGroup.identifier),
+    //                     primaryColour: replaceValue(element.primaryColour, replaceGroup.primaryColour),
+    //                     secondaryColour: replaceValue(element.secondaryColour, replaceGroup.secondaryColour),
+    //                     ...element.type === "wall" ? {
+    //                         tertiaryColour: replaceValue(element.tertiaryColour, replaceGroup.tertiaryColour),
+    //                     } : {},
+    //                 }]);
+    //         }) : undefined;
+    //         return MapIO.removeElement(element, false, callback);
+    // }
+    //     },
+    //     selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined,
+    // );
 }
 
 export default new GUI.Tab({

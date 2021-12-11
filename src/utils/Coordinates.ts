@@ -15,12 +15,12 @@ export const NULL = { x: 0, y: 0 };
  * CONVERSION FUNCTIONS
  */
 
-export function toTiles(range: MapRange): CoordsXY[] {
-    const tiles: CoordsXY[] = [];
-    for (let x = range.leftTop.x; x <= range.rightBottom.x; x += 32)
-        for (let y = range.leftTop.y; y <= range.rightBottom.y; y += 32)
-            tiles.push({ x: x, y: y });
-    return tiles;
+export function toCoords(range: MapRange): CoordsXY[] {
+    const tileCoords = [] as CoordsXY[];
+    for (let x = range.leftTop.x; x <= range.rightBottom.x; x++)
+        for (let y = range.leftTop.y; y <= range.rightBottom.y; y++)
+            tileCoords.push({ x: x, y: y });
+    return tileCoords;
 }
 
 export function toMapRange(tiles: CoordsXY[]): MapRange {
@@ -37,16 +37,12 @@ export function toMapRange(tiles: CoordsXY[]): MapRange {
     }
 }
 
-export function toTileCoords(coords: CoordsXY): TileCoords {
-    return { tx: coords.x / 32, ty: coords.y / 32 };
+export function toTileCoords(worldCoords: CoordsXY): CoordsXY {
+    return { x: worldCoords.x / 32, y: worldCoords.y / 32 };
 }
 
-export function toWorldCoords(coords: TileCoords): CoordsXY {
-    return { x: coords.tx * 32, y: coords.ty * 32 };
-}
-
-export function getTileCoords(tile: Tile): TileCoords {
-    return { tx: tile.x, ty: tile.y };
+export function toWorldCoords(tileCoords: CoordsXY): CoordsXY {
+    return { x: tileCoords.x * 32, y: tileCoords.y * 32 };
 }
 
 /*
@@ -55,8 +51,8 @@ export function getTileCoords(tile: Tile): TileCoords {
 
 function round(coords: CoordsXY): CoordsXY {
     return {
-        x: coords.x & ~31,
-        y: coords.y & ~31,
+        x: Math.round(coords.x),
+        y: Math.round(coords.y),
     };
 }
 
@@ -131,42 +127,36 @@ export function centered(center: CoordsXY, size: CoordsXY): MapRange {
     };
 }
 
-export function getSize(range: MapRange): TileCoords {
-    return toTileCoords(
-        add(
-            sub(range.rightBottom, range.leftTop),
-            toWorldCoords({ tx: 1, ty: 1 }),
-        )
-    );
-}
-
 export function circle(center: CoordsXY, diameter: number): CoordsXY[] {
-    const start: CoordsXY = round(sub(center, { x: (diameter - 1) * 16, y: (diameter - 1) * 16 })); // -2 also works
-    const m: number = (diameter - 1) / 2; // (diameter - 1) * 16 = (diameter - 1) / 2 * 32
+    const start: CoordsXY = round(sub(center, { x: (diameter - 1) / 2, y: (diameter - 1) / 2 })); // -2 also works
+    const m: number = (diameter - 1) / 2;
     const r2: number = diameter / 2 * diameter / 2;
     const range: number[] = [];
     for (let i = 0; i < diameter; i++)
         range.push(i);
-    return ([] as TileCoords[]).concat(
+    return ([] as CoordsXY[]).concat(
         ...range.map(
             (x: number) => range.map(
-                (y: number) => ({ tx: x, ty: y })
+                (y: number) => ({ x: x, y: y })
             )
         )
     ).filter(
-        (c: TileCoords) => (c.tx - m) * (c.tx - m) + (c.ty - m) * (c.ty - m) <= r2
+        c => (c.x - m) * (c.x - m) + (c.y - m) * (c.y - m) <= r2
     ).map(
-        (c: TileCoords) => add(toWorldCoords(c), start)
+        c => add(c, start)
     );
 }
 
 export function square(center: CoordsXY, diameter: number): CoordsXY[] {
-    const start: CoordsXY = round(sub(center, { x: (diameter - 1) * 16, y: (diameter - 1) * 16 })); // -2 also works
+    const start: CoordsXY = round(sub(center, { x: (diameter - 1) / 2, y: (diameter - 1) / 2 })); // -2 also works
     diameter--;
-    return toTiles({ leftTop: start, rightBottom: add(start, { x: diameter * 32, y: diameter * 32 }) });
+    return toCoords({
+        leftTop: start,
+        rightBottom: add(start, { x: diameter, y: diameter }),
+    });
 }
 
-export function equals(u: CoordsXY, v: CoordsXY): boolean {
+export function equals(u?: CoordsXY, v?: CoordsXY): boolean {
     if (u === undefined && v === undefined)
         return true;
     if (u === undefined || v === undefined)
@@ -174,6 +164,6 @@ export function equals(u: CoordsXY, v: CoordsXY): boolean {
     return u.x === v.x && u.y === v.y;
 }
 
-export function parity(coords: TileCoords, mod: number) {
-    return (coords.tx + coords.ty) % mod;
+export function parity(coords: CoordsXY, mod: number) {
+    return (coords.x + coords.y) % mod;
 }

@@ -5,67 +5,75 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Direction from "../utils/Direction";
+import * as Coordinates from "../utils/Coordinates";
+import * as Directions from "../utils/Directions";
 
-import BaseElement from "./BaseElement";
+export function rotate(element: TrackElement, rotation: number): TrackElement {
+    return {
+        ...element,
+        direction: Directions.rotate(element.direction, rotation),
+    };
+}
 
-export default new class extends BaseElement<TrackElement, TrackData> {
-    createFromTileData(element: TrackElement, coords: CoordsXY): TrackData | undefined {
-        if (element.sequence !== 0)
-            return undefined;
-        return {
-            type: "track",
-            x: coords.x,
-            y: coords.y,
-            z: element.baseZ,
-            direction: element.direction,
-            ride: element.ride,
-            trackType: element.trackType,
-            rideType: element.rideType,
+export function mirror(element: TrackElement): TrackElement {
+    return {
+        ...element,
+        direction: Directions.mirror(element.direction),
+        trackType: mirrorMap[element.trackType],
+    }
+}
+
+export function copy(src: TrackElement, dst: TrackElement): void {
+    dst.direction = src.direction;
+    dst.trackType = src.trackType;
+    dst.rideType = src.rideType;
+    dst.sequence = src.sequence || 0;
+    dst.mazeEntry = src.mazeEntry || 0;
+    dst.colourScheme = src.colourScheme || 0;
+    dst.seatRotation = src.seatRotation || 0;
+    dst.ride = src.ride;
+    dst.station = src.station || 0;
+    dst.brakeBoosterSpeed = src.brakeBoosterSpeed || 0;
+    dst.hasChainLift = src.hasChainLift;
+    dst.isInverted = src.isInverted;
+    dst.hasCableLift = src.hasCableLift;
+}
+
+export function getPlaceActionData(
+    tile: TileData,
+    element: TrackElement,
+): PlaceActionData[] {
+    return [{
+        type: "trackplace",
+        args: {
+            ...element,
+            ...Coordinates.toWorldCoords(tile),
+            z: element.baseZ - trackBlock[element.trackType],
             brakeSpeed: element.brakeBoosterSpeed || 0,
             colour: element.colourScheme || 0,
-            seatRotation: element.seatRotation || 0,
             trackPlaceFlags:
                 Number(element.isInverted) << 1 |
                 Number(element.hasCableLift) << 2,
             isFromTrackDesign: false,
-        };
-    }
+            seatRotation: element.seatRotation || 0,
+        },
+    }];
+}
 
-    rotate(element: TrackData, rotation: number): TrackData {
-        return {
-            ...super.rotate(element, rotation),
-            direction: Direction.rotate(element.direction, rotation),
-        };
-    }
-    mirror(element: TrackData): TrackData {
-        return {
-            ...super.mirror(element),
-            direction: Direction.mirror(element.direction),
-            trackType: mirrorMap[element.trackType],
-        }
-    }
-
-    getPlaceArgs(element: TrackData): TrackPlaceArgs {
-        return {
+export function getRemoveActionData(
+    tile: TileData,
+    element: TrackElement,
+): RemoveActionData[] {
+    return [{
+        type: "trackremove",
+        args: {
             ...element,
-            z: element.z - trackBlock[element.trackType],
-        };
-    }
-    getRemoveArgs(element: TrackData): TrackRemoveArgs {
-        return {
-            ...element,
+            ...Coordinates.toWorldCoords(tile),
+            z: element.baseZ,
             sequence: 0,
-        };
-    }
-
-    getPlaceAction(): "trackplace" {
-        return "trackplace";
-    }
-    getRemoveAction(): "trackremove" {
-        return "trackremove";
-    }
-}();
+        },
+    }];
+}
 
 const mirrorMap: number[] = [
     0,

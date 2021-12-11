@@ -6,115 +6,27 @@
  *****************************************************************************/
 
 /*
- * MAP COORDINATES
- */
-
-interface TileCoords {
-    tx: number,
-    ty: number;
-}
-
-/*
  * TEMPLATES
  */
 
-interface TemplateData {
-    readonly elements: ElementData[];
-    readonly tiles: CoordsXY[];
+interface TileData {
+    readonly x: number;
+    readonly y: number;
+    readonly elements: TileElement[];
 }
+
+type TemplateData = TileData[];
 
 interface ObjectData {
     readonly type: ObjectType;
     readonly identifier: string;
 }
 
-type ElementData =
-    BannerData |
-    EntranceData |
-    FootpathData |
-    FootpathAdditionData |
-    LargeSceneryData |
-    SmallSceneryData |
-    TrackData |
-    WallData;
-
-interface ElementBaseData {
-    readonly type: ElementType;
-    readonly x: number;
-    readonly y: number;
-    readonly z: number; // except entrance
-}
-
-interface BannerData extends ElementBaseData {
-    readonly type: "banner";
-    readonly direction: number;
-    readonly primaryColour: number;
-}
-
-interface EntranceData extends ElementBaseData {
-    readonly type: "entrance";
-    readonly direction: number;
-    readonly ride: number;
-    readonly station: number;
-    readonly isExit: boolean;
-}
-
-interface FootpathData extends ElementBaseData {
-    readonly type: "footpath";
-    readonly surfaceIdentifier: string;
-    readonly railingsIdentifier: string | null;
-    readonly slopeDirection: number | null;
-    readonly isQueue: boolean;
-}
-
-interface FootpathAdditionData extends ElementBaseData {
-    readonly type: "footpath_addition";
-    readonly identifier: string;
-}
-
-interface LargeSceneryData extends ElementBaseData {
-    readonly type: "large_scenery";
-    readonly direction: number;
-    readonly identifier: string;
-    readonly primaryColour: number;
-    readonly secondaryColour: number;
-}
-
-interface SmallSceneryData extends ElementBaseData {
-    readonly type: "small_scenery";
-    readonly direction: number;
-    readonly identifier: string;
-    readonly quadrant: number;
-    readonly primaryColour: number;
-    readonly secondaryColour: number;
-}
-
-interface TrackData extends ElementBaseData {
-    readonly type: "track";
-    readonly direction: number;
-    readonly ride: number;
-    readonly trackType: number;
-    readonly rideType: number;
-    readonly brakeSpeed: number;
-    readonly colour: number;
-    readonly seatRotation: number;
-    readonly trackPlaceFlags: number;
-    readonly isFromTrackDesign: boolean;
-}
-
-interface WallData extends ElementBaseData {
-    readonly type: "wall";
-    readonly direction: number;
-    readonly identifier: string;
-    readonly primaryColour: number;
-    readonly secondaryColour: number;
-    readonly tertiaryColour: number;
-}
-
 /*
  * SCATTER
  */
 
+// TODO: unresolved
 type ScatterElement = SmallSceneryData | LargeSceneryData;
 
 interface ScatterData {
@@ -138,19 +50,19 @@ type SceneryObjectType =
     "wall";
 
 interface SceneryObjectInfo {
-    type: SceneryObjectType;
-    name: string;
-    identifier: string;
-    onMap: number,
-    inPark: number,
+    readonly type: SceneryObjectType;
+    readonly name: string;
+    readonly identifier: string;
+    onMap: number;
+    inPark: number;
 };
 
 interface SceneryObjectIndex {
-    footpath: { [key: string]: SceneryObjectInfo },
-    footpath_surface: { [key: string]: SceneryObjectInfo },
-    footpath_railings: { [key: string]: SceneryObjectInfo },
-    footpath_addition: { [key: string]: SceneryObjectInfo },
-    small_scenery: { [key: string]: SceneryObjectInfo },
-    large_scenery: { [key: string]: SceneryObjectInfo },
-    wall: { [key: string]: SceneryObjectInfo },
+    readonly footpath: { [key: string]: SceneryObjectInfo };
+    readonly footpath_surface: { [key: string]: SceneryObjectInfo };
+    readonly footpath_railings: { [key: string]: SceneryObjectInfo };
+    readonly footpath_addition: { [key: string]: SceneryObjectInfo };
+    readonly small_scenery: { [key: string]: SceneryObjectInfo };
+    readonly large_scenery: { [key: string]: SceneryObjectInfo };
+    readonly wall: { [key: string]: SceneryObjectInfo };
 }

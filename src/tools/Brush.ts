@@ -31,6 +31,14 @@ export default abstract class Brush extends Builder {
         );
     }
 
+    protected getPlaceMode(): PlaceMode {
+        return "safe_merge";
+    }
+
+    protected getFilter(): ElementFilter {
+        return () => true;
+    }
+
     protected abstract getTemplateFromTiles(
         tiles: CoordsXY[],
         offset: CoordsXY,

@@ -6,10 +6,9 @@
  *****************************************************************************/
 
 import * as Context from "../../core/Context";
+import * as Footpath from "../../template/Footpath";
 import * as Strings from "../../utils/Strings";
 
-import Footpath from "../../template/Footpath";
-import FootpathAddition from "../../template/FootpathAddition";
 import GUI from "../../gui/GUI";
 import ObjectChooser from "../ObjectChooser";
 import Picker from "../../tools/Picker";
@@ -23,52 +22,53 @@ const filterTypes: SceneryFilterType[] = [
 ];
 
 function pickOnMap(group: SceneryFilterGroup, mode: "identifier" | "railings" | "addition"): void {
-    new class extends Picker {
-        protected accept(element: TileElement): boolean {
-            if (mode === "identifier") {
-                if (group.forceType && element.type !== group.type.getValue()) {
-                    ui.showError("Cannot use this element...", "Element's type must match type to replace.");
-                    return false;
-                }
-                switch (element.type) {
-                    case "footpath":
-                        const e = Footpath.createFromTileData(element, { x: 0, y: 0 });
-                        group.type.setValue("footpath");
-                        group.identifier.setValue(e.surfaceIdentifier);
-                        return true;
-                    case "small_scenery":
-                    case "large_scenery":
-                    case "wall":
-                        group.type.setValue(element.type);
-                        group.identifier.setValue(Context.getIdentifier(element));
-                        return true;
-                    default:
-                        ui.showError("Cannot use this element...", "Element must be footpath, small scenery, large scenery or wall.");
-                        return false;
-                }
-            } else {
-                if (element.type !== "footpath") {
-                    ui.showError("Cannot use this element...", "Element's type must be footpath.");
-                    return false;
-                }
-                if (mode === "railings") {
-                    const e = Footpath.createFromTileData(element, { x: 0, y: 0 });
-                    group.railings.setValue(e.railingsIdentifier);
-                    return true;
-                } else {
-                    const e = FootpathAddition.createFromTileData(element, { x: 0, y: 0 });
-                    if (e === undefined) {
-                        ui.showError("Cannot use this element...", "Element has no footpath addition.");
-                        return false;
-                    }
-                    group.addition.setValue(e.identifier);
-                    return true;
-                }
-            }
-        }
-    }(
-        "sm-picker-filter",
-    ).activate();
+    // TODO: picker
+    // new class extends Picker {
+    //     protected accept(element: TileElement): boolean {
+    //         if (mode === "identifier") {
+    //             if (group.forceType && element.type !== group.type.getValue()) {
+    //                 ui.showError("Cannot use this element...", "Element's type must match type to replace.");
+    //                 return false;
+    //             }
+    //             switch (element.type) {
+    //                 case "footpath":
+    //                     const e = Footpath.createFromTileData(element, { x: 0, y: 0 });
+    //                     group.type.setValue("footpath");
+    //                     group.identifier.setValue(e.surfaceIdentifier);
+    //                     return true;
+    //                 case "small_scenery":
+    //                 case "large_scenery":
+    //                 case "wall":
+    //                     group.type.setValue(element.type);
+    //                     group.identifier.setValue(Context.getIdentifier(element));
+    //                     return true;
+    //                 default:
+    //                     ui.showError("Cannot use this element...", "Element must be footpath, small scenery, large scenery or wall.");
+    //                     return false;
+    //             }
+    //         } else {
+    //             if (element.type !== "footpath") {
+    //                 ui.showError("Cannot use this element...", "Element's type must be footpath.");
+    //                 return false;
+    //             }
+    //             if (mode === "railings") {
+    //                 const e = Footpath.createFromTileData(element, { x: 0, y: 0 });
+    //                 group.railings.setValue(e.railingsIdentifier);
+    //                 return true;
+    //             } else {
+    //                 const e = FootpathAddition.createFromTileData(element, { x: 0, y: 0 });
+    //                 if (e === undefined) {
+    //                     ui.showError("Cannot use this element...", "Element has no footpath addition.");
+    //                     return false;
+    //                 }
+    //                 group.addition.setValue(e.identifier);
+    //                 return true;
+    //             }
+    //         }
+    //     }
+    // }(
+    //     "sm-picker-filter",
+    // ).activate();
 }
 
 function selectFromList(group: SceneryFilterGroup, mode: "identifier" | "railings" | "addition"): void {

@@ -58,7 +58,7 @@ export default new GUI.Tab(5465).add(
                     new GUI.Spinner({
                     }).bindValue(
                         Clipboard.settings.rotation,
-                        value => (value & 3) === 0 ? "none" : ((value & 3) * 90 + " deg"),
+                        value => (value & 3) === 0 ? "None" : ((value & 3) * 90 + " deg"),
                         false,
                     ),
                 ),
@@ -70,7 +70,7 @@ export default new GUI.Tab(5465).add(
                         onClick: () => Clipboard.settings.mirrored.flip(),
                     }).bindText(
                         Clipboard.settings.mirrored,
-                        value => value ? "yes" : "no",
+                        value => value ? "Yes" : "No",
                     ),
                 ),
                 new GUI.HBox([1, 1]).add(
@@ -87,12 +87,23 @@ export default new GUI.Tab(5465).add(
                         text: "Cursor mode:",
                     }),
                     new GUI.Dropdown({
-                    }).bindValue<boolean>(
-                        Clipboard.settings.pickBySurface,
-                        [true, false],
-                        selectBySurface => selectBySurface ? "surface" : "scenery",
+                    }).bindValue<CursorMode>(
+                        Clipboard.settings.cursorMode,
+                        ["surface", "scenery"],
+                        Strings.toDisplayString,
                     ),
                 ),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Label({
+                        text: "Place mode:",
+                    }),
+                    new GUI.Dropdown({
+                    }).bindValue<PlaceMode>(
+                        Clipboard.settings.placeMode,
+                        ["safe_merge", "safe_replace", "raw_merge", "raw_replace"],
+                        Strings.toDisplayString,
+                    )
+                )
             ),
         ),
         new GUI.GroupBox({
@@ -105,6 +116,7 @@ export default new GUI.Tab(5465).add(
                     Clipboard.settings.filter[key],
                 ),
             ),
+            // TODO: [design] adjust
             new GUI.Space(6), // vfill
         ),
     ),

@@ -12,19 +12,21 @@ type BuildMode =
     "move" |
     "up";
 
-// no surface or corrupt, but footpath_addition
-type ElementType =
-    "banner" |
-    "entrance" |
-    "footpath" |
-    "footpath_addition" |
-    "large_scenery" |
-    "small_scenery" |
-    "track" |
-    "wall";
+type PlaceMode =
+    "safe_merge" |
+    "safe_replace" |
+    "raw_merge" |
+    "raw_replace";
+
+type CursorMode =
+    "surface" |
+    "scenery";
 
 type SceneryFilterType =
     "footpath" |
     "small_scenery" |
     "large_scenery" |
     "wall";
+
+// TODO: move?
+type ElementFilter = (element: TileElement, addition: boolean) => boolean;

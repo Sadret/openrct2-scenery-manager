@@ -6,8 +6,8 @@
  *****************************************************************************/
 
 import * as Arrays from "../../utils/Arrays";
-import * as Coordinates from "../../utils/Coordinates";
 import * as Context from "../../core/Context";
+import * as Coordinates from "../../utils/Coordinates";
 import * as MapIO from "../../core/MapIO";
 import * as Storage from "../../persistence/Storage";
 
@@ -16,13 +16,10 @@ import BrushBox from "../widgets/BrushBox";
 import Configuration from "../../config/Configuration";
 import Dialog from "../../utils/Dialog";
 import GUI from "../../gui/GUI";
-import LargeScenery from "../../template/LargeScenery";
 import NumberProperty from "../../config/NumberProperty";
 import Picker from "../../tools/Picker";
 import Property from "../../config/Property";
 import ScatterPatternView from "../widgets/ScatterPatternView";
-import SmallScenery from "../../template/SmallScenery";
-import Template from "../../template/Template";
 
 type Entry = Property<ScatterData | undefined>;
 
@@ -50,7 +47,7 @@ function getLabel(element?: ObjectData): string {
     return element === undefined ? "(empty)" : (Context.getObject(element).name + " (" + element.identifier + ")");
 }
 
-function getRandomData(): ElementData | undefined {
+function getRandomData(): TemplateData | undefined {
     let rnd = Math.random() * 100;
     for (let i = 0; i < entries.length; i++) {
         const data = entries[i].getValue();
@@ -60,54 +57,63 @@ function getRandomData(): ElementData | undefined {
     return undefined;
 }
 
-function provide(tiles: CoordsXY[]): TemplateData {
-    return {
-        elements: tiles.map<ElementData | undefined>((coords: CoordsXY) => {
-            let data: ElementData | undefined = getRandomData();
-            const z: number = MapIO.getSurfaceHeight(MapIO.getTile(Coordinates.toTileCoords(coords)));
-            if (data === undefined || z == undefined)
-                return undefined;
+function provide(coordsList: CoordsXY[]): TemplateData {
+    // TODO: [scatter] brush
+    return coordsList.map(coords => {
+        return {
+            ...coords,
+            elements: [],
+        }
+    });
 
-            if (Configuration.scatter.randomise.rotation.getValue())
-                data = Template.get(data).rotate(data, Math.floor(Math.random() * 4));
-
-            if (Configuration.scatter.randomise.quadrant.getValue())
-                if (data.type === "small_scenery")
-                    data = SmallScenery.setQuadrant(<SmallSceneryData>data, Math.floor(Math.random() * 4));
-
-            return {
-                ...data,
-                ...coords,
-                z: z,
-            };
-        }).filter<ElementData>((data: ElementData | undefined): data is ElementData => data !== undefined),
-        tiles: tiles,
-    };
+    // return {
+    //     elements: tiles.map<ElementData | undefined>((coords: CoordsXY) => {
+    //         let data: ElementData | undefined = getRandomData();
+    //         const z: number = MapIO.getSurfaceHeight(MapIO.getTile(coords));
+    //         if (data === undefined || z == undefined)
+    //             return undefined;
+    //
+    //         if (Configuration.scatter.randomise.rotation.getValue())
+    //             data = Template.get(data).rotate(data, Math.floor(Math.random() * 4));
+    //
+    //         if (Configuration.scatter.randomise.quadrant.getValue())
+    //             if (data.type === "small_scenery")
+    //                 data = SmallScenery.setQuadrant(<SmallSceneryData>data, Math.floor(Math.random() * 4));
+    //
+    //         return {
+    //             ...data,
+    //             ...coords,
+    //             z: z,
+    //         };
+    //     }).filter<ElementData>((data: ElementData | undefined): data is ElementData => data !== undefined),
+    //     tiles: tiles,
+    // };
 }
 
 function updateEntryElement(entry: Entry): void {
-    new class extends Picker {
-        protected accept(element: TileElement): boolean {
-            let data: ScatterElement | undefined;
-            switch (element.type) {
-                case "small_scenery":
-                    data = SmallScenery.createFromTileData(element);
-                    break;
-                case "large_scenery":
-                    data = LargeScenery.createFromTileData(element, undefined, true);
-                    break;
-                default:
-                    return (ui.showError("Cannot use this element...", "Element must be either small scenery or large scenery."), false);
-            }
-            entry.setValue(data === undefined ? data : {
-                element: data,
-                weight: 0,
-            });
-            return true;
-        }
-    }(
-        "sm-picker-scatter",
-    ).activate();
+    // TODO: [scatter] picker
+    // new class extends Picker {
+    //     protected accept(element: TileElement): boolean {
+    //         let data: ScatterElement | undefined;
+    //         switch (element.type) {
+    //             case "small_scenery":
+    //                 data = SmallScenery.createFromTileData(element);
+    //                 break;
+    //             case "large_scenery":
+    //                 data = LargeScenery.createFromTileData(element, undefined, true);
+    //                 break;
+    //             default:
+    //                 return (ui.showError("Cannot use this element...", "Element must be either small scenery or large scenery."), false);
+    //         }
+    //         entry.setValue(data === undefined ? data : {
+    //             element: data,
+    //             weight: 0,
+    //         });
+    //         return true;
+    //     }
+    // }(
+    //     "sm-picker-scatter",
+    // ).activate();
 }
 
 function save(): void {
@@ -131,9 +137,11 @@ function load(): void {
         fileSystem: Storage.libraries.scatterPattern,
         fileView: new ScatterPatternView(),
         onLoad: pattern => {
-            const available = pattern.filter(
-                data => Template.isAvailable(data.element)
-            );
+            const available = pattern;
+            // TODO: check availability
+            // .filter(
+            //     data => Template.isAvailable(data.element)
+            // );
 
             if (available.length !== pattern.length) {
                 const action = Configuration.scatter.onMissingElement.getValue();

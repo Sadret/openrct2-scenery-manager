@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
+import * as MapIO from "../core/MapIO";
 
 import Tool from "./Tool";
 
@@ -51,7 +52,7 @@ export default class Selector extends Tool {
         }
         if (this.drag) {
             this.end = e.mapCoords;
-            ui.tileSelection.range = Coordinates.span(this.start, this.end);
+            MapIO.setTileSelection(Coordinates.span(this.start, this.end));
         }
     }
     public onUp(
@@ -61,7 +62,7 @@ export default class Selector extends Tool {
         Selector.callbacks.forEach(callback => callback());
     }
     public onFinish(): void {
-        ui.tileSelection.range = null;
+        MapIO.setTileSelection([]);
         ui.mainViewport.visibilityFlags &= ~(1 << 7);
     }
 }

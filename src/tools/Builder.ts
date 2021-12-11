@@ -12,79 +12,84 @@ import Tool from "./Tool";
 
 export default abstract class Builder extends Tool {
     protected mode: BuildMode = "down";
-    private ghost = undefined as {
-        data: ElementData[],
-        coords: CoordsXY,
-        offset: CoordsXY,
-    } | undefined;
-    private dragStartCoords: CoordsXY = Coordinates.NULL;
+
+    // ghost
+    private coords: CoordsXY | undefined = undefined;
+    private offset = Coordinates.NULL;
+    private template: TemplateData | undefined = undefined;
+    private placeMode: PlaceMode = "safe_merge";
+
+    // drag
+    private dragStartCoords = Coordinates.NULL;
+    private dragEndCoords = Coordinates.NULL;
 
     protected abstract getTemplate(
         coords: CoordsXY,
         offset: CoordsXY,
     ): TemplateData;
 
-    public rebuild(): void {
-        if (this.ghost !== undefined)
-            this.place(true, this.ghost.coords, this.ghost.offset);
-    }
+    protected abstract getPlaceMode(): PlaceMode;
+
+    protected abstract getFilter(): ElementFilter;
 
     private removeGhost(): void {
-        if (this.ghost === undefined)
-            return;
-        MapIO.remove(this.ghost.data, true);
-        this.ghost = undefined;
-        ui.tileSelection.tiles = [];
+        if (this.template !== undefined) {
+            MapIO.clearGhost(this.template, this.placeMode);
+            this.template = undefined;
+            MapIO.setTileSelection([]);
+        }
     }
 
-    private place(
-        isGhost: boolean,
-        coords: CoordsXY,
-        offset: CoordsXY = { x: 0, y: 0 },
+    public build(
+        isGhost = true,
     ): void {
+        if (!this.isActive())
+            return;
         this.removeGhost();
-        const template: TemplateData = this.getTemplate(coords, offset);
-        ui.tileSelection.tiles = template.tiles;
-        const elements: ElementData[] = MapIO.place(template.elements, isGhost);
-        if (isGhost)
-            this.ghost = {
-                data: elements,
-                coords: coords,
-                offset: offset,
-            };
+        if (this.coords !== undefined && this.coords.x !== 0 && this.coords.y !== 0) {
+            this.template = this.getTemplate(this.coords, this.offset);
+            this.placeMode = this.getPlaceMode();
+            MapIO.place(this.template, this.placeMode, isGhost, this.getFilter());
+            MapIO.setTileSelection(this.template);
+        }
     }
 
     public onStart(): void {
         ui.mainViewport.visibilityFlags |= 1 << 7;
+        this.build();
     }
     public onDown(
         e: ToolEventArgs,
     ): void {
         this.dragStartCoords = e.screenCoords;
-        if (this.mode !== "up" && this.ghost !== undefined) // ghost should always be there
-            this.place(false, this.ghost.coords);
+        if (this.mode !== "up")
+            this.build(false);
     }
     public onMove(
         e: ToolEventArgs,
     ): void {
-        if (this.mode === "up" && e.isDown && this.ghost !== undefined) // ghost should always be there
-            return this.place(true, this.ghost.coords, Coordinates.sub(e.screenCoords, this.dragStartCoords));
-        const coords = e.mapCoords;
-        if (coords === undefined || coords.x * coords.y === 0)
-            return this.removeGhost();
-        if (this.ghost !== undefined && Coordinates.equals(coords, this.ghost.coords)) // ghost should always be there
-            return;
-        this.place(this.mode !== "move" || !e.isDown, coords);
+        if (this.mode === "up" && e.isDown) {
+            if (!Coordinates.equals(e.screenCoords, this.dragEndCoords)) {
+                this.offset = Coordinates.sub(e.screenCoords, this.dragStartCoords);
+                return this.build();
+            }
+        } else {
+            if (!Coordinates.equals(e.mapCoords, this.coords)) {
+                this.coords = e.mapCoords;
+                this.build(this.mode !== "move" || !e.isDown);
+            }
+        }
     }
     public onUp(
         _e: ToolEventArgs,
     ): void {
-        if (this.mode === "up" && this.ghost !== undefined) // ghost should always be there
-            this.place(false, this.ghost.coords, this.ghost.offset);
+        if (this.mode === "up") {
+            this.build(false);
+            this.offset = Coordinates.NULL;
+        }
     }
     public onFinish(): void {
         this.removeGhost();
-        ui.tileSelection.tiles = [];
         ui.mainViewport.visibilityFlags &= ~(1 << 7);
     }
 }

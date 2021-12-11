@@ -31,11 +31,16 @@ export default class extends FileView<TemplateData> {
 
     getItem(file: IFile<TemplateData>): ListViewItem {
         const data = file.getContent();
-        if (data === undefined)
-            console.log("TemplateView_34: undefined");
-        if (data === undefined)
-            return [file.getName()];
-        const size = Coordinates.getSize(Coordinates.toMapRange(data.tiles));
-        return [file.getName(), String(size.tx), String(size.ty), String(data.elements.length)];
+        // TODO: does this ever happen?
+        // if (data === undefined)
+        //     return [file.getName()];
+        const range = Coordinates.toMapRange(data);
+        const num: number = data.reduce((acc, tile) => acc + tile.elements.length, 0);
+        return [
+            file.getName(),
+            String(range.rightBottom.x - range.leftTop.x + 1),
+            String(range.rightBottom.y - range.leftTop.y + 1),
+            String(num),
+        ];
     }
 };

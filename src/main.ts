@@ -30,6 +30,7 @@ registerPlugin({
             Configuration.load();
             ui.registerMenuItem("Scenery Manager", () => MainWindow.open());
             Shortcuts.register();
+            // TODO: only used for TemplateView. eliminate? (maybe load when tab focuses or just direct call here)
             StartUp.execute();
         });
     },

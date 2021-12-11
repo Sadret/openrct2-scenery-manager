@@ -14,6 +14,7 @@ import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
 import Dialog from "../utils/Dialog";
 import NumberProperty from "../config/NumberProperty";
+import Property from "../config/Property";
 import Selector from "../tools/Selector";
 import Template from "../template/Template";
 import TemplateView from "../window/widgets/TemplateView";
@@ -23,16 +24,19 @@ export const settings = {
         banner: new BooleanProperty(true),
         entrance: new BooleanProperty(true),
         footpath: new BooleanProperty(true),
+        // TODO: footpath_addition is ignored
         footpath_addition: new BooleanProperty(true),
         large_scenery: new BooleanProperty(true),
         small_scenery: new BooleanProperty(true),
+        surface: new BooleanProperty(true),
         track: new BooleanProperty(true),
         wall: new BooleanProperty(true),
     } as { [key: string]: BooleanProperty },
     rotation: new NumberProperty(0),
     mirrored: new BooleanProperty(false),
     height: new NumberProperty(0),
-    pickBySurface: new BooleanProperty(true),
+    cursorMode: new Property<CursorMode>("surface"),
+    placeMode: new Property<PlaceMode>("safe_merge"),
 };
 
 const builder = new class extends Builder {
@@ -48,7 +52,7 @@ const builder = new class extends Builder {
         if (template === undefined) {
             ui.showError("Can't paste template...", "Clipboard is empty!");
             this.cancel();
-            return { elements: [], tiles: [] };
+            return [];
         }
 
         let rotation = settings.rotation.getValue();
@@ -60,26 +64,34 @@ const builder = new class extends Builder {
             else
                 rotation -= diff;
         }
-        let height = MapIO.getSurfaceHeight(MapIO.getTile(Coordinates.toTileCoords(coords))) + 8 * settings.height.getValue();
+        let height = MapIO.getSurfaceHeight(MapIO.getTile(coords)) + 8 * settings.height.getValue();
         if (Configuration.copyPaste.cursor.height.enabled.getValue()) {
             const step = Configuration.copyPaste.cursor.height.smallSteps.getValue() ? 8 : 16;
             height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
         }
+        // TODO: filter available
+        // .filter(Template.isAvailable)
         return template.filter(
-            Template.isAvailable
-        ).filter(
-            element => settings.filter[element.type].getValue()
+            filter
         ).transform(
             settings.mirrored.getValue(), rotation, { ...coords, z: height }
         ).filter(
-            element => element.z > 0
-        );
+            element => element.baseZ > 0
+        ).data;
+    }
+
+    protected getPlaceMode(): PlaceMode {
+        return settings.placeMode.getValue();
+    }
+
+    protected getFilter(): ElementFilter {
+        return filter;
     }
 }();
 
-settings.pickBySurface.bind(
-    value => {
-        const filter = value ? ["terrain" as ToolFilter] : undefined;
+settings.cursorMode.bind(
+    mode => {
+        const filter = mode === "surface" ? ["terrain" as ToolFilter] : undefined;
         Selector.instance.filter = filter;
         Selector.instance.restart();
         builder.filter = filter;
@@ -87,9 +99,18 @@ settings.pickBySurface.bind(
     }
 );
 
-settings.rotation.bind(() => builder.rebuild());
-settings.mirrored.bind(() => builder.rebuild());
-Object.keys(settings.filter).forEach(key => settings.filter[key].bind(() => builder.rebuild()));
+settings.rotation.bind(() => builder.build());
+settings.mirrored.bind(() => builder.build());
+settings.height.bind(() => builder.build());
+settings.placeMode.bind(() => builder.build());
+Object.keys(settings.filter).forEach(key => settings.filter[key].bind(() => builder.build()));
+
+function filter(element: TileElement, addition: boolean) {
+    if (addition)
+        return settings.filter.footpath_addition.getValue();
+    else
+        return settings.filter[element.type].getValue();
+}
 
 const templates: Template[] = [];
 let cursor: number | undefined = undefined;
@@ -105,7 +126,7 @@ function addTemplate(template: Template): void {
     settings.mirrored.setValue(false);
     cursor = templates.length;
     templates.push(template);
-    builder.rebuild(); // rebuild if already active
+    builder.build(); // rebuild if already active
     paste(); // paste if not active
 }
 
@@ -116,27 +137,27 @@ function addTemplate(template: Template): void {
 export function prev(): void {
     if (cursor !== undefined && cursor !== 0) {
         cursor--;
-        builder.rebuild();
+        builder.build();
     }
 }
 
 export function next(): void {
     if (cursor !== undefined && cursor !== templates.length - 1) {
         cursor++;
-        builder.rebuild();
+        builder.build();
     }
 }
 
 export function save(): void {
-    const data = getTemplate();
-    if (data === undefined)
+    const template = getTemplate();
+    if (template === undefined)
         return ui.showError("Can't save template...", "Nothing copied!");
 
     Dialog.showSave({
         title: "Save template",
         fileSystem: Storage.libraries.templates,
         fileView: new TemplateView(),
-        fileContent: data,
+        fileContent: template.data,
     });
 }
 
@@ -150,49 +171,46 @@ export function load(data?: TemplateData): void {
         });
     else {
         const template = new Template(data);
-        const available = template.filter(Template.isAvailable);
-
-        if (available.elements.length !== template.elements.length) {
-            const action = Configuration.copyPaste.onMissingElement.getValue();
-            switch (action) {
-                case "error":
-                    return ui.showError("Can't load template...", "Template includes scenery which is unavailable.");
-                case "warning":
-                    ui.showError("Can't load entire template...", "Template includes scenery which is unavailable.");
-            }
-        }
-
-        addTemplate(available);
+        // TODO: filter available
+        // const available = template.filter(Template.isAvailable);
+        //
+        // if (available.elements.length !== template.elements.length) {
+        //     const action = Configuration.copyPaste.onMissingElement.getValue();
+        //     switch (action) {
+        //         case "error":
+        //             return ui.showError("Can't load template...", "Template includes scenery which is unavailable.");
+        //         case "warning":
+        //             ui.showError("Can't load entire template...", "Template includes scenery which is unavailable.");
+        //     }
+        // }
+        //
+        // addTemplate(available);
+        addTemplate(template);
     }
 }
 
 export function copy(cut: boolean = false): void {
-    if (ui.tileSelection.range === null)
+    const tiles = MapIO.getTileSelection();
+    if (tiles.length === 0)
         return ui.showError("Can't copy area...", "Nothing selected!");
 
-    const tiles = Coordinates.toTiles(ui.tileSelection.range);
     const center = Coordinates.center(tiles);
 
-    const elements = MapIO.read(tiles).filter(
-        element => settings.filter[element.type].getValue()
-    );
-    MapIO.sort(elements);
+    let data = MapIO.read(tiles);
+    data = Template.filterTemplate(data, filter);
+    // TODO: sort
+    // data = MapIO.sort(data);
 
     if (cut)
-        MapIO.remove(elements);
+        MapIO.clear(tiles, settings.placeMode.getValue(), filter);
 
     const heights: number[] = tiles.map(
-        Coordinates.toTileCoords
-    ).map(
         MapIO.getTile
     ).map(
         MapIO.getSurfaceHeight
     ).sort();
 
-    addTemplate(new Template({
-        elements: elements,
-        tiles: tiles,
-    }).translate({
+    addTemplate(new Template(data).translate({
         x: -center.x,
         y: -center.y,
         z: -heights[Math.floor(heights.length / 2)],
@@ -217,8 +235,20 @@ export function mirror(): void {
         settings.mirrored.flip();
 }
 
-export function togglePickBySurface(): void {
-    settings.pickBySurface.flip();
+export function cycleCursorMode(): void {
+    switch (settings.cursorMode.getValue()) {
+        case "surface":
+            return settings.cursorMode.setValue("scenery");
+        case "scenery":
+            return settings.cursorMode.setValue("surface");
+    }
+}
+
+const placeModes: PlaceMode[] = ["safe_merge", "safe_replace", "raw_merge", "raw_replace"];
+export function cyclePlaceMode(): void {
+    settings.placeMode.setValue(
+        placeModes[(placeModes.indexOf(settings.placeMode.getValue()) + 1) % placeModes.length]
+    );
 }
 
 export function deleteTemplate(): void {
@@ -231,18 +261,15 @@ export function deleteTemplate(): void {
         cursor = undefined;
         return builder.cancel();
     }
-    builder.rebuild();
+    builder.build();
 }
 
 export function decreaseHeight(): void {
     settings.height.decrement();
-    builder.rebuild();
 }
 export function resetHeight(): void {
     settings.height.setValue(0);
-    builder.rebuild();
 }
 export function increaseHeight(): void {
     settings.height.increment();
-    builder.rebuild();
 }

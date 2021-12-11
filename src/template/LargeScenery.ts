@@ -5,57 +5,61 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Context from "../core/Context";
-import * as Direction from "../utils/Direction";
+import * as Coordinates from "../utils/Coordinates";
+import * as Directions from "../utils/Directions";
 
-import BaseElement from "./BaseElement";
+export function rotate(element: LargeSceneryElement, rotation: number): LargeSceneryElement {
+    return {
+        ...element,
+        direction: Directions.rotate(element.direction, rotation),
+    };
+}
 
-export default new class extends BaseElement<LargeSceneryElement, LargeSceneryData>{
-    createFromTileData(element: LargeSceneryElement, coords?: CoordsXY, ignoreSequenceIndex: boolean = false): LargeSceneryData | undefined {
-        if (!ignoreSequenceIndex && element.sequence !== 0)
-            return undefined;
-        return {
-            type: "large_scenery",
-            x: coords === undefined ? Number.NaN : coords.x,
-            y: coords === undefined ? Number.NaN : coords.y,
+export function mirror(element: LargeSceneryElement): LargeSceneryElement {
+    return {
+        ...element,
+        direction: Directions.mirror(element.direction),
+    }
+}
+
+export function copy(src: LargeSceneryElement, dst: LargeSceneryElement): void {
+    dst.direction = src.direction;
+    dst.object = src.object;
+    dst.primaryColour = src.primaryColour;
+    dst.secondaryColour = src.secondaryColour;
+    dst.bannerIndex = src.bannerIndex || 0;
+    dst.sequence = src.sequence;
+}
+
+export function getPlaceActionData(
+    tile: TileData,
+    element: LargeSceneryElement,
+): PlaceActionData[] {
+    if (element.sequence !== 0)
+        return [];
+    return [{
+        type: "largesceneryplace",
+        args: {
+            ...element,
+            ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
-            direction: element.direction,
-            identifier: Context.getIdentifier(element),
-            primaryColour: element.primaryColour,
-            secondaryColour: element.secondaryColour,
-        };
-    }
+        },
+    }];
+}
 
-    rotate(element: LargeSceneryData, rotation: number): LargeSceneryData {
-        return {
-            ...super.rotate(element, rotation),
-            direction: Direction.rotate(element.direction, rotation),
-        };
-    }
-    mirror(element: LargeSceneryData): LargeSceneryData {
-        return {
-            ...super.mirror(element),
-            direction: Direction.mirror(element.direction),
-        }
-    }
-
-    getPlaceArgs(element: LargeSceneryData): LargeSceneryPlaceArgs {
-        return {
+export function getRemoveActionData(
+    tile: TileData,
+    element: LargeSceneryElement,
+): RemoveActionData[] {
+    if (element.sequence !== 0)
+        return [];
+    return [{
+        type: "largesceneryremove",
+        args: {
             ...element,
-            object: Context.getObject(element).index,
-        };
-    }
-    getRemoveArgs(element: LargeSceneryData): LargeSceneryRemoveArgs {
-        return {
-            ...element,
+            ...Coordinates.toWorldCoords(tile),
+            z: element.baseZ,
             tileIndex: 0,
-        };
-    }
-
-    getPlaceAction(): "largesceneryplace" {
-        return "largesceneryplace";
-    }
-    getRemoveAction(): "largesceneryremove" {
-        return "largesceneryremove";
-    }
-}();
+        },
+    }];
+}

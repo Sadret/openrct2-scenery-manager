@@ -7,7 +7,6 @@
 
 import * as Arrays from "../../utils/Arrays";
 import * as Context from "../../core/Context";
-import * as Coordinates from "../../utils/Coordinates";
 import * as MapIO from "../../core/MapIO";
 
 import Brush from "../../tools/Brush";
@@ -33,23 +32,29 @@ function getLabel(object: LoadedObject | undefined) {
     return object === undefined ? "(empty)" : object.name + " (" + object.identifier + ")";
 }
 
-function provide(tiles: CoordsXY[]): TemplateData {
-    return {
-        elements: MapIO.read(tiles).filter(
-            (element: ElementData) => element.type === "footpath"
-        ).map<FootpathAdditionData | undefined>(element => {
-            const idx = Coordinates.parity(Coordinates.toTileCoords(element), size.getValue());
-            const entry = entries[idx].getValue();
-            return entry === undefined ? undefined : {
-                ...element,
-                type: "footpath_addition",
-                identifier: Context.getIdentifierFromObject(entry),
-            };
-        }).filter<FootpathAdditionData>(
-            (data: FootpathAdditionData | undefined): data is FootpathAdditionData => data !== undefined
-        ),
-        tiles: tiles,
-    };
+function provide(coordsList: CoordsXY[]): TemplateData {
+    return coordsList.map(coords => ({
+        ...coords,
+        elements: [],
+    }));
+
+    // TODO: brushes
+    // return {
+    //     elements: MapIO.read(tiles).filter(
+    //         (element: ElementData) => element.type === "footpath"
+    //     ).map<FootpathAdditionData | undefined>(element => {
+    //         const idx = Coordinates.parity(element, size.getValue());
+    //         const entry = entries[idx].getValue();
+    //         return entry === undefined ? undefined : {
+    //             ...element,
+    //             type: "footpath_addition",
+    //             identifier: Context.getIdentifierFromObject(entry),
+    //         };
+    //     }).filter<FootpathAdditionData>(
+    //         (data: FootpathAdditionData | undefined): data is FootpathAdditionData => data !== undefined
+    //     ),
+    //     tiles: tiles,
+    // };
 }
 
 function updateEntry(entry: Property<LoadedObject | undefined>, clear: boolean): void {

@@ -45,30 +45,40 @@ export function getSceneryObjectIndex(
 
     // make sure this method returns before the callback is called
     context.setTimeout(() =>
-        MapIO.forEachElement((element, tile) => {
+        MapIO.forEachElement((tile, element) => {
             switch (element.type) {
-                case "footpath_addition":
-                case "large_scenery":
-                case "small_scenery":
-                case "wall":
-                    index[element.type][element.identifier].onMap++;
-                    if (MapIO.hasOwnership(tile))
-                        index[element.type][element.identifier].inPark++;
-                    return;
                 case "footpath":
-                    const isLegacy = element.railingsIdentifier === null;
+                    const isLegacy = element.object !== 0xFFFF;
                     if (isLegacy) {
-                        index["footpath"][element.surfaceIdentifier].onMap++;
+                        const footpathIdentifier = Context.getIdentifier(element);
+                        index["footpath"][footpathIdentifier].onMap++;
                         if (MapIO.hasOwnership(tile))
-                            index["footpath"][element.surfaceIdentifier].inPark++;
+                            index["footpath"][footpathIdentifier].inPark++;
                     } else {
-                        index["footpath_surface"][element.surfaceIdentifier].onMap++;
-                        index["footpath_railings"][element.railingsIdentifier].onMap++;
+                        const surfaceIdentifier = Context.getIdentifier({
+                            type: "footpath_surface",
+                            object: <number>element.surfaceObject,
+                        });
+                        const railingsIdentifier = Context.getIdentifier({
+                            type: "footpath_railings",
+                            object: <number>element.railingsObject,
+                        });
+                        index["footpath_surface"][surfaceIdentifier].onMap++;
+                        index["footpath_railings"][railingsIdentifier].onMap++;
                         if (MapIO.hasOwnership(tile)) {
-                            index["footpath_surface"][element.surfaceIdentifier].inPark++;
-                            index["footpath_railings"][element.railingsIdentifier].inPark++;
+                            index["footpath_surface"][surfaceIdentifier].inPark++;
+                            index["footpath_railings"][railingsIdentifier].inPark++;
                         }
                     }
+                    return;
+
+                case "small_scenery":
+                case "wall":
+                case "large_scenery":
+                    const identifier = Context.getIdentifier(element);
+                    index[element.type][identifier].onMap++;
+                    if (MapIO.hasOwnership(tile))
+                        index[element.type][identifier].inPark++;
                     return;
             }
         }, selection, callback),

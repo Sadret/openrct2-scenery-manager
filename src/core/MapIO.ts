@@ -7,53 +7,220 @@
 
 import * as Context from "./Context";
 import * as Coordinates from "../utils/Coordinates";
+import * as Arrays from "../utils/Arrays";
 
 import Template from "../template/Template";
 import TileIterator from "../utils/TileIterator";
 
 /*
+ * CONSTANTS
+ */
+
+const GROUND: SurfaceElement = {
+    type: "surface",
+    baseHeight: 0,
+    baseZ: 0,
+    clearanceHeight: 0,
+    clearanceZ: 0,
+    occupiedQuadrants: 0,
+    isGhost: false,
+    isHidden: false,
+    slope: 0,
+    surfaceStyle: 0,
+    edgeStyle: 0,
+    waterHeight: 0,
+    grassLength: 1,
+    ownership: 0,
+    parkFences: 0,
+    hasOwnership: false,
+    hasConstructionRights: false,
+};
+
+/*
+ * TILE SELECTION
+ */
+
+export function getTileSelection(): CoordsXY[] {
+    if (ui.tileSelection.range === null)
+        return ui.tileSelection.tiles.map(Coordinates.toTileCoords);
+    else
+        return Coordinates.toCoords({
+            leftTop: Coordinates.toTileCoords(ui.tileSelection.range.leftTop),
+            rightBottom: Coordinates.toTileCoords(ui.tileSelection.range.rightBottom),
+        });
+}
+
+export function setTileSelection(tileCoords: CoordsXY[]): void;
+export function setTileSelection(range: MapRange): void;
+export function setTileSelection(data: CoordsXY[] | MapRange): void {
+    if (Array.isArray(data))
+        ui.tileSelection.tiles = data.map(Coordinates.toWorldCoords);
+    else
+        ui.tileSelection.range = {
+            leftTop: Coordinates.toWorldCoords(data.leftTop),
+            rightBottom: Coordinates.toWorldCoords(data.rightBottom),
+        };
+}
+
+/*
  * READ / PLACE / REMOVE
  */
 
-export function read(tiles: CoordsXY[]): ElementData[] {
-    const elements: ElementData[] = [];
-    tiles.forEach(
-        coords => elements.push(...Template.getSceneryData(getTile(Coordinates.toTileCoords(coords))))
-    );
-    return elements;
+export function read(
+    coordsList: CoordsXY[],
+): TemplateData {
+    return coordsList.map(coords => ({
+        ...coords,
+        elements: getTile(coords).elements.map(element => Template.copy(element)),
+    }));
 }
 
-export function place(elements: ElementData[], ghost: boolean = false): ElementData[] {
-    const result: ElementData[] = [];
-    elements.forEach(element => {
-        const action = Template.getPlaceAction(element);
-        const args = {
-            ...Template.getPlaceArgs(element),
-            flags: ghost ? 72 : 0,
-        };
-        Context.queryExecuteAction(action, args, executeResult => {
-            if (executeResult.error === 0)
-                result.push(element);
-        });
-    });
-    return result;
-}
-
-export function remove(elements: ElementData[], ghost: boolean = false): void {
-    elements.forEach(element => removeElement(element, ghost));
-}
-
-export function removeElement(
-    element: ElementData,
-    ghost: boolean = false,
-    callback?: (removed: boolean) => void,
+export function place(
+    templateData: TemplateData,
+    mode: PlaceMode,
+    isGhost: boolean,
+    filter: ElementFilter,
 ): void {
-    const action = Template.getRemoveAction(element);
-    const args = {
-        ...Template.getRemoveArgs(element),
-        flags: ghost ? 72 : 0,
-    };
-    Context.queryExecuteAction(action, args, callback && (executeResult => callback(executeResult.error === 0)));
+    switch (mode) {
+        case "safe_replace":
+            if (!isGhost)
+                clear(templateData, "safe_replace", filter);
+        case "safe_merge":
+            return templateData.forEach(tileData =>
+                tileData.elements.forEach(element =>
+                    Template.getPlaceActionData(tileData, element).forEach(
+                        data => Context.queryExecuteAction(data.type, {
+                            ...data.args,
+                            flags: isGhost ? 72 : 0,
+                        })
+                    )
+                )
+            );
+        case "raw_replace":
+            if (!isGhost)
+                clear(templateData, "raw_replace", filter);
+        case "raw_merge":
+            return templateData.forEach(tileData => {
+                const tile = getTile(tileData);
+                tileData.elements.forEach(elementData => insertElement(tile, elementData, isGhost));
+            });
+    }
+}
+
+export function clear(
+    coordsList: CoordsXY[],
+    mode: PlaceMode,
+    filter: ElementFilter,
+): void {
+    switch (mode) {
+        case "safe_merge":
+        case "safe_replace":
+            return read(coordsList).forEach(tileData =>
+                tileData.elements.forEach(element => {
+                    const filteredElement = Template.filterElement(element, filter);
+                    if (filteredElement !== undefined)
+                        Template.getRemoveActionData(tileData, filteredElement).forEach(
+                            actionData =>
+                                Context.queryExecuteAction(actionData.type, {
+                                    ...actionData.args,
+                                    flags: element.isGhost ? 72 : 0,
+                                })
+                        );
+                })
+            );
+        case "raw_merge":
+        case "raw_replace":
+            return coordsList.forEach(coords => {
+                const tile = getTile(coords);
+                for (let idx = 0; idx < tile.numElements;) {
+                    const element = tile.getElement(idx);
+                    if (element.type === "footpath" && filter(element, true))
+                        element.addition = null;
+                    if (filter(element, false))
+                        idx = removeElement(tile, idx);
+                    else
+                        idx++;
+                }
+            });
+    }
+}
+
+export function clearGhost(coordsList: CoordsXY[], mode: PlaceMode): void {
+    return clear(
+        coordsList,
+        mode,
+        (element, addition) => {
+            if (addition)
+                return element.type === "footpath" && element.addition !== null && <boolean>element.isAdditionGhost;
+            else
+                return element.isGhost;
+        }
+    );
+}
+
+// TODO: only used once
+// TODO: override?
+// returns the actual index at which the element is now or undefined if element was not inserted
+function insertElement(tile: Tile, data: TileElement, isGhost: boolean): void {
+    if (tile.numElements === 0)
+        return;
+    if (data.type === "footpath" && data.object < 0) {
+        const element = Arrays.find(tile.elements, ((element: TileElement): element is FootpathElement =>
+            element.type === "footpath" && element.baseHeight === data.baseHeight && element.addition === null
+        ));
+        if (element !== undefined) {
+            element.addition = data.addition;
+            element.additionStatus = data.additionStatus;
+            element.isAdditionBroken = data.isAdditionBroken;
+            element.isAdditionGhost = isGhost;
+        }
+    } else {
+        let idx = 0;
+        while (idx < tile.numElements && tile.getElement(idx).baseHeight >= data.baseHeight)
+            idx++;
+
+        const element = tile.insertElement(idx);
+        Template.copy(data, element);
+        element.isGhost = isGhost;
+        if (element.type === "footpath" && element.addition !== null)
+            element.isAdditionGhost = isGhost;
+
+        if (element.type === "surface") {
+            const groundIdx = idx === 0 ? 1 : 0;
+            const ground = tile.getElement(groundIdx) as SurfaceElement;
+            if (ground.baseHeight === 0) {
+                element.ownership = ground.ownership;
+                element.parkFences = ground.parkFences;
+                tile.removeElement(groundIdx);
+                if (groundIdx < idx)
+                    idx--;
+            }
+        }
+    }
+}
+
+// TODO: only used once
+// returns the index of the element that came after this element before it was deleted
+function removeElement(tile: Tile, idx: number): number {
+    const element = tile.getElement(idx);
+    if (element.type === "surface") {
+        if (tile.elements.reduce((acc, element) => element.type === "surface" ? acc + 1 : acc, 0) === 1) {
+            // insert new element first, avoid having zero elements
+            const ground = tile.insertElement(0) as SurfaceElement;
+            Template.copy(GROUND, ground);
+            ground.ownership = element.ownership;
+            ground.parkFences = element.parkFences;
+            idx++;
+        }
+    } else if (tile.numElements === 1) {
+        // somehow this is the last one and there is no surface
+        // this should never happen in normal use
+        const ground = tile.insertElement(0) as SurfaceElement;
+        Template.copy(GROUND, ground);
+        idx++;
+    }
+    tile.removeElement(idx);
+    return idx;
 }
 
 /*
@@ -61,7 +228,7 @@ export function removeElement(
  */
 
 export function forEachElement(
-    fun: (element: ElementData, tile: Tile) => void,
+    fun: (tile: Tile, element: TileElement) => void,
     selection: MapRange | CoordsXY[] | undefined = undefined,
     callback: (done: boolean, progress: number) => void = () => { },
 ): void {
@@ -73,7 +240,7 @@ export function forEachElement(
 }
 
 function _forEachElement(
-    fun: (element: ElementData, tile: Tile) => void,
+    fun: (tile: Tile, element: TileElement) => void,
     iterator: TileIterator,
     callback: (done: boolean, progress: number) => void = () => { },
 ): void {
@@ -83,79 +250,18 @@ function _forEachElement(
             return callback(true, 1);
 
         const tile = getTile(iterator.next());
-        Template.getSceneryData(tile).forEach(element => fun(element, tile));
+        tile.elements.forEach(element => fun(tile, element));
     }
     callback(false, iterator.progress());
     context.setTimeout(() => _forEachElement(fun, iterator, callback), 1);
-}
-
-export function filter(
-    element: ElementData,
-    filter: SceneryObjectFilter,
-): boolean {
-    switch (element.type) {
-        case "large_scenery":
-        case "small_scenery":
-        case "wall":
-        case "footpath_addition":
-            return eqIfDef(filter.type, element.type) && eqIfDef(filter.identifier, element.identifier);
-        case "footpath":
-            switch (filter.type) {
-                case "footpath_surface":
-                    return eqIfDef(filter.identifier, element.surfaceIdentifier);
-                case "footpath_railings":
-                    return eqIfDef(filter.identifier, element.railingsIdentifier);
-                default:
-                    return false;
-            }
-        default:
-            return false;
-    }
-}
-
-export function find(
-    filter: SceneryObjectFilter,
-    callback: (done: boolean, progress: number) => void = () => { },
-): ElementData[] {
-    const elements: ElementData[] = [];
-    forEachElement(element => {
-        switch (element.type) {
-            case "large_scenery":
-            case "small_scenery":
-            case "wall":
-                if (!eqIfDef(filter.type, element.type))
-                    return;
-                if (!eqIfDef(filter.identifier, element.identifier))
-                    return;
-                break;
-            case "footpath":
-                switch (filter.type) {
-                    case "footpath_surface":
-                        if (!eqIfDef(filter.identifier, element.surfaceIdentifier))
-                            return;
-                        break;
-                    case "footpath_railings":
-                        if (!eqIfDef(filter.identifier, element.railingsIdentifier))
-                            return;
-                        break;
-                    default:
-                        return;
-                }
-                break;
-            default:
-                return;
-        }
-        elements.push(element);
-    }, undefined, callback);
-    return elements;
 }
 
 /*
  * UTILITY METHODS
  */
 
-export function getTile(coords: TileCoords): Tile {
-    return map.getTile(coords.tx, coords.ty);
+export function getTile(coords: CoordsXY): Tile {
+    return map.getTile(coords.x, coords.y);
 }
 
 export function hasOwnership(tile: Tile): boolean {
@@ -172,27 +278,4 @@ function getSurface(tile: Tile): SurfaceElement | undefined {
 export function getSurfaceHeight(tile: Tile): number {
     const surface = getSurface(tile);
     return surface === undefined ? 0 : surface.baseZ;
-}
-
-/*
- * UTILITY
- */
-
-const priority = [
-    "wall",
-    "footpath",
-    "footpath_addition",
-    "banner",
-    "entrance",
-    "large_scenery",
-    "small_scenery",
-    "track",
-];
-
-export function sort(elements: ElementData[]): void {
-    elements.sort((a, b) => priority.indexOf(a.type) - priority.indexOf(b.type));
-}
-
-function eqIfDef(a: any, b: any) {
-    return !a || !b || a === b;
 }

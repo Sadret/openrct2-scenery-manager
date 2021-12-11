@@ -5,48 +5,59 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Direction from "../utils/Direction";
+import * as Coordinates from "../utils/Coordinates";
+import * as Directions from "../utils/Directions";
 
-import BaseElement from "./BaseElement";
+export function rotate(element: EntranceElement, rotation: number): EntranceElement {
+    return {
+        ...element,
+        direction: Directions.rotate(element.direction, rotation),
+    };
+}
 
-export default new class extends BaseElement<EntranceElement, EntranceData> {
-    createFromTileData(element: EntranceElement, coords: CoordsXY): EntranceData {
-        return {
-            type: "entrance",
-            x: coords.x,
-            y: coords.y,
+export function mirror(element: EntranceElement): EntranceElement {
+    return {
+        ...element,
+        direction: Directions.mirror(element.direction),
+    }
+}
+
+export function copy(src: EntranceElement, dst: EntranceElement): void {
+    dst.direction = src.direction;
+    dst.object = src.object;
+    dst.ride = src.ride;
+    dst.station = src.station;
+    dst.sequence = src.sequence;
+    dst.footpathObject = src.footpathObject;
+    dst.footpathSurfaceObject = src.footpathSurfaceObject;
+}
+
+export function getPlaceActionData(
+    tile: TileData,
+    element: EntranceElement,
+): PlaceActionData[] {
+    return [{
+        type: "rideentranceexitplace",
+        args: {
+            ...element,
+            ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
-            direction: element.direction,
-            ride: element.ride,
-            station: element.station,
-            isExit: element.object === 1, // = ENTRANCE_TYPE_RIDE_EXIT
-        };
-    }
+            isExit: element.object === 1,
+        },
+    }];
+}
 
-    rotate(element: EntranceData, rotation: number): EntranceData {
-        return {
-            ...super.rotate(element, rotation),
-            direction: Direction.rotate(element.direction, rotation),
-        };
-    }
-    mirror(element: EntranceData): EntranceData {
-        return {
-            ...super.mirror(element),
-            direction: Direction.mirror(element.direction),
-        }
-    }
-
-    getPlaceArgs(element: EntranceData): EntrancePlaceArgs {
-        return element;
-    }
-    getRemoveArgs(element: EntranceData): EntranceRemoveArgs {
-        return element;
-    }
-
-    getPlaceAction(): "rideentranceexitplace" {
-        return "rideentranceexitplace";
-    }
-    getRemoveAction(): "rideentranceexitremove" {
-        return "rideentranceexitremove";
-    }
-}();
+export function getRemoveActionData(
+    tile: TileData,
+    element: EntranceElement,
+): RemoveActionData[] {
+    return [{
+        type: "rideentranceexitremove",
+        args: {
+            ...element,
+            ...Coordinates.toWorldCoords(tile),
+            z: element.baseZ,
+            isExit: element.object === 1,
+        },
+    }];
+}

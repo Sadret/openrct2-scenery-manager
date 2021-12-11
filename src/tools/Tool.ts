@@ -5,6 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Coordinates from "../utils/Coordinates";
+
 export default class Tool {
     private readonly id: string;
     public cursor: CursorType;
@@ -32,9 +34,9 @@ export default class Tool {
                 filter: this.filter,
 
                 onStart: () => this.onStart(),
-                onDown: e => this.onDown(e),
-                onMove: e => this.onMove(e),
-                onUp: e => this.onUp(e),
+                onDown: e => this.onDown(Tool.toTileCoordsArgs(e)),
+                onMove: e => this.onMove(Tool.toTileCoordsArgs(e)),
+                onUp: e => this.onUp(Tool.toTileCoordsArgs(e)),
                 onFinish: () => this.onFinish(),
             });
     }
@@ -56,4 +58,14 @@ export default class Tool {
     public onMove(e: ToolEventArgs): void { }
     public onUp(e: ToolEventArgs): void { }
     public onFinish(): void { }
+
+    private static toTileCoordsArgs(e: ToolEventArgs): ToolEventArgs {
+        return {
+            ...e,
+            mapCoords: e.mapCoords && {
+                ...e.mapCoords,
+                ...Coordinates.toTileCoords(e.mapCoords),
+            },
+        }
+    }
 }

@@ -5,99 +5,90 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Context from "../core/Context";
-import * as Direction from "../utils/Direction";
+import * as Coordinates from "../utils/Coordinates";
+import * as Directions from "../utils/Directions";
 
-import BaseElement from "./BaseElement";
+export function rotate(element: SmallSceneryElement, rotation: number): SmallSceneryElement {
+    return {
+        ...element,
+        direction: Directions.rotate(element.direction, rotation),
+        quadrant: isFullTile(element) ? element.quadrant : Directions.rotate(element.quadrant, rotation),
+    };
+}
 
-export default new class extends BaseElement<SmallSceneryElement, SmallSceneryData>{
-    createFromTileData(element: SmallSceneryElement, coords?: CoordsXY): SmallSceneryData {
-        return {
-            type: "small_scenery",
-            x: coords === undefined ? Number.NaN : coords.x,
-            y: coords === undefined ? Number.NaN : coords.y,
+export function mirror(element: SmallSceneryElement): SmallSceneryElement {
+    let direction = element.direction;
+    let quadrant = element.quadrant;
+
+    if (isDiagonal(element)) {
+        direction ^= 0x1;
+        if (!isFullTile(element))
+            quadrant ^= 0x1;
+    } else {
+        // direction = Directions.mirror(direction);
+        if (direction & 0x1) // same as above
+            direction ^= 0x2;
+        if (!isHalfSpace(element))
+            quadrant ^= 0x1;
+    }
+
+    return {
+        ...element,
+        direction: direction as Direction,
+        quadrant: quadrant,
+    };
+}
+
+export function copy(src: SmallSceneryElement, dst: SmallSceneryElement): void {
+    dst.direction = src.direction;
+    dst.object = src.object;
+    dst.primaryColour = src.primaryColour;
+    dst.secondaryColour = src.secondaryColour;
+    dst.quadrant = src.quadrant;
+    dst.age = src.age;
+}
+
+export function getPlaceActionData(
+    tile: TileData,
+    element: SmallSceneryElement,
+): PlaceActionData[] {
+    return [{
+        type: "smallsceneryplace",
+        args: {
+            ...element,
+            ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
-            direction: element.direction,
-            identifier: Context.getIdentifier(element),
-            quadrant: element.quadrant,
-            primaryColour: element.primaryColour,
-            secondaryColour: element.secondaryColour,
-        };
-    }
+        },
+    }];
+}
 
-    rotate(element: SmallSceneryData, rotation: number): SmallSceneryData {
-        return {
-            ...super.rotate(element, rotation),
-            direction: Direction.rotate(element.direction, rotation),
-            quadrant: this.isFullTile(element) ? element.quadrant : Direction.rotate(element.quadrant, rotation),
-        };
-    }
-    mirror(element: SmallSceneryData): SmallSceneryData {
-        let direction = element.direction;
-        let quadrant = element.quadrant;
-
-        if (this.isDiagonal(element)) {
-            direction ^= 0x1;
-            if (!this.isFullTile(element))
-                quadrant ^= 0x1;
-        } else {
-            // direction = Direction.mirror(direction);
-            if (direction & 0x1) // same as above
-                direction ^= 0x2;
-            if (!this.isHalfSpace(element))
-                quadrant ^= 0x1;
-        }
-
-        return {
-            ...super.mirror(element),
-            direction: direction,
-            quadrant: quadrant,
-        };
-    }
-
-    getPlaceArgs(element: SmallSceneryData): SmallSceneryPlaceArgs {
-        return {
+export function getRemoveActionData(
+    tile: TileData,
+    element: SmallSceneryElement,
+): RemoveActionData[] {
+    return [{
+        type: "smallsceneryremove",
+        args: {
             ...element,
-            object: Context.getObject(element).index,
-        };
-    }
-    getRemoveArgs(element: SmallSceneryData): SmallSceneryRemoveArgs {
-        return {
-            ...element,
-            object: Context.getObject(element).index,
-        };
-    }
+            ...Coordinates.toWorldCoords(tile),
+            z: element.baseZ,
+        },
+    }];
+}
 
-    getPlaceAction(): "smallsceneryplace" {
-        return "smallsceneryplace";
-    }
-    getRemoveAction(): "smallsceneryremove" {
-        return "smallsceneryremove";
-    }
+function isFullTile(element: SmallSceneryElement): boolean {
+    return hasFlag(element, 0);
+}
 
-    setQuadrant(element: SmallSceneryData, quadrant: number): SmallSceneryData {
-        if (this.isFullTile(element))
-            return element;
-        return {
-            ...element,
-            quadrant: quadrant,
-        };
-    }
+function isDiagonal(element: SmallSceneryElement): boolean {
+    return hasFlag(element, 8);
+}
 
-    isFullTile(element: SmallSceneryData): boolean {
-        return this.hasFlag(element, 0);
-    }
+function isHalfSpace(element: SmallSceneryElement): boolean {
+    return hasFlag(element, 24);
+}
 
-    isDiagonal(element: SmallSceneryData): boolean {
-        return this.hasFlag(element, 8);
-    }
-
-    isHalfSpace(element: SmallSceneryData): boolean {
-        return this.hasFlag(element, 24);
-    }
-
-    hasFlag(element: SmallSceneryData, bit: number) {
-        const object: SmallSceneryObject = <SmallSceneryObject>Context.getObject(element);
-        return (object.flags & (1 << bit)) !== 0;
-    }
-}();
+function hasFlag(element: SmallSceneryElement, bit: number) {
+    const object: SmallSceneryObject = context.getObject("small_scenery", element.object);
+    return (object.flags & (1 << bit)) !== 0;
+}
