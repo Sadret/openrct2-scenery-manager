@@ -102,7 +102,7 @@ export function place(
         case "raw_merge":
             return templateData.forEach(tileData => {
                 const tile = getTile(tileData);
-                tileData.elements.forEach(elementData => insertElement(tile, elementData, isGhost));
+                tileData.elements.forEach(elementData => insertElement(tile, elementData, mode === "raw_replace", isGhost));
             });
     }
 }
@@ -158,10 +158,7 @@ export function clearGhost(coordsList: CoordsXY[], mode: PlaceMode): void {
     );
 }
 
-// TODO: only used once
-// TODO: override?
-// returns the actual index at which the element is now or undefined if element was not inserted
-function insertElement(tile: Tile, data: TileElement, isGhost: boolean): void {
+function insertElement(tile: Tile, data: TileElement, append: boolean, isGhost: boolean): void {
     if (tile.numElements === 0)
         return;
     if (data.type === "footpath" && data.object < 0) {
@@ -176,8 +173,11 @@ function insertElement(tile: Tile, data: TileElement, isGhost: boolean): void {
         }
     } else {
         let idx = 0;
-        while (idx < tile.numElements && tile.getElement(idx).baseHeight >= data.baseHeight)
-            idx++;
+        if (append)
+            idx = tile.numElements;
+        else
+            while (idx < tile.numElements && tile.getElement(idx).baseHeight >= data.baseHeight)
+                idx++;
 
         const element = tile.insertElement(idx);
         Template.copy(data, element);
@@ -199,7 +199,6 @@ function insertElement(tile: Tile, data: TileElement, isGhost: boolean): void {
     }
 }
 
-// TODO: only used once
 // returns the index of the element that came after this element before it was deleted
 function removeElement(tile: Tile, idx: number): number {
     const element = tile.getElement(idx);

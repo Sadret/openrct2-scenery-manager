@@ -8,6 +8,8 @@
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
+import Index from "../utils/Index";
+
 export function rotate(element: WallElement, rotation: number): WallElement {
     return {
         ...element,
@@ -59,4 +61,12 @@ export function getRemoveActionData(
             z: element.baseZ,
         },
     }];
+}
+
+export function saveIndex(element: WallElement, index: Index): void {
+    index.set("wall", element.object);
+}
+
+export function loadIndex(element: WallElement, index: Index): void {
+    element.object = index.get("wall", element.object);
 }

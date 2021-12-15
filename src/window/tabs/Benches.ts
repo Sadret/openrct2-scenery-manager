@@ -19,10 +19,10 @@ import Property from "../../config/Property";
 const NUM = 8; // max 11
 const size = new NumberProperty(4, 1, NUM);
 const entries = Arrays.create<Property<LoadedObject | undefined>>(NUM,
-    idx => new Property<LoadedObject | undefined>(idx === 0 ? Context.getObject(<ObjectData>{
-        type: "footpath_addition",
-        identifier: "rct2.bench1",
-    }) : undefined),
+    idx => new Property<LoadedObject | undefined>(idx === 0 ? Context.getObject(
+        "footpath_addition",
+        "rct2.bench1",
+    ) : undefined),
 );
 
 const objects = context.getAllObjects("footpath_addition") as (LoadedObject | undefined)[];
@@ -38,7 +38,7 @@ function provide(coordsList: CoordsXY[]): TemplateData {
         elements: [],
     }));
 
-    // TODO: brushes
+    // TODO: [benches] brush
     // return {
     //     elements: MapIO.read(tiles).filter(
     //         (element: ElementData) => element.type === "footpath"

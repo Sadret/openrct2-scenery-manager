@@ -15,10 +15,20 @@ import * as Surface from "./Surface";
 import * as Track from "./Track";
 import * as Wall from "./Wall";
 
+import Index from "../utils/Index";
+
 interface BaseElement<T extends TileElement> {
-    rotate(element: T, rotation: number): T;
-    mirror(element: T): T;
-    copy(src: T, dst: T): void;
+    rotate(
+        element: T,
+        rotation: number,
+    ): T;
+    mirror(
+        element: T,
+    ): T;
+    copy(
+        src: T,
+        dst: T,
+    ): void;
     getPlaceActionData(
         tile: TileData,
         element: T,
@@ -27,6 +37,14 @@ interface BaseElement<T extends TileElement> {
         tile: TileData,
         element: T,
     ): RemoveActionData[];
+    saveIndex(
+        element: T,
+        index: Index,
+    ): void;
+    loadIndex(
+        element: T,
+        index: Index,
+    ): void;
 }
 
 const map: {
@@ -56,8 +74,17 @@ function get(element: TileElement): BaseElement<TileElement> {
 export default class Template {
     public readonly data: TemplateData;
 
-    public constructor(data: TemplateData) {
+    public constructor(data: TemplateData, indexData?: IndexData) {
         this.data = data;
+
+        if (indexData !== undefined) {
+            const index = new Index(indexData);
+            this.data.forEach(tileData =>
+                tileData.elements.forEach(element =>
+                    get(element).loadIndex(element, index)
+                )
+            );
+        }
     }
 
     public transform(mirrored: boolean, rotation: number, offset: CoordsXYZ): Template {
@@ -152,5 +179,17 @@ export default class Template {
         filter: ElementFilter,
     ): Template {
         return new Template(Template.filterTemplate(this.data, filter));
+    }
+
+    public getIndexData(): IndexData {
+        const index = new Index();
+
+        this.data.forEach(tileData =>
+            tileData.elements.forEach(element =>
+                get(element).saveIndex(element, index)
+            )
+        );
+
+        return index.getIndexData();
     }
 }

@@ -56,3 +56,6 @@ export function getRemoveActionData(
         },
     }];
 }
+
+export function saveIndex(): void { }
+export function loadIndex(): void { }

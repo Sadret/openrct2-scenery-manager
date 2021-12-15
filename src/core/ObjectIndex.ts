@@ -50,19 +50,22 @@ export function getSceneryObjectIndex(
                 case "footpath":
                     const isLegacy = element.object !== 0xFFFF;
                     if (isLegacy) {
-                        const footpathIdentifier = Context.getIdentifier(element);
+                        const footpathIdentifier = Context.getIdentifier(
+                            "footpath",
+                            element.object,
+                        );
                         index["footpath"][footpathIdentifier].onMap++;
                         if (MapIO.hasOwnership(tile))
                             index["footpath"][footpathIdentifier].inPark++;
                     } else {
-                        const surfaceIdentifier = Context.getIdentifier({
-                            type: "footpath_surface",
-                            object: <number>element.surfaceObject,
-                        });
-                        const railingsIdentifier = Context.getIdentifier({
-                            type: "footpath_railings",
-                            object: <number>element.railingsObject,
-                        });
+                        const surfaceIdentifier = Context.getIdentifier(
+                            "footpath_surface",
+                            <number>element.surfaceObject,
+                        );
+                        const railingsIdentifier = Context.getIdentifier(
+                            "footpath_railings",
+                            <number>element.railingsObject,
+                        );
                         index["footpath_surface"][surfaceIdentifier].onMap++;
                         index["footpath_railings"][railingsIdentifier].onMap++;
                         if (MapIO.hasOwnership(tile)) {
@@ -75,7 +78,10 @@ export function getSceneryObjectIndex(
                 case "small_scenery":
                 case "wall":
                 case "large_scenery":
-                    const identifier = Context.getIdentifier(element);
+                    const identifier = Context.getIdentifier(
+                        "large_scenery",
+                        element.object,
+                    );
                     index[element.type][identifier].onMap++;
                     if (MapIO.hasOwnership(tile))
                         index[element.type][identifier].inPark++;

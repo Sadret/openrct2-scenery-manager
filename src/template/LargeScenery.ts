@@ -8,6 +8,8 @@
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
+import Index from "../utils/Index";
+
 export function rotate(element: LargeSceneryElement, rotation: number): LargeSceneryElement {
     return {
         ...element,
@@ -62,4 +64,12 @@ export function getRemoveActionData(
             tileIndex: 0,
         },
     }];
+}
+
+export function saveIndex(element: LargeSceneryElement, index: Index): void {
+    index.set("large_scenery", element.object);
+}
+
+export function loadIndex(element: LargeSceneryElement, index: Index): void {
+    element.object = index.get("large_scenery", element.object);
 }

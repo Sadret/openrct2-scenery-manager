@@ -43,8 +43,8 @@ function updateEmpty() {
     );
 }
 
-function getLabel(element?: ObjectData): string {
-    return element === undefined ? "(empty)" : (Context.getObject(element).name + " (" + element.identifier + ")");
+function getLabel(element?: ScatterElement): string {
+    return element === undefined ? "(empty)" : (Context.getObject(element.type, element.object).name + " (" + element.identifier + ")");
 }
 
 function getRandomData(): TemplateData | undefined {
@@ -138,7 +138,7 @@ function load(): void {
         fileView: new ScatterPatternView(),
         onLoad: pattern => {
             const available = pattern;
-            // TODO: check availability
+            // TODO: [scatter] check availability
             // .filter(
             //     data => Template.isAvailable(data.element)
             // );

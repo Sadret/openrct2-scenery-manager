@@ -5,6 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import Index from "../utils/Index";
+
 const bits = [0, 1, 2, 3];
 
 export function rotate(element: SurfaceElement, rotation: number): SurfaceElement {
@@ -45,4 +47,14 @@ export function getRemoveActionData(
     _element: SurfaceElement,
 ): [] {
     return [];
+}
+
+export function saveIndex(element: SurfaceElement, index: Index): void {
+    index.set("terrain_surface", element.surfaceStyle);
+    index.set("terrain_edge", element.edgeStyle);
+}
+
+export function loadIndex(element: SurfaceElement, index: Index): void {
+    element.surfaceStyle = index.get("terrain_surface", element.surfaceStyle);
+    element.edgeStyle = index.get("terrain_edge", element.edgeStyle);
 }

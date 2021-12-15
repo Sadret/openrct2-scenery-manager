@@ -24,7 +24,6 @@ export const settings = {
         banner: new BooleanProperty(true),
         entrance: new BooleanProperty(true),
         footpath: new BooleanProperty(true),
-        // TODO: footpath_addition is ignored
         footpath_addition: new BooleanProperty(true),
         large_scenery: new BooleanProperty(true),
         small_scenery: new BooleanProperty(true),
@@ -153,24 +152,27 @@ export function save(): void {
     if (template === undefined)
         return ui.showError("Can't save template...", "Nothing copied!");
 
-    Dialog.showSave({
+    Dialog.showSave<IndexedTemplateData>({
         title: "Save template",
         fileSystem: Storage.libraries.templates,
         fileView: new TemplateView(),
-        fileContent: template.data,
+        fileContent: {
+            template: template.data,
+            index: template.getIndexData(),
+        },
     });
 }
 
-export function load(data?: TemplateData): void {
+export function load(data?: IndexedTemplateData): void {
     if (data === undefined)
-        Dialog.showLoad({
+        Dialog.showLoad<IndexedTemplateData>({
             title: "Load template",
             fileSystem: Storage.libraries.templates,
             fileView: new TemplateView(),
             onLoad: load,
         });
     else {
-        const template = new Template(data);
+        const template = new Template(data.template, data.index);
         // TODO: filter available
         // const available = template.filter(Template.isAvailable);
         //

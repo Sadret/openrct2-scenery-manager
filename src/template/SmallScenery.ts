@@ -8,6 +8,8 @@
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
+import Index from "../utils/Index";
+
 export function rotate(element: SmallSceneryElement, rotation: number): SmallSceneryElement {
     return {
         ...element,
@@ -91,4 +93,12 @@ function isHalfSpace(element: SmallSceneryElement): boolean {
 function hasFlag(element: SmallSceneryElement, bit: number) {
     const object: SmallSceneryObject = context.getObject("small_scenery", element.object);
     return (object.flags & (1 << bit)) !== 0;
+}
+
+export function saveIndex(element: SmallSceneryElement, index: Index): void {
+    index.set("small_scenery", element.object);
+}
+
+export function loadIndex(element: SmallSceneryElement, index: Index): void {
+    element.object = index.get("small_scenery", element.object);
 }

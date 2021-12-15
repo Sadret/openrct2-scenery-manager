@@ -17,9 +17,15 @@ interface TileData {
 
 type TemplateData = TileData[];
 
-interface ObjectData {
-    readonly type: ObjectType;
-    readonly identifier: string;
+/*
+ * SAVE
+ */
+
+type IndexData = { [key: string]: { [key: number]: string } };
+
+interface IndexedTemplateData {
+    template: TemplateData;
+    index: IndexData;
 }
 
 /*

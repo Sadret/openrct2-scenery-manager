@@ -12,23 +12,23 @@ function loadCache(type: ObjectType): void {
     context.getAllObjects(type).forEach(object => cache[type][getIdentifierFromObject(object)] = object);
 }
 
-export function getObject(data: ObjectData): LoadedObject {
-    if (cache[data.type] === undefined)
-        loadCache(<ObjectType>data.type);
-    const object = cache[data.type][data.identifier];
-    if (object !== undefined && data.identifier !== getIdentifierFromObject(object))
-        loadCache(<ObjectType>data.type);
-    return cache[data.type][data.identifier];
+export function getObject(type: ObjectType, identifier: string): LoadedObject {
+    if (cache[type] === undefined)
+        loadCache(type);
+    const object = cache[type][identifier];
+    if (object !== undefined && identifier !== getIdentifierFromObject(object))
+        loadCache(type);
+    return cache[type][identifier];
 }
 
 export function getIdentifierFromObject(object: LoadedObject): string {
     return object.identifier || object.legacyIdentifier;
 }
 
-export function getIdentifier(element: { type: ObjectType, object: number }): string;
-export function getIdentifier(element: { type: ObjectType, object: number | null }): string | null;
-export function getIdentifier(element: { type: ObjectType, object: number | null }): string | null {
-    return element.object === null ? null : getIdentifierFromObject(context.getObject(element.type, element.object));
+export function getIdentifier(type: ObjectType, object: number): string;
+export function getIdentifier(type: ObjectType, object: number | null): string | null;
+export function getIdentifier(type: ObjectType, object: number | null): string | null {
+    return object === null ? null : getIdentifierFromObject(context.getObject(type, object));
 }
 
 export function queryExecuteAction(action: ActionType, args: object, callback?: (result: GameActionResult) => void): void {

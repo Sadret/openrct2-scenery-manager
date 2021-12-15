@@ -7,6 +7,7 @@
 
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
+import Index from "../utils/Index";
 
 const bits = [0, 1, 2, 3];
 
@@ -112,4 +113,20 @@ export function getRemoveActionData(
         });
 
     return data;
+}
+
+export function saveIndex(element: FootpathElement, index: Index): void {
+    if (element.object >= 0 && element.railingsObject === null)
+        index.set("footpath", element.object);
+    index.set("footpath_surface", element.surfaceObject);
+    index.set("footpath_railings", element.railingsObject);
+    index.set("footpath_addition", element.addition);
+}
+
+export function loadIndex(element: FootpathElement, index: Index): void {
+    if (element.object >= 0 && element.railingsObject === null)
+        element.object = index.get("footpath", element.object);
+    element.surfaceObject = index.get("footpath_surface", element.surfaceObject);
+    element.railingsObject = index.get("footpath_railings", element.railingsObject);
+    element.addition = index.get("footpath_addition", element.addition);
 }

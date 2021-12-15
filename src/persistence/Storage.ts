@@ -199,6 +199,6 @@ export class StorageFileSystem<T> implements IFileSystem<T> {
 }
 
 export const libraries = {
-    templates: new StorageFileSystem<TemplateData>("libraries.templates"),
+    templates: new StorageFileSystem<IndexedTemplateData>("libraries.templates"),
     scatterPattern: new StorageFileSystem<ScatterPattern>("libraries.scatterPattern"),
 }

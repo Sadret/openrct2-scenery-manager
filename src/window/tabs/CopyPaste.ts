@@ -116,7 +116,6 @@ export default new GUI.Tab(5465).add(
                     Clipboard.settings.filter[key],
                 ),
             ),
-            // TODO: [design] adjust
             new GUI.Space(6), // vfill
         ),
     ),

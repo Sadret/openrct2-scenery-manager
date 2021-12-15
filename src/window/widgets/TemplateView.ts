@@ -9,7 +9,7 @@ import * as Coordinates from "../../utils/Coordinates";
 
 import FileView from "./FileView";
 
-export default class extends FileView<TemplateData> {
+export default class extends FileView<IndexedTemplateData> {
     constructor(height?: number) {
         super(
             [{
@@ -29,13 +29,11 @@ export default class extends FileView<TemplateData> {
         );
     }
 
-    getItem(file: IFile<TemplateData>): ListViewItem {
+    getItem(file: IFile<IndexedTemplateData>): ListViewItem {
         const data = file.getContent();
-        // TODO: does this ever happen?
-        // if (data === undefined)
-        //     return [file.getName()];
-        const range = Coordinates.toMapRange(data);
-        const num: number = data.reduce((acc, tile) => acc + tile.elements.length, 0);
+        const templateData = data.template;
+        const range = Coordinates.toMapRange(templateData);
+        const num: number = templateData.reduce((acc, tile) => acc + tile.elements.length, 0);
         return [
             file.getName(),
             String(range.rightBottom.x - range.leftTop.x + 1),
