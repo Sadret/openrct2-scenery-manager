@@ -30,7 +30,7 @@ export function copy(src: WallElement, dst: WallElement): void {
     dst.primaryColour = src.primaryColour;
     dst.secondaryColour = src.secondaryColour;
     dst.tertiaryColour = src.tertiaryColour;
-    dst.bannerIndex = src.bannerIndex === null ? 0xffff : src.bannerIndex;
+    dst.bannerIndex = src.bannerIndex;
     dst.slope = src.slope;
 }
 

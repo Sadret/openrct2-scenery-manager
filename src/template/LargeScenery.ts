@@ -29,7 +29,7 @@ export function copy(src: LargeSceneryElement, dst: LargeSceneryElement): void {
     dst.object = src.object;
     dst.primaryColour = src.primaryColour;
     dst.secondaryColour = src.secondaryColour;
-    dst.bannerIndex = src.bannerIndex || 0;
+    dst.bannerIndex = src.bannerIndex;
     dst.sequence = src.sequence;
 }
 

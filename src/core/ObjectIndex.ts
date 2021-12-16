@@ -48,8 +48,7 @@ export function getSceneryObjectIndex(
         MapIO.forEachElement((tile, element) => {
             switch (element.type) {
                 case "footpath":
-                    const isLegacy = element.object !== 0xFFFF;
-                    if (isLegacy) {
+                    if (element.object !== null) {
                         const footpathIdentifier = Context.getIdentifier(
                             "footpath",
                             element.object,

@@ -149,12 +149,15 @@ export default class Template {
     ): TileElement | undefined {
         if (element.type === "footpath") {
             const copy = { ...element };
-            if (!filter(copy, false))
-                copy.object = -1;
+            if (!filter(copy, false)) {
+                copy.object = null;
+                copy.surfaceObject = null;
+                copy.railingsObject = null;
+            }
             if (!filter(copy, true))
                 copy.addition = null;
-            if (copy.object < 0 && copy.addition === null)
-                return undefined
+            if (copy.object === null && copy.surfaceObject === null && copy.addition === null)
+                return undefined;
             else
                 return copy;
         } else

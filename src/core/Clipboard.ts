@@ -27,7 +27,7 @@ export const settings = {
         footpath_addition: new BooleanProperty(true),
         large_scenery: new BooleanProperty(true),
         small_scenery: new BooleanProperty(true),
-        surface: new BooleanProperty(true),
+        surface: new BooleanProperty(false),
         track: new BooleanProperty(true),
         wall: new BooleanProperty(true),
     } as { [key: string]: BooleanProperty },

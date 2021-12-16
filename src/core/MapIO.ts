@@ -161,7 +161,7 @@ export function clearGhost(coordsList: CoordsXY[], mode: PlaceMode): void {
 function insertElement(tile: Tile, data: TileElement, append: boolean, isGhost: boolean): void {
     if (tile.numElements === 0)
         return;
-    if (data.type === "footpath" && data.object < 0) {
+    if (data.type === "footpath" && data.object === null && data.surfaceObject === null) {
         const element = Arrays.find(tile.elements, ((element: TileElement): element is FootpathElement =>
             element.type === "footpath" && element.baseHeight === data.baseHeight && element.addition === null
         ));
