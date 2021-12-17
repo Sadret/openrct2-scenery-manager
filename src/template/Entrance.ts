@@ -36,6 +36,8 @@ export function getPlaceActionData(
     tile: TileData,
     element: EntranceElement,
 ): PlaceActionData[] {
+    if (element.sequence !== 0)
+        return [];
     return [{
         type: "rideentranceexitplace",
         args: {
@@ -51,6 +53,8 @@ export function getRemoveActionData(
     tile: TileData,
     element: EntranceElement,
 ): RemoveActionData[] {
+    if (element.sequence !== 0)
+        return [];
     return [{
         type: "rideentranceexitremove",
         args: {
