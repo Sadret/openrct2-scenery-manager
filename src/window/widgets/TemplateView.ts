@@ -32,8 +32,8 @@ export default class extends FileView<IndexedTemplateData> {
     getItem(file: IFile<IndexedTemplateData>): ListViewItem {
         const data = file.getContent();
         const templateData = data.template;
-        const range = Coordinates.toMapRange(templateData);
-        const num: number = templateData.reduce((acc, tile) => acc + tile.elements.length, 0);
+        const range = templateData.mapRange;
+        const num: number = templateData.tiles.reduce((acc, tile) => acc + tile.elements.length, 0);
         return [
             file.getName(),
             String(range.rightBottom.x - range.leftTop.x + 1),

@@ -79,7 +79,7 @@ export default class Template {
 
         if (indexData !== undefined) {
             const index = new Index(indexData);
-            this.data.forEach(tileData =>
+            this.data.tiles.forEach(tileData =>
                 tileData.elements.forEach(element =>
                     get(element).loadIndex(element, index)
                 )
@@ -92,35 +92,54 @@ export default class Template {
     }
 
     public translate(offset: CoordsXYZ): Template {
-        return new Template(this.data.map(tile => ({
-            x: tile.x + offset.x,
-            y: tile.y + offset.y,
-            elements: tile.elements.map(element => ({
-                ...element,
-                baseHeight: element.baseHeight + offset.z / 8,
-                baseZ: element.baseZ + offset.z,
-                clearanceHeight: element.clearanceHeight + offset.z / 8,
-                clearanceZ: element.clearanceZ + offset.z,
+        if (Coordinates.equals(offset, Coordinates.NULL))
+            return this;
+        return new Template({
+            tiles: this.data.tiles.map(tile => ({
+                ...Coordinates.add(tile, offset),
+                elements: tile.elements.map(element => ({
+                    ...element,
+                    baseHeight: element.baseHeight + offset.z / 8,
+                    baseZ: element.baseZ + offset.z,
+                    clearanceHeight: element.clearanceHeight + offset.z / 8,
+                    clearanceZ: element.clearanceZ + offset.z,
+                })),
             })),
-        })));
+            mapRange: {
+                leftTop: Coordinates.add(this.data.mapRange.leftTop, offset),
+                rightBottom: Coordinates.add(this.data.mapRange.rightBottom, offset),
+            },
+        });
     }
 
     public rotate(rotation: number): Template {
         if ((rotation & 3) === 0)
             return this;
-        return new Template(this.data.map(tile => ({
-            ...Coordinates.rotate(tile, rotation),
-            elements: tile.elements.map(element => get(element).rotate(element, rotation)),
-        })));
+        return new Template({
+            tiles: this.data.tiles.map(tile => ({
+                ...Coordinates.rotate(tile, rotation),
+                elements: tile.elements.map(element => get(element).rotate(element, rotation)),
+            })),
+            mapRange: {
+                leftTop: Coordinates.rotate(this.data.mapRange.leftTop, rotation),
+                rightBottom: Coordinates.rotate(this.data.mapRange.rightBottom, rotation),
+            },
+        });
     }
 
     public mirror(mirrored: boolean = true): Template {
         if (!mirrored)
             return this;
-        return new Template(this.data.map(tile => ({
-            ...Coordinates.mirror(tile),
-            elements: tile.elements.map(element => get(element).mirror(element)),
-        })));
+        return new Template({
+            tiles: this.data.tiles.map(tile => ({
+                ...Coordinates.mirror(tile),
+                elements: tile.elements.map(element => get(element).mirror(element)),
+            })),
+            mapRange: {
+                leftTop: Coordinates.mirror(this.data.mapRange.leftTop),
+                rightBottom: Coordinates.mirror(this.data.mapRange.rightBottom),
+            },
+        });
     }
 
     public static copy(src: TileElement, dst: TileElement = {} as TileElement): TileElement {
@@ -164,10 +183,10 @@ export default class Template {
             return filter(element, false) ? element : undefined;
     }
 
-    public static filterTemplate(
-        data: TemplateData,
+    public static filterTileData(
+        data: TileData[],
         filter: ElementFilter,
-    ): TemplateData {
+    ): TileData[] {
         return data.map(tileData => ({
             ...tileData,
             elements: tileData.elements.map(element =>
@@ -175,19 +194,22 @@ export default class Template {
             ).filter<TileElement>((element: TileElement | undefined): element is TileElement =>
                 element !== undefined
             ),
-        }));
+        })).filter(tileData => tileData.elements.length > 0);
     }
 
     public filter(
         filter: ElementFilter,
     ): Template {
-        return new Template(Template.filterTemplate(this.data, filter));
+        return new Template({
+            tiles: Template.filterTileData(this.data.tiles, filter),
+            mapRange: this.data.mapRange,
+        });
     }
 
     public getIndexData(): IndexData {
         const index = new Index();
 
-        this.data.forEach(tileData =>
+        this.data.tiles.forEach(tileData =>
             tileData.elements.forEach(element =>
                 get(element).saveIndex(element, index)
             )

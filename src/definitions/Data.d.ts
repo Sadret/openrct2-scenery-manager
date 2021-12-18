@@ -15,7 +15,10 @@ interface TileData {
     readonly elements: TileElement[];
 }
 
-type TemplateData = TileData[];
+interface TemplateData {
+    tiles: TileData[];
+    mapRange: MapRange;
+}
 
 /*
  * SAVE

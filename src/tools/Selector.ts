@@ -52,7 +52,7 @@ export default class Selector extends Tool {
         }
         if (this.drag) {
             this.end = e.mapCoords;
-            MapIO.setTileSelection(Coordinates.span(this.start, this.end));
+            MapIO.setTileSelection(Coordinates.toMapRange([this.start, this.end]));
         }
     }
     public onUp(

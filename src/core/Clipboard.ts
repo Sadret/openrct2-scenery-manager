@@ -46,12 +46,11 @@ const builder = new class extends Builder {
         this.mode = "up";
     }
 
-    protected getTemplate(coords: CoordsXY, offset: CoordsXY): TemplateData {
+    protected getTemplate(coords: CoordsXY, offset: CoordsXY): TemplateData | undefined {
         const template = getTemplate();
         if (template === undefined) {
             ui.showError("Can't paste template...", "Clipboard is empty!");
-            this.cancel();
-            return [];
+            return undefined;
         }
 
         let rotation = settings.rotation.getValue();
@@ -198,24 +197,28 @@ export function copy(cut: boolean = false): void {
 
     const center = Coordinates.center(tiles);
 
+    const heights: number[] = tiles.map(
+        MapIO.getTile
+    ).map(
+        MapIO.getSurfaceHeight
+    ).sort();
+    const heightOffset = heights[Math.floor(heights.length / 2)];
+
     let data = MapIO.read(tiles);
-    data = Template.filterTemplate(data, filter);
+    data = Template.filterTileData(data, filter);
     // TODO: sort
     // data = MapIO.sort(data);
 
     if (cut)
         MapIO.clear(tiles, settings.placeMode.getValue(), filter);
 
-    const heights: number[] = tiles.map(
-        MapIO.getTile
-    ).map(
-        MapIO.getSurfaceHeight
-    ).sort();
-
-    addTemplate(new Template(data).translate({
+    addTemplate(new Template({
+        tiles: data,
+        mapRange: Coordinates.toMapRange(tiles),
+    }).translate({
         x: -center.x,
         y: -center.y,
-        z: -heights[Math.floor(heights.length / 2)],
+        z: -heightOffset,
     }));
 }
 

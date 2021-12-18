@@ -7,6 +7,7 @@
 
 import * as Arrays from "../../utils/Arrays";
 import * as Context from "../../core/Context";
+import * as Coordinates from "../../utils/Coordinates";
 import * as MapIO from "../../core/MapIO";
 
 import Brush from "../../tools/Brush";
@@ -33,10 +34,15 @@ function getLabel(object: LoadedObject | undefined) {
 }
 
 function provide(coordsList: CoordsXY[]): TemplateData {
-    return coordsList.map(coords => ({
-        ...coords,
-        elements: [],
-    }));
+    return {
+        tiles: coordsList.map(coords => {
+            return {
+                ...coords,
+                elements: [],
+            }
+        }),
+        mapRange: Coordinates.toMapRange(coordsList),
+    };
 
     // TODO: [benches] brush
     // return {

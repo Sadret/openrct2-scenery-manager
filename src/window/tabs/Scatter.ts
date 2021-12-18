@@ -59,12 +59,15 @@ function getRandomData(): TemplateData | undefined {
 
 function provide(coordsList: CoordsXY[]): TemplateData {
     // TODO: [scatter] brush
-    return coordsList.map(coords => {
-        return {
-            ...coords,
-            elements: [],
-        }
-    });
+    return {
+        tiles: coordsList.map(coords => {
+            return {
+                ...coords,
+                elements: [],
+            }
+        }),
+        mapRange: Coordinates.toMapRange(coordsList),
+    };
 
     // return {
     //     elements: tiles.map<ElementData | undefined>((coords: CoordsXY) => {

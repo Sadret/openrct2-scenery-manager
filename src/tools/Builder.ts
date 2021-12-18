@@ -26,7 +26,7 @@ export default abstract class Builder extends Tool {
     protected abstract getTemplate(
         coords: CoordsXY,
         offset: CoordsXY,
-    ): TemplateData;
+    ): TemplateData | undefined;
 
     protected abstract getPlaceMode(): PlaceMode;
 
@@ -34,7 +34,7 @@ export default abstract class Builder extends Tool {
 
     private removeGhost(): void {
         if (this.template !== undefined) {
-            MapIO.clearGhost(this.template, this.placeMode);
+            MapIO.clearGhost(this.template.tiles, this.placeMode);
             this.template = undefined;
             MapIO.setTileSelection([]);
         }
@@ -48,9 +48,11 @@ export default abstract class Builder extends Tool {
         this.removeGhost();
         if (this.coords !== undefined && this.coords.x !== 0 && this.coords.y !== 0) {
             this.template = this.getTemplate(this.coords, this.offset);
+            if (this.template === undefined)
+                return this.cancel();
             this.placeMode = this.getPlaceMode();
-            MapIO.place(this.template, this.placeMode, isGhost, this.getFilter());
-            MapIO.setTileSelection(this.template);
+            MapIO.place(this.template.tiles, this.placeMode, isGhost, this.getFilter());
+            MapIO.setTileSelection(this.template.mapRange);
         }
     }
 

@@ -56,7 +56,7 @@ function round(coords: CoordsXY): CoordsXY {
     };
 }
 
-function add(u: CoordsXY, v: CoordsXY): CoordsXY {
+export function add(u: CoordsXY, v: CoordsXY): CoordsXY {
     return {
         x: u.x + v.x,
         y: u.y + v.y,
@@ -104,19 +104,6 @@ export function mirror(coords: CoordsXY, mirrored: boolean = true) {
 export function center(tiles: CoordsXY[]): CoordsXY {
     const range: MapRange = toMapRange(tiles);
     return round(scale(add(range.rightBottom, range.leftTop), 0.5));
-}
-
-export function span(start: CoordsXY, end: CoordsXY): MapRange {
-    return {
-        leftTop: {
-            x: Math.min(start.x, end.x),
-            y: Math.min(start.y, end.y),
-        },
-        rightBottom: {
-            x: Math.max(start.x, end.x),
-            y: Math.max(start.y, end.y),
-        },
-    };
 }
 
 export function centered(center: CoordsXY, size: CoordsXY): MapRange {

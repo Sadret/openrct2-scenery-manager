@@ -68,7 +68,7 @@ export function setTileSelection(data: CoordsXY[] | MapRange): void {
 
 export function read(
     coordsList: CoordsXY[],
-): TemplateData {
+): TileData[] {
     return coordsList.map(coords => ({
         ...coords,
         elements: getTile(coords).elements.map(element => Template.copy(element)),
@@ -76,7 +76,7 @@ export function read(
 }
 
 export function place(
-    templateData: TemplateData,
+    templateData: TileData[],
     mode: PlaceMode,
     isGhost: boolean,
     filter: ElementFilter,
