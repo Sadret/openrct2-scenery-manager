@@ -36,6 +36,7 @@ export const settings = {
     height: new NumberProperty(0),
     cursorMode: new Property<CursorMode>("surface"),
     placeMode: new Property<PlaceMode>("safe_merge"),
+    ghost: new BooleanProperty(true),
 };
 
 const builder = new class extends Builder {
@@ -46,12 +47,21 @@ const builder = new class extends Builder {
         this.mode = "up";
     }
 
-    protected getTemplate(coords: CoordsXY, offset: CoordsXY): TemplateData | undefined {
-        const template = getTemplate();
+    protected getTemplate(
+        coords: CoordsXY,
+        offset: CoordsXY,
+        rangeOnly: boolean,
+    ): TemplateData | undefined {
+        let template = getTemplate();
         if (template === undefined) {
             ui.showError("Can't paste template...", "Clipboard is empty!");
             return undefined;
         }
+        if (rangeOnly)
+            template = new Template({
+                tiles: [],
+                mapRange: template.data.mapRange,
+            });
 
         let rotation = settings.rotation.getValue();
         if (Configuration.copyPaste.cursor.rotation.enabled.getValue()) {
@@ -101,6 +111,7 @@ settings.rotation.bind(() => builder.build());
 settings.mirrored.bind(() => builder.build());
 settings.height.bind(() => builder.build());
 settings.placeMode.bind(() => builder.build());
+settings.ghost.bind(() => builder.build());
 Object.keys(settings.filter).forEach(key => settings.filter[key].bind(() => builder.build()));
 
 function filter(element: TileElement, addition: boolean) {
@@ -254,6 +265,10 @@ export function cyclePlaceMode(): void {
     settings.placeMode.setValue(
         placeModes[(placeModes.indexOf(settings.placeMode.getValue()) + 1) % placeModes.length]
     );
+}
+
+export function toggleGhost(): void {
+    settings.ghost.flip();
 }
 
 export function deleteTemplate(): void {

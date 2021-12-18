@@ -5,6 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Clipboard from "../core/Clipboard";
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
 
@@ -26,6 +27,7 @@ export default abstract class Builder extends Tool {
     protected abstract getTemplate(
         coords: CoordsXY,
         offset: CoordsXY,
+        rangeOnly: boolean,
     ): TemplateData | undefined;
 
     protected abstract getPlaceMode(): PlaceMode;
@@ -47,7 +49,7 @@ export default abstract class Builder extends Tool {
             return;
         this.removeGhost();
         if (this.coords !== undefined && this.coords.x !== 0 && this.coords.y !== 0) {
-            this.template = this.getTemplate(this.coords, this.offset);
+            this.template = this.getTemplate(this.coords, this.offset, isGhost && !Clipboard.settings.ghost.getValue());
             if (this.template === undefined)
                 return this.cancel();
             this.placeMode = this.getPlaceMode();

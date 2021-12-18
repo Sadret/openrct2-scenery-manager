@@ -89,8 +89,14 @@ export function register() {
     ui.registerShortcut({
         id: "scenery-manager.placeMode",
         text: "[SM] Cycle place mode",
-        bindings: ["CTRL+G", "GUI+G"],
+        bindings: ["CTRL+P", "GUI+P"],
         callback: Clipboard.cyclePlaceMode,
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.ghost",
+        text: "[SM] Toggle ghost",
+        bindings: ["CTRL+G", "GUI+G"],
+        callback: Clipboard.toggleGhost,
     });
     ui.registerShortcut({
         id: "scenery-manager.settings.decreaseHeight",

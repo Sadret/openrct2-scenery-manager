@@ -103,7 +103,18 @@ export default new GUI.Tab(5465).add(
                         ["safe_merge", "safe_replace", "raw_merge", "raw_replace"],
                         Strings.toDisplayString,
                     )
-                )
+                ),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Label({
+                        text: "Ghost:",
+                    }),
+                    new GUI.TextButton({
+                        onClick: () => Clipboard.settings.ghost.flip(),
+                    }).bindText(
+                        Clipboard.settings.ghost,
+                        value => value ? "Yes" : "No",
+                    ),
+                ),
             ),
         ),
         new GUI.GroupBox({
@@ -116,7 +127,7 @@ export default new GUI.Tab(5465).add(
                     Clipboard.settings.filter[key],
                 ),
             ),
-            new GUI.Space(6), // vfill
+            new GUI.Space(22), // vfill
         ),
     ),
 );
