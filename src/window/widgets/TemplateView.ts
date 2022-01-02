@@ -5,11 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../../utils/Coordinates";
-
 import FileView from "./FileView";
 
-export default class extends FileView<IndexedTemplateData> {
+export default class extends FileView<TemplateData> {
     constructor(height?: number) {
         super(
             [{
@@ -29,11 +27,10 @@ export default class extends FileView<IndexedTemplateData> {
         );
     }
 
-    getItem(file: IFile<IndexedTemplateData>): ListViewItem {
+    getItem(file: IFile<TemplateData>): ListViewItem {
         const data = file.getContent();
-        const templateData = data.template;
-        const range = templateData.mapRange;
-        const num: number = templateData.tiles.reduce((acc, tile) => acc + tile.elements.length, 0);
+        const range = data.mapRange;
+        const num: number = data.tiles.reduce((acc, tile) => acc + tile.elements.length, 0);
         return [
             file.getName(),
             String(range.rightBottom.x - range.leftTop.x + 1),

@@ -29,4 +29,4 @@ type SceneryFilterType =
     "wall";
 
 // TODO: move?
-type ElementFilter = (element: TileElement, addition: boolean) => boolean;
+type ElementFilter = (element: TileElement | ElementData, addition: boolean) => boolean;

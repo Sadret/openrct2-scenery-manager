@@ -5,16 +5,13 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Context from "../core/Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
-import Index from "../utils/Index";
-
-
-
 const bits = [0, 1, 2, 3];
 
-export function rotate(element: FootpathElement, rotation: number): FootpathElement {
+export function rotate(element: FootpathData, rotation: number): FootpathData {
     return {
         ...element,
         slopeDirection: Directions.rotate(element.slopeDirection, rotation),
@@ -23,7 +20,7 @@ export function rotate(element: FootpathElement, rotation: number): FootpathElem
     };
 }
 
-export function mirror(element: FootpathElement): FootpathElement {
+export function mirror(element: FootpathData): FootpathData {
     return {
         ...element,
         slopeDirection: Directions.mirror(element.slopeDirection),
@@ -32,10 +29,10 @@ export function mirror(element: FootpathElement): FootpathElement {
     };
 }
 
-export function copy(src: FootpathElement, dst: FootpathElement): void {
-    dst.object = src.object;
-    dst.surfaceObject = src.surfaceObject;
-    dst.railingsObject = src.railingsObject;
+export function copyBase(
+    src: FootpathData | FootpathElement,
+    dst: FootpathData | FootpathElement,
+): void {
     dst.edges = src.edges;
     dst.corners = src.corners;
     dst.slopeDirection = src.slopeDirection;
@@ -45,29 +42,46 @@ export function copy(src: FootpathElement, dst: FootpathElement): void {
     dst.queueBannerDirection = src.queueBannerDirection;
     dst.ride = src.ride;
     dst.station = src.station;
-    dst.addition = src.addition;
     dst.additionStatus = src.additionStatus;
     dst.isAdditionBroken = src.isAdditionBroken;
     dst.isAdditionGhost = src.isAdditionGhost;
 }
 
+export function copyFrom(src: FootpathElement, dst: FootpathData): void {
+    copyBase(src, dst);
+    dst.identifier = Context.getIdentifier("footpath", src.object);
+    dst.surfaceIdentifier = Context.getIdentifier("footpath_surface", src.surfaceObject);
+    dst.railingsIdentifier = Context.getIdentifier("footpath_railings", src.railingsObject);
+    dst.additionIdentifier = Context.getIdentifier("footpath_addition", src.addition);
+}
+
+export function copyTo(src: FootpathData, dst: FootpathElement): void {
+    copyBase(src, dst);
+    dst.object = Context.getObject("footpath", src.identifier) ?.index ?? null;
+    dst.surfaceObject = Context.getObject("footpath_surface", src.surfaceIdentifier) ?.index ?? null;
+    dst.railingsObject = Context.getObject("footpath_railings", src.railingsIdentifier) ?.index ?? null;
+    dst.addition = Context.getObject("footpath_addition", src.additionIdentifier) ?.index ?? null;
+}
+
 export function getPlaceActionData(
     tile: TileData,
-    element: FootpathElement,
+    element: FootpathData,
 ): PlaceActionData[] {
     const data = [] as PlaceActionData[];
 
-    const isLegacy = element.object !== null;
-    const object = isLegacy ? element.object : element.surfaceObject;
-    if (object !== null) {
+    if (element.identifier !== null || element.surfaceIdentifier !== null) {
+        const isLegacy = element.identifier !== null;
+        const object = isLegacy
+            ? Context.getObject("footpath", element.identifier)
+            : Context.getObject("footpath_surface", element.surfaceIdentifier);
         data.push({
             type: "footpathplace",
             args: {
                 ...element,
                 ...Coordinates.toWorldCoords(tile),
                 z: element.baseZ,
-                object: object,
-                railingsObject: element.railingsObject || 0,
+                object: object.index,
+                railingsObject: Context.getObject("footpath_railings", element.railingsIdentifier) ?.index ?? 0,
                 direction: 0xFF,
                 slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
                 constructFlags: Number(element.isQueue) + (Number(isLegacy) << 1),
@@ -75,14 +89,14 @@ export function getPlaceActionData(
         });
     }
 
-    if (element.addition !== null)
+    if (element.additionIdentifier !== null)
         data.push({
             type: "footpathadditionplace",
             args: {
                 ...element,
                 ...Coordinates.toWorldCoords(tile),
                 z: element.baseZ,
-                object: element.addition + 1,
+                object: Context.getObject("footpath_addition", element.additionIdentifier).index + 1,
             },
         });
 
@@ -91,11 +105,11 @@ export function getPlaceActionData(
 
 export function getRemoveActionData(
     tile: TileData,
-    element: FootpathElement,
+    element: FootpathData,
 ): RemoveActionData[] {
     const data = [] as RemoveActionData[];
 
-    if (element.object !== null || element.surfaceObject !== null) {
+    if (element.identifier !== null || element.surfaceIdentifier !== null) {
         data.push({
             type: "footpathremove",
             args: {
@@ -106,7 +120,7 @@ export function getRemoveActionData(
         });
     }
 
-    if (element.addition !== null)
+    if (element.additionIdentifier !== null)
         data.push({
             type: "footpathadditionremove",
             args: {
@@ -117,18 +131,4 @@ export function getRemoveActionData(
         });
 
     return data;
-}
-
-export function saveIndex(element: FootpathElement, index: Index): void {
-    index.set("footpath", element.object);
-    index.set("footpath_surface", element.surfaceObject);
-    index.set("footpath_railings", element.railingsObject);
-    index.set("footpath_addition", element.addition);
-}
-
-export function loadIndex(element: FootpathElement, index: Index): void {
-    element.object = index.get("footpath", element.object);
-    element.surfaceObject = index.get("footpath_surface", element.surfaceObject);
-    element.railingsObject = index.get("footpath_railings", element.railingsObject);
-    element.addition = index.get("footpath_addition", element.addition);
 }

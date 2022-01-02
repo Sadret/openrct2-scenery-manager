@@ -114,7 +114,7 @@ settings.placeMode.bind(() => builder.build());
 settings.ghost.bind(() => builder.build());
 Object.keys(settings.filter).forEach(key => settings.filter[key].bind(() => builder.build()));
 
-function filter(element: TileElement, addition: boolean) {
+function filter(element: TileElement | ElementData, addition: boolean) {
     if (addition)
         return settings.filter.footpath_addition.getValue();
     else
@@ -162,27 +162,24 @@ export function save(): void {
     if (template === undefined)
         return ui.showError("Can't save template...", "Nothing copied!");
 
-    Dialog.showSave<IndexedTemplateData>({
+    Dialog.showSave<TemplateData>({
         title: "Save template",
         fileSystem: Storage.libraries.templates,
         fileView: new TemplateView(),
-        fileContent: {
-            template: template.data,
-            index: template.getIndexData(),
-        },
+        fileContent: template.data,
     });
 }
 
-export function load(data?: IndexedTemplateData): void {
+export function load(data?: TemplateData): void {
     if (data === undefined)
-        Dialog.showLoad<IndexedTemplateData>({
+        Dialog.showLoad<TemplateData>({
             title: "Load template",
             fileSystem: Storage.libraries.templates,
             fileView: new TemplateView(),
             onLoad: load,
         });
     else {
-        const template = new Template(data.template, data.index);
+        const template = new Template(data);
         // TODO: filter available
         // const available = template.filter(Template.isAvailable);
         //

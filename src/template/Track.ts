@@ -8,14 +8,14 @@
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
-export function rotate(element: TrackElement, rotation: number): TrackElement {
+export function rotate(element: TrackData, rotation: number): TrackData {
     return {
         ...element,
         direction: Directions.rotate(element.direction, rotation),
     };
 }
 
-export function mirror(element: TrackElement): TrackElement {
+export function mirror(element: TrackData): TrackData {
     const mirroredTrackType = mirrorMap[element.trackType];
     return {
         ...element,
@@ -24,7 +24,10 @@ export function mirror(element: TrackElement): TrackElement {
     }
 }
 
-export function copy(src: TrackElement, dst: TrackElement): void {
+export function copyBase(
+    src: TrackData | TrackElement,
+    dst: TrackData | TrackElement,
+): void {
     dst.direction = src.direction;
     dst.trackType = src.trackType;
     dst.rideType = src.rideType;
@@ -40,9 +43,17 @@ export function copy(src: TrackElement, dst: TrackElement): void {
     dst.hasCableLift = src.hasCableLift;
 }
 
+export function copyFrom(src: TrackElement, dst: TrackData): void {
+    copyBase(src, dst);
+}
+
+export function copyTo(src: TrackData, dst: TrackElement): void {
+    copyBase(src, dst);
+}
+
 export function getPlaceActionData(
     tile: TileData,
-    element: TrackElement,
+    element: TrackData,
 ): PlaceActionData[] {
     if (element.sequence !== 0)
         return [];
@@ -66,7 +77,7 @@ export function getPlaceActionData(
 
 export function getRemoveActionData(
     tile: TileData,
-    element: TrackElement,
+    element: TrackData,
 ): RemoveActionData[] {
     if (element.sequence !== 0)
         return [];
@@ -80,9 +91,6 @@ export function getRemoveActionData(
         },
     }];
 }
-
-export function saveIndex(): void { }
-export function loadIndex(): void { }
 
 const mirrorMap: { [key: number]: number } = {
     16: 17,

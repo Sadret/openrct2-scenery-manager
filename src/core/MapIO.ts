@@ -16,7 +16,7 @@ import TileIterator from "../utils/TileIterator";
  * CONSTANTS
  */
 
-const GROUND: SurfaceElement = {
+const GROUND: SurfaceData = {
     type: "surface",
     baseHeight: 0,
     baseZ: 0,
@@ -26,14 +26,12 @@ const GROUND: SurfaceElement = {
     isGhost: false,
     isHidden: false,
     slope: 0,
-    surfaceStyle: 0,
-    edgeStyle: 0,
+    surfaceIdentifier: "rct2.terrain_surface.grass",
+    edgeIdentifier: "rct2.terrain_edge.rock",
     waterHeight: 0,
     grassLength: 1,
     ownership: 0,
     parkFences: 0,
-    hasOwnership: false,
-    hasConstructionRights: false,
 };
 
 /*
@@ -71,7 +69,7 @@ export function read(
 ): TileData[] {
     return coordsList.map(coords => ({
         ...coords,
-        elements: getTile(coords).elements.map(element => Template.copy(element)),
+        elements: getTile(coords).elements.map(element => Template.copyFrom(element)),
     }));
 }
 
@@ -151,22 +149,22 @@ export function clearGhost(coordsList: CoordsXY[], mode: PlaceMode): void {
         mode,
         (element, addition) => {
             if (addition)
-                return element.type === "footpath" && element.addition !== null && <boolean>element.isAdditionGhost;
+                return element.type === "footpath" && ("addition" in element ? element.addition !== null : element.additionIdentifier !== null) && <boolean>element.isAdditionGhost;
             else
                 return element.isGhost;
         }
     );
 }
 
-function insertElement(tile: Tile, data: TileElement, append: boolean, isGhost: boolean): void {
+function insertElement(tile: Tile, data: ElementData, append: boolean, isGhost: boolean): void {
     if (tile.numElements === 0)
         return;
-    if (data.type === "footpath" && data.object === null && data.surfaceObject === null) {
+    if (data.type === "footpath" && data.identifier === null && data.surfaceIdentifier === null) {
         const element = Arrays.find(tile.elements, ((element: TileElement): element is FootpathElement =>
             element.type === "footpath" && element.baseHeight === data.baseHeight && element.addition === null
         ));
         if (element !== undefined) {
-            element.addition = data.addition;
+            element.addition = Context.getObject("footpath_addition", data.additionIdentifier).index;
             element.additionStatus = data.additionStatus;
             element.isAdditionBroken = data.isAdditionBroken;
             element.isAdditionGhost = isGhost;
@@ -180,7 +178,7 @@ function insertElement(tile: Tile, data: TileElement, append: boolean, isGhost: 
                 idx++;
 
         const element = tile.insertElement(idx);
-        Template.copy(data, element);
+        Template.copyTo(data, element);
         element.isGhost = isGhost;
         if (element.type === "footpath" && element.addition !== null)
             element.isAdditionGhost = isGhost;
@@ -206,7 +204,7 @@ function removeElement(tile: Tile, idx: number): number {
         if (tile.elements.reduce((acc, element) => element.type === "surface" ? acc + 1 : acc, 0) === 1) {
             // insert new element first, avoid having zero elements
             const ground = tile.insertElement(0) as SurfaceElement;
-            Template.copy(GROUND, ground);
+            Template.copyTo(GROUND, ground);
             ground.ownership = element.ownership;
             ground.parkFences = element.parkFences;
             idx++;
@@ -215,7 +213,7 @@ function removeElement(tile: Tile, idx: number): number {
         // somehow this is the last one and there is no surface
         // this should never happen in normal use
         const ground = tile.insertElement(0) as SurfaceElement;
-        Template.copy(GROUND, ground);
+        Template.copyTo(GROUND, ground);
         idx++;
     }
     tile.removeElement(idx);

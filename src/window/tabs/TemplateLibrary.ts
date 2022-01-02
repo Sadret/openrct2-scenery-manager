@@ -25,7 +25,7 @@ export default new GUI.Tab({
                 StartUp.addTask(() => this.watch(Storage.libraries.templates));
             }
 
-            openFile(file: IFile<IndexedTemplateData>): void {
+            openFile(file: IFile<TemplateData>): void {
                 Clipboard.load(file.getContent());
             }
         }(),

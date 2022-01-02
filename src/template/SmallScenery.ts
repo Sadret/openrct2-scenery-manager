@@ -5,12 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Context from "../core/Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
-import Index from "../utils/Index";
-
-export function rotate(element: SmallSceneryElement, rotation: number): SmallSceneryElement {
+export function rotate(element: SmallSceneryData, rotation: number): SmallSceneryData {
     return {
         ...element,
         direction: Directions.rotate(element.direction, rotation),
@@ -18,7 +17,7 @@ export function rotate(element: SmallSceneryElement, rotation: number): SmallSce
     };
 }
 
-export function mirror(element: SmallSceneryElement): SmallSceneryElement {
+export function mirror(element: SmallSceneryData): SmallSceneryData {
     let direction = element.direction;
     let quadrant = element.quadrant;
 
@@ -41,18 +40,30 @@ export function mirror(element: SmallSceneryElement): SmallSceneryElement {
     };
 }
 
-export function copy(src: SmallSceneryElement, dst: SmallSceneryElement): void {
+export function copyBase(
+    src: SmallSceneryData | SmallSceneryElement,
+    dst: SmallSceneryData | SmallSceneryElement,
+): void {
     dst.direction = src.direction;
-    dst.object = src.object;
     dst.primaryColour = src.primaryColour;
     dst.secondaryColour = src.secondaryColour;
     dst.quadrant = src.quadrant;
     dst.age = src.age;
 }
 
+export function copyFrom(src: SmallSceneryElement, dst: SmallSceneryData): void {
+    copyBase(src, dst);
+    dst.identifier = Context.getIdentifier("small_scenery", src.object);
+}
+
+export function copyTo(src: SmallSceneryData, dst: SmallSceneryElement): void {
+    copyBase(src, dst);
+    dst.object = Context.getObject("small_scenery", src.identifier).index;
+}
+
 export function getPlaceActionData(
     tile: TileData,
-    element: SmallSceneryElement,
+    element: SmallSceneryData,
 ): PlaceActionData[] {
     return [{
         type: "smallsceneryplace",
@@ -60,13 +71,14 @@ export function getPlaceActionData(
             ...element,
             ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
+            object: Context.getObject("small_scenery", element.identifier).index,
         },
     }];
 }
 
 export function getRemoveActionData(
     tile: TileData,
-    element: SmallSceneryElement,
+    element: SmallSceneryData,
 ): RemoveActionData[] {
     return [{
         type: "smallsceneryremove",
@@ -74,31 +86,23 @@ export function getRemoveActionData(
             ...element,
             ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
+            object: Context.getObject("small_scenery", element.identifier).index,
         },
     }];
 }
 
-function isFullTile(element: SmallSceneryElement): boolean {
+function isFullTile(element: SmallSceneryData): boolean {
     return hasFlag(element, 0);
 }
 
-function isDiagonal(element: SmallSceneryElement): boolean {
+function isDiagonal(element: SmallSceneryData): boolean {
     return hasFlag(element, 8);
 }
 
-function isHalfSpace(element: SmallSceneryElement): boolean {
+function isHalfSpace(element: SmallSceneryData): boolean {
     return hasFlag(element, 24);
 }
 
-function hasFlag(element: SmallSceneryElement, bit: number) {
-    const object: SmallSceneryObject = context.getObject("small_scenery", element.object);
-    return (object.flags & (1 << bit)) !== 0;
-}
-
-export function saveIndex(element: SmallSceneryElement, index: Index): void {
-    index.set("small_scenery", element.object);
-}
-
-export function loadIndex(element: SmallSceneryElement, index: Index): void {
-    element.object = index.get("small_scenery", element.object);
+function hasFlag(element: SmallSceneryData, bit: number) {
+    return (Context.getObject("small_scenery", element.identifier).flags & (1 << bit)) !== 0;
 }

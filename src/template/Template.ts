@@ -15,9 +15,7 @@ import * as Surface from "./Surface";
 import * as Track from "./Track";
 import * as Wall from "./Wall";
 
-import Index from "../utils/Index";
-
-interface BaseElement<T extends TileElement> {
+interface BaseElement<S extends TileElement, T extends ElementData> {
     rotate(
         element: T,
         rotation: number,
@@ -25,9 +23,13 @@ interface BaseElement<T extends TileElement> {
     mirror(
         element: T,
     ): T;
-    copy(
-        src: T,
+    copyFrom(
+        src: S,
         dst: T,
+    ): void;
+    copyTo(
+        src: T,
+        dst: S,
     ): void;
     getPlaceActionData(
         tile: TileData,
@@ -37,25 +39,17 @@ interface BaseElement<T extends TileElement> {
         tile: TileData,
         element: T,
     ): RemoveActionData[];
-    saveIndex(
-        element: T,
-        index: Index,
-    ): void;
-    loadIndex(
-        element: T,
-        index: Index,
-    ): void;
 }
 
 const map: {
-    banner: BaseElement<BannerElement>,
-    entrance: BaseElement<EntranceElement>,
-    footpath: BaseElement<FootpathElement>,
-    large_scenery: BaseElement<LargeSceneryElement>,
-    small_scenery: BaseElement<SmallSceneryElement>,
-    surface: BaseElement<SurfaceElement>,
-    track: BaseElement<TrackElement>,
-    wall: BaseElement<WallElement>,
+    banner: BaseElement<BannerElement, BannerData>,
+    entrance: BaseElement<EntranceElement, EntranceData>,
+    footpath: BaseElement<FootpathElement, FootpathData>,
+    large_scenery: BaseElement<LargeSceneryElement, LargeSceneryData>,
+    small_scenery: BaseElement<SmallSceneryElement, SmallSceneryData>,
+    surface: BaseElement<SurfaceElement, SurfaceData>,
+    track: BaseElement<TrackElement, TrackData>,
+    wall: BaseElement<WallElement, WallData>,
 } = {
     banner: Banner,
     entrance: Entrance,
@@ -67,24 +61,15 @@ const map: {
     wall: Wall,
 };
 
-function get(element: TileElement): BaseElement<TileElement> {
+function get(element: TileElement | ElementData): BaseElement<TileElement, ElementData> {
     return map[element.type];
 }
 
 export default class Template {
-    public readonly data: TemplateData;
+    public data: TemplateData;
 
-    public constructor(data: TemplateData, indexData?: IndexData) {
+    public constructor(data: TemplateData) {
         this.data = data;
-
-        if (indexData !== undefined) {
-            const index = new Index(indexData);
-            this.data.tiles.forEach(tileData =>
-                tileData.elements.forEach(element =>
-                    get(element).loadIndex(element, index)
-                )
-            );
-        }
     }
 
     public transform(mirrored: boolean, rotation: number, offset: CoordsXYZ): Template {
@@ -142,7 +127,10 @@ export default class Template {
         });
     }
 
-    public static copy(src: TileElement, dst: TileElement = {} as TileElement): TileElement {
+    public static copyBase(
+        src: ElementData | TileElement,
+        dst: ElementData | TileElement = {} as TileElement
+    ): void {
         dst.type = src.type;
         dst.baseHeight = src.baseHeight;
         dst.baseZ = src.baseZ;
@@ -151,31 +139,42 @@ export default class Template {
         dst.occupiedQuadrants = src.occupiedQuadrants;
         dst.isGhost = src.isGhost;
         dst.isHidden = src.isHidden;
-        get(src).copy(src, dst);
+    }
+
+    public static copyFrom(src: TileElement, dst: ElementData = {} as ElementData): ElementData {
+        this.copyBase(src, dst);
+        get(src).copyFrom(src, dst);
         return dst;
     }
 
-    public static getPlaceActionData(tile: TileData, element: TileElement): PlaceActionData[] {
+    public static copyTo(src: ElementData, dst: TileElement): TileElement {
+        this.copyBase(src, dst);
+        get(src).copyTo(src, dst);
+        return dst;
+    }
+
+
+    public static getPlaceActionData(tile: TileData, element: ElementData): PlaceActionData[] {
         return get(element).getPlaceActionData(tile, element);
     }
-    public static getRemoveActionData(tile: TileData, element: TileElement): RemoveActionData[] {
+    public static getRemoveActionData(tile: TileData, element: ElementData): RemoveActionData[] {
         return get(element).getRemoveActionData(tile, element);
     }
 
     public static filterElement(
-        element: TileElement,
+        element: ElementData,
         filter: ElementFilter,
-    ): TileElement | undefined {
+    ): ElementData | undefined {
         if (element.type === "footpath") {
             const copy = { ...element };
             if (!filter(copy, false)) {
-                copy.object = null;
-                copy.surfaceObject = null;
-                copy.railingsObject = null;
+                copy.identifier = null;
+                copy.surfaceIdentifier = null;
+                copy.railingsIdentifier = null;
             }
             if (!filter(copy, true))
-                copy.addition = null;
-            if (copy.object === null && copy.surfaceObject === null && copy.addition === null)
+                copy.additionIdentifier = null;
+            if (copy.identifier === null && copy.surfaceIdentifier === null && copy.additionIdentifier === null)
                 return undefined;
             else
                 return copy;
@@ -191,7 +190,7 @@ export default class Template {
             ...tileData,
             elements: tileData.elements.map(element =>
                 Template.filterElement(element, filter)
-            ).filter<TileElement>((element: TileElement | undefined): element is TileElement =>
+            ).filter<ElementData>((element: ElementData | undefined): element is ElementData =>
                 element !== undefined
             ),
         })).filter(tileData => tileData.elements.length > 0);
@@ -204,17 +203,5 @@ export default class Template {
             tiles: Template.filterTileData(this.data.tiles, filter),
             mapRange: this.data.mapRange,
         });
-    }
-
-    public getIndexData(): IndexData {
-        const index = new Index();
-
-        this.data.tiles.forEach(tileData =>
-            tileData.elements.forEach(element =>
-                get(element).saveIndex(element, index)
-            )
-        );
-
-        return index.getIndexData();
     }
 }

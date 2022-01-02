@@ -5,28 +5,29 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Context from "../core/Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
-import Index from "../utils/Index";
-
-export function rotate(element: WallElement, rotation: number): WallElement {
+export function rotate(element: WallData, rotation: number): WallData {
     return {
         ...element,
         direction: Directions.rotate(element.direction, rotation),
     };
 }
 
-export function mirror(element: WallElement): WallElement {
+export function mirror(element: WallData): WallData {
     return {
         ...element,
         direction: Directions.mirror(element.direction),
     }
 }
 
-export function copy(src: WallElement, dst: WallElement): void {
+export function copyBase(
+    src: WallData | WallElement,
+    dst: WallData | WallElement,
+): void {
     dst.direction = src.direction;
-    dst.object = src.object;
     dst.primaryColour = src.primaryColour;
     dst.secondaryColour = src.secondaryColour;
     dst.tertiaryColour = src.tertiaryColour;
@@ -34,9 +35,19 @@ export function copy(src: WallElement, dst: WallElement): void {
     dst.slope = src.slope;
 }
 
+export function copyFrom(src: WallElement, dst: WallData): void {
+    copyBase(src, dst);
+    dst.identifier = Context.getIdentifier("wall", src.object);
+}
+
+export function copyTo(src: WallData, dst: WallElement): void {
+    copyBase(src, dst);
+    dst.object = Context.getObject("wall", src.identifier).index;
+}
+
 export function getPlaceActionData(
     tile: TileData,
-    element: WallElement,
+    element: WallData,
 ): PlaceActionData[] {
     return [{
         type: "wallplace",
@@ -45,13 +56,14 @@ export function getPlaceActionData(
             ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
             edge: element.direction,
+            object: Context.getObject("wall", element.identifier).index,
         },
     }];
 }
 
 export function getRemoveActionData(
     tile: TileData,
-    element: WallElement,
+    element: WallData,
 ): RemoveActionData[] {
     return [{
         type: "wallremove",
@@ -61,12 +73,4 @@ export function getRemoveActionData(
             z: element.baseZ,
         },
     }];
-}
-
-export function saveIndex(element: WallElement, index: Index): void {
-    index.set("wall", element.object);
-}
-
-export function loadIndex(element: WallElement, index: Index): void {
-    element.object = index.get("wall", element.object);
 }

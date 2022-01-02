@@ -6,13 +6,77 @@
  *****************************************************************************/
 
 /*
- * TEMPLATES
+ * ELEMENT DATA
+ */
+
+type SurfaceData = Omit<SurfaceElement,
+    "surfaceStyle" |
+    "edgeStyle" |
+    "hasOwnership" |
+    "hasConstructionRights"
+    > & {
+    surfaceIdentifier: string;
+    edgeIdentifier: string;
+};
+
+type FootpathData = Omit<FootpathElement,
+    "object" |
+    "surfaceObject" |
+    "railingsObject" |
+    "addition"
+    > & ({
+        identifier: string;
+        surfaceIdentifier: null;
+        railingsIdentifier: null;
+        additionIdentifier: string | null;
+    } | {
+        identifier: null;
+        surfaceIdentifier: string;
+        railingsIdentifier: string;
+        additionIdentifier: string | null;
+    } | {
+        identifier: null;
+        surfaceIdentifier: null;
+        railingsIdentifier: null;
+        additionIdentifier: string;
+    });
+
+type TrackData = TrackElement;
+
+type SmallSceneryData = Omit<SmallSceneryElement, "object"> & {
+    identifier: string;
+};
+
+type WallData = Omit<WallElement, "object"> & {
+    identifier: string;
+};
+
+type EntranceData = EntranceElement;
+
+type LargeSceneryData = Omit<LargeSceneryElement, "object"> & {
+    identifier: string;
+};
+
+type BannerData = BannerElement;
+
+type ElementData =
+    SurfaceData |
+    FootpathData |
+    TrackData |
+    SmallSceneryData |
+    WallData |
+    EntranceData |
+    LargeSceneryData |
+    BannerData;
+
+/*
+ * TEMPLATE DATA
  */
 
 interface TileData {
     readonly x: number;
     readonly y: number;
-    readonly elements: TileElement[];
+    readonly elements: ElementData[];
 }
 
 interface TemplateData {
@@ -21,21 +85,9 @@ interface TemplateData {
 }
 
 /*
- * SAVE
- */
-
-type IndexData = { [key: string]: { [key: number]: string } };
-
-interface IndexedTemplateData {
-    template: TemplateData;
-    index: IndexData;
-}
-
-/*
  * SCATTER
  */
 
-// TODO: unresolved
 type ScatterElement = SmallSceneryData | LargeSceneryData;
 
 interface ScatterData {

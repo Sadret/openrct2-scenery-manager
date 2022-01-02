@@ -44,15 +44,15 @@ function updateEmpty() {
 }
 
 function getLabel(element?: ScatterElement): string {
-    return element === undefined ? "(empty)" : (Context.getObject(element.type, element.object).name + " (" + element.identifier + ")");
+    return element === undefined ? "(empty)" : (Context.getObject(element.type, element.identifier).name + " (" + element.identifier + ")");
 }
 
 function getRandomData(): TemplateData | undefined {
     let rnd = Math.random() * 100;
     for (let i = 0; i < entries.length; i++) {
         const data = entries[i].getValue();
-        if (data !== undefined && (rnd -= data.weight) < 0)
-            return data.element;
+        // if (data !== undefined && (rnd -= data.weight) < 0)
+        //     return data.element;
     }
     return undefined;
 }

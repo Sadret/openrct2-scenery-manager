@@ -8,28 +8,39 @@
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
-export function rotate(element: BannerElement, rotation: number): BannerElement {
+export function rotate(element: BannerData, rotation: number): BannerData {
     return {
         ...element,
         direction: Directions.rotate(element.direction, rotation),
     };
 }
 
-export function mirror(element: BannerElement): BannerElement {
+export function mirror(element: BannerData): BannerData {
     return {
         ...element,
         direction: Directions.mirror(element.direction),
     };
 }
 
-export function copy(src: BannerElement, dst: BannerElement): void {
+export function copyBase(
+    src: BannerData | BannerElement,
+    dst: BannerData | BannerElement,
+): void {
     dst.direction = src.direction;
     dst.bannerIndex = src.bannerIndex;
 }
 
+export function copyFrom(src: BannerElement, dst: BannerData): void {
+    copyBase(src, dst);
+}
+
+export function copyTo(src: BannerData, dst: BannerElement): void {
+    copyBase(src, dst);
+}
+
 export function getPlaceActionData(
     tile: TileData,
-    element: BannerElement,
+    element: BannerData,
 ): PlaceActionData[] {
     return [{
         type: "bannerplace",
@@ -45,7 +56,7 @@ export function getPlaceActionData(
 
 export function getRemoveActionData(
     tile: TileData,
-    element: BannerElement,
+    element: BannerData,
 ): RemoveActionData[] {
     return [{
         type: "bannerremove",
@@ -56,6 +67,3 @@ export function getRemoveActionData(
         },
     }];
 }
-
-export function saveIndex(): void { }
-export function loadIndex(): void { }

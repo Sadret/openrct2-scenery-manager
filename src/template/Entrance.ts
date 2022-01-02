@@ -8,21 +8,24 @@
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
-export function rotate(element: EntranceElement, rotation: number): EntranceElement {
+export function rotate(element: EntranceData, rotation: number): EntranceData {
     return {
         ...element,
         direction: Directions.rotate(element.direction, rotation),
     };
 }
 
-export function mirror(element: EntranceElement): EntranceElement {
+export function mirror(element: EntranceData): EntranceData {
     return {
         ...element,
         direction: Directions.mirror(element.direction),
     }
 }
 
-export function copy(src: EntranceElement, dst: EntranceElement): void {
+function copyBase(
+    src: EntranceData | EntranceElement,
+    dst: EntranceData | EntranceElement,
+): void {
     dst.direction = src.direction;
     dst.object = src.object;
     dst.ride = src.ride;
@@ -32,9 +35,17 @@ export function copy(src: EntranceElement, dst: EntranceElement): void {
     dst.footpathSurfaceObject = src.footpathSurfaceObject;
 }
 
+export function copyFrom(src: EntranceElement, dst: EntranceData): void {
+    copyBase(src, dst);
+}
+
+export function copyTo(src: EntranceData, dst: EntranceElement): void {
+    copyBase(src, dst);
+}
+
 export function getPlaceActionData(
     tile: TileData,
-    element: EntranceElement,
+    element: EntranceData,
 ): PlaceActionData[] {
     if (element.sequence !== 0)
         return [];
@@ -51,7 +62,7 @@ export function getPlaceActionData(
 
 export function getRemoveActionData(
     tile: TileData,
-    element: EntranceElement,
+    element: EntranceData,
 ): RemoveActionData[] {
     if (element.sequence !== 0)
         return [];
@@ -65,6 +76,3 @@ export function getRemoveActionData(
         },
     }];
 }
-
-export function saveIndex(): void { }
-export function loadIndex(): void { }

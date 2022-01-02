@@ -5,37 +5,48 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Context from "../core/Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
-import Index from "../utils/Index";
-
-export function rotate(element: LargeSceneryElement, rotation: number): LargeSceneryElement {
+export function rotate(element: LargeSceneryData, rotation: number): LargeSceneryData {
     return {
         ...element,
         direction: Directions.rotate(element.direction, rotation),
     };
 }
 
-export function mirror(element: LargeSceneryElement): LargeSceneryElement {
+export function mirror(element: LargeSceneryData): LargeSceneryData {
     return {
         ...element,
         direction: Directions.mirror(element.direction),
     }
 }
 
-export function copy(src: LargeSceneryElement, dst: LargeSceneryElement): void {
+export function copyBase(
+    src: LargeSceneryData | LargeSceneryElement,
+    dst: LargeSceneryData | LargeSceneryElement,
+): void {
     dst.direction = src.direction;
-    dst.object = src.object;
     dst.primaryColour = src.primaryColour;
     dst.secondaryColour = src.secondaryColour;
     dst.bannerIndex = src.bannerIndex;
     dst.sequence = src.sequence;
 }
 
+export function copyFrom(src: LargeSceneryElement, dst: LargeSceneryData): void {
+    copyBase(src, dst);
+    dst.identifier = Context.getIdentifier("large_scenery", src.object);
+}
+
+export function copyTo(src: LargeSceneryData, dst: LargeSceneryElement): void {
+    copyBase(src, dst);
+    dst.object = Context.getObject("large_scenery", src.identifier).index;
+}
+
 export function getPlaceActionData(
     tile: TileData,
-    element: LargeSceneryElement,
+    element: LargeSceneryData,
 ): PlaceActionData[] {
     if (element.sequence !== 0)
         return [];
@@ -45,13 +56,14 @@ export function getPlaceActionData(
             ...element,
             ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
+            object: Context.getObject("large_scenery", element.identifier).index,
         },
     }];
 }
 
 export function getRemoveActionData(
     tile: TileData,
-    element: LargeSceneryElement,
+    element: LargeSceneryData,
 ): RemoveActionData[] {
     if (element.sequence !== 0)
         return [];
@@ -64,12 +76,4 @@ export function getRemoveActionData(
             tileIndex: 0,
         },
     }];
-}
-
-export function saveIndex(element: LargeSceneryElement, index: Index): void {
-    index.set("large_scenery", element.object);
-}
-
-export function loadIndex(element: LargeSceneryElement, index: Index): void {
-    element.object = index.get("large_scenery", element.object);
 }

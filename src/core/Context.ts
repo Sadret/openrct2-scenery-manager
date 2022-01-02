@@ -12,7 +12,12 @@ function loadCache(type: ObjectType): void {
     context.getAllObjects(type).forEach(object => cache[type][getIdentifierFromObject(object)] = object);
 }
 
-export function getObject(type: ObjectType, identifier: string): LoadedObject {
+export function getObject(type: "small_scenery", identifier: string): SmallSceneryObject;
+export function getObject(type: ObjectType, identifier: string): LoadedObject;
+export function getObject(type: ObjectType, identifier: string | null): LoadedObject | null;
+export function getObject(type: ObjectType, identifier: string | null): LoadedObject | null {
+    if (identifier === null)
+        return null;
     if (cache[type] === undefined)
         loadCache(type);
     const object = cache[type][identifier];
