@@ -18,7 +18,7 @@ export default {
 		typescript(),
 		terser({
 			format: {
-				preamble: "// Copyright (c) 2021 Sadret",
+				preamble: "// Copyright (c) 2022 Sadret",
 			},
 		}),
 	],
