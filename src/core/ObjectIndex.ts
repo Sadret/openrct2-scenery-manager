@@ -78,7 +78,7 @@ export function getSceneryObjectIndex(
                 case "wall":
                 case "large_scenery":
                     const identifier = Context.getIdentifier(
-                        "large_scenery",
+                        element.type,
                         element.object,
                     );
                     index[element.type][identifier].onMap++;
