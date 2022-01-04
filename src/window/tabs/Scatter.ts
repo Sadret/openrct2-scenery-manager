@@ -57,17 +57,9 @@ function getRandomData(): TemplateData | undefined {
     return undefined;
 }
 
-function provide(coordsList: CoordsXY[]): TemplateData {
+function provide(coordsList: CoordsXY[]): TileData[] {
     // TODO: [scatter] brush
-    return {
-        tiles: coordsList.map(coords => {
-            return {
-                ...coords,
-                elements: [],
-            }
-        }),
-        mapRange: Coordinates.toMapRange(coordsList),
-    };
+    return [];
 
     // return {
     //     elements: tiles.map<ElementData | undefined>((coords: CoordsXY) => {
@@ -193,7 +185,7 @@ export default new GUI.Tab(5459).add(
                 );
             }
 
-            protected getTemplateFromTiles(tiles: CoordsXY[], _offset: CoordsXY): TemplateData {
+            protected getTileDataFromTiles(tiles: CoordsXY[]): TileData[] {
                 return provide(tiles);
             }
         }(),

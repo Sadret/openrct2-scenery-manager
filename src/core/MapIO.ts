@@ -48,8 +48,6 @@ export function getTileSelection(): CoordsXY[] {
         });
 }
 
-export function setTileSelection(tileCoords: CoordsXY[]): void;
-export function setTileSelection(range: MapRange): void;
 export function setTileSelection(data: CoordsXY[] | MapRange): void {
     if (Array.isArray(data))
         ui.tileSelection.tiles = data.map(Coordinates.toWorldCoords);

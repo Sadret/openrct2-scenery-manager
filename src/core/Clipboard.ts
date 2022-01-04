@@ -47,22 +47,51 @@ const builder = new class extends Builder {
         this.mode = "up";
     }
 
-    protected getTemplate(
+    protected getTileData(
         coords: CoordsXY,
         offset: CoordsXY,
-        rangeOnly: boolean,
-    ): TemplateData | undefined {
+    ): TileData[] | undefined {
         let template = getTemplate();
         if (template === undefined) {
             ui.showError("Can't paste template...", "Clipboard is empty!");
             return undefined;
         }
-        if (rangeOnly)
-            template = new Template({
+        return this.transform(template, coords, offset).data.tiles;
+    }
+
+    protected getTileSelection(
+        coords: CoordsXY,
+        offset: CoordsXY,
+    ): MapRange | undefined {
+        let template = getTemplate();
+        if (template === undefined) {
+            ui.showError("Can't paste template...", "Clipboard is empty!");
+            return undefined;
+        }
+        return this.transform(
+            // TODO: bad
+            new Template({
                 tiles: [],
                 mapRange: template.data.mapRange,
-            });
+            }),
+            coords,
+            offset,
+        ).data.mapRange;
+    }
 
+    protected getPlaceMode(): PlaceMode {
+        return settings.placeMode.getValue();
+    }
+
+    protected getFilter(): ElementFilter {
+        return filter;
+    }
+
+    private transform(
+        template: Template,
+        coords: CoordsXY,
+        offset: CoordsXY,
+    ): Template {
         let rotation = settings.rotation.getValue();
         if (Configuration.copyPaste.cursor.rotation.enabled.getValue()) {
             const insensitivity = 10 - Configuration.copyPaste.cursor.rotation.sensitivity.getValue();
@@ -85,15 +114,7 @@ const builder = new class extends Builder {
             settings.mirrored.getValue(), rotation, { ...coords, z: height }
         ).filter(
             element => element.baseZ > 0
-        ).data;
-    }
-
-    protected getPlaceMode(): PlaceMode {
-        return settings.placeMode.getValue();
-    }
-
-    protected getFilter(): ElementFilter {
-        return filter;
+        );
     }
 }();
 

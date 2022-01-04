@@ -17,28 +17,33 @@ export default abstract class Builder extends Tool {
     // ghost
     private coords: CoordsXY | undefined = undefined;
     private offset = Coordinates.NULL;
-    private template: TemplateData | undefined = undefined;
+    private tileData: TileData[] | undefined = undefined;
+    private tileSelection: CoordsXY[] | MapRange | undefined = undefined;
     private placeMode: PlaceMode = "safe_merge";
 
     // drag
     private dragStartCoords = Coordinates.NULL;
     private dragEndCoords = Coordinates.NULL;
 
-    protected abstract getTemplate(
+    protected abstract getTileData(
         coords: CoordsXY,
         offset: CoordsXY,
-        rangeOnly: boolean,
-    ): TemplateData | undefined;
+    ): TileData[] | undefined;
+    protected abstract getTileSelection(
+        coords: CoordsXY,
+        offset: CoordsXY,
+    ): CoordsXY[] | MapRange | undefined;
 
     protected abstract getPlaceMode(): PlaceMode;
 
     protected abstract getFilter(): ElementFilter;
 
     private removeGhost(): void {
-        if (this.template !== undefined) {
-            MapIO.clearGhost(this.template.tiles, this.placeMode);
-            this.template = undefined;
+        if (this.tileData !== undefined) {
+            MapIO.clearGhost(this.tileData, this.placeMode);
             MapIO.setTileSelection([]);
+            this.tileData = [];
+            this.tileSelection = [];
         }
     }
 
@@ -49,12 +54,16 @@ export default abstract class Builder extends Tool {
             return;
         this.removeGhost();
         if (this.coords !== undefined && this.coords.x !== 0 && this.coords.y !== 0) {
-            this.template = this.getTemplate(this.coords, this.offset, isGhost && !Clipboard.settings.ghost.getValue());
-            if (this.template === undefined)
+            if (!isGhost || Clipboard.settings.ghost.getValue()) {
+                this.tileData = this.getTileData(this.coords, this.offset);
+                if (this.tileData === undefined)
+                    return this.cancel();
+                MapIO.place(this.tileData, this.placeMode, isGhost, this.getFilter());
+            }
+            this.tileSelection = this.getTileSelection(this.coords, this.offset);
+            if (this.tileSelection === undefined)
                 return this.cancel();
-            this.placeMode = this.getPlaceMode();
-            MapIO.place(this.template.tiles, this.placeMode, isGhost, this.getFilter());
-            MapIO.setTileSelection(this.template.mapRange);
+            MapIO.setTileSelection(this.tileSelection);
         }
     }
 

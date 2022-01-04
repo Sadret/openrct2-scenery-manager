@@ -26,6 +26,23 @@ const entries = Arrays.create<Property<LoadedObject | undefined>>(NUM,
     ) : undefined),
 );
 
+const picker = new class extends Picker {
+    private entry: Property<LoadedObject | undefined> = entries[0];
+    public setEntry(entry: Property<LoadedObject | undefined>): void {
+        this.entry = entry;
+    }
+
+    protected accept(element: TileElement): boolean {
+        if (element.type !== "footpath")
+            return (ui.showError("Cannot use this element...", "Element must be a footpath addition."), false);
+        const footpath = element;
+        if (footpath.addition === null)
+            return (ui.showError("Cannot use this element...", "Footpath has no addition."), false);
+        this.entry.setValue(context.getObject("footpath_addition", footpath.addition));
+        return true;
+    }
+}(`sm-picker-benches`);
+
 const objects = context.getAllObjects("footpath_addition") as (LoadedObject | undefined)[];
 objects.unshift(undefined);
 
@@ -33,53 +50,25 @@ function getLabel(object: LoadedObject | undefined) {
     return object === undefined ? "(empty)" : object.name + " (" + object.identifier + ")";
 }
 
-function provide(coordsList: CoordsXY[]): TemplateData {
-    return {
-        tiles: coordsList.map(coords => {
-            return {
-                ...coords,
-                elements: [],
-            }
-        }),
-        mapRange: Coordinates.toMapRange(coordsList),
-    };
-
-    // TODO: [benches] brush
-    // return {
-    //     elements: MapIO.read(tiles).filter(
-    //         (element: ElementData) => element.type === "footpath"
-    //     ).map<FootpathAdditionData | undefined>(element => {
-    //         const idx = Coordinates.parity(element, size.getValue());
-    //         const entry = entries[idx].getValue();
-    //         return entry === undefined ? undefined : {
-    //             ...element,
-    //             type: "footpath_addition",
-    //             identifier: Context.getIdentifierFromObject(entry),
-    //         };
-    //     }).filter<FootpathAdditionData>(
-    //         (data: FootpathAdditionData | undefined): data is FootpathAdditionData => data !== undefined
-    //     ),
-    //     tiles: tiles,
-    // };
-}
-
-function updateEntry(entry: Property<LoadedObject | undefined>, clear: boolean): void {
-    if (clear)
-        return entry.setValue(undefined);
-
-    new class extends Picker {
-        protected accept(element: TileElement): boolean {
-            if (element.type !== "footpath")
-                return (ui.showError("Cannot use this element...", "Element must be a footpath addition."), false);
-            const footpath = element;
-            if (footpath.addition === null)
-                return (ui.showError("Cannot use this element...", "Footpath has no addition."), false);
-            entry.setValue(context.getObject("footpath_addition", footpath.addition));
-            return true;
-        }
-    }(
-        "sm-picker-benches",
-    ).activate();
+function provide(tiles: CoordsXY[]): TileData[] {
+    return MapIO.read(tiles).map(
+        (tile: TileData) => ({
+            ...tile,
+            elements: tile.elements.filter(
+                (element: ElementData): element is FootpathData => element.type === "footpath"
+            ).map<FootpathData | undefined>(element => {
+                const idx = Coordinates.parity(tile, size.getValue());
+                const entry = entries[idx].getValue();
+                return entry && {
+                    ...element,
+                    type: "footpath",
+                    additionIdentifier: Context.getIdentifierFromObject(entry),
+                };
+            }).filter<FootpathData>(
+                (data: FootpathData | undefined): data is FootpathData => data !== undefined
+            ),
+        })
+    );
 }
 
 export default new GUI.Tab(5464).add(
@@ -90,7 +79,7 @@ export default new GUI.Tab(5464).add(
                 this.mode = "move";
             }
 
-            protected getTemplateFromTiles(tiles: CoordsXY[], _offset: CoordsXY): TemplateData {
+            protected getTileDataFromTiles(tiles: CoordsXY[]): TileData[] {
                 return provide(tiles);
             }
         }(),
@@ -124,14 +113,17 @@ export default new GUI.Tab(5464).add(
                 ),
                 new GUI.TextButton({
                     text: "Pick",
-                    onClick: () => updateEntry(entry, false),
+                    onClick: () => {
+                        picker.setEntry(entry);
+                        picker.activate();
+                    },
                 }).bindIsDisabled(
                     size,
                     size => size <= idx,
                 ),
                 new GUI.TextButton({
                     text: "Empty",
-                    onClick: () => updateEntry(entry, true),
+                    onClick: () => entry.setValue(undefined),
                 }).bindIsDisabled(
                     size,
                     size => size <= idx,

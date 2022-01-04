@@ -54,9 +54,9 @@ export default class Tool {
     }
 
     public onStart(): void { }
-    public onDown(e: ToolEventArgs): void { }
-    public onMove(e: ToolEventArgs): void { }
-    public onUp(e: ToolEventArgs): void { }
+    public onDown(_e: ToolEventArgs): void { }
+    public onMove(_e: ToolEventArgs): void { }
+    public onUp(_e: ToolEventArgs): void { }
     public onFinish(): void { }
 
     private static toTileCoordsArgs(e: ToolEventArgs): ToolEventArgs {

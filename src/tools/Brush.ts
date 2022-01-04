@@ -16,19 +16,24 @@ export default abstract class Brush extends Builder {
     public readonly size: NumberProperty = Configuration.brush.size;
     public readonly shape: Property<BrushShape> = Configuration.brush.shape;
 
-    protected getTemplate(
+    protected getTileData(
         coords: CoordsXY,
         offset: CoordsXY,
-    ): TemplateData {
+    ): TileData[] {
+        return this.getTileDataFromTiles(
+            this.getTileSelection(coords, offset),
+        );
+    }
+
+    protected getTileSelection(
+        coords: CoordsXY,
+        _offset: CoordsXY,
+    ): CoordsXY[] {
         const size: number = this.size.getValue();
         const shape: BrushShape = this.shape.getValue();
-        const tiles: CoordsXY[] = shape === "square"
+        return shape === "square"
             ? Coordinates.square(coords, size)
             : Coordinates.circle(coords, size);
-        return this.getTemplateFromTiles(
-            tiles,
-            offset,
-        );
     }
 
     protected getPlaceMode(): PlaceMode {
@@ -39,8 +44,7 @@ export default abstract class Brush extends Builder {
         return () => true;
     }
 
-    protected abstract getTemplateFromTiles(
+    protected abstract getTileDataFromTiles(
         tiles: CoordsXY[],
-        offset: CoordsXY,
-    ): TemplateData;
+    ): TileData[];
 }
