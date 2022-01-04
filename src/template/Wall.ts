@@ -42,13 +42,18 @@ export function copyFrom(src: WallElement, dst: WallData): void {
 
 export function copyTo(src: WallData, dst: WallElement): void {
     copyBase(src, dst);
-    dst.object = Context.getObject("wall", src.identifier).index;
+    const object = Context.getObject("wall", src.identifier);
+    if (object !== null)
+        dst.object = object.index;
 }
 
 export function getPlaceActionData(
     tile: TileData,
     element: WallData,
 ): PlaceActionData[] {
+    const object = Context.getObject("wall", element.identifier);
+    if (object === null)
+        return [];
     return [{
         type: "wallplace",
         args: {
@@ -56,7 +61,7 @@ export function getPlaceActionData(
             ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
             edge: element.direction,
-            object: Context.getObject("wall", element.identifier).index,
+            object: object.index,
         },
     }];
 }

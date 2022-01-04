@@ -74,31 +74,35 @@ export function getPlaceActionData(
         const object = isLegacy
             ? Context.getObject("footpath", element.identifier)
             : Context.getObject("footpath_surface", element.surfaceIdentifier);
-        data.push({
-            type: "footpathplace",
-            args: {
-                ...element,
-                ...Coordinates.toWorldCoords(tile),
-                z: element.baseZ,
-                object: object.index,
-                railingsObject: Context.getObject("footpath_railings", element.railingsIdentifier) ?.index ?? 0,
-                direction: 0xFF,
-                slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
-                constructFlags: Number(element.isQueue) + (Number(isLegacy) << 1),
-            },
-        });
+        if (object !== null)
+            data.push({
+                type: "footpathplace",
+                args: {
+                    ...element,
+                    ...Coordinates.toWorldCoords(tile),
+                    z: element.baseZ,
+                    object: object.index,
+                    railingsObject: Context.getObject("footpath_railings", element.railingsIdentifier) ?.index ?? 0,
+                    direction: 0xFF,
+                    slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
+                    constructFlags: Number(element.isQueue) + (Number(isLegacy) << 1),
+                },
+            });
     }
 
-    if (element.additionIdentifier !== null)
-        data.push({
-            type: "footpathadditionplace",
-            args: {
-                ...element,
-                ...Coordinates.toWorldCoords(tile),
-                z: element.baseZ,
-                object: Context.getObject("footpath_addition", element.additionIdentifier).index + 1,
-            },
-        });
+    if (element.additionIdentifier !== null) {
+        const object = Context.getObject("footpath_addition", element.additionIdentifier);
+        if (object !== null)
+            data.push({
+                type: "footpathadditionplace",
+                args: {
+                    ...element,
+                    ...Coordinates.toWorldCoords(tile),
+                    z: element.baseZ,
+                    object: object.index + 1,
+                },
+            });
+    }
 
     return data;
 }

@@ -41,7 +41,9 @@ export function copyFrom(src: LargeSceneryElement, dst: LargeSceneryData): void 
 
 export function copyTo(src: LargeSceneryData, dst: LargeSceneryElement): void {
     copyBase(src, dst);
-    dst.object = Context.getObject("large_scenery", src.identifier).index;
+    const object = Context.getObject("large_scenery", src.identifier);
+    if (object !== null)
+        dst.object = object.index;
 }
 
 export function getPlaceActionData(
@@ -50,13 +52,16 @@ export function getPlaceActionData(
 ): PlaceActionData[] {
     if (element.sequence !== 0)
         return [];
+    const object = Context.getObject("large_scenery", element.identifier);
+    if (object === null)
+        return [];
     return [{
         type: "largesceneryplace",
         args: {
             ...element,
             ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
-            object: Context.getObject("large_scenery", element.identifier).index,
+            object: object.index,
         },
     }];
 }

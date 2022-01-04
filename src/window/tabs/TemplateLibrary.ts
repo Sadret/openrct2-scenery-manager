@@ -14,9 +14,11 @@ import GUI from "../../gui/GUI";
 import TemplateView from "../widgets/TemplateView";
 
 export default new GUI.Tab({
-    frameBase: 5277,
-    frameCount: 7,
-    frameDuration: 4,
+    image: {
+        frameBase: 5277,
+        frameCount: 7,
+        frameDuration: 4,
+    },
 }).add(
     new FileExplorer(
         new class extends TemplateView {

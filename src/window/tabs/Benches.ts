@@ -17,20 +17,14 @@ import NumberProperty from "../../config/NumberProperty";
 import Picker from "../../tools/Picker";
 import Property from "../../config/Property";
 
+type Entry = { identifier: string, name: string } | null;
+
 const NUM = 8; // max 11
 const size = new NumberProperty(4, 1, NUM);
-const entries = Arrays.create<Property<LoadedObject | undefined>>(NUM,
-    idx => new Property<LoadedObject | undefined>(idx === 0 ? Context.getObject(
-        "footpath_addition",
-        "rct2.bench1",
-    ) : undefined),
-);
+const entries = Arrays.create(NUM, _ => new Property<Entry>(null));
 
 const picker = new class extends Picker {
-    private entry: Property<LoadedObject | undefined> = entries[0];
-    public setEntry(entry: Property<LoadedObject | undefined>): void {
-        this.entry = entry;
-    }
+    public entry: Property<Entry> = entries[0];
 
     protected accept(element: TileElement): boolean {
         if (element.type !== "footpath")
@@ -38,40 +32,68 @@ const picker = new class extends Picker {
         const footpath = element;
         if (footpath.addition === null)
             return (ui.showError("Cannot use this element...", "Footpath has no addition."), false);
-        this.entry.setValue(context.getObject("footpath_addition", footpath.addition));
+        const object = context.getObject("footpath_addition", footpath.addition);
+        const identifier = Context.getIdentifierFromObject(object);
+        this.entry.setValue({ identifier: identifier, name: object.name });
         return true;
     }
 }(`sm-picker-benches`);
 
-const objects = context.getAllObjects("footpath_addition") as (LoadedObject | undefined)[];
-objects.unshift(undefined);
-
-function getLabel(object: LoadedObject | undefined) {
-    return object === undefined ? "(empty)" : object.name + " (" + object.identifier + ")";
-}
+const EMPTY_STRING = "(empty)";
+const dropdowns = entries.map((_, idx) => new GUI.Dropdown({
+}).bindIsDisabled(
+    size,
+    size => size <= idx,
+));
 
 function provide(tiles: CoordsXY[]): TileData[] {
     return MapIO.read(tiles).map(
         (tile: TileData) => ({
             ...tile,
-            elements: tile.elements.filter(
-                (element: ElementData): element is FootpathData => element.type === "footpath"
-            ).map<FootpathData | undefined>(element => {
+            elements: tile.elements.map<FootpathData | undefined>(element => {
+                if (element.type !== "footpath")
+                    return undefined;
                 const idx = Coordinates.parity(tile, size.getValue());
                 const entry = entries[idx].getValue();
-                return entry && {
+                return entry === null ? undefined : {
                     ...element,
-                    type: "footpath",
-                    additionIdentifier: Context.getIdentifierFromObject(entry),
+                    additionIdentifier: entry.identifier,
                 };
             }).filter<FootpathData>(
-                (data: FootpathData | undefined): data is FootpathData => data !== undefined
+                (data): data is FootpathData => data !== undefined
             ),
         })
     );
 }
 
-export default new GUI.Tab(5464).add(
+export default new GUI.Tab({
+    image: 5464,
+    onOpen: () => {
+        const loadedEntries = [null as Entry].concat(
+            context.getAllObjects("footpath_addition").map(
+                object => ({
+                    identifier: Context.getIdentifierFromObject(object),
+                    name: object.name,
+                })
+            )
+        );
+
+        dropdowns.forEach((dropdown, idx) => {
+            const oldEntry = entries[idx].getValue();
+            if (oldEntry !== null)
+                entries[idx].setValue(Arrays.find(
+                    loadedEntries,
+                    entry => entry !== null && entry.identifier === oldEntry.identifier,
+                ));
+
+            dropdown.bindValue(
+                entries[idx],
+                loadedEntries,
+                entry => entry === null ? EMPTY_STRING : `${entry.name} (${entry.identifier})`,
+            );
+        });
+    },
+}).add(
     new BrushBox(
         new class extends Brush {
             constructor() {
@@ -101,20 +123,11 @@ export default new GUI.Tab(5464).add(
     }).add(
         ...entries.map((entry, idx) =>
             new GUI.HBox([3, 1, 1,]).add(
-                new GUI.Dropdown({
-                    items: objects.map(getLabel),
-                }).bindIsDisabled(
-                    size,
-                    size => size <= idx,
-                ).bindValue<LoadedObject | undefined>(
-                    entry,
-                    objects,
-                    getLabel,
-                ),
+                dropdowns[idx],
                 new GUI.TextButton({
                     text: "Pick",
                     onClick: () => {
-                        picker.setEntry(entry);
+                        picker.entry = entry;
                         picker.activate();
                     },
                 }).bindIsDisabled(
@@ -123,7 +136,7 @@ export default new GUI.Tab(5464).add(
                 ),
                 new GUI.TextButton({
                     text: "Empty",
-                    onClick: () => entry.setValue(undefined),
+                    onClick: () => entry.setValue(null),
                 }).bindIsDisabled(
                     size,
                     size => size <= idx,

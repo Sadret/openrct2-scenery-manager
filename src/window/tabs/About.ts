@@ -26,15 +26,15 @@ const text = [
 ];
 const separator = "+++++++++++++++++++++++++++++++++++++++++++++++++++";
 
-export default new GUI.Tab(
-    {
+export default new GUI.Tab({
+    image: {
         frameBase: 5367,
         frameCount: 8,
         frameDuration: 4,
     },
-    0,
-    GUI.Margin.uniform(8),
-).add(
+    padding: 0,
+    margin: GUI.Margin.uniform(8),
+}).add(
     ...text.map(lines => new GUI.VBox(0, GUI.Margin.none).add(
         new GUI.Label({
             text: separator,

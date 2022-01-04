@@ -12,8 +12,7 @@ function loadCache(type: ObjectType): void {
     context.getAllObjects(type).forEach(object => cache[type][getIdentifierFromObject(object)] = object);
 }
 
-export function getObject(type: "small_scenery", identifier: string): SmallSceneryObject;
-export function getObject(type: ObjectType, identifier: string): LoadedObject;
+export function getObject(type: "small_scenery", identifier: string | null): SmallSceneryObject | null;
 export function getObject(type: ObjectType, identifier: string | null): LoadedObject | null;
 export function getObject(type: ObjectType, identifier: string | null): LoadedObject | null {
     if (identifier === null)
@@ -21,9 +20,10 @@ export function getObject(type: ObjectType, identifier: string | null): LoadedOb
     if (cache[type] === undefined)
         loadCache(type);
     const object = cache[type][identifier];
-    if (object !== undefined && identifier !== getIdentifierFromObject(object))
-        loadCache(type);
-    return cache[type][identifier];
+    if (object && identifier === getIdentifierFromObject(object))
+        return object;
+    loadCache(type);
+    return cache[type][identifier] || null;
 }
 
 export function getIdentifierFromObject(object: LoadedObject): string {

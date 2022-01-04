@@ -72,11 +72,16 @@ Selector.onSelect(() => {
         refresh();
 });
 
-export default new OverlayTab(loading, {
-    frameBase: 5245,
-    frameCount: 8,
-    frameDuration: 4,
-}, undefined, undefined, 768, () => refresh(true)).add(
+export default new OverlayTab({
+    overlay: loading,
+    image: {
+        frameBase: 5245,
+        frameCount: 8,
+        frameDuration: 4,
+    },
+    width: 768,
+    onOpen: () => refresh(true),
+}).add(
     objectList,
     new GUI.HBox([1, 1, 1,]).add(
         refreshButton,

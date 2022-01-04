@@ -102,10 +102,12 @@ function findAndDelete(replace: boolean): void {
 }
 
 export default new GUI.Tab({
-    frameBase: 5205,
-    frameCount: 16,
-    frameDuration: 4,
-}, undefined, undefined, 384).add(
+    image: {
+        frameBase: 5205,
+        frameCount: 16,
+        frameDuration: 4,
+    },
+}).add(
     findGroup,
     new GUI.HBox(
         [1, 1, 1],

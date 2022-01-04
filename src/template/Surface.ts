@@ -44,8 +44,12 @@ export function copyFrom(src: SurfaceElement, dst: SurfaceData): void {
 
 export function copyTo(src: SurfaceData, dst: SurfaceElement): void {
     copyBase(src, dst);
-    dst.surfaceStyle = Context.getObject("terrain_surface", src.surfaceIdentifier).index;
-    dst.edgeStyle = Context.getObject("terrain_edge", src.edgeIdentifier).index;
+    const surfaceObject = Context.getObject("terrain_surface", src.surfaceIdentifier);
+    const edgeObject = Context.getObject("terrain_edge", src.edgeIdentifier);
+    if (surfaceObject !== null && edgeObject !== null) {
+        dst.surfaceStyle = surfaceObject.index;
+        dst.edgeStyle = edgeObject.index;
+    }
 }
 
 export function getPlaceActionData(

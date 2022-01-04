@@ -11,24 +11,17 @@ import Loading from "./Loading";
 export default class extends GUI.Tab {
     private readonly overlay: Loading;
 
-    public constructor(
+    public constructor(args: {
         overlay: Loading,
         image: number | ImageAnimation,
         padding?: number,
-        margin: GUI.Margin = GUI.Margin.default,
+        margin?: GUI.Margin,
         width?: number,
-        onOpen: Task = () => { },
-    ) {
-        super(
-            image,
-            padding,
-            margin,
-            width,
-            onOpen,
-        );
-
-        this.overlay = overlay;
-        overlay.setParent(this);
+        onOpen?: Task,
+    }) {
+        super(args);
+        this.overlay = args.overlay;
+        this.overlay.setParent(this);
     }
 
     public build(width: number, position: CoordsXY = { x: 0, y: 0 }): BuildDescriptor {

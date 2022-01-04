@@ -161,11 +161,14 @@ function insertElement(tile: Tile, data: ElementData, append: boolean, isGhost: 
         const element = Arrays.find(tile.elements, ((element: TileElement): element is FootpathElement =>
             element.type === "footpath" && element.baseHeight === data.baseHeight && element.addition === null
         ));
-        if (element !== undefined) {
-            element.addition = Context.getObject("footpath_addition", data.additionIdentifier).index;
-            element.additionStatus = data.additionStatus;
-            element.isAdditionBroken = data.isAdditionBroken;
-            element.isAdditionGhost = isGhost;
+        if (element !== null) {
+            const object = Context.getObject("footpath_addition", data.additionIdentifier);
+            if (object !== null) {
+                element.addition = object.index;
+                element.additionStatus = data.additionStatus;
+                element.isAdditionBroken = data.isAdditionBroken;
+                element.isAdditionGhost = isGhost;
+            }
         }
     } else {
         let idx = 0;

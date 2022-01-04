@@ -51,7 +51,7 @@ export default class FileView<T> extends GUI.ListView {
 
     public setSelectedFile(file: IFile<T> | undefined): void {
         const idx = Arrays.findIdx(this.files, file2 => File.equals(file, file2));
-        if (idx === undefined)
+        if (idx === null)
             this.setSelectedCell(undefined);
         else
             this.setSelectedCell({ row: idx, column: 0 });

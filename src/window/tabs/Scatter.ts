@@ -44,7 +44,8 @@ function updateEmpty() {
 }
 
 function getLabel(element?: ScatterElement): string {
-    return element === undefined ? "(empty)" : (Context.getObject(element.type, element.identifier).name + " (" + element.identifier + ")");
+    // TODO: ?.name
+    return element === undefined ? "(empty)" : (Context.getObject(element.type, element.identifier) ?.name + " (" + element.identifier + ")");
 }
 
 function getRandomData(): TemplateData | undefined {
@@ -171,7 +172,7 @@ function updateEntryWeight(entry: Entry, delta: number): void {
     });
 }
 
-export default new GUI.Tab(5459).add(
+export default new GUI.Tab({ image: 5459 }).add(
     new BrushBox(
         new class extends Brush {
             constructor() {

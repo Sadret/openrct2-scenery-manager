@@ -14,20 +14,20 @@ export function deepEquals(a: any, b: any): boolean {
         return a === b;
 }
 
-export function find<T, S extends T>(arr: T[], callback: (value: T) => value is S): S | undefined;
-export function find<T>(arr: T[], callback: (value: T) => boolean): T | undefined;
-export function find<T>(arr: T[], callback: (value: T) => boolean): T | undefined {
+export function find<T, S extends T>(arr: T[], callback: (value: T) => value is S): S | null;
+export function find<T>(arr: T[], callback: (value: T) => boolean): T | null;
+export function find<T>(arr: T[], callback: (value: T) => boolean): T | null {
     for (let idx = 0; idx < arr.length; idx++)
         if (callback(arr[idx]))
             return arr[idx];[1].find;
-    return undefined;
+    return null;
 }
 
-export function findIdx<T>(arr: T[], callback: (value: T) => boolean): number | undefined {
+export function findIdx<T>(arr: T[], callback: (value: T) => boolean): number | null {
     for (let idx = 0; idx < arr.length; idx++)
         if (callback(arr[idx]))
             return idx;
-    return undefined;
+    return null;
 }
 
 export function create<T>(size: number, fill: (idx: number) => T): T[] {
@@ -35,4 +35,11 @@ export function create<T>(size: number, fill: (idx: number) => T): T[] {
     for (let i = 0; i < size; i++)
         data.push(fill(i));
     return data;
+}
+
+export function includes<T>(arr: T[], value: any): boolean {
+    for (let idx = 0; idx < arr.length; idx++)
+        if (arr[idx] === value)
+            return true;
+    return false;
 }

@@ -11,7 +11,7 @@ import * as Strings from "../../utils/Strings";
 import GUI from "../../gui/GUI";
 import Selector from "../../tools/Selector";
 
-export default new GUI.Tab(5465).add(
+export default new GUI.Tab({ image: 5465 }).add(
     new GUI.HBox([3, 2]).add(
         new GUI.VBox().add(
             new GUI.GroupBox({

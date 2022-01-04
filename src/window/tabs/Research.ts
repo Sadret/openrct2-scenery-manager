@@ -7,15 +7,15 @@
 
 import GUI from "../../gui/GUI";
 
-export default new GUI.Tab(
-    {
+export default new GUI.Tab({
+    image: {
         frameBase: 5327,
         frameCount: 8,
         frameDuration: 4,
     },
-    8,
-    GUI.Margin.uniform(8),
-).add(
+    padding: 8,
+    margin: GUI.Margin.uniform(8),
+}).add(
     new GUI.Label({ text: "Version: 1.3.0", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
         new GUI.Label({ text: "- NSF (.park) support." }),

@@ -58,20 +58,25 @@ export function copyFrom(src: SmallSceneryElement, dst: SmallSceneryData): void 
 
 export function copyTo(src: SmallSceneryData, dst: SmallSceneryElement): void {
     copyBase(src, dst);
-    dst.object = Context.getObject("small_scenery", src.identifier).index;
+    const object = Context.getObject("small_scenery", src.identifier);
+    if (object !== null)
+        dst.object = object.index;
 }
 
 export function getPlaceActionData(
     tile: TileData,
     element: SmallSceneryData,
 ): PlaceActionData[] {
+    const object = Context.getObject("small_scenery", element.identifier);
+    if (object === null)
+        return [];
     return [{
         type: "smallsceneryplace",
         args: {
             ...element,
             ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
-            object: Context.getObject("small_scenery", element.identifier).index,
+            object: object.index,
         },
     }];
 }
@@ -80,13 +85,16 @@ export function getRemoveActionData(
     tile: TileData,
     element: SmallSceneryData,
 ): RemoveActionData[] {
+    const object = Context.getObject("small_scenery", element.identifier);
+    if (object === null)
+        return [];
     return [{
         type: "smallsceneryremove",
         args: {
             ...element,
             ...Coordinates.toWorldCoords(tile),
             z: element.baseZ,
-            object: Context.getObject("small_scenery", element.identifier).index,
+            object: object.index,
         },
     }];
 }
@@ -104,5 +112,6 @@ function isHalfSpace(element: SmallSceneryData): boolean {
 }
 
 function hasFlag(element: SmallSceneryData, bit: number) {
-    return (Context.getObject("small_scenery", element.identifier).flags & (1 << bit)) !== 0;
+    const object = Context.getObject("small_scenery", element.identifier);
+    return object !== null && (object.flags & (1 << bit)) !== 0;
 }
