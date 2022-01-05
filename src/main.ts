@@ -27,13 +27,11 @@ registerPlugin({
             return console.log("[scenery-manager] Loading cancelled: game runs in headless mode.");
 
         Updater.update(() => {
-            console.log("loading");
             Configuration.load();
             ui.registerMenuItem("Scenery Manager", () => MainWindow.open());
             Shortcuts.register();
             // TODO: only used for TemplateView. eliminate? (maybe load when tab focuses or just direct call here)
             StartUp.execute();
-            console.log("done");
         });
     },
 });

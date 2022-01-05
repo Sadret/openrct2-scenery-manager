@@ -10,6 +10,7 @@ import Benches from "./tabs/Benches";
 import Configuration from "./tabs/Configuration";
 import CopyPaste from "./tabs/CopyPaste";
 import GUI from "../gui/GUI";
+import ObjectIndex from "../core/ObjectIndex";
 import Objects from "./tabs/Objects";
 import Replace from "./tabs/Replace";
 import Research from "./tabs/Research";
@@ -34,4 +35,5 @@ export default new GUI.WindowManager(
         Research,
         About,
     ],
+    ObjectIndex.reload,
 );

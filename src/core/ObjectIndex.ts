@@ -11,7 +11,7 @@ import * as Objects from "../utils/Objects";
  * OBJECT INDEX
  */
 
-export default class ObjectIndex<T = LoadedObject> implements IObjectIndex<T> {
+export default class ObjectIndex<T extends LoadedObject = LoadedObject> implements IObjectIndex<T> {
     /*
      * INSTANCE
      */
@@ -27,12 +27,20 @@ export default class ObjectIndex<T = LoadedObject> implements IObjectIndex<T> {
     }
 
     public reload(): void {
+        this.index = {};
         ObjectIndex.getAllObjects(this.type).forEach(
             object => this.index[ObjectIndex.getIdentifier(object)] = this.fun(object)
         );
     }
 
     public get(identifier: string): T | null {
+        const object = this.index[identifier];
+        if (object === undefined)
+            return null;
+        if (ObjectIndex.getIdentifier(object) !== identifier) {
+            this.reload();
+            return this.get(identifier);
+        }
         return this.index[identifier] || null;
     }
 
@@ -50,6 +58,10 @@ export default class ObjectIndex<T = LoadedObject> implements IObjectIndex<T> {
         if (ObjectIndex.indices[type] === undefined)
             ObjectIndex.indices[type] = new ObjectIndex(type, o => o);
         return ObjectIndex.indices[type];
+    }
+
+    public static reload(): void {
+        Objects.values(ObjectIndex.indices).forEach(index => index.reload());
     }
 
     /*
