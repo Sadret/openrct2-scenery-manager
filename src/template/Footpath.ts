@@ -5,9 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Context from "../core/Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
+
+import ObjectIndex from "../core/ObjectIndex";
 
 const bits = [0, 1, 2, 3];
 
@@ -49,18 +50,18 @@ export function copyBase(
 
 export function copyFrom(src: FootpathElement, dst: FootpathData): void {
     copyBase(src, dst);
-    dst.identifier = Context.getIdentifier("footpath", src.object);
-    dst.surfaceIdentifier = Context.getIdentifier("footpath_surface", src.surfaceObject);
-    dst.railingsIdentifier = Context.getIdentifier("footpath_railings", src.railingsObject);
-    dst.additionIdentifier = Context.getIdentifier("footpath_addition", src.addition);
+    dst.identifier = ObjectIndex.getIdentifier("footpath", src.object);
+    dst.surfaceIdentifier = ObjectIndex.getIdentifier("footpath_surface", src.surfaceObject);
+    dst.railingsIdentifier = ObjectIndex.getIdentifier("footpath_railings", src.railingsObject);
+    dst.additionIdentifier = ObjectIndex.getIdentifier("footpath_addition", src.addition);
 }
 
 export function copyTo(src: FootpathData, dst: FootpathElement): void {
     copyBase(src, dst);
-    dst.object = Context.getObject("footpath", src.identifier) ?.index ?? null;
-    dst.surfaceObject = Context.getObject("footpath_surface", src.surfaceIdentifier) ?.index ?? null;
-    dst.railingsObject = Context.getObject("footpath_railings", src.railingsIdentifier) ?.index ?? null;
-    dst.addition = Context.getObject("footpath_addition", src.additionIdentifier) ?.index ?? null;
+    dst.object = ObjectIndex.getObject("footpath", src.identifier) ?.index ?? null;
+    dst.surfaceObject = ObjectIndex.getObject("footpath_surface", src.surfaceIdentifier) ?.index ?? null;
+    dst.railingsObject = ObjectIndex.getObject("footpath_railings", src.railingsIdentifier) ?.index ?? null;
+    dst.addition = ObjectIndex.getObject("footpath_addition", src.additionIdentifier) ?.index ?? null;
 }
 
 export function getPlaceActionData(
@@ -72,8 +73,8 @@ export function getPlaceActionData(
     if (element.identifier !== null || element.surfaceIdentifier !== null) {
         const isLegacy = element.identifier !== null;
         const object = isLegacy
-            ? Context.getObject("footpath", element.identifier)
-            : Context.getObject("footpath_surface", element.surfaceIdentifier);
+            ? ObjectIndex.getObject("footpath", element.identifier)
+            : ObjectIndex.getObject("footpath_surface", element.surfaceIdentifier);
         if (object !== null)
             data.push({
                 type: "footpathplace",
@@ -82,7 +83,7 @@ export function getPlaceActionData(
                     ...Coordinates.toWorldCoords(tile),
                     z: element.baseZ,
                     object: object.index,
-                    railingsObject: Context.getObject("footpath_railings", element.railingsIdentifier) ?.index ?? 0,
+                    railingsObject: ObjectIndex.getObject("footpath_railings", element.railingsIdentifier) ?.index ?? 0,
                     direction: 0xFF,
                     slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
                     constructFlags: Number(element.isQueue) + (Number(isLegacy) << 1),
@@ -91,7 +92,7 @@ export function getPlaceActionData(
     }
 
     if (element.additionIdentifier !== null) {
-        const object = Context.getObject("footpath_addition", element.additionIdentifier);
+        const object = ObjectIndex.getObject("footpath_addition", element.additionIdentifier);
         if (object !== null)
             data.push({
                 type: "footpathadditionplace",

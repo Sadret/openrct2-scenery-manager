@@ -5,9 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Context from "../core/Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
+
+import ObjectIndex from "../core/ObjectIndex";
 
 export function rotate(element: LargeSceneryData, rotation: number): LargeSceneryData {
     return {
@@ -36,12 +37,12 @@ export function copyBase(
 
 export function copyFrom(src: LargeSceneryElement, dst: LargeSceneryData): void {
     copyBase(src, dst);
-    dst.identifier = Context.getIdentifier("large_scenery", src.object);
+    dst.identifier = ObjectIndex.getIdentifier("large_scenery", src.object);
 }
 
 export function copyTo(src: LargeSceneryData, dst: LargeSceneryElement): void {
     copyBase(src, dst);
-    const object = Context.getObject("large_scenery", src.identifier);
+    const object = ObjectIndex.getObject("large_scenery", src.identifier);
     if (object !== null)
         dst.object = object.index;
 }
@@ -52,7 +53,7 @@ export function getPlaceActionData(
 ): PlaceActionData[] {
     if (element.sequence !== 0)
         return [];
-    const object = Context.getObject("large_scenery", element.identifier);
+    const object = ObjectIndex.getObject("large_scenery", element.identifier);
     if (object === null)
         return [];
     return [{

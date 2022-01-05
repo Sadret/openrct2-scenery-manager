@@ -5,12 +5,12 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Context from "../../core/Context";
 import * as Footpath from "../../template/Footpath";
 import * as Strings from "../../utils/Strings";
 
 import GUI from "../../gui/GUI";
 import ObjectChooser from "../ObjectChooser";
+import ObjectIndex from "../../core/ObjectIndex";
 import Picker from "../../tools/Picker";
 import Property from "../../config/Property";
 
@@ -40,7 +40,7 @@ function pickOnMap(group: SceneryFilterGroup, mode: "identifier" | "railings" | 
     //                 case "large_scenery":
     //                 case "wall":
     //                     group.type.setValue(element.type);
-    //                     group.identifier.setValue(Context.getIdentifier(element));
+    //                     group.identifier.setValue(ObjectIndex.getIdentifier(element));
     //                     return true;
     //                 default:
     //                     ui.showError("Cannot use this element...", "Element must be footpath, small scenery, large scenery or wall.");

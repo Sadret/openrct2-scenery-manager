@@ -5,9 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Context from "../core/Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
+
+import ObjectIndex from "../core/ObjectIndex";
 
 export function rotate(element: SmallSceneryData, rotation: number): SmallSceneryData {
     return {
@@ -53,12 +54,12 @@ export function copyBase(
 
 export function copyFrom(src: SmallSceneryElement, dst: SmallSceneryData): void {
     copyBase(src, dst);
-    dst.identifier = Context.getIdentifier("small_scenery", src.object);
+    dst.identifier = ObjectIndex.getIdentifier("small_scenery", src.object);
 }
 
 export function copyTo(src: SmallSceneryData, dst: SmallSceneryElement): void {
     copyBase(src, dst);
-    const object = Context.getObject("small_scenery", src.identifier);
+    const object = ObjectIndex.getObject("small_scenery", src.identifier);
     if (object !== null)
         dst.object = object.index;
 }
@@ -67,7 +68,7 @@ export function getPlaceActionData(
     tile: TileData,
     element: SmallSceneryData,
 ): PlaceActionData[] {
-    const object = Context.getObject("small_scenery", element.identifier);
+    const object = ObjectIndex.getObject("small_scenery", element.identifier);
     if (object === null)
         return [];
     return [{
@@ -85,7 +86,7 @@ export function getRemoveActionData(
     tile: TileData,
     element: SmallSceneryData,
 ): RemoveActionData[] {
-    const object = Context.getObject("small_scenery", element.identifier);
+    const object = ObjectIndex.getObject("small_scenery", element.identifier);
     if (object === null)
         return [];
     return [{
@@ -112,6 +113,6 @@ function isHalfSpace(element: SmallSceneryData): boolean {
 }
 
 function hasFlag(element: SmallSceneryData, bit: number) {
-    const object = Context.getObject("small_scenery", element.identifier);
+    const object = ObjectIndex.getObject("small_scenery", element.identifier);
     return object !== null && (object.flags & (1 << bit)) !== 0;
 }

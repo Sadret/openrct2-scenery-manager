@@ -5,15 +5,17 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as ObjectIndex from "../core/ObjectIndex";
+import * as SceneryIndex from "../core/SceneryIndex";
 
 import GUI from "../gui/GUI";
 import ObjectList from "./widgets/ObjectList";
 
+
+
 export default class extends GUI.WindowManager {
     constructor(
         type: SceneryObjectType,
-        callback: (info: SceneryObjectInfo) => boolean,
+        callback: (object: SceneryObject) => boolean,
     ) {
         super(
             {
@@ -24,9 +26,9 @@ export default class extends GUI.WindowManager {
                 colours: [7, 7, 6],
             }, new GUI.Window().add(
                 new ObjectList(
-                    ObjectIndex.getSceneryObjectIndex(() => { }, []),
+                    SceneryIndex.getSceneryIndex(() => { }, []),
                     false,
-                    info => callback(info) && this.close(),
+                    object => callback(object) && this.close(),
                     type,
                 ),
             ),

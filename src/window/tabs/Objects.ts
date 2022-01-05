@@ -6,8 +6,8 @@
  *****************************************************************************/
 
 import * as MapIO from "../../core/MapIO";
-import * as ObjectIndex from "../../core/ObjectIndex";
 import * as Replace from "../tabs/Replace";
+import * as SceneryIndex from "../../core/SceneryIndex";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
@@ -18,7 +18,7 @@ import OverlayTab from "../widgets/OverlayTab";
 import Selector from "../../tools/Selector";
 
 const objectList: ObjectList = new ObjectList(
-    ObjectIndex.getSceneryObjectIndex(() => { }, []),
+    SceneryIndex.getSceneryIndex(() => { }, []),
     true,
     info => {
         Replace.setElement(info);
@@ -41,12 +41,12 @@ function refresh(force = false): void {
     loading.setIsVisible(true);
     refreshButton.setText("Refreshing...");
 
-    const index = ObjectIndex.getSceneryObjectIndex(
+    const index = SceneryIndex.getSceneryIndex(
         (done, progress) => updateProgress(done, progress, index),
         selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined,
     );
 }
-function updateProgress(done: boolean, progress: number, index: SceneryObjectIndex): void {
+function updateProgress(done: boolean, progress: number, index: SceneryIndex): void {
     refreshButton.setText(done ? "Refresh" : `Refreshing ${Math.round(progress * 100)}%`);
     loading.setProgress(progress);
     objectList.setIndex(index);

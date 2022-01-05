@@ -6,7 +6,6 @@
  *****************************************************************************/
 
 import * as Arrays from "../../utils/Arrays";
-import * as Context from "../../core/Context";
 import * as Coordinates from "../../utils/Coordinates";
 import * as MapIO from "../../core/MapIO";
 
@@ -14,10 +13,12 @@ import Brush from "../../tools/Brush";
 import BrushBox from "../widgets/BrushBox";
 import GUI from "../../gui/GUI";
 import NumberProperty from "../../config/NumberProperty";
+import ObjectIndex from "../../core/ObjectIndex";
 import Picker from "../../tools/Picker";
 import Property from "../../config/Property";
 
 type Entry = { identifier: string, name: string } | null;
+const EMPTY_STRING = "(empty)";
 
 const NUM = 8; // max 11
 const size = new NumberProperty(4, 1, NUM);
@@ -32,14 +33,15 @@ const picker = new class extends Picker {
         const footpath = element;
         if (footpath.addition === null)
             return (ui.showError("Cannot use this element...", "Footpath has no addition."), false);
-        const object = context.getObject("footpath_addition", footpath.addition);
-        const identifier = Context.getIdentifierFromObject(object);
+        const object = ObjectIndex.getObject("footpath_addition", footpath.addition);
+        if (object === null)
+            return false;
+        const identifier = ObjectIndex.getIdentifier(object);
         this.entry.setValue({ identifier: identifier, name: object.name });
         return true;
     }
 }(`sm-picker-benches`);
 
-const EMPTY_STRING = "(empty)";
 const dropdowns = entries.map((_, idx) => new GUI.Dropdown({
 }).bindIsDisabled(
     size,
@@ -70,9 +72,9 @@ export default new GUI.Tab({
     image: 5464,
     onOpen: () => {
         const loadedEntries = [null as Entry].concat(
-            context.getAllObjects("footpath_addition").map(
+            ObjectIndex.getAllObjects("footpath_addition").map(
                 object => ({
-                    identifier: Context.getIdentifierFromObject(object),
+                    identifier: ObjectIndex.getIdentifier(object),
                     name: object.name,
                 })
             )

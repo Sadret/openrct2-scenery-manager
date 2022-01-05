@@ -5,10 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Arrays from "../utils/Arrays";
 import * as Context from "./Context";
 import * as Coordinates from "../utils/Coordinates";
-import * as Arrays from "../utils/Arrays";
 
+import ObjectIndex from "./ObjectIndex";
 import Template from "../template/Template";
 import TileIterator from "../utils/TileIterator";
 
@@ -162,7 +163,7 @@ function insertElement(tile: Tile, data: ElementData, append: boolean, isGhost: 
             element.type === "footpath" && element.baseHeight === data.baseHeight && element.addition === null
         ));
         if (element !== null) {
-            const object = Context.getObject("footpath_addition", data.additionIdentifier);
+            const object = ObjectIndex.getObject("footpath_addition", data.additionIdentifier);
             if (object !== null) {
                 element.addition = object.index;
                 element.additionStatus = data.additionStatus;

@@ -5,36 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-const cache: { [key: string]: { [key: string]: LoadedObject; }; } = {};
-
-function loadCache(type: ObjectType): void {
-    cache[type] = {};
-    context.getAllObjects(type).forEach(object => cache[type][getIdentifierFromObject(object)] = object);
-}
-
-export function getObject(type: "small_scenery", identifier: string | null): SmallSceneryObject | null;
-export function getObject(type: ObjectType, identifier: string | null): LoadedObject | null;
-export function getObject(type: ObjectType, identifier: string | null): LoadedObject | null {
-    if (identifier === null)
-        return null;
-    if (cache[type] === undefined)
-        loadCache(type);
-    const object = cache[type][identifier];
-    if (object && identifier === getIdentifierFromObject(object))
-        return object;
-    loadCache(type);
-    return cache[type][identifier] || null;
-}
-
-export function getIdentifierFromObject(object: LoadedObject): string {
-    return object.identifier || object.legacyIdentifier;
-}
-
-export function getIdentifier(type: ObjectType, object: number): string;
-export function getIdentifier(type: ObjectType, object: number | null): string | null;
-export function getIdentifier(type: ObjectType, object: number | null): string | null {
-    return object === null ? null : getIdentifierFromObject(context.getObject(type, object));
-}
+/*
+ * ACTIONS
+ */
 
 export function queryExecuteAction(action: ActionType, args: object, callback?: (result: GameActionResult) => void): void {
     context.queryAction(action, args, queryResult => {

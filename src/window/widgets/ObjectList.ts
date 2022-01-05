@@ -5,8 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as ObjectIndex from "../../core/ObjectIndex";
-import * as Objects from "../../utils/Objects";
+import * as SceneryIndex from "../../core/SceneryIndex";
 import * as Strings from "../../utils/Strings";
 
 import GUI from "../../gui/GUI";
@@ -16,8 +15,8 @@ type Usage = "all" | "on_map" | "in_park";
 const usages: Usage[] = ["all", "on_map", "in_park"];
 
 export default class extends GUI.VBox {
-    private readonly callback: (info: SceneryObjectInfo) => void;
-    private index: SceneryObjectIndex;
+    private readonly callback: (object: SceneryObject) => void;
+    private index: SceneryIndex;
     private readonly listView: GUI.ListView;
 
     private readonly typeProp = new Property<"all" | SceneryObjectType>("all");
@@ -25,9 +24,9 @@ export default class extends GUI.VBox {
     private readonly usageProp = new Property<Usage>("all");
 
     constructor(
-        index: SceneryObjectIndex,
+        index: SceneryIndex,
         showCount: boolean,
-        callback: (info: SceneryObjectInfo) => void,
+        callback: (object: SceneryObject) => void,
         defaultType?: SceneryObjectType,
     ) {
         super();
@@ -80,7 +79,7 @@ export default class extends GUI.VBox {
                     new GUI.Dropdown({
                     }).bindValue(this.typeProp, [
                         "all",
-                        ...ObjectIndex.types,
+                        ...SceneryIndex.types,
                     ], Strings.toDisplayString),
                     new GUI.Space(),
                     ...showCount ? [
@@ -110,28 +109,29 @@ export default class extends GUI.VBox {
         this.usageProp.bind(() => this.update());
     }
 
-    public setIndex(index: SceneryObjectIndex): void {
+    public setIndex(index: SceneryIndex): void {
         this.index = index;
         this.update();
     }
 
     private update(): void {
         const filterType = this.typeProp.getValue();
-        const items = ObjectIndex.types.filter(
+        const items = SceneryIndex.types.filter(
             type => filterType === "all" || filterType === type
         ).map(
             type => this.index[type]
         ).reduce(
-            (acc, val) => acc.concat(Objects.values(val)), [] as SceneryObjectInfo[]
+            (acc, val) => acc.concat(val.getAll()), [] as SceneryObject[]
         ).filter(
-            info => {
-                if (info.onMap === 0 && this.usageProp.getValue() === "on_map")
+            object => {
+                if (object.onMap === 0 && this.usageProp.getValue() === "on_map")
                     return false;
-                if (info.inPark === 0 && this.usageProp.getValue() === "in_park")
+                if (object.inPark === 0 && this.usageProp.getValue() === "in_park")
                     return false;
 
-                const name = info.name.toLowerCase();
-                const identifier = info.identifier.toLowerCase();
+                const name = object.name.toLowerCase();
+                // TODO: here and elsewhere: correct identifier?
+                const identifier = object.identifier.toLowerCase();
                 const search = this.searchProp.getValue().toLowerCase();
                 return name.includes(search) || identifier.includes(search);
             }

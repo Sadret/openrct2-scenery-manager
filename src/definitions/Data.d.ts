@@ -98,7 +98,7 @@ interface ScatterData {
 type ScatterPattern = ScatterData[];
 
 /*
- * SCENERY OBJECTS
+ * OBJECT INDEX
  */
 
 type SceneryObjectType =
@@ -110,20 +110,18 @@ type SceneryObjectType =
     "large_scenery" |
     "wall";
 
-interface SceneryObjectInfo {
+type SceneryObject = LoadedObject & {
     readonly type: SceneryObjectType;
-    readonly name: string;
-    readonly identifier: string;
     onMap: number;
     inPark: number;
 };
 
-interface SceneryObjectIndex {
-    readonly footpath: { [key: string]: SceneryObjectInfo };
-    readonly footpath_surface: { [key: string]: SceneryObjectInfo };
-    readonly footpath_railings: { [key: string]: SceneryObjectInfo };
-    readonly footpath_addition: { [key: string]: SceneryObjectInfo };
-    readonly small_scenery: { [key: string]: SceneryObjectInfo };
-    readonly large_scenery: { [key: string]: SceneryObjectInfo };
-    readonly wall: { [key: string]: SceneryObjectInfo };
+interface IObjectIndex<T> {
+    readonly type: ObjectType;
+    get(identifier: string): T | null;
+    getAll(): T[];
 }
+
+type SceneryIndex = {
+    [key in SceneryObjectType]: IObjectIndex<SceneryObject>;
+};

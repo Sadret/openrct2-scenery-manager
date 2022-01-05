@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Context from "../core/Context";
+import ObjectIndex from "../core/ObjectIndex";
 
 const bits = [0, 1, 2, 3];
 
@@ -38,14 +38,14 @@ export function copyBase(
 
 export function copyFrom(src: SurfaceElement, dst: SurfaceData): void {
     copyBase(src, dst);
-    dst.surfaceIdentifier = Context.getIdentifier("terrain_surface", src.surfaceStyle);
-    dst.edgeIdentifier = Context.getIdentifier("terrain_edge", src.edgeStyle);
+    dst.surfaceIdentifier = ObjectIndex.getIdentifier("terrain_surface", src.surfaceStyle);
+    dst.edgeIdentifier = ObjectIndex.getIdentifier("terrain_edge", src.edgeStyle);
 }
 
 export function copyTo(src: SurfaceData, dst: SurfaceElement): void {
     copyBase(src, dst);
-    const surfaceObject = Context.getObject("terrain_surface", src.surfaceIdentifier);
-    const edgeObject = Context.getObject("terrain_edge", src.edgeIdentifier);
+    const surfaceObject = ObjectIndex.getObject("terrain_surface", src.surfaceIdentifier);
+    const edgeObject = ObjectIndex.getObject("terrain_edge", src.edgeIdentifier);
     if (surfaceObject !== null && edgeObject !== null) {
         dst.surfaceStyle = surfaceObject.index;
         dst.edgeStyle = edgeObject.index;

@@ -5,9 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Context from "../core/Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
+
+import ObjectIndex from "../core/ObjectIndex";
 
 export function rotate(element: WallData, rotation: number): WallData {
     return {
@@ -37,12 +38,12 @@ export function copyBase(
 
 export function copyFrom(src: WallElement, dst: WallData): void {
     copyBase(src, dst);
-    dst.identifier = Context.getIdentifier("wall", src.object);
+    dst.identifier = ObjectIndex.getIdentifier("wall", src.object);
 }
 
 export function copyTo(src: WallData, dst: WallElement): void {
     copyBase(src, dst);
-    const object = Context.getObject("wall", src.identifier);
+    const object = ObjectIndex.getObject("wall", src.identifier);
     if (object !== null)
         dst.object = object.index;
 }
@@ -51,7 +52,7 @@ export function getPlaceActionData(
     tile: TileData,
     element: WallData,
 ): PlaceActionData[] {
-    const object = Context.getObject("wall", element.identifier);
+    const object = ObjectIndex.getObject("wall", element.identifier);
     if (object === null)
         return [];
     return [{
