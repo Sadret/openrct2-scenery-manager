@@ -101,6 +101,12 @@ type ScatterPattern = ScatterData[];
  * OBJECT INDEX
  */
 
+interface IObjectIndex<T extends LoadedObject> {
+    readonly type: ObjectType;
+    get(identifier: string): T | null;
+    getAll(): T[];
+}
+
 type SceneryObjectType =
     "footpath" |
     "footpath_surface" |
@@ -115,12 +121,6 @@ type SceneryObject = LoadedObject & {
     onMap: number;
     inPark: number;
 };
-
-interface IObjectIndex<T> {
-    readonly type: ObjectType;
-    get(identifier: string): T | null;
-    getAll(): T[];
-}
 
 type SceneryIndex = {
     [key in SceneryObjectType]: IObjectIndex<SceneryObject>;

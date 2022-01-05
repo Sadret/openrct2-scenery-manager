@@ -17,25 +17,24 @@ const findGroup = new SceneryFilterGroup("Find");
 const replaceGroup = new SceneryFilterGroup("Replace with", true);
 findGroup.type.bind(type => replaceGroup.type.setValue(type));
 
-// TODO: rename info
-export function setElement(info: SceneryObject): void {
-    switch (info.type) {
+export function setElement(object: SceneryObject): void {
+    switch (object.type) {
         case "footpath":
         case "footpath_surface":
             findGroup.type.setValue("footpath");
-            findGroup.identifier.setValue(info.identifier);
+            findGroup.identifier.setValue(object.identifier);
             break;
         case "footpath_railings":
             findGroup.type.setValue("footpath");
-            findGroup.railings.setValue(info.identifier);
+            findGroup.railings.setValue(object.identifier);
             break;
         case "footpath_addition":
             findGroup.type.setValue("footpath");
-            findGroup.addition.setValue(info.identifier);
+            findGroup.addition.setValue(object.identifier);
             break;
         default:
-            findGroup.type.setValue(info.type);
-            findGroup.identifier.setValue(info.identifier);
+            findGroup.type.setValue(object.type);
+            findGroup.identifier.setValue(object.identifier);
             break;
     }
 }
