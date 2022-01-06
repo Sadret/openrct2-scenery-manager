@@ -11,16 +11,16 @@ import * as Objects from "../utils/Objects";
  * OBJECT INDEX
  */
 
-export default class ObjectIndex<T extends LoadedObject = LoadedObject> implements IObjectIndex<T> {
+export default class ObjectIndex<T extends IndexedObject = IndexedObject> {
     /*
      * INSTANCE
      */
 
     public readonly type: ObjectType;
-    private readonly fun: (obj: LoadedObject) => T;
+    private readonly fun: (obj: IndexedObject) => T;
     private index: { [key: string]: T } = {};
 
-    public constructor(type: ObjectType, fun: (obj: LoadedObject) => T) {
+    public constructor(type: ObjectType, fun: (obj: IndexedObject) => T) {
         this.type = type;
         this.fun = fun;
         this.reload();
@@ -28,20 +28,21 @@ export default class ObjectIndex<T extends LoadedObject = LoadedObject> implemen
 
     public reload(): void {
         this.index = {};
-        ObjectIndex.getAllObjects(this.type).forEach(
-            object => this.index[ObjectIndex.getIdentifier(object)] = this.fun(object)
+        ObjectIndex.getAllLoadedObjects(this.type).forEach(
+            object => {
+                const qualifier = ObjectIndex.getQualifier(object);
+                this.index[qualifier] = this.fun({
+                    type: object.type,
+                    index: object.index,
+                    qualifier: qualifier,
+                    name: object.name,
+                });
+            }
         );
     }
 
-    public get(identifier: string): T | null {
-        const object = this.index[identifier];
-        if (object === undefined)
-            return null;
-        if (ObjectIndex.getIdentifier(object) !== identifier) {
-            this.reload();
-            return this.get(identifier);
-        }
-        return this.index[identifier] || null;
+    public get(qualifier: string): T | null {
+        return this.index[qualifier] || null;
     }
 
     public getAll(): T[] {
@@ -68,34 +69,55 @@ export default class ObjectIndex<T extends LoadedObject = LoadedObject> implemen
      * GETTER
      */
 
-    public static getObject(type: "small_scenery", identifier: string | null): SmallSceneryObject | null;
-    public static getObject(type: ObjectType, identifier: string | null): LoadedObject | null;
-    public static getObject(type: ObjectType, object: number): LoadedObject | null;
-    public static getObject(type: ObjectType, key: string | number | null): LoadedObject | null {
-        if (key === null)
-            return null;
-        else if (typeof key === "string")
-            return ObjectIndex.getIndex(type).get(key);
-        else
-            return context.getObject(type, key);
+    public static getObject(type: ObjectType, key: string | number | null): IndexedObject | null {
+        if (typeof key === "number")
+            key = ObjectIndex.getQualifier(type, key);
+        return key === null ? null : ObjectIndex.getIndex(type).get(key);
     }
 
-    public static getAllObjects(type: ObjectType): LoadedObject[] {
+    public static getAllObjects(type: ObjectType): IndexedObject[] {
+        return ObjectIndex.getIndex(type).getAll();
+    }
+
+    // TODO: adjust
+    private static getLoadedObject(type: "small_scenery", key: string): SmallSceneryObject | null;
+    private static getLoadedObject(type: ObjectType, key: number): LoadedObject | null;
+
+    // private static getLoadedObject(type: "small_scenery", key: string | number | null): SmallSceneryObject | null;
+    // private static getLoadedObject(type: ObjectType, key: string | number | null): LoadedObject | null;
+    // private static getLoadedObject(type: ObjectType, key: string | number | null): LoadedObject | null;
+    // private static getLoadedObject(indexedObject: IndexedObject): LoadedObject | null;
+    private static getLoadedObject(arg1: ObjectType | IndexedObject, arg2?: string | number | null): LoadedObject | null {
+        if (typeof arg1 === "object") {
+            arg2 = arg1.qualifier;
+            arg1 = arg1.type;
+        }
+        if (typeof arg2 === "string")
+            arg2 = ObjectIndex.getObject(arg1, arg2) ?.index;
+        if (typeof arg2 === "number")
+            return context.getObject(arg1, arg2);
+        return null;
+    }
+
+    private static getAllLoadedObjects(type: ObjectType): LoadedObject[] {
         return context.getAllObjects(type);
     }
 
-    public static getIdentifier(object: LoadedObject): string;
-    public static getIdentifier(object: LoadedObject | null): string | null;
-    public static getIdentifier(type: ObjectType, object: number): string;
-    public static getIdentifier(type: ObjectType, object: number | null): string | null;
-    public static getIdentifier(arg1: ObjectType | LoadedObject | null, arg2?: number | null): string | null {
+    // TODO: adjust?
+    public static getQualifier(object: LoadedObject): string;
+    public static getQualifier(object: LoadedObject | null): string | null;
+    public static getQualifier(type: ObjectType, object: number | null): string | null;
+    public static getQualifier(arg1: ObjectType | LoadedObject | null, arg2?: number | null): string | null {
         if (typeof arg1 === "string")
             if (typeof arg2 !== "number")
                 return null;
             else
-                arg1 = ObjectIndex.getObject(arg1, arg2);
-        if (arg1 === null)
-            return null;
-        return arg1.identifier || arg1.legacyIdentifier;
+                arg1 = ObjectIndex.getLoadedObject(arg1, arg2);
+        return arg1 && (arg1.identifier || arg1.legacyIdentifier);
+    }
+
+    public static getSmallSceneryFlags(qualifier: string): number | null {
+        const object = ObjectIndex.getLoadedObject("small_scenery", qualifier);
+        return object && object.flags;
     }
 }

@@ -5,11 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as SceneryIndex from "../../core/SceneryIndex";
 import * as Strings from "../../utils/Strings";
 
 import GUI from "../../gui/GUI";
 import Property from "../../config/Property";
+import SceneryIndex from "../../core/SceneryIndex";
 
 type Usage = "all" | "on_map" | "in_park";
 const usages: Usage[] = ["all", "on_map", "in_park"];
@@ -47,7 +47,7 @@ export default class extends GUI.VBox {
                 width: 256,
                 canSort: true,
             }, {
-                header: "Identifier",
+                header: "Qualifier",
                 width: 256,
                 canSort: true,
             },
@@ -91,7 +91,7 @@ export default class extends GUI.VBox {
                         new GUI.Space(),
                     ] : [],
                     new GUI.Label({
-                        text: "Name / Identifier:",
+                        text: "Name / Qualifier:",
                     }),
                     new GUI.TextBox({
                     }).bindValue(this.searchProp),
@@ -119,9 +119,9 @@ export default class extends GUI.VBox {
         const items = SceneryIndex.types.filter(
             type => filterType === "all" || filterType === type
         ).map(
-            type => this.index[type]
+            type => this.index.getAllObjects(type)
         ).reduce(
-            (acc, val) => acc.concat(val.getAll()), [] as SceneryObject[]
+            (acc, val) => acc.concat(val), [] as SceneryObject[]
         ).filter(
             object => {
                 if (object.onMap === 0 && this.usageProp.getValue() === "on_map")
@@ -130,16 +130,15 @@ export default class extends GUI.VBox {
                     return false;
 
                 const name = object.name.toLowerCase();
-                // TODO: here and elsewhere: correct identifier?
-                const identifier = object.identifier.toLowerCase();
+                const qualifier = object.qualifier.toLowerCase();
                 const search = this.searchProp.getValue().toLowerCase();
-                return name.includes(search) || identifier.includes(search);
+                return name.includes(search) || qualifier.includes(search);
             }
         );
         this.listView.setItemsAndOnClick(items, info => [
             Strings.toDisplayString(info.type),
             info.name,
-            info.identifier,
+            info.qualifier,
             String(info.onMap),
             String(info.inPark),
         ], info => this.callback(info));

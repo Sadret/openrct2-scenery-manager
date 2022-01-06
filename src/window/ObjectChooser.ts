@@ -5,12 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as SceneryIndex from "../core/SceneryIndex";
-
 import GUI from "../gui/GUI";
 import ObjectList from "./widgets/ObjectList";
-
-
+import SceneryIndex from "../core/SceneryIndex";
 
 export default class extends GUI.WindowManager {
     constructor(
@@ -26,7 +23,7 @@ export default class extends GUI.WindowManager {
                 colours: [7, 7, 6],
             }, new GUI.Window().add(
                 new ObjectList(
-                    SceneryIndex.getSceneryIndex(() => { }, []),
+                    new SceneryIndex(() => { }, []),
                     false,
                     object => callback(object) && this.close(),
                     type,

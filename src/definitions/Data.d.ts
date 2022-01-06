@@ -15,8 +15,8 @@ type SurfaceData = Omit<SurfaceElement,
     "hasOwnership" |
     "hasConstructionRights"
     > & {
-    surfaceIdentifier: string;
-    edgeIdentifier: string;
+    surfaceQualifier: string;
+    edgeQualifier: string;
 };
 
 type FootpathData = Omit<FootpathElement,
@@ -25,36 +25,36 @@ type FootpathData = Omit<FootpathElement,
     "railingsObject" |
     "addition"
     > & ({
-        identifier: string;
-        surfaceIdentifier: null;
-        railingsIdentifier: null;
-        additionIdentifier: string | null;
+        qualifier: string;
+        surfaceQualifier: null;
+        railingsQualifier: null;
+        additionQualifier: string | null;
     } | {
-        identifier: null;
-        surfaceIdentifier: string;
-        railingsIdentifier: string;
-        additionIdentifier: string | null;
+        qualifier: null;
+        surfaceQualifier: string;
+        railingsQualifier: string;
+        additionQualifier: string | null;
     } | {
-        identifier: null;
-        surfaceIdentifier: null;
-        railingsIdentifier: null;
-        additionIdentifier: string;
+        qualifier: null;
+        surfaceQualifier: null;
+        railingsQualifier: null;
+        additionQualifier: string;
     });
 
 type TrackData = TrackElement;
 
 type SmallSceneryData = Omit<SmallSceneryElement, "object"> & {
-    identifier: string;
+    qualifier: string;
 };
 
 type WallData = Omit<WallElement, "object"> & {
-    identifier: string;
+    qualifier: string;
 };
 
 type EntranceData = EntranceElement;
 
 type LargeSceneryData = Omit<LargeSceneryElement, "object"> & {
-    identifier: string;
+    qualifier: string;
 };
 
 type BannerData = BannerElement;
@@ -101,10 +101,11 @@ type ScatterPattern = ScatterData[];
  * OBJECT INDEX
  */
 
-interface IObjectIndex<T extends LoadedObject> {
+type IndexedObject = {
     readonly type: ObjectType;
-    get(identifier: string): T | null;
-    getAll(): T[];
+    readonly index: number;
+    readonly qualifier: string;
+    readonly name: string;
 }
 
 type SceneryObjectType =
@@ -116,12 +117,8 @@ type SceneryObjectType =
     "large_scenery" |
     "wall";
 
-type SceneryObject = LoadedObject & {
+type SceneryObject = IndexedObject & {
     readonly type: SceneryObjectType;
     onMap: number;
     inPark: number;
-};
-
-type SceneryIndex = {
-    [key in SceneryObjectType]: IObjectIndex<SceneryObject>;
 };

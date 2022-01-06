@@ -47,12 +47,12 @@ import GUI from "../../gui/GUI";
 // function getLabel(entry: Entry): string {
 //     if (entry === null)
 //         return EMPTY_STRING;
-//     const object = ObjectIndex.getObject(entry.element.type, entry.element.identifier);
+//     const object = ObjectIndex.getObject(entry.element.type, entry.element.qualifier);
 //     if (object === null) {
 //         // TODO: what now?
 //         return <never>null;
 //     }
-//     return `${object.name} (${object.identifier})`;
+//     return `${object.name} (${object.qualifier})`;
 // }
 //
 // function getRandomData(): TemplateData | undefined {

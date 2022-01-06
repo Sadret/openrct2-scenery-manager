@@ -37,12 +37,12 @@ export function copyBase(
 
 export function copyFrom(src: LargeSceneryElement, dst: LargeSceneryData): void {
     copyBase(src, dst);
-    dst.identifier = ObjectIndex.getIdentifier("large_scenery", src.object);
+    dst.qualifier = ObjectIndex.getQualifier("large_scenery", src.object) ?? dst.qualifier;
 }
 
 export function copyTo(src: LargeSceneryData, dst: LargeSceneryElement): void {
     copyBase(src, dst);
-    const object = ObjectIndex.getObject("large_scenery", src.identifier);
+    const object = ObjectIndex.getObject("large_scenery", src.qualifier);
     if (object !== null)
         dst.object = object.index;
 }
@@ -53,7 +53,7 @@ export function getPlaceActionData(
 ): PlaceActionData[] {
     if (element.sequence !== 0)
         return [];
-    const object = ObjectIndex.getObject("large_scenery", element.identifier);
+    const object = ObjectIndex.getObject("large_scenery", element.qualifier);
     if (object === null)
         return [];
     return [{

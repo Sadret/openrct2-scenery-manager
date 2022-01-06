@@ -27,8 +27,8 @@ const GROUND: SurfaceData = {
     isGhost: false,
     isHidden: false,
     slope: 0,
-    surfaceIdentifier: "rct2.terrain_surface.grass",
-    edgeIdentifier: "rct2.terrain_edge.rock",
+    surfaceQualifier: "rct2.terrain_surface.grass",
+    edgeQualifier: "rct2.terrain_edge.rock",
     waterHeight: 0,
     grassLength: 1,
     ownership: 0,
@@ -148,7 +148,7 @@ export function clearGhost(coordsList: CoordsXY[], mode: PlaceMode): void {
         mode,
         (element, addition) => {
             if (addition)
-                return element.type === "footpath" && ("addition" in element ? element.addition !== null : element.additionIdentifier !== null) && <boolean>element.isAdditionGhost;
+                return element.type === "footpath" && ("addition" in element ? element.addition !== null : element.additionQualifier !== null) && <boolean>element.isAdditionGhost;
             else
                 return element.isGhost;
         }
@@ -158,12 +158,12 @@ export function clearGhost(coordsList: CoordsXY[], mode: PlaceMode): void {
 function insertElement(tile: Tile, data: ElementData, append: boolean, isGhost: boolean): void {
     if (tile.numElements === 0)
         return;
-    if (data.type === "footpath" && data.identifier === null && data.surfaceIdentifier === null) {
+    if (data.type === "footpath" && data.qualifier === null && data.surfaceQualifier === null) {
         const element = Arrays.find(tile.elements, ((element: TileElement): element is FootpathElement =>
             element.type === "footpath" && element.baseHeight === data.baseHeight && element.addition === null
         ));
         if (element !== null) {
-            const object = ObjectIndex.getObject("footpath_addition", data.additionIdentifier);
+            const object = ObjectIndex.getObject("footpath_addition", data.additionQualifier);
             if (object !== null) {
                 element.addition = object.index;
                 element.additionStatus = data.additionStatus;

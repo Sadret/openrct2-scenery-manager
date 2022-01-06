@@ -38,14 +38,14 @@ export function copyBase(
 
 export function copyFrom(src: SurfaceElement, dst: SurfaceData): void {
     copyBase(src, dst);
-    dst.surfaceIdentifier = ObjectIndex.getIdentifier("terrain_surface", src.surfaceStyle);
-    dst.edgeIdentifier = ObjectIndex.getIdentifier("terrain_edge", src.edgeStyle);
+    dst.surfaceQualifier = ObjectIndex.getQualifier("terrain_surface", src.surfaceStyle) ?? dst.surfaceQualifier;
+    dst.edgeQualifier = ObjectIndex.getQualifier("terrain_edge", src.edgeStyle) ?? dst.edgeQualifier;
 }
 
 export function copyTo(src: SurfaceData, dst: SurfaceElement): void {
     copyBase(src, dst);
-    const surfaceObject = ObjectIndex.getObject("terrain_surface", src.surfaceIdentifier);
-    const edgeObject = ObjectIndex.getObject("terrain_edge", src.edgeIdentifier);
+    const surfaceObject = ObjectIndex.getObject("terrain_surface", src.surfaceQualifier);
+    const edgeObject = ObjectIndex.getObject("terrain_edge", src.edgeQualifier);
     if (surfaceObject !== null && edgeObject !== null) {
         dst.surfaceStyle = surfaceObject.index;
         dst.edgeStyle = edgeObject.index;

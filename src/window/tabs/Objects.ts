@@ -7,7 +7,6 @@
 
 import * as MapIO from "../../core/MapIO";
 import * as Replace from "../tabs/Replace";
-import * as SceneryIndex from "../../core/SceneryIndex";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
@@ -15,10 +14,11 @@ import Loading from "../widgets/Loading";
 import MainWindow from "../MainWindow";
 import ObjectList from "../widgets/ObjectList";
 import OverlayTab from "../widgets/OverlayTab";
+import SceneryIndex from "../../core/SceneryIndex";
 import Selector from "../../tools/Selector";
 
 const objectList: ObjectList = new ObjectList(
-    SceneryIndex.getSceneryIndex(() => { }, []),
+    new SceneryIndex(() => { }, []),
     true,
     info => {
         Replace.setElement(info);
@@ -41,8 +41,8 @@ function refresh(force = false): void {
     loading.setIsVisible(true);
     refreshButton.setText("Refreshing...");
 
-    const index = SceneryIndex.getSceneryIndex(
-        (done, progress) => updateProgress(done, progress, index),
+    new SceneryIndex(
+        updateProgress,
         selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined,
     );
 }

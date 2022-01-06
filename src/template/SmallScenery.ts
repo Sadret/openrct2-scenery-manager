@@ -54,12 +54,12 @@ export function copyBase(
 
 export function copyFrom(src: SmallSceneryElement, dst: SmallSceneryData): void {
     copyBase(src, dst);
-    dst.identifier = ObjectIndex.getIdentifier("small_scenery", src.object);
+    dst.qualifier = ObjectIndex.getQualifier("small_scenery", src.object) ?? dst.qualifier;
 }
 
 export function copyTo(src: SmallSceneryData, dst: SmallSceneryElement): void {
     copyBase(src, dst);
-    const object = ObjectIndex.getObject("small_scenery", src.identifier);
+    const object = ObjectIndex.getObject("small_scenery", src.qualifier);
     if (object !== null)
         dst.object = object.index;
 }
@@ -68,7 +68,7 @@ export function getPlaceActionData(
     tile: TileData,
     element: SmallSceneryData,
 ): PlaceActionData[] {
-    const object = ObjectIndex.getObject("small_scenery", element.identifier);
+    const object = ObjectIndex.getObject("small_scenery", element.qualifier);
     if (object === null)
         return [];
     return [{
@@ -86,7 +86,7 @@ export function getRemoveActionData(
     tile: TileData,
     element: SmallSceneryData,
 ): RemoveActionData[] {
-    const object = ObjectIndex.getObject("small_scenery", element.identifier);
+    const object = ObjectIndex.getObject("small_scenery", element.qualifier);
     if (object === null)
         return [];
     return [{
@@ -112,7 +112,7 @@ function isHalfSpace(element: SmallSceneryData): boolean {
     return hasFlag(element, 24);
 }
 
-function hasFlag(element: SmallSceneryData, bit: number) {
-    const object = ObjectIndex.getObject("small_scenery", element.identifier);
-    return object !== null && (object.flags & (1 << bit)) !== 0;
+function hasFlag(element: SmallSceneryData, bit: number): boolean {
+    const flags = ObjectIndex.getSmallSceneryFlags(element.qualifier);
+    return flags !== null && (flags & (1 << bit)) !== 0;
 }

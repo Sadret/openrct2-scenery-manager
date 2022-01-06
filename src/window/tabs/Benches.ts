@@ -17,15 +17,14 @@ import ObjectIndex from "../../core/ObjectIndex";
 import Picker from "../../tools/Picker";
 import Property from "../../config/Property";
 
-type Entry = { identifier: string, name: string } | null;
 const EMPTY_STRING = "(empty)";
 
 const NUM = 8; // max 11
 const size = new NumberProperty(4, 1, NUM);
-const entries = Arrays.create(NUM, _ => new Property<Entry>(null));
+const entries = Arrays.create(NUM, _ => new Property<IndexedObject | null>(null));
 
 const picker = new class extends Picker {
-    public entry: Property<Entry> = entries[0];
+    public entry: Property<IndexedObject | null> = entries[0];
 
     protected accept(element: TileElement): boolean {
         if (element.type !== "footpath")
@@ -34,10 +33,7 @@ const picker = new class extends Picker {
         if (footpath.addition === null)
             return (ui.showError("Cannot use this element...", "Footpath has no addition."), false);
         const object = ObjectIndex.getObject("footpath_addition", footpath.addition);
-        if (object === null)
-            return false;
-        const identifier = ObjectIndex.getIdentifier(object);
-        this.entry.setValue({ identifier: identifier, name: object.name });
+        this.entry.setValue(object);
         return true;
     }
 }(`sm-picker-benches`);
@@ -59,7 +55,7 @@ function provide(tiles: CoordsXY[]): TileData[] {
                 const entry = entries[idx].getValue();
                 return entry === null ? undefined : {
                     ...element,
-                    additionIdentifier: entry.identifier,
+                    additionQualifier: entry.qualifier,
                 };
             }).filter<FootpathData>(
                 (data): data is FootpathData => data !== undefined
@@ -71,13 +67,8 @@ function provide(tiles: CoordsXY[]): TileData[] {
 export default new GUI.Tab({
     image: 5464,
     onOpen: () => {
-        const loadedEntries = [null as Entry].concat(
-            ObjectIndex.getAllObjects("footpath_addition").map(
-                object => ({
-                    identifier: ObjectIndex.getIdentifier(object),
-                    name: object.name,
-                })
-            )
+        const loadedEntries = [null as (IndexedObject | null)].concat(
+            ObjectIndex.getAllObjects("footpath_addition")
         );
 
         dropdowns.forEach((dropdown, idx) => {
@@ -85,13 +76,13 @@ export default new GUI.Tab({
             if (oldEntry !== null)
                 entries[idx].setValue(Arrays.find(
                     loadedEntries,
-                    entry => entry !== null && entry.identifier === oldEntry.identifier,
+                    entry => entry !== null && entry.qualifier === oldEntry.qualifier,
                 ));
 
             dropdown.bindValue(
                 entries[idx],
                 loadedEntries,
-                entry => entry === null ? EMPTY_STRING : `${entry.name} (${entry.identifier})`,
+                entry => entry === null ? EMPTY_STRING : `${entry.name} (${entry.qualifier})`,
             );
         });
     },

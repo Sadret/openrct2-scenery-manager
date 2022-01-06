@@ -38,12 +38,12 @@ export function copyBase(
 
 export function copyFrom(src: WallElement, dst: WallData): void {
     copyBase(src, dst);
-    dst.identifier = ObjectIndex.getIdentifier("wall", src.object);
+    dst.qualifier = ObjectIndex.getQualifier("wall", src.object) ?? dst.qualifier;
 }
 
 export function copyTo(src: WallData, dst: WallElement): void {
     copyBase(src, dst);
-    const object = ObjectIndex.getObject("wall", src.identifier);
+    const object = ObjectIndex.getObject("wall", src.qualifier);
     if (object !== null)
         dst.object = object.index;
 }
@@ -52,7 +52,7 @@ export function getPlaceActionData(
     tile: TileData,
     element: WallData,
 ): PlaceActionData[] {
-    const object = ObjectIndex.getObject("wall", element.identifier);
+    const object = ObjectIndex.getObject("wall", element.qualifier);
     if (object === null)
         return [];
     return [{

@@ -21,11 +21,11 @@ const filterTypes: SceneryFilterType[] = [
     "wall",
 ];
 
-function pickOnMap(group: SceneryFilterGroup, mode: "identifier" | "railings" | "addition"): void {
+function pickOnMap(group: SceneryFilterGroup, mode: "qualifier" | "railings" | "addition"): void {
     // TODO: picker
     // new class extends Picker {
     //     protected accept(element: TileElement): boolean {
-    //         if (mode === "identifier") {
+    //         if (mode === "qualifier") {
     //             if (group.forceType && element.type !== group.type.getValue()) {
     //                 ui.showError("Cannot use this element...", "Element's type must match type to replace.");
     //                 return false;
@@ -34,13 +34,13 @@ function pickOnMap(group: SceneryFilterGroup, mode: "identifier" | "railings" | 
     //                 case "footpath":
     //                     const e = Footpath.createFromTileData(element, { x: 0, y: 0 });
     //                     group.type.setValue("footpath");
-    //                     group.identifier.setValue(e.surfaceIdentifier);
+    //                     group.qualifier.setValue(e.surfaceQualifier);
     //                     return true;
     //                 case "small_scenery":
     //                 case "large_scenery":
     //                 case "wall":
     //                     group.type.setValue(element.type);
-    //                     group.identifier.setValue(ObjectIndex.getIdentifier(element));
+    //                     group.qualifier.setValue(ObjectIndex.getQualifier(element));
     //                     return true;
     //                 default:
     //                     ui.showError("Cannot use this element...", "Element must be footpath, small scenery, large scenery or wall.");
@@ -53,7 +53,7 @@ function pickOnMap(group: SceneryFilterGroup, mode: "identifier" | "railings" | 
     //             }
     //             if (mode === "railings") {
     //                 const e = Footpath.createFromTileData(element, { x: 0, y: 0 });
-    //                 group.railings.setValue(e.railingsIdentifier);
+    //                 group.railings.setValue(e.railingsQualifier);
     //                 return true;
     //             } else {
     //                 const e = FootpathAddition.createFromTileData(element, { x: 0, y: 0 });
@@ -61,7 +61,7 @@ function pickOnMap(group: SceneryFilterGroup, mode: "identifier" | "railings" | 
     //                     ui.showError("Cannot use this element...", "Element has no footpath addition.");
     //                     return false;
     //                 }
-    //                 group.addition.setValue(e.identifier);
+    //                 group.addition.setValue(e.qualifier);
     //                 return true;
     //             }
     //         }
@@ -71,11 +71,11 @@ function pickOnMap(group: SceneryFilterGroup, mode: "identifier" | "railings" | 
     // ).activate();
 }
 
-function selectFromList(group: SceneryFilterGroup, mode: "identifier" | "railings" | "addition"): void {
+function selectFromList(group: SceneryFilterGroup, mode: "qualifier" | "railings" | "addition"): void {
     new ObjectChooser(
-        mode === "identifier" ? group.type.getValue() === "footpath" ? "footpath_surface" : group.type.getValue() : mode === "railings" ? "footpath_railings" : "footpath_addition",
+        mode === "qualifier" ? group.type.getValue() === "footpath" ? "footpath_surface" : group.type.getValue() : mode === "railings" ? "footpath_railings" : "footpath_addition",
         info => {
-            if (mode === "identifier") {
+            if (mode === "qualifier") {
                 if (group.forceType && info.type !== group.type.getValue() && !(group.type.getValue() === "footpath" && info.type === "footpath_surface")) {
                     ui.showError("Cannot use this element...", "Element's type must match type to replace.");
                     return false;
@@ -83,14 +83,14 @@ function selectFromList(group: SceneryFilterGroup, mode: "identifier" | "railing
                 switch (info.type) {
                     case "footpath_surface":
                         group.type.setValue("footpath");
-                        group.identifier.setValue(info.identifier);
+                        group.qualifier.setValue(info.qualifier);
                         return true;
                     case "footpath":
                     case "small_scenery":
                     case "large_scenery":
                     case "wall":
                         group.type.setValue(info.type);
-                        group.identifier.setValue(info.identifier);
+                        group.qualifier.setValue(info.qualifier);
                         return true;
                     default: // railings or addition
                         ui.showError("Cannot use this element...", "Element cannot be footpath railings or footpath addition.");
@@ -101,14 +101,14 @@ function selectFromList(group: SceneryFilterGroup, mode: "identifier" | "railing
                     ui.showError("Cannot use this element...", "Element's must be footpath railings.");
                     return false;
                 }
-                group.railings.setValue(info.identifier);
+                group.railings.setValue(info.qualifier);
                 return true;
             } else { // mode === "addition"
                 if (info.type !== "footpath_addition") {
                     ui.showError("Cannot use this element...", "Element's must be footpath addition.");
                     return false;
                 }
-                group.addition.setValue(info.identifier);
+                group.addition.setValue(info.qualifier);
                 return true;
             }
         }
@@ -117,7 +117,7 @@ function selectFromList(group: SceneryFilterGroup, mode: "identifier" | "railing
 
 export default class SceneryFilterGroup extends GUI.GroupBox {
     public readonly type = new Property<SceneryFilterType>("small_scenery");
-    public readonly identifier = new Property<string | undefined>(undefined);
+    public readonly qualifier = new Property<string | undefined>(undefined);
 
     public readonly primaryColour = new Property<number | undefined>(undefined);
     public readonly secondaryColour = new Property<number | undefined>(undefined);
@@ -134,7 +134,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
         });
         this.forceType = forceType;
 
-        this.type.bind(_ => this.identifier.setValue(undefined));
+        this.type.bind(_ => this.qualifier.setValue(undefined));
 
         this.add(
             // TYPE
@@ -170,23 +170,23 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     this.type,
                     type => type === "footpath" ? "Surface Object:" : "Object",
                 ).bindValue(
-                    this.identifier,
+                    this.qualifier,
                     isChecked => isChecked ? "" : undefined,
                     s => s !== undefined,
                 ),
                 new GUI.Label({
                 }).bindText(
-                    this.identifier,
+                    this.qualifier,
                     s => s === undefined ? "" : s,
                 ),
                 new GUI.HBox([1, 1]).add(
                     new GUI.TextButton({
                         text: "Pick on Map",
-                        onClick: () => pickOnMap(this, "identifier"),
+                        onClick: () => pickOnMap(this, "qualifier"),
                     }),
                     new GUI.TextButton({
                         text: "Select from List",
-                        onClick: () => selectFromList(this, "identifier"),
+                        onClick: () => selectFromList(this, "qualifier"),
                     }),
                 ),
             ),

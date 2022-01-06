@@ -22,19 +22,19 @@ export function setElement(object: SceneryObject): void {
         case "footpath":
         case "footpath_surface":
             findGroup.type.setValue("footpath");
-            findGroup.identifier.setValue(object.identifier);
+            findGroup.qualifier.setValue(object.qualifier);
             break;
         case "footpath_railings":
             findGroup.type.setValue("footpath");
-            findGroup.railings.setValue(object.identifier);
+            findGroup.railings.setValue(object.qualifier);
             break;
         case "footpath_addition":
             findGroup.type.setValue("footpath");
-            findGroup.addition.setValue(object.identifier);
+            findGroup.addition.setValue(object.qualifier);
             break;
         default:
             findGroup.type.setValue(object.type);
-            findGroup.identifier.setValue(object.identifier);
+            findGroup.qualifier.setValue(object.qualifier);
             break;
     }
 }
@@ -58,16 +58,16 @@ function findAndDelete(replace: boolean): void {
     //             return;
     // switch (element.type) {
     //     case "footpath":
-    //         if (!eqIfDef(element.surfaceIdentifier, findGroup.identifier.getValue()))
+    //         if (!eqIfDef(element.surfaceQualifier, findGroup.qualifier.getValue()))
     //             return;
-    //         if (!eqIfDef(element.railingsIdentifier, findGroup.railings.getValue()))
+    //         if (!eqIfDef(element.railingsQualifier, findGroup.railings.getValue()))
     //             return;
     //         const callbackFp = replace ? ((removed: boolean) => {
     //             if (removed)
     //                 MapIO.place([{
     //                     ...element,
-    //                     surfaceIdentifier: replaceValue(element.surfaceIdentifier, replaceGroup.identifier),
-    //                     railingsIdentifier: replaceValue(element.railingsIdentifier, replaceGroup.railings),
+    //                     surfaceQualifier: replaceValue(element.surfaceQualifier, replaceGroup.qualifier),
+    //                     railingsQualifier: replaceValue(element.railingsQualifier, replaceGroup.railings),
     //                 }]);
     //         }) : undefined;
     //         return MapIO.removeElement(element, false, callbackFp);
@@ -76,7 +76,7 @@ function findAndDelete(replace: boolean): void {
     //             return;
     //     case "small_scenery":
     //     case "large_scenery":
-    //         if (!eqIfDef(element.identifier, findGroup.identifier.getValue()))
+    //         if (!eqIfDef(element.qualifier, findGroup.qualifier.getValue()))
     //             return;
     //         if (!eqIfDef(element.primaryColour, findGroup.primaryColour.getValue()))
     //             return;
@@ -86,7 +86,7 @@ function findAndDelete(replace: boolean): void {
     //             if (removed)
     //                 MapIO.place([{
     //                     ...element,
-    //                     identifier: replaceValue(element.identifier, replaceGroup.identifier),
+    //                     qualifier: replaceValue(element.qualifier, replaceGroup.qualifier),
     //                     primaryColour: replaceValue(element.primaryColour, replaceGroup.primaryColour),
     //                     secondaryColour: replaceValue(element.secondaryColour, replaceGroup.secondaryColour),
     //                     ...element.type === "wall" ? {

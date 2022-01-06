@@ -168,13 +168,13 @@ export default class Template {
         if (element.type === "footpath") {
             const copy = { ...element };
             if (!filter(copy, false)) {
-                copy.identifier = null;
-                copy.surfaceIdentifier = null;
-                copy.railingsIdentifier = null;
+                copy.qualifier = null;
+                copy.surfaceQualifier = null;
+                copy.railingsQualifier = null;
             }
             if (!filter(copy, true))
-                copy.additionIdentifier = null;
-            if (copy.identifier === null && copy.surfaceIdentifier === null && copy.additionIdentifier === null)
+                copy.additionQualifier = null;
+            if (copy.qualifier === null && copy.surfaceQualifier === null && copy.additionQualifier === null)
                 return undefined;
             else
                 return copy;
