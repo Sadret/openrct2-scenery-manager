@@ -88,10 +88,8 @@ interface TemplateData {
  * SCATTER
  */
 
-type ScatterElement = SmallSceneryData | LargeSceneryData;
-
 interface ScatterData {
-    readonly element: ScatterElement;
+    readonly element: SmallSceneryData | LargeSceneryData;
     readonly weight: number;
 }
 

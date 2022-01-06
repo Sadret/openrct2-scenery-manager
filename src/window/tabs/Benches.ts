@@ -36,7 +36,7 @@ const picker = new class extends Picker {
         this.entry.setValue(object);
         return true;
     }
-}(`sm-picker-benches`);
+}("sm-picker-benches");
 
 const dropdowns = entries.map((_, idx) => new GUI.Dropdown({
 }).bindIsDisabled(

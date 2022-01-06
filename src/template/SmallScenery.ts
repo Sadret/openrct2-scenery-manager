@@ -100,6 +100,13 @@ export function getRemoveActionData(
     }];
 }
 
+export function setQuadrant(element: SmallSceneryData, quadrant: number): SmallSceneryData {
+    return isFullTile(element) ? element : {
+        ...element,
+        quadrant: quadrant,
+    };
+}
+
 function isFullTile(element: SmallSceneryData): boolean {
     return hasFlag(element, 0);
 }

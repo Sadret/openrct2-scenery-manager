@@ -79,33 +79,17 @@ export default class ObjectIndex<T extends IndexedObject = IndexedObject> {
         return ObjectIndex.getIndex(type).getAll();
     }
 
-    // TODO: adjust
-    private static getLoadedObject(type: "small_scenery", key: string): SmallSceneryObject | null;
+    private static getLoadedObject(type: "small_scenery", key: number): SmallSceneryObject | null;
     private static getLoadedObject(type: ObjectType, key: number): LoadedObject | null;
-
-    // private static getLoadedObject(type: "small_scenery", key: string | number | null): SmallSceneryObject | null;
-    // private static getLoadedObject(type: ObjectType, key: string | number | null): LoadedObject | null;
-    // private static getLoadedObject(type: ObjectType, key: string | number | null): LoadedObject | null;
-    // private static getLoadedObject(indexedObject: IndexedObject): LoadedObject | null;
-    private static getLoadedObject(arg1: ObjectType | IndexedObject, arg2?: string | number | null): LoadedObject | null {
-        if (typeof arg1 === "object") {
-            arg2 = arg1.qualifier;
-            arg1 = arg1.type;
-        }
-        if (typeof arg2 === "string")
-            arg2 = ObjectIndex.getObject(arg1, arg2) ?.index;
-        if (typeof arg2 === "number")
-            return context.getObject(arg1, arg2);
-        return null;
+    private static getLoadedObject(type: ObjectType, key: number): LoadedObject | null {
+        return context.getObject(type, key);
     }
 
     private static getAllLoadedObjects(type: ObjectType): LoadedObject[] {
         return context.getAllObjects(type);
     }
 
-    // TODO: adjust?
     public static getQualifier(object: LoadedObject): string;
-    public static getQualifier(object: LoadedObject | null): string | null;
     public static getQualifier(type: ObjectType, object: number | null): string | null;
     public static getQualifier(arg1: ObjectType | LoadedObject | null, arg2?: number | null): string | null {
         if (typeof arg1 === "string")
@@ -117,7 +101,8 @@ export default class ObjectIndex<T extends IndexedObject = IndexedObject> {
     }
 
     public static getSmallSceneryFlags(qualifier: string): number | null {
-        const object = ObjectIndex.getLoadedObject("small_scenery", qualifier);
-        return object && object.flags;
+        const indexedObject = ObjectIndex.getObject("small_scenery", qualifier);
+        const loadedObject = indexedObject && ObjectIndex.getLoadedObject("small_scenery", indexedObject.index);
+        return loadedObject && loadedObject.flags;
     }
 }

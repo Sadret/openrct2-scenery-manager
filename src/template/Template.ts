@@ -127,6 +127,10 @@ export default class Template {
         });
     }
 
+    public static get(element: TileElement | ElementData): BaseElement<TileElement, ElementData> {
+        return get(element);
+    }
+
     public static copyBase(
         src: ElementData | TileElement,
         dst: ElementData | TileElement = {} as TileElement
