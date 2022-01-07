@@ -106,7 +106,7 @@ export default new GUI.Tab({ image: 5465 }).add(
                 ),
                 new GUI.HBox([1, 1]).add(
                     new GUI.Label({
-                        text: "Ghost:",
+                        text: "Show ghost:",
                     }),
                     new GUI.TextButton({
                         onClick: () => Clipboard.settings.ghost.flip(),

@@ -76,7 +76,7 @@ export function getPlaceActionData(
         args: {
             ...element,
             ...Coordinates.toWorldCoords(tile),
-            z: element.baseZ,
+            z: element.onSurface ? 0 : element.baseZ,
             object: object.index,
         },
     }];
@@ -109,6 +109,10 @@ export function setQuadrant(element: SmallSceneryData, quadrant: number): SmallS
 
 function isFullTile(element: SmallSceneryData): boolean {
     return hasFlag(element, 0);
+}
+
+export function requiresFlatSurface(element: SmallSceneryData): boolean {
+    return hasFlag(element, 2);
 }
 
 function isDiagonal(element: SmallSceneryData): boolean {

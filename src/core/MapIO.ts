@@ -268,7 +268,7 @@ export function hasOwnership(tile: Tile): boolean {
     return surface !== undefined && surface.hasOwnership;
 }
 
-function getSurface(tile: Tile): SurfaceElement | undefined {
+export function getSurface(tile: Tile): SurfaceElement | undefined {
     for (let element of tile.elements)
         if (element.type === "surface")
             return element;
@@ -276,5 +276,5 @@ function getSurface(tile: Tile): SurfaceElement | undefined {
 
 export function getSurfaceHeight(tile: Tile): number {
     const surface = getSurface(tile);
-    return surface === undefined ? 0 : surface.baseZ;
+    return surface === undefined ? 0 : surface.baseHeight;
 }

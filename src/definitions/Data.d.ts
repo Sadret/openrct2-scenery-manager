@@ -45,6 +45,7 @@ type TrackData = TrackElement;
 
 type SmallSceneryData = Omit<SmallSceneryElement, "object"> & {
     qualifier: string;
+    onSurface?: true;
 };
 
 type WallData = Omit<WallElement, "object"> & {
@@ -55,6 +56,7 @@ type EntranceData = EntranceElement;
 
 type LargeSceneryData = Omit<LargeSceneryElement, "object"> & {
     qualifier: string;
+    onSurface?: true;
 };
 
 type BannerData = BannerElement;

@@ -6,8 +6,9 @@
  *****************************************************************************/
 
 import * as Arrays from "../../utils/Arrays";
-import * as MapIO from "../../core/MapIO";
 import * as Storage from "../../persistence/Storage";
+import * as MapIO from "../../core/MapIO";
+import * as Clipboard from "../../core/Clipboard";
 
 import Brush from "../../tools/Brush";
 import BrushBox from "../widgets/BrushBox";
@@ -15,6 +16,7 @@ import Configuration from "../../config/Configuration";
 import Dialog from "../../utils/Dialog";
 import GUI from "../../gui/GUI";
 import NumberProperty from "../../config/NumberProperty";
+import BooleanProperty from "../../config/BooleanProperty";
 import ObjectIndex from "../../core/ObjectIndex";
 import Picker from "../../tools/Picker";
 import Property from "../../config/Property";
@@ -23,6 +25,46 @@ import Template from "../../template/Template";
 import * as SmallScenery from "../../template/SmallScenery";
 
 const EMPTY_STRING = "(empty)";
+
+const heightOffsetEnabled = new BooleanProperty(false);
+const heightOffset = new NumberProperty(0, 0);
+
+const surfaceAvgOffsets = [
+    0, // 0 0 0 0
+    0, // 0 0 0 1
+    0, // 0 0 1 0
+    1, // 0 0 1 1
+    0, // 0 1 0 0
+    0, // 0 1 0 1
+    1, // 0 1 1 0
+    2, // 0 1 1 1
+    0, // 1 0 0 0
+    1, // 1 0 0 1
+    0, // 1 0 1 0
+    2, // 1 0 1 1
+    1, // 1 1 0 0
+    2, // 1 1 0 1
+    2, // 1 1 1 0
+    2, // 1 1 1 1
+]
+
+function getSurfaceHeight(surface: SurfaceElement, requiresFlatSurface: boolean): number {
+    const height = surface.baseHeight;
+    const slope = surface.slope;
+    if (requiresFlatSurface) {
+        if (slope === 0)
+            return height;
+        if (slope > 0xf)
+            return height + 4;
+        else
+            return height + 2;
+    } else {
+        if (slope > 0xf)
+            return height + 2;
+        else
+            return height + surfaceAvgOffsets[slope];
+    }
+}
 
 // TODO: test max size
 const entries = Arrays.create(5, () => new Property<ScatterData | null>(null));
@@ -59,13 +101,29 @@ const picker = new class extends Picker {
 function provide(coordsList: CoordsXY[]): TileData[] {
     const result = [] as TileData[];
     coordsList.forEach(coords => {
-        let data = getRandomData();
+        let data: ElementData | null = getRandomData();
         if (data === null)
             return;
 
-        const z = MapIO.getSurfaceHeight(MapIO.getTile(coords));
-        data.baseZ = z;
-        data.baseHeight = z / 8;
+        const surface = MapIO.getSurface(MapIO.getTile(coords));
+        if (surface === undefined)
+            return;
+
+        const requiresFlatSurface = data.type === "small_scenery" && SmallScenery.requiresFlatSurface(data);
+
+        const surfaceHeight = getSurfaceHeight(surface, requiresFlatSurface);
+        const offset = heightOffsetEnabled.getValue() ? heightOffset.getValue() : 0;
+        const height = surfaceHeight + offset;
+
+        data.clearanceHeight -= data.baseHeight;
+        data.clearanceZ -= data.baseZ;
+        data.baseHeight = height;
+        data.baseZ = height * 8;
+        data.clearanceHeight += data.baseHeight;
+        data.clearanceZ += data.baseZ;
+
+        if (!heightOffsetEnabled.getValue() && !requiresFlatSurface)
+            data.onSurface = true;
 
         if (Configuration.scatter.randomise.rotation.getValue())
             data = Template.get(data).rotate(data, Math.floor(Math.random() * 4));
@@ -91,12 +149,12 @@ function getLabel(entry: ScatterData | null): string {
     return `${object.name} (${object.qualifier})`;
 }
 
-function getRandomData(): ElementData | null {
+function getRandomData(): SmallSceneryData | LargeSceneryData | null {
     let rnd = Math.random() * 100;
     for (let i = 0; i < entries.length; i++) {
         const data = entries[i].getValue();
         if (data !== null && (rnd -= data.weight) < 0)
-            return data.element;
+            return { ...data.element };
     }
     return null;
 }
@@ -178,21 +236,43 @@ export default new GUI.Tab({ image: 5459 }).add(
             protected getTileDataFromTiles(tiles: CoordsXY[]): TileData[] {
                 return provide(tiles);
             }
+
+            protected getPlaceMode(): PlaceMode {
+                return Clipboard.settings.placeMode.getValue();
+            }
         }(),
     ),
     new GUI.GroupBox({
         text: "Options",
     }).add(
-        new GUI.HBox([1, 1]).add(
-            new GUI.Checkbox({
-                text: "Randomise rotation",
-            }).bindValue(
-                Configuration.scatter.randomise.rotation,
+        new GUI.HBox([2, 3]).add(
+            new GUI.VBox().add(
+                new GUI.Checkbox({
+                    text: "Randomise rotation",
+                }).bindValue(
+                    Configuration.scatter.randomise.rotation,
+                ),
+                new GUI.Checkbox({
+                    text: "Randomise quadrant",
+                }).bindValue(
+                    Configuration.scatter.randomise.quadrant,
+                ),
             ),
-            new GUI.Checkbox({
-                text: "Randomise quadrant",
-            }).bindValue(
-                Configuration.scatter.randomise.quadrant,
+            new GUI.VBox().add(
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Checkbox({
+                        text: "Height offset:",
+                    }).bindValue(
+                        heightOffsetEnabled
+                    ),
+                    new GUI.Spinner({
+                    }).bindValue(
+                        heightOffset,
+                    ).bindIsDisabled(
+                        heightOffsetEnabled,
+                        enabled => !enabled,
+                    ),
+                ),
             ),
         ),
     ),

@@ -58,6 +58,7 @@ export default abstract class Builder extends Tool {
                 this.tileData = this.getTileData(this.coords, this.offset);
                 if (this.tileData === undefined)
                     return this.cancel();
+                this.placeMode = this.getPlaceMode();
                 MapIO.place(this.tileData, this.placeMode, isGhost, this.getFilter());
             }
             this.tileSelection = this.getTileSelection(this.coords, this.offset);
@@ -104,5 +105,7 @@ export default abstract class Builder extends Tool {
     public onFinish(): void {
         this.removeGhost();
         ui.mainViewport.visibilityFlags &= ~(1 << 7);
+        this.dragStartCoords = Coordinates.NULL;
+        this.dragEndCoords = Coordinates.NULL;
     }
 }

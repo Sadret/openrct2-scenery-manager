@@ -101,7 +101,7 @@ const builder = new class extends Builder {
             else
                 rotation -= diff;
         }
-        let height = MapIO.getSurfaceHeight(MapIO.getTile(coords)) + 8 * settings.height.getValue();
+        let height = 8 * (MapIO.getSurfaceHeight(MapIO.getTile(coords)) + settings.height.getValue());
         if (Configuration.copyPaste.cursor.height.enabled.getValue()) {
             const step = Configuration.copyPaste.cursor.height.smallSteps.getValue() ? 8 : 16;
             height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
@@ -231,12 +231,13 @@ export function copy(cut: boolean = false): void {
     ).map(
         MapIO.getSurfaceHeight
     ).sort();
-    const heightOffset = heights[Math.floor(heights.length / 2)];
+    const heightOffset = 8 * heights[Math.floor(heights.length / 2)];
 
     let data = MapIO.read(tiles);
     data = Template.filterTileData(data, filter);
     // TODO: sort
     // data = MapIO.sort(data);
+    // affects path layouts, path/walls and path/banners
 
     if (cut)
         MapIO.clear(tiles, settings.placeMode.getValue(), filter);

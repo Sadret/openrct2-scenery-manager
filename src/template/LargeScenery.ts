@@ -61,7 +61,7 @@ export function getPlaceActionData(
         args: {
             ...element,
             ...Coordinates.toWorldCoords(tile),
-            z: element.baseZ,
+            z: element.onSurface ? 0 : element.baseZ,
             object: object.index,
         },
     }];
