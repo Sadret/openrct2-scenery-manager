@@ -81,24 +81,6 @@ export function register() {
         callback: Clipboard.mirror,
     });
     ui.registerShortcut({
-        id: "scenery-manager.cursorMode",
-        text: "[SM] Cycle cursor mode",
-        bindings: ["CTRL+T", "GUI+T"],
-        callback: Clipboard.cycleCursorMode,
-    });
-    ui.registerShortcut({
-        id: "scenery-manager.placeMode",
-        text: "[SM] Cycle place mode",
-        bindings: ["CTRL+P", "GUI+P"],
-        callback: Clipboard.cyclePlaceMode,
-    });
-    ui.registerShortcut({
-        id: "scenery-manager.ghost",
-        text: "[SM] Toggle ghost",
-        bindings: ["CTRL+G", "GUI+G"],
-        callback: Clipboard.toggleGhost,
-    });
-    ui.registerShortcut({
         id: "scenery-manager.settings.decreaseHeight",
         text: "[SM] Decrease template height",
         bindings: ["J"],

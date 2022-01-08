@@ -7,7 +7,6 @@
 
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
-import * as Selector from "../tools/Selector";
 import * as Storage from "../persistence/Storage";
 
 import BooleanProperty from "../config/BooleanProperty";
@@ -15,7 +14,6 @@ import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
 import Dialog from "../utils/Dialog";
 import NumberProperty from "../config/NumberProperty";
-import Property from "../config/Property";
 import Template from "../template/Template";
 import TemplateView from "../window/widgets/TemplateView";
 
@@ -34,9 +32,6 @@ export const settings = {
     rotation: new NumberProperty(0),
     mirrored: new BooleanProperty(false),
     height: new NumberProperty(0),
-    cursorMode: new Property<CursorMode>("surface"),
-    placeMode: new Property<PlaceMode>("safe_merge"),
-    ghost: new BooleanProperty(true),
 };
 
 const builder = new class extends Builder {
@@ -79,31 +74,23 @@ const builder = new class extends Builder {
         ).data.mapRange;
     }
 
-    protected getPlaceMode(): PlaceMode {
-        return settings.placeMode.getValue();
-    }
-
-    protected getFilter(): ElementFilter {
-        return filter;
-    }
-
     private transform(
         template: Template,
         coords: CoordsXY,
         offset: CoordsXY,
     ): Template {
         let rotation = settings.rotation.getValue();
-        if (Configuration.copyPaste.cursor.rotation.enabled.getValue()) {
-            const insensitivity = 10 - Configuration.copyPaste.cursor.rotation.sensitivity.getValue();
+        if (Configuration.paste.cursorRotation.enabled.getValue()) {
+            const insensitivity = 10 - Configuration.paste.cursorRotation.sensitivity.getValue();
             const diff = offset.x + (1 << insensitivity) >> insensitivity + 1;
-            if (Configuration.copyPaste.cursor.rotation.flip.getValue())
+            if (Configuration.paste.cursorRotation.flip.getValue())
                 rotation += diff;
             else
                 rotation -= diff;
         }
         let height = 8 * (MapIO.getSurfaceHeight(MapIO.getTile(coords)) + settings.height.getValue());
-        if (Configuration.copyPaste.cursor.height.enabled.getValue()) {
-            const step = Configuration.copyPaste.cursor.height.smallSteps.getValue() ? 8 : 16;
+        if (Configuration.paste.cursorHeight.enabled.getValue()) {
+            const step = Configuration.paste.cursorHeight.smallSteps.getValue() ? 8 : 16;
             height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
         }
         // TODO: filter available
@@ -121,10 +108,9 @@ const builder = new class extends Builder {
 settings.rotation.bind(() => builder.build());
 settings.mirrored.bind(() => builder.build());
 settings.height.bind(() => builder.build());
-settings.placeMode.bind(() => builder.build());
-settings.ghost.bind(() => builder.build());
 Object.keys(settings.filter).forEach(key => settings.filter[key].bind(() => builder.build()));
 
+// TODO: delete?
 function filter(element: TileElement | ElementData, addition: boolean) {
     if (addition)
         return settings.filter.footpath_addition.getValue();
@@ -195,7 +181,7 @@ export function load(data?: TemplateData): void {
         // const available = template.filter(Template.isAvailable);
         //
         // if (available.elements.length !== template.elements.length) {
-        //     const action = Configuration.copyPaste.onMissingElement.getValue();
+        //     const action = Configuration.paste.onMissingElement.getValue();
         //     switch (action) {
         //         case "error":
         //             return ui.showError("Can't load template...", "Template includes scenery which is unavailable.");
@@ -230,7 +216,7 @@ export function copy(cut: boolean = false): void {
     // affects path layouts, path/walls and path/banners
 
     if (cut)
-        MapIO.clear(tiles, settings.placeMode.getValue(), filter);
+        MapIO.clear(tiles, Configuration.tools.placeMode.getValue(), filter);
 
     addTemplate(new Template({
         tiles: data,
@@ -258,26 +244,6 @@ export function rotate(): void {
 export function mirror(): void {
     if (builder.isActive())
         settings.mirrored.flip();
-}
-
-export function cycleCursorMode(): void {
-    switch (settings.cursorMode.getValue()) {
-        case "surface":
-            return settings.cursorMode.setValue("scenery");
-        case "scenery":
-            return settings.cursorMode.setValue("surface");
-    }
-}
-
-const placeModes: PlaceMode[] = ["safe_merge", "safe_replace", "raw_merge", "raw_replace"];
-export function cyclePlaceMode(): void {
-    settings.placeMode.setValue(
-        placeModes[(placeModes.indexOf(settings.placeMode.getValue()) + 1) % placeModes.length]
-    );
-}
-
-export function toggleGhost(): void {
-    settings.ghost.flip();
 }
 
 export function deleteTemplate(): void {

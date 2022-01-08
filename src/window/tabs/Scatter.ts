@@ -111,10 +111,10 @@ function provide(coords: CoordsXY): TileData {
     if (!heightOffsetEnabled.getValue() && !requiresFlatSurface)
         data.onSurface = true;
 
-    if (Configuration.scatter.randomise.rotation.getValue())
+    if (Configuration.scatter.randomiseRotation.getValue())
         data = Template.get(data).rotate(data, Math.floor(Math.random() * 4));
 
-    if (Configuration.scatter.randomise.quadrant.getValue())
+    if (Configuration.scatter.randomiseQuadrant.getValue())
         if (data.type === "small_scenery")
             data = SmallScenery.setQuadrant(data, Math.floor(Math.random() * 4));
 
@@ -169,7 +169,7 @@ function load(): void {
             // );
 
             if (available.length !== pattern.length) {
-                const action = Configuration.scatter.onMissingElement.getValue();
+                const action = Configuration.tools.onMissingElement.getValue();
                 switch (action) {
                     case "error":
                         return ui.showError("Can't load pattern...", "Pattern includes scenery which is unavailable.");
@@ -217,12 +217,12 @@ export default new GUI.Tab({ image: 5459 }).add(
                 new GUI.Checkbox({
                     text: "Randomise rotation",
                 }).bindValue(
-                    Configuration.scatter.randomise.rotation,
+                    Configuration.scatter.randomiseRotation,
                 ),
                 new GUI.Checkbox({
                     text: "Randomise quadrant",
                 }).bindValue(
-                    Configuration.scatter.randomise.quadrant,
+                    Configuration.scatter.randomiseQuadrant,
                 ),
             ),
             new GUI.VBox().add(

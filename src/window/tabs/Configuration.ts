@@ -18,33 +18,62 @@ export default new GUI.Tab({
     },
 }).add(
     new GUI.GroupBox({
-        text: "Copy & Paste",
+        text: "All Tools",
     }).add(
+        new GUI.HBox([16, 5]).add(
+            new GUI.Label({
+                text: "Cursor mode:",
+            }),
+            new GUI.Dropdown({
+            }).bindValue<CursorMode>(
+                Configuration.tools.cursorMode,
+                ["surface", "scenery"],
+                Strings.toDisplayString,
+            ),
+        ),
+        new GUI.HBox([16, 5]).add(
+            new GUI.Label({
+                text: "Place mode:",
+            }),
+            new GUI.Dropdown({
+            }).bindValue<PlaceMode>(
+                Configuration.tools.placeMode,
+                ["safe", "raw"],
+                Strings.toDisplayString,
+            ),
+        ),
+        new GUI.Checkbox({
+            text: "Show ghost preview",
+        }).bindValue(
+            Configuration.tools.showGhost,
+        ),
         new GUI.HBox([16, 5]).add(
             new GUI.Label({
                 text: "Behaviour if element unavailable:",
             }),
             new GUI.Dropdown({
             }).bindValue<Action>(
-                Configuration.copyPaste.onMissingElement,
+                Configuration.tools.onMissingElement,
                 ["error", "warning", "ignore"],
                 Strings.toDisplayString,
             ),
         ),
-        new GUI.Space(4),
+    ), new GUI.GroupBox({
+        text: "Paste Tool",
+    }).add(
         new GUI.Checkbox({
             text: "Enable height offset with mouse cursor",
         }).bindValue(
-            Configuration.copyPaste.cursor.height.enabled,
+            Configuration.paste.cursorHeight.enabled,
         ),
         new GUI.HBox([1, 20]).add(
             new GUI.Space(),
             new GUI.Checkbox({
-                text: "Enable small step size (not suited for footpaths or tracks)",
+                text: "Enable small step size (only suited for certain small scenery)",
             }).bindValue(
-                Configuration.copyPaste.cursor.height.smallSteps,
+                Configuration.paste.cursorHeight.smallSteps,
             ).bindIsDisabled(
-                Configuration.copyPaste.cursor.height.enabled,
+                Configuration.paste.cursorHeight.enabled,
                 enabled => !enabled,
             ),
         ),
@@ -52,16 +81,16 @@ export default new GUI.Tab({
         new GUI.Checkbox({
             text: "Enable rotation with mouse cursor",
         }).bindValue(
-            Configuration.copyPaste.cursor.rotation.enabled,
+            Configuration.paste.cursorRotation.enabled,
         ),
         new GUI.HBox([1, 20]).add(
             new GUI.Space(),
             new GUI.Checkbox({
                 text: "Flip rotation direction",
             }).bindValue(
-                Configuration.copyPaste.cursor.rotation.flip,
+                Configuration.paste.cursorRotation.flip,
             ).bindIsDisabled(
-                Configuration.copyPaste.cursor.rotation.enabled,
+                Configuration.paste.cursorRotation.enabled,
                 enabled => !enabled,
             ),
         ),
@@ -70,35 +99,34 @@ export default new GUI.Tab({
             new GUI.Label({
                 text: "Sensitivity:",
             }).bindIsDisabled(
-                Configuration.copyPaste.cursor.rotation.enabled,
+                Configuration.paste.cursorRotation.enabled,
                 enabled => !enabled,
             ),
             new GUI.Spinner({
             }).bindValue(
-                Configuration.copyPaste.cursor.rotation.sensitivity,
+                Configuration.paste.cursorRotation.sensitivity,
             ).bindIsDisabled(
-                Configuration.copyPaste.cursor.rotation.enabled,
+                Configuration.paste.cursorRotation.enabled,
                 enabled => !enabled,
             ),
         ),
     ),
     new GUI.GroupBox({
-        text: "Scatter Tool",
+        text: "Area Selection Tool",
     }).add(
-        new GUI.HBox([16, 5]).add(
-            new GUI.Label({
-                text: "Behaviour if element unavailable:",
-            }),
-            new GUI.Dropdown({
-            }).bindValue<Action>(
-                Configuration.scatter.onMissingElement,
-                ["error", "warning", "ignore"],
-                Strings.toDisplayString,
-            ),
+        new GUI.Checkbox({
+            text: "Keep selection when tool is cancelled",
+        }).bindValue(
+            Configuration.selector.keepOnExit,
+        ),
+        new GUI.Checkbox({
+            text: "Show options window while area selection tool is used",
+        }).bindValue(
+            Configuration.selector.showWindow,
         ),
     ),
     new GUI.GroupBox({
-        text: "Brush",
+        text: "Brush Tool",
     }).add(
         new GUI.HBox([16, 5]).add(
             new GUI.Label({
@@ -126,34 +154,9 @@ export default new GUI.Tab({
             Configuration.brush.dragToPlace,
         ),
         new GUI.Checkbox({
-            text: "Show brush window",
+            text: "Show options window while brush tool is used",
         }).bindValue(
             Configuration.brush.showWindow,
-        ),
-    ),
-    new GUI.GroupBox({
-        text: "Brush",
-    }).add(
-        new GUI.HBox([16, 5]).add(
-            new GUI.Label({
-                text: "CursorMode:",
-            }),
-            new GUI.Dropdown({
-            }).bindValue<CursorMode>(
-                Configuration.selector.cursorMode,
-                ["surface", "scenery"],
-                Strings.toDisplayString,
-            ),
-        ),
-        new GUI.Checkbox({
-            text: "Keep selection on Exit",
-        }).bindValue(
-            Configuration.selector.keepOnExit,
-        ),
-        new GUI.Checkbox({
-            text: "Show brush window",
-        }).bindValue(
-            Configuration.selector.showWindow,
         ),
     ),
 );

@@ -73,10 +73,22 @@ export default new GUI.Tab({
     new GUI.TextButton({
         text: "Activate brush",
         onClick: () => Brush.activate(
-            "Footpath Additions",
+            "Path Additions",
             provide,
         ),
     }),
+    new GUI.GroupBox({
+        text: "Options",
+    }).add(
+        new GUI.HBox([3, 2]).add(
+            new GUI.Label({
+                text: "Pattern size:",
+            }),
+            new GUI.Spinner({
+            }).bindValue(size),
+            new GUI.Space(),
+        ),
+    ),
     new GUI.GroupBox({
         text: "Pattern",
     }).add(

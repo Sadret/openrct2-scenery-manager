@@ -75,7 +75,7 @@ const window = new GUI.WindowManager(
         width: WIDTH,
         height: 0,
         classification: "scenery-manager.selector",
-        title: "Selector",
+        title: "Area Selection",
         colours: [7, 7, 6,],
         onClose: () => Configuration.selector.showWindow.getValue() && selector.cancel(),
     }, new GUI.Window().add(
@@ -85,13 +85,13 @@ const window = new GUI.WindowManager(
             }),
             new GUI.Dropdown({
             }).bindValue<CursorMode>(
-                Configuration.selector.cursorMode,
+                Configuration.tools.cursorMode,
                 ["surface", "scenery"],
                 Strings.toDisplayString,
             ),
         ),
         new GUI.Checkbox({
-            text: "Keep selection on Exit",
+            text: "Keep selection when finished",
         }).bindValue(
             Configuration.selector.keepOnExit,
         ),
@@ -120,7 +120,7 @@ Configuration.selector.showWindow.bind(showWindow => {
             window.close();
 });
 
-Configuration.selector.cursorMode.bind(mode => {
+Configuration.tools.cursorMode.bind(mode => {
     const active = selector.isActive();
     selector.setFilter(mode === "surface" ? ["terrain"] : undefined);
     if (active) {

@@ -9,6 +9,7 @@ import * as Clipboard from "../../core/Clipboard";
 import * as Selector from "../../tools/Selector";
 import * as Strings from "../../utils/Strings";
 
+import Configuration from "../../config/Configuration";
 import GUI from "../../gui/GUI";
 
 export default new GUI.Tab({ image: 5465 }).add(
@@ -67,10 +68,8 @@ export default new GUI.Tab({ image: 5465 }).add(
                         text: "Mirrored:",
                     }),
                     new GUI.TextButton({
-                        onClick: () => Clipboard.settings.mirrored.flip(),
-                    }).bindText(
+                    }).bindValue(
                         Clipboard.settings.mirrored,
-                        value => value ? "Yes" : "No",
                     ),
                 ),
                 new GUI.HBox([1, 1]).add(
@@ -88,7 +87,7 @@ export default new GUI.Tab({ image: 5465 }).add(
                     }),
                     new GUI.Dropdown({
                     }).bindValue<CursorMode>(
-                        Clipboard.settings.cursorMode,
+                        Configuration.tools.cursorMode,
                         ["surface", "scenery"],
                         Strings.toDisplayString,
                     ),
@@ -99,8 +98,8 @@ export default new GUI.Tab({ image: 5465 }).add(
                     }),
                     new GUI.Dropdown({
                     }).bindValue<PlaceMode>(
-                        Clipboard.settings.placeMode,
-                        ["safe_merge", "safe_replace", "raw_merge", "raw_replace"],
+                        Configuration.tools.placeMode,
+                        ["safe", "raw"],
                         Strings.toDisplayString,
                     )
                 ),
@@ -109,10 +108,8 @@ export default new GUI.Tab({ image: 5465 }).add(
                         text: "Show ghost:",
                     }),
                     new GUI.TextButton({
-                        onClick: () => Clipboard.settings.ghost.flip(),
-                    }).bindText(
-                        Clipboard.settings.ghost,
-                        value => value ? "Yes" : "No",
+                    }).bindValue(
+                        Configuration.tools.showGhost,
                     ),
                 ),
             ),
@@ -127,6 +124,7 @@ export default new GUI.Tab({ image: 5465 }).add(
                     Clipboard.settings.filter[key],
                 ),
             ),
+            // TODO: adjust?
             new GUI.Space(22), // vfill
         ),
     ),

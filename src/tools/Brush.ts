@@ -53,14 +53,6 @@ const brush = new class extends Builder {
             ? Coordinates.square(coords, size)
             : Coordinates.circle(coords, size);
     }
-
-    protected getPlaceMode(): PlaceMode {
-        return "safe_merge";
-    }
-
-    protected getFilter(): ElementFilter {
-        return () => true;
-    }
 }();
 
 const WIDTH = 192;
@@ -74,10 +66,45 @@ const window = new GUI.WindowManager(
         colours: [7, 7, 6,],
         onClose: () => Configuration.brush.showWindow.getValue() && brush.cancel(),
     }, new GUI.Window().add(
-        new GUI.Label({
-        }).bindText(
-            label,
-            val => "{BLACK}" + val,
+        new GUI.HBox([1, 1]).add(
+            new GUI.Label({
+                text: "Current tool:",
+            }),
+            new GUI.Label({
+            }).bindText(
+                label,
+            ),
+        ),
+        new GUI.HBox([1, 1]).add(
+            new GUI.Label({
+                text: "Cursor mode:",
+            }),
+            new GUI.Dropdown({
+            }).bindValue<CursorMode>(
+                Configuration.tools.cursorMode,
+                ["surface", "scenery"],
+                Strings.toDisplayString,
+            ),
+        ),
+        new GUI.HBox([1, 1]).add(
+            new GUI.Label({
+                text: "Place mode:",
+            }),
+            new GUI.Dropdown({
+            }).bindValue<PlaceMode>(
+                Configuration.tools.placeMode,
+                ["safe", "raw"],
+                Strings.toDisplayString,
+            ),
+        ),
+        new GUI.HBox([1, 1]).add(
+            new GUI.Label({
+                text: "Show ghost:",
+            }),
+            new GUI.TextButton({
+            }).bindValue(
+                Configuration.tools.showGhost,
+            ),
         ),
         new GUI.HBox([1, 1]).add(
             new GUI.Label({
@@ -99,10 +126,14 @@ const window = new GUI.WindowManager(
                 Strings.toDisplayString,
             ),
         ),
-        new GUI.Checkbox({
-            text: "Drag to place",
-        }).bindValue(
-            Configuration.brush.dragToPlace,
+        new GUI.HBox([1, 1]).add(
+            new GUI.Label({
+                text: "Drag to place:",
+            }),
+            new GUI.TextButton({
+            }).bindValue(
+                Configuration.brush.dragToPlace,
+            ),
         ),
     ),
 );

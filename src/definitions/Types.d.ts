@@ -13,10 +13,8 @@ type BuildMode =
     "up";
 
 type PlaceMode =
-    "safe_merge" |
-    "safe_replace" |
-    "raw_merge" |
-    "raw_replace";
+    "safe" |
+    "raw";
 
 type CursorMode =
     "surface" |

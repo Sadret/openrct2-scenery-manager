@@ -16,37 +16,36 @@ type C = {
 } | Property<any>;
 
 const Configuration = {
+    tools: {
+        cursorMode: new Property<CursorMode>("surface"),
+        placeMode: new Property<PlaceMode>("safe"),
+        showGhost: new BooleanProperty(true),
+        onMissingElement: new Property<Action>("error"),
+    },
+    paste: {
+        cursorHeight: {
+            enabled: new BooleanProperty(false),
+            smallSteps: new BooleanProperty(false),
+        },
+        cursorRotation: {
+            enabled: new BooleanProperty(false),
+            flip: new BooleanProperty(false),
+            sensitivity: new NumberProperty(4, 0, 10),
+        },
+    },
+    selector: {
+        keepOnExit: new BooleanProperty(false),
+        showWindow: new BooleanProperty(false),
+    },
     brush: {
-        shape: new Property<BrushShape>("circle"),
         size: new NumberProperty(15, 1),
+        shape: new Property<BrushShape>("circle"),
         dragToPlace: new BooleanProperty(false),
         showWindow: new BooleanProperty(true),
     },
-    selector: {
-        cursorMode: new Property<CursorMode>("surface"),
-        keepOnExit: new BooleanProperty(false),
-        showWindow: new BooleanProperty(true),
-    },
-    copyPaste: {
-        onMissingElement: new Property<Action>("error"),
-        cursor: {
-            height: {
-                enabled: new BooleanProperty(false),
-                smallSteps: new BooleanProperty(false),
-            },
-            rotation: {
-                enabled: new BooleanProperty(false),
-                flip: new BooleanProperty(false),
-                sensitivity: new NumberProperty(4, 0, 10),
-            },
-        },
-    },
     scatter: {
-        randomise: {
-            rotation: new BooleanProperty(true),
-            quadrant: new BooleanProperty(true),
-        },
-        onMissingElement: new Property<Action>("error"),
+        randomiseRotation: new BooleanProperty(true),
+        randomiseQuadrant: new BooleanProperty(true),
     },
 }
 export default Configuration;

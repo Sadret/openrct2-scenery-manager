@@ -79,32 +79,23 @@ export function place(
     templateData: TileData[],
     mode: PlaceMode,
     isGhost: boolean,
-    filter: ElementFilter,
 ): void {
-    switch (mode) {
-        case "safe_replace":
-            if (!isGhost)
-                clear(templateData, "safe_replace", filter);
-        case "safe_merge":
-            return templateData.forEach(tileData =>
-                tileData.elements.forEach(element =>
-                    Template.getPlaceActionData(tileData, element).forEach(
-                        data => Context.queryExecuteAction(data.type, {
-                            ...data.args,
-                            flags: isGhost ? 72 : 0,
-                        })
-                    )
+    if (mode === "safe")
+        return templateData.forEach(tileData =>
+            tileData.elements.forEach(element =>
+                Template.getPlaceActionData(tileData, element).forEach(
+                    data => Context.queryExecuteAction(data.type, {
+                        ...data.args,
+                        flags: isGhost ? 72 : 0,
+                    })
                 )
-            );
-        case "raw_replace":
-            if (!isGhost)
-                clear(templateData, "raw_replace", filter);
-        case "raw_merge":
-            return templateData.forEach(tileData => {
-                const tile = getTile(tileData);
-                tileData.elements.forEach(elementData => insertElement(tile, elementData, mode === "raw_replace", isGhost));
-            });
-    }
+            )
+        );
+    else
+        return templateData.forEach(tileData => {
+            const tile = getTile(tileData);
+            tileData.elements.forEach(elementData => insertElement(tile, elementData, false, isGhost));
+        });
 }
 
 export function clear(
@@ -112,37 +103,33 @@ export function clear(
     mode: PlaceMode,
     filter: ElementFilter,
 ): void {
-    switch (mode) {
-        case "safe_merge":
-        case "safe_replace":
-            return read(coordsList).forEach(tileData =>
-                tileData.elements.forEach(element => {
-                    const filteredElement = Template.filterElement(element, filter);
-                    if (filteredElement !== undefined)
-                        Template.getRemoveActionData(tileData, filteredElement).forEach(
-                            actionData =>
-                                Context.queryExecuteAction(actionData.type, {
-                                    ...actionData.args,
-                                    flags: element.isGhost ? 72 : 0,
-                                })
-                        );
-                })
-            );
-        case "raw_merge":
-        case "raw_replace":
-            return coordsList.forEach(coords => {
-                const tile = getTile(coords);
-                for (let idx = 0; idx < tile.numElements;) {
-                    const element = tile.getElement(idx);
-                    if (element.type === "footpath" && filter(element, true))
-                        element.addition = null;
-                    if (filter(element, false))
-                        idx = removeElement(tile, idx);
-                    else
-                        idx++;
-                }
-            });
-    }
+    if (mode === "safe")
+        return read(coordsList).forEach(tileData =>
+            tileData.elements.forEach(element => {
+                const filteredElement = Template.filterElement(element, filter);
+                if (filteredElement !== undefined)
+                    Template.getRemoveActionData(tileData, filteredElement).forEach(
+                        actionData =>
+                            Context.queryExecuteAction(actionData.type, {
+                                ...actionData.args,
+                                flags: element.isGhost ? 72 : 0,
+                            })
+                    );
+            })
+        );
+    else
+        return coordsList.forEach(coords => {
+            const tile = getTile(coords);
+            for (let idx = 0; idx < tile.numElements;) {
+                const element = tile.getElement(idx);
+                if (element.type === "footpath" && filter(element, true))
+                    element.addition = null;
+                if (filter(element, false))
+                    idx = removeElement(tile, idx);
+                else
+                    idx++;
+            }
+        });
 }
 
 export function clearGhost(coordsList: CoordsXY[], mode: PlaceMode): void {
