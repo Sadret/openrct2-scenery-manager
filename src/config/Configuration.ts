@@ -19,6 +19,13 @@ const Configuration = {
     brush: {
         shape: new Property<BrushShape>("circle"),
         size: new NumberProperty(15, 1),
+        dragToPlace: new BooleanProperty(false),
+        showWindow: new BooleanProperty(true),
+    },
+    selector: {
+        cursorMode: new Property<CursorMode>("surface"),
+        keepOnExit: new BooleanProperty(false),
+        showWindow: new BooleanProperty(true),
     },
     copyPaste: {
         onMissingElement: new Property<Action>("error"),
@@ -39,7 +46,6 @@ const Configuration = {
             rotation: new BooleanProperty(true),
             quadrant: new BooleanProperty(true),
         },
-        dragToPlace: new BooleanProperty(false),
         onMissingElement: new Property<Action>("error"),
     },
 }

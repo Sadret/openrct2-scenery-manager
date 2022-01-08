@@ -7,6 +7,7 @@
 
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
+import * as Selector from "../tools/Selector";
 import * as Storage from "../persistence/Storage";
 
 import BooleanProperty from "../config/BooleanProperty";
@@ -15,7 +16,6 @@ import Configuration from "../config/Configuration";
 import Dialog from "../utils/Dialog";
 import NumberProperty from "../config/NumberProperty";
 import Property from "../config/Property";
-import Selector from "../tools/Selector";
 import Template from "../template/Template";
 import TemplateView from "../window/widgets/TemplateView";
 
@@ -117,16 +117,6 @@ const builder = new class extends Builder {
         );
     }
 }();
-
-settings.cursorMode.bind(
-    mode => {
-        const filter = mode === "surface" ? ["terrain" as ToolFilter] : undefined;
-        Selector.instance.filter = filter;
-        Selector.instance.restart();
-        builder.filter = filter;
-        builder.restart();
-    }
-);
 
 settings.rotation.bind(() => builder.build());
 settings.mirrored.bind(() => builder.build());

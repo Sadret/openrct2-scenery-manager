@@ -6,23 +6,21 @@
  *****************************************************************************/
 
 import * as Arrays from "../../utils/Arrays";
-import * as Storage from "../../persistence/Storage";
+import * as Brush from "../../tools/Brush";
 import * as MapIO from "../../core/MapIO";
-import * as Clipboard from "../../core/Clipboard";
+import * as Picker from "../../tools/Picker";
+import * as SmallScenery from "../../template/SmallScenery";
+import * as Storage from "../../persistence/Storage";
 
-import Brush from "../../tools/Brush";
-import BrushBox from "../widgets/BrushBox";
+import BooleanProperty from "../../config/BooleanProperty";
 import Configuration from "../../config/Configuration";
 import Dialog from "../../utils/Dialog";
 import GUI from "../../gui/GUI";
 import NumberProperty from "../../config/NumberProperty";
-import BooleanProperty from "../../config/BooleanProperty";
 import ObjectIndex from "../../core/ObjectIndex";
-import Picker from "../../tools/Picker";
 import Property from "../../config/Property";
 import ScatterPatternView from "../widgets/ScatterPatternView";
 import Template from "../../template/Template";
-import * as SmallScenery from "../../template/SmallScenery";
 
 const EMPTY_STRING = "(empty)";
 
@@ -83,60 +81,44 @@ function updateEmpty() {
     );
 }
 
-const picker = new class extends Picker {
-    public entry: Property<ScatterData | null> = entries[0];
+function provide(coords: CoordsXY): TileData {
+    const result = {
+        ...coords,
+        elements: [] as ElementData[],
+    };
 
-    protected accept(element: TileElement): boolean {
-        if (element.type !== "small_scenery" && element.type !== "large_scenery")
-            return (ui.showError("Cannot use this element...", "Element must be either small scenery or large scenery."), false);
-        const data = <SmallSceneryData | LargeSceneryData>Template.copyFrom(element);
-        this.entry.setValue({
-            element: data,
-            weight: 0,
-        });
-        return true;
-    }
-}("sm-picker-scatter");
+    let data: ElementData | null = getRandomData();
+    if (data === null)
+        return result;
 
-function provide(coordsList: CoordsXY[]): TileData[] {
-    const result = [] as TileData[];
-    coordsList.forEach(coords => {
-        let data: ElementData | null = getRandomData();
-        if (data === null)
-            return;
+    const surface = MapIO.getSurface(MapIO.getTile(coords));
+    if (surface === undefined)
+        return result;
 
-        const surface = MapIO.getSurface(MapIO.getTile(coords));
-        if (surface === undefined)
-            return;
+    const requiresFlatSurface = data.type === "small_scenery" && SmallScenery.requiresFlatSurface(data);
 
-        const requiresFlatSurface = data.type === "small_scenery" && SmallScenery.requiresFlatSurface(data);
+    const surfaceHeight = getSurfaceHeight(surface, requiresFlatSurface);
+    const offset = heightOffsetEnabled.getValue() ? heightOffset.getValue() : 0;
+    const height = surfaceHeight + offset;
 
-        const surfaceHeight = getSurfaceHeight(surface, requiresFlatSurface);
-        const offset = heightOffsetEnabled.getValue() ? heightOffset.getValue() : 0;
-        const height = surfaceHeight + offset;
+    data.clearanceHeight -= data.baseHeight;
+    data.clearanceZ -= data.baseZ;
+    data.baseHeight = height;
+    data.baseZ = height * 8;
+    data.clearanceHeight += data.baseHeight;
+    data.clearanceZ += data.baseZ;
 
-        data.clearanceHeight -= data.baseHeight;
-        data.clearanceZ -= data.baseZ;
-        data.baseHeight = height;
-        data.baseZ = height * 8;
-        data.clearanceHeight += data.baseHeight;
-        data.clearanceZ += data.baseZ;
+    if (!heightOffsetEnabled.getValue() && !requiresFlatSurface)
+        data.onSurface = true;
 
-        if (!heightOffsetEnabled.getValue() && !requiresFlatSurface)
-            data.onSurface = true;
+    if (Configuration.scatter.randomise.rotation.getValue())
+        data = Template.get(data).rotate(data, Math.floor(Math.random() * 4));
 
-        if (Configuration.scatter.randomise.rotation.getValue())
-            data = Template.get(data).rotate(data, Math.floor(Math.random() * 4));
+    if (Configuration.scatter.randomise.quadrant.getValue())
+        if (data.type === "small_scenery")
+            data = SmallScenery.setQuadrant(data, Math.floor(Math.random() * 4));
 
-        if (Configuration.scatter.randomise.quadrant.getValue())
-            if (data.type === "small_scenery")
-                data = SmallScenery.setQuadrant(data, Math.floor(Math.random() * 4));
-
-        result.push({
-            ...coords,
-            elements: [data],
-        });
-    });
+    result.elements.push(data);
     return result;
 }
 
@@ -220,28 +202,13 @@ function updateEntryWeight(entry: Property<ScatterData | null>, delta: number): 
 }
 
 export default new GUI.Tab({ image: 5459 }).add(
-    new BrushBox(
-        new class extends Brush {
-            constructor() {
-                super(
-                    "sm-brush-scatter",
-                    undefined,
-                    ["terrain"],
-                );
-                Configuration.scatter.dragToPlace.bind(
-                    value => this.mode = value ? "move" : "down",
-                );
-            }
-
-            protected getTileDataFromTiles(tiles: CoordsXY[]): TileData[] {
-                return provide(tiles);
-            }
-
-            protected getPlaceMode(): PlaceMode {
-                return Clipboard.settings.placeMode.getValue();
-            }
-        }(),
-    ),
+    new GUI.TextButton({
+        text: "Activate brush",
+        onClick: () => Brush.activate(
+            "Scenery Scatter",
+            provide,
+        ),
+    }),
     new GUI.GroupBox({
         text: "Options",
     }).add(
@@ -311,10 +278,18 @@ export default new GUI.Tab({ image: 5459 }).add(
                 ),
                 new GUI.TextButton({
                     onClick: () => {
-                        if (entry.getValue() === null) {
-                            picker.entry = entry;
-                            picker.activate();
-                        } else
+                        if (entry.getValue() === null)
+                            Picker.activate(element => {
+                                if (element.type !== "small_scenery" && element.type !== "large_scenery")
+                                    return (ui.showError("Cannot use this element...", "Element must be either small scenery or large scenery."), false);
+                                const data = <SmallSceneryData | LargeSceneryData>Template.copyFrom(element);
+                                entry.setValue({
+                                    element: data,
+                                    weight: 0,
+                                });
+                                return true;
+                            });
+                        else
                             entry.setValue(null);
                     },
                 }).bindText(

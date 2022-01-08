@@ -5,6 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Strings from "../../utils/Strings";
+
 import Configuration from "../../config/Configuration";
 import GUI from "../../gui/GUI";
 
@@ -26,6 +28,7 @@ export default new GUI.Tab({
             }).bindValue<Action>(
                 Configuration.copyPaste.onMissingElement,
                 ["error", "warning", "ignore"],
+                Strings.toDisplayString,
             ),
         ),
         new GUI.Space(4),
@@ -82,12 +85,6 @@ export default new GUI.Tab({
     new GUI.GroupBox({
         text: "Scatter Tool",
     }).add(
-        new GUI.Checkbox({
-            text: "Drag to place",
-        }).bindValue(
-            Configuration.scatter.dragToPlace,
-        ),
-        new GUI.Space(4),
         new GUI.HBox([16, 5]).add(
             new GUI.Label({
                 text: "Behaviour if element unavailable:",
@@ -96,7 +93,67 @@ export default new GUI.Tab({
             }).bindValue<Action>(
                 Configuration.scatter.onMissingElement,
                 ["error", "warning", "ignore"],
+                Strings.toDisplayString,
             ),
+        ),
+    ),
+    new GUI.GroupBox({
+        text: "Brush",
+    }).add(
+        new GUI.HBox([16, 5]).add(
+            new GUI.Label({
+                text: "Size:",
+            }),
+            new GUI.Spinner({
+            }).bindValue(
+                Configuration.brush.size,
+            ),
+        ),
+        new GUI.HBox([16, 5]).add(
+            new GUI.Label({
+                text: "Shape:",
+            }),
+            new GUI.Dropdown({
+            }).bindValue<BrushShape>(
+                Configuration.brush.shape,
+                ["square", "circle"],
+                Strings.toDisplayString,
+            ),
+        ),
+        new GUI.Checkbox({
+            text: "Drag to place",
+        }).bindValue(
+            Configuration.brush.dragToPlace,
+        ),
+        new GUI.Checkbox({
+            text: "Show brush window",
+        }).bindValue(
+            Configuration.brush.showWindow,
+        ),
+    ),
+    new GUI.GroupBox({
+        text: "Brush",
+    }).add(
+        new GUI.HBox([16, 5]).add(
+            new GUI.Label({
+                text: "CursorMode:",
+            }),
+            new GUI.Dropdown({
+            }).bindValue<CursorMode>(
+                Configuration.selector.cursorMode,
+                ["surface", "scenery"],
+                Strings.toDisplayString,
+            ),
+        ),
+        new GUI.Checkbox({
+            text: "Keep selection on Exit",
+        }).bindValue(
+            Configuration.selector.keepOnExit,
+        ),
+        new GUI.Checkbox({
+            text: "Show brush window",
+        }).bindValue(
+            Configuration.selector.showWindow,
         ),
     ),
 );

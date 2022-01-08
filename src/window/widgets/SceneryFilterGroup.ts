@@ -6,12 +6,12 @@
  *****************************************************************************/
 
 import * as Footpath from "../../template/Footpath";
+import * as Picker from "../../tools/Picker";
 import * as Strings from "../../utils/Strings";
 
 import GUI from "../../gui/GUI";
 import ObjectChooser from "../ObjectChooser";
 import ObjectIndex from "../../core/ObjectIndex";
-import Picker from "../../tools/Picker";
 import Property from "../../config/Property";
 
 const filterTypes: SceneryFilterType[] = [

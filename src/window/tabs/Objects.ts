@@ -5,8 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Events from "../../utils/Events";
 import * as MapIO from "../../core/MapIO";
 import * as Replace from "../tabs/Replace";
+import * as Selector from "../../tools/Selector";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
@@ -15,7 +17,6 @@ import MainWindow from "../MainWindow";
 import ObjectList from "../widgets/ObjectList";
 import OverlayTab from "../widgets/OverlayTab";
 import SceneryIndex from "../../core/SceneryIndex";
-import Selector from "../../tools/Selector";
 
 const objectList: ObjectList = new ObjectList(
     new SceneryIndex(() => { }, []),
@@ -67,7 +68,7 @@ const loading = new Loading();
 
 const selectionOnlyProp = new BooleanProperty(false);
 selectionOnlyProp.bind(refresh);
-Selector.onSelect(() => {
+Events.tileSelection.register(() => {
     if (selectionOnlyProp.getValue())
         refresh();
 });

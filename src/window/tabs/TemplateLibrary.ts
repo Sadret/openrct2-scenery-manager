@@ -6,7 +6,7 @@
  *****************************************************************************/
 
 import * as Clipboard from "../../core/Clipboard";
-import * as StartUp from "../../StartUp";
+import * as Events from "../../utils/Events";
 import * as Storage from "../../persistence/Storage";
 
 import FileExplorer from "../widgets/FileExplorer";
@@ -24,7 +24,7 @@ export default new GUI.Tab({
         new class extends TemplateView {
             constructor() {
                 super();
-                StartUp.addTask(() => this.watch(Storage.libraries.templates));
+                Events.startup.register(() => this.watch(Storage.libraries.templates));
             }
 
             openFile(file: IFile<TemplateData>): void {

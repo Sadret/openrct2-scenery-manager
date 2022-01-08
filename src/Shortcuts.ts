@@ -6,10 +6,10 @@
  *****************************************************************************/
 
 import * as Clipboard from "./core/Clipboard";
+import * as Selector from "./tools/Selector";
 
 import MainWindow from "./window/MainWindow";
 import Replace from "./window/tabs/Replace";
-import Selector from "./tools/Selector";
 
 export function register() {
 

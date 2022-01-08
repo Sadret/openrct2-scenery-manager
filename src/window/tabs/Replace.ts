@@ -6,12 +6,12 @@
  *****************************************************************************/
 
 import * as MapIO from "../../core/MapIO";
+import * as Selector from "../../tools/Selector";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
 import Property from "../../config/Property";
 import SceneryFilterGroup from "../widgets/SceneryFilterGroup";
-import Selector from "../../tools/Selector";
 
 const findGroup = new SceneryFilterGroup("Find");
 const replaceGroup = new SceneryFilterGroup("Replace with", true);

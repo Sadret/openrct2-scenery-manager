@@ -8,8 +8,8 @@
 /// <reference path="./../../openrct2.d.ts" />
 
 import * as Configuration from "./config/Configuration";
+import * as Events from "./utils/Events";
 import * as Shortcuts from "./Shortcuts";
-import * as StartUp from "./StartUp";
 import * as Updater from "./Updater";
 
 import MainWindow from "./window/MainWindow";
@@ -30,8 +30,7 @@ registerPlugin({
             Configuration.load();
             ui.registerMenuItem("Scenery Manager", () => MainWindow.open());
             Shortcuts.register();
-            // TODO: only used for TemplateView. eliminate? (maybe load when tab focuses or just direct call here)
-            StartUp.execute();
+            Events.startup.trigger();
         });
     },
 });

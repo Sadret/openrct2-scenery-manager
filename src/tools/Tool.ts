@@ -9,17 +9,12 @@ import * as Coordinates from "../utils/Coordinates";
 
 export default class Tool {
     private readonly id: string;
-    public cursor: CursorType;
-    public filter: ToolFilter[] | undefined;
 
-    public constructor(
-        id: string,
-        cursor: CursorType = "cross_hair",
-        filter?: ToolFilter[],
-    ) {
+    private cursor: CursorType | undefined;
+    private filter: ToolFilter[] | undefined;
+
+    public constructor(id: string) {
         this.id = id;
-        this.cursor = cursor;
-        this.filter = filter;
     }
 
     public isActive(): boolean {
@@ -58,6 +53,16 @@ export default class Tool {
     public onMove(_e: ToolEventArgs): void { }
     public onUp(_e: ToolEventArgs): void { }
     public onFinish(): void { }
+
+    public setCursor(cursor: CursorType): void {
+        this.cursor = cursor;
+        this.restart();
+    }
+
+    public setFilter(filter?: ToolFilter[]): void {
+        this.filter = filter;
+        this.restart();
+    }
 
     private static toTileCoordsArgs(e: ToolEventArgs): ToolEventArgs {
         return {

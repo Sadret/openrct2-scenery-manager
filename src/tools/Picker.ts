@@ -9,10 +9,13 @@ import * as MapIO from "../core/MapIO";
 
 import Tool from "./Tool";
 
-export default abstract class Picker extends Tool {
-    protected abstract accept(
-        element: TileElement,
-    ): boolean;
+const picker = new class extends Tool {
+    public accept: ((element: TileElement) => boolean) | undefined = undefined;
+
+    constructor() {
+        super("sm-picker");
+        this.setCursor("cross_hair");
+    }
 
     public onDown(
         e: ToolEventArgs,
@@ -21,7 +24,12 @@ export default abstract class Picker extends Tool {
             return;
         const tile: Tile = MapIO.getTile(e.mapCoords);
         const element: TileElement = tile.elements[e.tileElementIndex];
-        if (this.accept(element))
+        if (!this.accept || this.accept(element))
             this.cancel();
     }
+}
+
+export function activate(accept: (element: TileElement) => boolean): void {
+    picker.accept = accept;
+    picker.activate();
 }

@@ -63,13 +63,16 @@ export function setTileSelection(data: CoordsXY[] | MapRange): void {
  * READ / PLACE / REMOVE
  */
 
-export function read(
-    coordsList: CoordsXY[],
-): TileData[] {
-    return coordsList.map(coords => ({
-        ...coords,
-        elements: getTile(coords).elements.map(element => Template.copyFrom(element)),
-    }));
+export function read(coords: CoordsXY): TileData;
+export function read(coordsList: CoordsXY[]): TileData[];
+export function read(coords: CoordsXY | CoordsXY[]): TileData | TileData[] {
+    if (Array.isArray(coords))
+        return coords.map(c => read(c));
+    else
+        return {
+            ...coords,
+            elements: getTile(coords).elements.map(element => Template.copyFrom(element)),
+        }
 }
 
 export function place(

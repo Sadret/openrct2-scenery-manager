@@ -5,6 +5,16 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import Property from "./Property";
+class Event {
+    private readonly tasks = [] as Task[];
 
-export default class StringProperty extends Property<string> { }
+    public register(task: Task): void {
+        this.tasks.push(task);
+    };
+    public trigger(): void {
+        this.tasks.forEach(task => task());
+    };
+}
+
+export const startup = new Event();
+export const tileSelection = new Event();

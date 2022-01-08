@@ -6,10 +6,10 @@
  *****************************************************************************/
 
 import * as Clipboard from "../../core/Clipboard";
+import * as Selector from "../../tools/Selector";
 import * as Strings from "../../utils/Strings";
 
 import GUI from "../../gui/GUI";
-import Selector from "../../tools/Selector";
 
 export default new GUI.Tab({ image: 5465 }).add(
     new GUI.HBox([3, 2]).add(

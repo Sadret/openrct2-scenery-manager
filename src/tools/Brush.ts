@@ -6,31 +6,49 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
+import * as Strings from "../utils/Strings";
 
-import Builder from "./Builder";
+import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
-import NumberProperty from "../config/NumberProperty";
+import GUI from "../gui/GUI";
+import MainWindow from "../window/MainWindow";
 import Property from "../config/Property";
 
-export default abstract class Brush extends Builder {
-    public readonly size: NumberProperty = Configuration.brush.size;
-    public readonly shape: Property<BrushShape> = Configuration.brush.shape;
+type BrushProvider = (coords: CoordsXY) => TileData;
+
+const brush = new class extends Builder {
+    public provider: BrushProvider | undefined = undefined;
+
+    constructor() {
+        super("sm-brush");
+        Configuration.brush.dragToPlace.bind(
+            enabled => this.mode = enabled ? "move" : "down"
+        );
+    }
+
+    public onFinish() {
+        super.onFinish();
+        this.provider = undefined;
+        window.close();
+    }
 
     protected getTileData(
         coords: CoordsXY,
         offset: CoordsXY,
     ): TileData[] {
-        return this.getTileDataFromTiles(
-            this.getTileSelection(coords, offset),
-        );
+        if (this.provider === undefined) {
+            this.cancel();
+            return [];
+        } else
+            return this.getTileSelection(coords, offset).map(this.provider);
     }
 
     protected getTileSelection(
         coords: CoordsXY,
         _offset: CoordsXY,
     ): CoordsXY[] {
-        const size: number = this.size.getValue();
-        const shape: BrushShape = this.shape.getValue();
+        const size: number = Configuration.brush.size.getValue();
+        const shape: BrushShape = Configuration.brush.shape.getValue();
         return shape === "square"
             ? Coordinates.square(coords, size)
             : Coordinates.circle(coords, size);
@@ -43,8 +61,72 @@ export default abstract class Brush extends Builder {
     protected getFilter(): ElementFilter {
         return () => true;
     }
+}();
 
-    protected abstract getTileDataFromTiles(
-        tiles: CoordsXY[],
-    ): TileData[];
+const WIDTH = 192;
+const label = new Property<string>("");
+const window = new GUI.WindowManager(
+    {
+        width: WIDTH,
+        height: 0,
+        classification: "scenery-manager.brush",
+        title: "Brush",
+        colours: [7, 7, 6,],
+        onClose: () => Configuration.brush.showWindow.getValue() && brush.cancel(),
+    }, new GUI.Window().add(
+        new GUI.Label({
+        }).bindText(
+            label,
+            val => "{BLACK}" + val,
+        ),
+        new GUI.HBox([1, 1]).add(
+            new GUI.Label({
+                text: "Size:",
+            }),
+            new GUI.Spinner({
+            }).bindValue(
+                Configuration.brush.size,
+            ),
+        ),
+        new GUI.HBox([1, 1]).add(
+            new GUI.Label({
+                text: "Shape:",
+            }),
+            new GUI.Dropdown({
+            }).bindValue<BrushShape>(
+                Configuration.brush.shape,
+                ["square", "circle"],
+                Strings.toDisplayString,
+            ),
+        ),
+        new GUI.Checkbox({
+            text: "Drag to place",
+        }).bindValue(
+            Configuration.brush.dragToPlace,
+        ),
+    ),
+);
+
+function open(): void {
+    const main = MainWindow.getWindow();
+    if (main === undefined)
+        window.open();
+    else
+        window.open(main, WIDTH);
 }
+
+export function activate(type: string, provider: BrushProvider): void {
+    label.setValue(type);
+    brush.provider = provider;
+    brush.activate();
+    if (Configuration.brush.showWindow.getValue())
+        open();
+}
+
+Configuration.brush.showWindow.bind(showWindow => {
+    if (brush.isActive())
+        if (showWindow)
+            open();
+        else
+            window.close();
+});

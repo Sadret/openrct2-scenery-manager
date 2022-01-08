@@ -14,6 +14,12 @@ import Tool from "./Tool";
 export default abstract class Builder extends Tool {
     protected mode: BuildMode = "down";
 
+    constructor(id: string) {
+        super(id);
+        this.setCursor("tree_down");
+        this.setFilter(["terrain"]);
+    }
+
     // ghost
     private coords: CoordsXY | undefined = undefined;
     private offset = Coordinates.NULL;

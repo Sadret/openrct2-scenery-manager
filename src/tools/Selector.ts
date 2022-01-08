@@ -6,28 +6,23 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
+import * as Events from "../utils/Events";
 import * as MapIO from "../core/MapIO";
+import * as Strings from "../utils/Strings";
 
+import Configuration from "../config/Configuration";
+import GUI from "../gui/GUI";
+import MainWindow from "../window/MainWindow";
 import Tool from "./Tool";
 
-export default class Selector extends Tool {
-    public static readonly instance = new Selector();
-    private static readonly callbacks: Task[] = [];
-
-    public static activate(): void {
-        Selector.instance.activate();
-    }
-
-    public static onSelect(callback: Task): void {
-        Selector.callbacks.push(callback);
-    }
-
+const selector = new class extends Tool {
     private start: CoordsXY = Coordinates.NULL;
     private end: CoordsXY = Coordinates.NULL;
     private drag: boolean = false;
 
-    private constructor() {
+    public constructor() {
         super("sm-selector");
+        this.setCursor("cross_hair");
     }
 
     public onStart(): void {
@@ -52,17 +47,86 @@ export default class Selector extends Tool {
         }
         if (this.drag) {
             this.end = e.mapCoords;
-            MapIO.setTileSelection(Coordinates.toMapRange([this.start, this.end]));
+            this.setTileSelection();
         }
     }
     public onUp(
         _e: ToolEventArgs,
     ): void {
         this.drag = false;
-        Selector.callbacks.forEach(callback => callback());
+        Events.tileSelection.trigger();
     }
     public onFinish(): void {
-        MapIO.setTileSelection([]);
-        ui.mainViewport.visibilityFlags &= ~(1 << 7);
+        if (Configuration.selector.keepOnExit.getValue())
+            this.setTileSelection();
+        else
+            ui.mainViewport.visibilityFlags &= ~(1 << 7);
+        window.close();
     }
+
+    public setTileSelection(): void {
+        MapIO.setTileSelection(Coordinates.toMapRange([this.start, this.end]));
+    }
+}();
+
+const WIDTH = 192;
+const window = new GUI.WindowManager(
+    {
+        width: WIDTH,
+        height: 0,
+        classification: "scenery-manager.selector",
+        title: "Selector",
+        colours: [7, 7, 6,],
+        onClose: () => Configuration.selector.showWindow.getValue() && selector.cancel(),
+    }, new GUI.Window().add(
+        new GUI.HBox([1, 1]).add(
+            new GUI.Label({
+                text: "CursorMode:",
+            }),
+            new GUI.Dropdown({
+            }).bindValue<CursorMode>(
+                Configuration.selector.cursorMode,
+                ["surface", "scenery"],
+                Strings.toDisplayString,
+            ),
+        ),
+        new GUI.Checkbox({
+            text: "Keep selection on Exit",
+        }).bindValue(
+            Configuration.selector.keepOnExit,
+        ),
+    ),
+);
+
+function open(): void {
+    const main = MainWindow.getWindow();
+    if (main === undefined)
+        window.open();
+    else
+        window.open(main, WIDTH);
 }
+
+export function activate(): void {
+    selector.activate();
+    if (Configuration.selector.showWindow.getValue())
+        open();
+}
+
+Configuration.selector.showWindow.bind(showWindow => {
+    if (selector.isActive())
+        if (showWindow)
+            open();
+        else
+            window.close();
+});
+
+Configuration.selector.cursorMode.bind(mode => {
+    const active = selector.isActive();
+    selector.setFilter(mode === "surface" ? ["terrain"] : undefined);
+    if (active) {
+        selector.activate();
+        selector.setTileSelection();
+        if (Configuration.selector.showWindow.getValue())
+            open();
+    }
+});

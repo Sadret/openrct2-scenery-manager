@@ -29,19 +29,7 @@ export default class Dialog extends GUI.WindowManager {
             ),
         );
         if (open)
-            this.open();
-    }
-
-    // only overwritten for the default value
-    public open(x: number | boolean | Window = true, y?: number): void {
-        switch (typeof x) {
-            case "boolean":
-                return super.open(x);
-            case "object":
-                return super.open(x);
-            default:
-                return super.open(x, y);
-        }
+            this.open(true);
     }
 
     private static show(
