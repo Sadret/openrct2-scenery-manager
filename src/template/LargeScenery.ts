@@ -5,7 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
 import ObjectIndex from "../core/ObjectIndex";
@@ -48,8 +47,9 @@ export function copyTo(src: LargeSceneryData, dst: LargeSceneryElement): void {
 }
 
 export function getPlaceActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: LargeSceneryData,
+    flags: number,
 ): PlaceActionData[] {
     if (element.sequence !== 0)
         return [];
@@ -60,16 +60,18 @@ export function getPlaceActionData(
         type: "largesceneryplace",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.onSurface ? 0 : element.baseZ,
+            flags: flags,
             object: object.index,
         },
     }];
 }
 
 export function getRemoveActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: LargeSceneryData,
+    flags: number,
 ): RemoveActionData[] {
     if (element.sequence !== 0)
         return [];
@@ -77,8 +79,9 @@ export function getRemoveActionData(
         type: "largesceneryremove",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.baseZ,
+            flags: flags,
             tileIndex: 0,
         },
     }];

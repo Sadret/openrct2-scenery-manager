@@ -5,7 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
 import ObjectIndex from "../core/ObjectIndex";
@@ -65,8 +64,9 @@ export function copyTo(src: SmallSceneryData, dst: SmallSceneryElement): void {
 }
 
 export function getPlaceActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: SmallSceneryData,
+    flags: number,
 ): PlaceActionData[] {
     const object = ObjectIndex.getObject("small_scenery", element.qualifier);
     if (object === null)
@@ -75,16 +75,18 @@ export function getPlaceActionData(
         type: "smallsceneryplace",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.onSurface ? 0 : element.baseZ,
+            flags: flags,
             object: object.index,
         },
     }];
 }
 
 export function getRemoveActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: SmallSceneryData,
+    flags: number,
 ): RemoveActionData[] {
     const object = ObjectIndex.getObject("small_scenery", element.qualifier);
     if (object === null)
@@ -93,8 +95,9 @@ export function getRemoveActionData(
         type: "smallsceneryremove",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.baseZ,
+            flags: flags,
             object: object.index,
         },
     }];

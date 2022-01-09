@@ -5,7 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
 import ObjectIndex from "../core/ObjectIndex";
@@ -30,47 +29,68 @@ export function mirror(element: FootpathData): FootpathData {
     };
 }
 
-export function copyBase(
+function copyBase(
     src: FootpathData | FootpathElement,
     dst: FootpathData | FootpathElement,
+    footpath: boolean = true,
+    addition: boolean = true,
 ): void {
-    dst.edges = src.edges;
-    dst.corners = src.corners;
-    dst.slopeDirection = src.slopeDirection;
-    dst.isBlockedByVehicle = src.isBlockedByVehicle;
-    dst.isWide = src.isWide;
-    dst.isQueue = src.isQueue;
-    dst.queueBannerDirection = src.queueBannerDirection;
-    dst.ride = src.ride;
-    dst.station = src.station;
-    dst.additionStatus = src.additionStatus;
-    dst.isAdditionBroken = src.isAdditionBroken;
-    dst.isAdditionGhost = src.isAdditionGhost;
+    if (footpath) {
+        dst.edges = src.edges;
+        dst.corners = src.corners;
+        dst.slopeDirection = src.slopeDirection;
+        dst.isBlockedByVehicle = src.isBlockedByVehicle;
+        dst.isWide = src.isWide;
+        dst.isQueue = src.isQueue;
+        dst.queueBannerDirection = src.queueBannerDirection;
+        dst.ride = src.ride;
+        dst.station = src.station;
+    }
+    if (addition) {
+        dst.additionStatus = src.additionStatus;
+        dst.isAdditionBroken = src.isAdditionBroken;
+        dst.isAdditionGhost = src.isAdditionGhost;
+    }
 }
 
-export function copyFrom(src: FootpathElement, dst: FootpathData): void {
+export function copyFrom(
+    src: FootpathElement,
+    dst: FootpathData,
+    footpath: boolean = true,
+    addition: boolean = true,
+): void {
     copyBase(src, dst);
-    dst.qualifier = ObjectIndex.getQualifier("footpath", src.object);
-    dst.surfaceQualifier = ObjectIndex.getQualifier("footpath_surface", src.surfaceObject);
-    dst.railingsQualifier = ObjectIndex.getQualifier("footpath_railings", src.railingsObject);
-    dst.additionQualifier = ObjectIndex.getQualifier("footpath_addition", src.addition);
+    dst.qualifier = footpath ? ObjectIndex.getQualifier("footpath", src.object) : null;
+    dst.surfaceQualifier = footpath ? ObjectIndex.getQualifier("footpath_surface", src.surfaceObject) : null;
+    dst.railingsQualifier = footpath ? ObjectIndex.getQualifier("footpath_railings", src.railingsObject) : null;
+    dst.additionQualifier = addition ? ObjectIndex.getQualifier("footpath_addition", src.addition) : null;
 }
 
-export function copyTo(src: FootpathData, dst: FootpathElement): void {
-    copyBase(src, dst);
-    dst.object = ObjectIndex.getObject("footpath", src.qualifier) ?.index ?? null;
-    dst.surfaceObject = ObjectIndex.getObject("footpath_surface", src.surfaceQualifier) ?.index ?? null;
-    dst.railingsObject = ObjectIndex.getObject("footpath_railings", src.railingsQualifier) ?.index ?? null;
-    dst.addition = ObjectIndex.getObject("footpath_addition", src.additionQualifier) ?.index ?? null;
+export function copyTo(
+    src: FootpathData,
+    dst: FootpathElement,
+    footpath: boolean = true,
+    addition: boolean = true,
+): void {
+    copyBase(src, dst, footpath, addition);
+    if (footpath) {
+        dst.object = ObjectIndex.getObject("footpath", src.qualifier) ?.index ?? null;
+        dst.surfaceObject = ObjectIndex.getObject("footpath_surface", src.surfaceQualifier) ?.index ?? null;
+        dst.railingsObject = ObjectIndex.getObject("footpath_railings", src.railingsQualifier) ?.index ?? null;
+    }
+    if (addition)
+        dst.addition = ObjectIndex.getObject("footpath_addition", src.additionQualifier) ?.index ?? null;
 }
 
 export function getPlaceActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: FootpathData,
+    flags: number,
+    addition: boolean = false,
 ): PlaceActionData[] {
     const data = [] as PlaceActionData[];
 
-    if (element.qualifier !== null || element.surfaceQualifier !== null) {
+    if (!addition && (element.qualifier !== null || element.surfaceQualifier !== null)) {
         const isLegacy = element.qualifier !== null;
         const object = isLegacy
             ? ObjectIndex.getObject("footpath", element.qualifier)
@@ -80,8 +100,9 @@ export function getPlaceActionData(
                 type: "footpathplace",
                 args: {
                     ...element,
-                    ...Coordinates.toWorldCoords(tile),
+                    ...coords,
                     z: element.baseZ,
+                    flags: flags,
                     object: object.index,
                     railingsObject: ObjectIndex.getObject("footpath_railings", element.railingsQualifier) ?.index ?? 0,
                     direction: 0xFF,
@@ -91,15 +112,16 @@ export function getPlaceActionData(
             });
     }
 
-    if (element.additionQualifier !== null) {
+    if (addition && element.additionQualifier !== null) {
         const object = ObjectIndex.getObject("footpath_addition", element.additionQualifier);
         if (object !== null)
             data.push({
                 type: "footpathadditionplace",
                 args: {
                     ...element,
-                    ...Coordinates.toWorldCoords(tile),
+                    ...coords,
                     z: element.baseZ,
+                    flags: flags,
                     object: object.index + 1,
                 },
             });
@@ -109,29 +131,33 @@ export function getPlaceActionData(
 }
 
 export function getRemoveActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: FootpathData,
+    flags: number,
+    addition: boolean = false,
 ): RemoveActionData[] {
     const data = [] as RemoveActionData[];
 
-    if (element.qualifier !== null || element.surfaceQualifier !== null) {
+    if (!addition && (element.qualifier !== null || element.surfaceQualifier !== null)) {
         data.push({
             type: "footpathremove",
             args: {
                 ...element,
-                ...Coordinates.toWorldCoords(tile),
+                ...coords,
                 z: element.baseZ,
+                flags: flags,
             },
         });
     }
 
-    if (element.additionQualifier !== null)
+    if (addition && element.additionQualifier !== null)
         data.push({
             type: "footpathadditionremove",
             args: {
                 ...element,
-                ...Coordinates.toWorldCoords(tile),
+                ...coords,
                 z: element.baseZ,
+                flags: flags,
             },
         });
 

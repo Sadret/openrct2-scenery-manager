@@ -5,7 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
 export function rotate(element: TrackData, rotation: number): TrackData {
@@ -52,8 +51,9 @@ export function copyTo(src: TrackData, dst: TrackElement): void {
 }
 
 export function getPlaceActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: TrackData,
+    flags: number,
 ): PlaceActionData[] {
     if (element.sequence !== 0)
         return [];
@@ -62,8 +62,9 @@ export function getPlaceActionData(
         type: "trackplace",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.baseZ - (offset === undefined ? 0 : offset),
+            flags: flags,
             brakeSpeed: element.brakeBoosterSpeed || 0,
             colour: element.colourScheme || 0,
             trackPlaceFlags:
@@ -76,8 +77,9 @@ export function getPlaceActionData(
 }
 
 export function getRemoveActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: TrackData,
+    flags: number,
 ): RemoveActionData[] {
     if (element.sequence !== 0)
         return [];
@@ -85,8 +87,9 @@ export function getRemoveActionData(
         type: "trackremove",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.baseZ,
+            flags: flags,
             sequence: element.sequence || 0,
         },
     }];

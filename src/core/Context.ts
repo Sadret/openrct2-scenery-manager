@@ -9,9 +9,13 @@
  * ACTIONS
  */
 
-export function queryExecuteAction(action: ActionType, args: object, callback?: (result: GameActionResult) => void): void {
-    context.queryAction(action, args, queryResult => {
+export function queryExecuteAction(data: ActionData<any, any>): void {
+    queryExecuteActionCallback(data);
+}
+
+export function queryExecuteActionCallback(data: ActionData<any, any>, callback?: (result: GameActionResult) => void): void {
+    context.queryAction(data.type, data.args, queryResult => {
         if (queryResult.error === 0)
-            context.executeAction(action, args, callback);
+            context.executeAction(data.type, data.args, callback);
     });
 }

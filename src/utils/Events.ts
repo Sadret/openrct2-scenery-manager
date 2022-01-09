@@ -5,6 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+// TODO: add args to event triggers and use it to reduce dependencies
 class Event {
     private readonly tasks = [] as Task[];
 

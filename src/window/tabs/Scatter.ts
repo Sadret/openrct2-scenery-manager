@@ -92,7 +92,7 @@ function provide(coords: CoordsXY): TileData {
         return result;
 
     const surface = MapIO.getSurface(MapIO.getTile(coords));
-    if (surface === undefined)
+    if (surface === null)
         return result;
 
     const requiresFlatSurface = data.type === "small_scenery" && SmallScenery.requiresFlatSurface(data);

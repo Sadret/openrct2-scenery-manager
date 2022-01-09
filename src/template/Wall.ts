@@ -5,7 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
 import ObjectIndex from "../core/ObjectIndex";
@@ -49,8 +48,9 @@ export function copyTo(src: WallData, dst: WallElement): void {
 }
 
 export function getPlaceActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: WallData,
+    flags: number,
 ): PlaceActionData[] {
     const object = ObjectIndex.getObject("wall", element.qualifier);
     if (object === null)
@@ -59,8 +59,9 @@ export function getPlaceActionData(
         type: "wallplace",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.baseZ,
+            flags: flags,
             edge: element.direction,
             object: object.index,
         },
@@ -68,15 +69,17 @@ export function getPlaceActionData(
 }
 
 export function getRemoveActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: WallData,
+    flags: number,
 ): RemoveActionData[] {
     return [{
         type: "wallremove",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.baseZ,
+            flags: flags,
         },
     }];
 }

@@ -32,12 +32,14 @@ interface BaseElement<S extends TileElement, T extends ElementData> {
         dst: S,
     ): void;
     getPlaceActionData(
-        tile: TileData,
+        coords: CoordsXY,
         element: T,
+        flags: number,
     ): PlaceActionData[];
     getRemoveActionData(
-        tile: TileData,
+        coords: CoordsXY,
         element: T,
+        flags: number,
     ): RemoveActionData[];
 }
 
@@ -72,8 +74,8 @@ export default class Template {
         this.data = data;
     }
 
-    public transform(mirrored: boolean, rotation: number, offset: CoordsXYZ): Template {
-        return this.mirror(mirrored).rotate(rotation).translate(offset);
+    public transform(mirrored: boolean, rotation: number, offset: CoordsXYZ, filterZ: boolean): Template {
+        return this.mirror(mirrored).rotate(rotation).translate(offset).filterZ(filterZ);
     }
 
     public translate(offset: CoordsXYZ): Template {
@@ -127,13 +129,23 @@ export default class Template {
         });
     }
 
+    public filterZ(filterZ: boolean): Template {
+        return filterZ ? new Template({
+            tiles: this.data.tiles.map(tile => ({
+                ...tile,
+                elements: tile.elements.filter(element => element.baseZ > 0),
+            })),
+            mapRange: this.data.mapRange,
+        }) : this;
+    }
+
     public static get(element: TileElement | ElementData): BaseElement<TileElement, ElementData> {
         return get(element);
     }
 
     public static copyBase(
         src: ElementData | TileElement,
-        dst: ElementData | TileElement = {} as TileElement
+        dst: ElementData | TileElement
     ): void {
         dst.type = src.type;
         dst.baseHeight = src.baseHeight;
@@ -157,55 +169,19 @@ export default class Template {
         return dst;
     }
 
-
-    public static getPlaceActionData(tile: TileData, element: ElementData): PlaceActionData[] {
-        return get(element).getPlaceActionData(tile, element);
-    }
-    public static getRemoveActionData(tile: TileData, element: ElementData): RemoveActionData[] {
-        return get(element).getRemoveActionData(tile, element);
-    }
-
-    public static filterElement(
+    public static getPlaceActionData(
+        coords: CoordsXY,
         element: ElementData,
-        filter: ElementFilter,
-    ): ElementData | undefined {
-        if (element.type === "footpath") {
-            const copy = { ...element };
-            if (!filter(copy, false)) {
-                copy.qualifier = null;
-                copy.surfaceQualifier = null;
-                copy.railingsQualifier = null;
-            }
-            if (!filter(copy, true))
-                copy.additionQualifier = null;
-            if (copy.qualifier === null && copy.surfaceQualifier === null && copy.additionQualifier === null)
-                return undefined;
-            else
-                return copy;
-        } else
-            return filter(element, false) ? element : undefined;
+        flags: number,
+    ): PlaceActionData[] {
+        return get(element).getPlaceActionData(Coordinates.toWorldCoords(coords), element, flags);
     }
 
-    public static filterTileData(
-        data: TileData[],
-        filter: ElementFilter,
-    ): TileData[] {
-        return data.map(tileData => ({
-            ...tileData,
-            elements: tileData.elements.map(element =>
-                Template.filterElement(element, filter)
-            ).filter<ElementData>((element: ElementData | undefined): element is ElementData =>
-                element !== undefined
-            ),
-        })).filter(tileData => tileData.elements.length > 0);
-    }
-
-    public filter(
-        filter: ElementFilter,
-    ): Template {
-        return new Template({
-            tiles: Template.filterTileData(this.data.tiles, filter),
-            mapRange: this.data.mapRange,
-        });
+    public static getRemoveActionData(
+        coords: CoordsXY,
+        element: ElementData,
+        flags: number,
+    ): RemoveActionData[] {
+        return get(element).getRemoveActionData(Coordinates.toWorldCoords(coords), element, flags);
     }
 }

@@ -25,7 +25,7 @@ export const settings = {
         footpath_addition: new BooleanProperty(true),
         large_scenery: new BooleanProperty(true),
         small_scenery: new BooleanProperty(true),
-        surface: new BooleanProperty(false),
+        surface: new BooleanProperty(true),
         track: new BooleanProperty(true),
         wall: new BooleanProperty(true),
     } as { [key: string]: BooleanProperty },
@@ -34,12 +34,18 @@ export const settings = {
     height: new NumberProperty(0),
 };
 
+const filter: ElementFilter = type => settings.filter[type].getValue();
+
 const builder = new class extends Builder {
     constructor() {
         super(
             "sm-builder-clipboard",
         );
         this.mode = "up";
+    }
+
+    protected getFilter(): ElementFilter {
+        return filter;
     }
 
     protected getTileData(
@@ -95,12 +101,11 @@ const builder = new class extends Builder {
         }
         // TODO: filter available
         // .filter(Template.isAvailable)
-        return template.filter(
-            filter
-        ).transform(
-            settings.mirrored.getValue(), rotation, { ...coords, z: height }
-        ).filter(
-            element => element.baseZ > 0
+        return template.transform(
+            settings.mirrored.getValue(),
+            rotation,
+            { ...coords, z: height },
+            true,
         );
     }
 }();
@@ -109,14 +114,6 @@ settings.rotation.bind(() => builder.build());
 settings.mirrored.bind(() => builder.build());
 settings.height.bind(() => builder.build());
 Object.keys(settings.filter).forEach(key => settings.filter[key].bind(() => builder.build()));
-
-// TODO: delete?
-function filter(element: TileElement | ElementData, addition: boolean) {
-    if (addition)
-        return settings.filter.footpath_addition.getValue();
-    else
-        return settings.filter[element.type].getValue();
-}
 
 const templates: Template[] = [];
 let cursor: number | undefined = undefined;
@@ -209,8 +206,7 @@ export function copy(cut: boolean = false): void {
     ).sort();
     const heightOffset = 8 * heights[Math.floor(heights.length / 2)];
 
-    let data = MapIO.read(tiles);
-    data = Template.filterTileData(data, filter);
+    let data = MapIO.read(tiles, filter);
     // TODO: sort
     // data = MapIO.sort(data);
     // affects path layouts, path/walls and path/banners

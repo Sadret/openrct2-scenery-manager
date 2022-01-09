@@ -26,5 +26,4 @@ type SceneryFilterType =
     "large_scenery" |
     "wall";
 
-// TODO: move?
-type ElementFilter = (element: TileElement | ElementData, addition: boolean) => boolean;
+type ElementFilter = (type: TileElementType | "footpath_addition") => boolean;

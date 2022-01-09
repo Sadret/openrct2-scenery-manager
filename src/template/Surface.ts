@@ -53,15 +53,17 @@ export function copyTo(src: SurfaceData, dst: SurfaceElement): void {
 }
 
 export function getPlaceActionData(
-    _tile: TileData,
+    _coords: CoordsXY,
     _element: SurfaceData,
+    _flags: number,
 ): [] {
     return [];
 }
 
 export function getRemoveActionData(
-    _tile: TileData,
+    _coords: CoordsXY,
     _element: SurfaceData,
+    _flags: number,
 ): [] {
     return [];
 }

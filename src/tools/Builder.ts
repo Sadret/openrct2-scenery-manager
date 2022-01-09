@@ -39,6 +39,9 @@ export default abstract class Builder extends Tool {
         coords: CoordsXY,
         offset: CoordsXY,
     ): CoordsXY[] | MapRange | undefined;
+    protected getFilter(): ElementFilter {
+        return () => true;
+    }
 
     private removeGhost(): void {
         if (this.tileData !== undefined) {
@@ -61,7 +64,7 @@ export default abstract class Builder extends Tool {
                 if (this.tileData === undefined)
                     return this.cancel();
                 this.placeMode = Configuration.tools.placeMode.getValue();
-                MapIO.place(this.tileData, this.placeMode, isGhost);
+                MapIO.place(this.tileData, this.placeMode, isGhost, this.getFilter());
             }
             this.tileSelection = this.getTileSelection(this.coords, this.offset);
             if (this.tileSelection === undefined)
@@ -72,7 +75,6 @@ export default abstract class Builder extends Tool {
 
     public onStart(): void {
         ui.mainViewport.visibilityFlags |= 1 << 7;
-        this.build();
     }
     public onDown(
         e: ToolEventArgs,
@@ -107,7 +109,6 @@ export default abstract class Builder extends Tool {
     public onFinish(): void {
         this.removeGhost();
         ui.mainViewport.visibilityFlags &= ~(1 << 7);
-        this.dragStartCoords = Coordinates.NULL;
-        this.dragEndCoords = Coordinates.NULL;
+        this.offset = Coordinates.NULL;
     }
 }

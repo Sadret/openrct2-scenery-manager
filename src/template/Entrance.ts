@@ -5,7 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
 export function rotate(element: EntranceData, rotation: number): EntranceData {
@@ -44,34 +43,38 @@ export function copyTo(src: EntranceData, dst: EntranceElement): void {
 }
 
 export function getPlaceActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: EntranceData,
+    flags: number,
 ): PlaceActionData[] {
-    if (element.sequence !== 0)
+    if (element.object === 2)
         return [];
     return [{
         type: "rideentranceexitplace",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.baseZ,
+            flags: flags,
             isExit: element.object === 1,
         },
     }];
 }
 
 export function getRemoveActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: EntranceData,
+    flags: number,
 ): RemoveActionData[] {
-    if (element.sequence !== 0)
+    if (element.object === 2)
         return [];
     return [{
         type: "rideentranceexitremove",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.baseZ,
+            flags: flags,
             isExit: element.object === 1,
         },
     }];

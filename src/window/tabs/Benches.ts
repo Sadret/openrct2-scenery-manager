@@ -29,7 +29,7 @@ const dropdowns = entries.map((_, idx) => new GUI.Dropdown({
 ));
 
 function provide(coords: CoordsXY): TileData {
-    const tile = MapIO.read(coords);
+    const tile = MapIO.read(coords, type => type === "footpath");
     return ({
         ...tile,
         elements: tile.elements.map<FootpathData | undefined>(element => {

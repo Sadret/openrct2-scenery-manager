@@ -5,7 +5,6 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../utils/Coordinates";
 import * as Directions from "../utils/Directions";
 
 export function rotate(element: BannerData, rotation: number): BannerData {
@@ -39,15 +38,17 @@ export function copyTo(src: BannerData, dst: BannerElement): void {
 }
 
 export function getPlaceActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: BannerData,
+    flags: number,
 ): PlaceActionData[] {
     return [{
         type: "bannerplace",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.baseZ - 16,
+            flags: flags,
             object: 0,
             primaryColour: 0,
         },
@@ -55,15 +56,17 @@ export function getPlaceActionData(
 }
 
 export function getRemoveActionData(
-    tile: TileData,
+    coords: CoordsXY,
     element: BannerData,
+    flags: number,
 ): RemoveActionData[] {
     return [{
         type: "bannerremove",
         args: {
             ...element,
-            ...Coordinates.toWorldCoords(tile),
+            ...coords,
             z: element.baseZ,
+            flags: flags,
         },
     }];
 }
