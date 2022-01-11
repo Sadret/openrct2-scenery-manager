@@ -5,7 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Arrays from "./utils/Arrays";
 import * as Clipboard from "./core/Clipboard";
+import * as Objects from "./utils/Objects";
 import * as Selector from "./tools/Selector";
 
 import MainWindow from "./window/MainWindow";
@@ -136,28 +138,32 @@ export function register() {
         callback: () => Clipboard.settings.filter.small_scenery.flip(),
     });
     ui.registerShortcut({
+        id: "scenery-manager.filter.surface",
+        text: "[SM] Toggle surface",
+        bindings: ["CTRL+7", "GUI+7"],
+        callback: () => Clipboard.settings.filter.surface.flip(),
+    });
+    ui.registerShortcut({
         id: "scenery-manager.filter.track",
         text: "[SM] Toggle track",
-        bindings: ["CTRL+7", "GUI+7"],
+        bindings: ["CTRL+8", "GUI+8"],
         callback: () => Clipboard.settings.filter.track.flip(),
     });
     ui.registerShortcut({
         id: "scenery-manager.filter.wall",
         text: "[SM] Toggle wall",
-        bindings: ["CTRL+8", "GUI+8"],
+        bindings: ["CTRL+9", "GUI+9"],
         callback: () => Clipboard.settings.filter.wall.flip(),
     });
     ui.registerShortcut({
         id: "scenery-manager.filter.all",
-        text: "[SM] Enable all",
+        text: "[SM] Toogle all",
         bindings: ["CTRL+9", "GUI+9"],
-        callback: () => Object.keys(Clipboard.settings.filter).forEach(type => Clipboard.settings.filter[type].setValue(true)),
-    });
-    ui.registerShortcut({
-        id: "scenery-manager.filter.none",
-        text: "[SM] Disable all",
-        bindings: ["CTRL+0", "GUI+0"],
-        callback: () => Object.keys(Clipboard.settings.filter).forEach(type => Clipboard.settings.filter[type].setValue(false)),
+        callback: () => {
+            const filters = Objects.values(Clipboard.settings.filter);
+            const enabled = Arrays.find(filters, filter => !filter.getValue()) !== null;
+            filters.forEach(filter => filter.setValue(enabled));
+        },
     });
 
     ui.registerShortcut({

@@ -7,6 +7,7 @@
 
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
+import * as Objects from "../utils/Objects";
 import * as Storage from "../persistence/Storage";
 
 import BooleanProperty from "../config/BooleanProperty";
@@ -119,7 +120,7 @@ const builder = new class extends Builder {
 settings.rotation.bind(() => builder.build());
 settings.mirrored.bind(() => builder.build());
 settings.height.bind(() => builder.build());
-Object.keys(settings.filter).forEach(key => settings.filter[key].bind(() => builder.build()));
+Objects.values(settings.filter).forEach(filter => filter.bind(() => builder.build()));
 
 const templates: Template[] = [];
 let cursor: number | undefined = undefined;

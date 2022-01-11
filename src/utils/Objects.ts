@@ -6,9 +6,5 @@
  *****************************************************************************/
 
 export function values<T>(obj: { [key: string]: T }): T[] {
-    const values: T[] = [];
-    for (let key in obj)
-        if (obj.hasOwnProperty(key))
-            values.push(obj[key]);
-    return values;
+    return Object.keys(obj).map(key => obj[key]);
 }
