@@ -206,7 +206,6 @@ function updateEntryWeight(entry: Property<ScatterData | null>, value: number, a
 
 export default new GUI.Tab({
     image: 5459,
-    onOpen: activateBrush,
 }).add(
     new GUI.GroupBox({
         text: "Options",
