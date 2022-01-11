@@ -10,7 +10,6 @@ import * as Context from "./Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Footpath from "../template/Footpath";
 
-import ObjectIndex from "./ObjectIndex";
 import Template from "../template/Template";
 import TileIterator from "../utils/TileIterator";
 
@@ -121,24 +120,28 @@ export function place(
                     return;
                 if (elementData.type === "footpath") {
                     if ((elementData.qualifier !== null || elementData.surfaceQualifier !== null) && filter("footpath")) {
-                        const element = insertElement(tile, elementData, appendToEnd) as FootpathElement;
-                        Template.copyBase(elementData, element);
-                        Footpath.copyTo(elementData, element, true, filter("footpath_addition"));
-                        element.isGhost = isGhost;
-                        if (filter("footpath_addition"))
-                            element.isAdditionGhost = isGhost;
+                        if (Footpath.isAvailable(elementData, true, false)) {
+                            const element = insertElement(tile, elementData, appendToEnd) as FootpathElement;
+                            Template.copyBase(elementData, element);
+                            Footpath.copyTo(elementData, element, true, filter("footpath_addition"));
+                            element.isGhost = isGhost;
+                            if (filter("footpath_addition"))
+                                element.isAdditionGhost = isGhost;
+                        }
                     } else if (elementData.additionQualifier !== null && filter("footpath_addition")) {
                         // footpath addition only
-                        const element = Arrays.find(tile.elements, ((element: TileElement): element is FootpathElement =>
-                            element.type === "footpath" && element.baseHeight === elementData.baseHeight && element.addition === null
-                        ));
-                        if (element !== null) {
-                            Footpath.copyTo(elementData, element, false, true);
-                            element.isAdditionGhost = isGhost;
+                        if (Footpath.isAvailable(elementData, false, true)) {
+                            const element = Arrays.find(tile.elements, ((element: TileElement): element is FootpathElement =>
+                                element.type === "footpath" && element.baseHeight === elementData.baseHeight && element.addition === null
+                            ));
+                            if (element !== null) {
+                                Footpath.copyTo(elementData, element, false, true);
+                                element.isAdditionGhost = isGhost;
+                            }
                         }
                     }
                 } else if (elementData.type === "surface") {
-                    if (filter("surface")) {
+                    if (filter("surface") && Template.isAvailable(elementData)) {
                         if (!mergeSurface && !isGhost)
                             // removes all surface elements but ground element
                             clear([tile], "raw", type => type === "surface");
@@ -153,7 +156,7 @@ export function place(
                             // surface is ground
                             tile.removeElement(0);
                     }
-                } else if (filter(elementData.type)) {
+                } else if (filter(elementData.type) && Template.isAvailable(elementData)) {
                     const element = insertElement(tile, elementData, appendToEnd);
                     Template.copyTo(elementData, element);
                     element.isGhost = isGhost;

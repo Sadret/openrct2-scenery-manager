@@ -9,16 +9,37 @@ import * as Directions from "../utils/Directions";
 
 import ObjectIndex from "../core/ObjectIndex";
 
-export function isAvailable(element: FootpathData): boolean {
-    if (element.qualifier !== null && ObjectIndex.getObject("footpath", element.qualifier) === null)
-        return false;
-    if (element.surfaceQualifier !== null && ObjectIndex.getObject("footpath_surface", element.surfaceQualifier) === null)
-        return false;
-    if (element.railingsQualifier !== null && ObjectIndex.getObject("footpath_railings", element.railingsQualifier) === null)
-        return false;
-    if (element.additionQualifier !== null && ObjectIndex.getObject("footpath_addition", element.additionQualifier) === null)
-        return false;
+export function isAvailable(
+    element: FootpathData,
+    footpath: boolean = true,
+    addition: boolean = true,
+): boolean {
+    if (footpath) {
+        if (element.qualifier !== null && ObjectIndex.getObject("footpath", element.qualifier) === null)
+            return false;
+        if (element.surfaceQualifier !== null && ObjectIndex.getObject("footpath_surface", element.surfaceQualifier) === null)
+            return false;
+        if (element.railingsQualifier !== null && ObjectIndex.getObject("footpath_railings", element.railingsQualifier) === null)
+            return false;
+    }
+    if (addition) {
+        if (element.additionQualifier !== null && ObjectIndex.getObject("footpath_addition", element.additionQualifier) === null)
+            return false;
+    }
     return true;
+}
+
+export function getMissingObjects(element: FootpathData): MissingObject[] {
+    const result = [] as MissingObject[];
+    if (element.qualifier !== null && ObjectIndex.getObject("footpath", element.qualifier) === null)
+        result.push({ type: "footpath", qualifier: element.qualifier });
+    if (element.surfaceQualifier !== null && ObjectIndex.getObject("footpath_surface", element.surfaceQualifier) === null)
+        result.push({ type: "footpath_surface", qualifier: element.surfaceQualifier });
+    if (element.railingsQualifier !== null && ObjectIndex.getObject("footpath_railings", element.railingsQualifier) === null)
+        result.push({ type: "footpath_railings", qualifier: element.railingsQualifier });
+    if (element.additionQualifier !== null && ObjectIndex.getObject("footpath_addition", element.additionQualifier) === null)
+        result.push({ type: "footpath_addition", qualifier: element.additionQualifier });
+    return result;
 }
 
 const bits = [0, 1, 2, 3];

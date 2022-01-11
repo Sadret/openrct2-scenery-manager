@@ -122,3 +122,8 @@ type SceneryObject = IndexedObject & {
     onMap: number;
     inPark: number;
 };
+
+type MissingObject = {
+    type: ObjectType,
+    qualifier: string,
+};

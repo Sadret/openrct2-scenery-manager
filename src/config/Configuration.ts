@@ -20,7 +20,7 @@ const Configuration = {
         cursorMode: new Property<CursorMode>("surface"),
         placeMode: new Property<PlaceMode>("safe"),
         showGhost: new BooleanProperty(true),
-        onMissingElement: new Property<Action>("error"),
+        onMissingElement: new Property<Action>("warning"),
     },
     paste: {
         cursorHeight: {

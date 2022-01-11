@@ -158,7 +158,7 @@ export function register() {
     ui.registerShortcut({
         id: "scenery-manager.filter.all",
         text: "[SM] Toogle all",
-        bindings: ["CTRL+9", "GUI+9"],
+        bindings: ["CTRL+0", "GUI+0"],
         callback: () => {
             const filters = Objects.values(Clipboard.settings.filter);
             const enabled = Arrays.find(filters, filter => !filter.getValue()) !== null;

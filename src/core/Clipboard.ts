@@ -7,6 +7,7 @@
 
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
+import * as MissingObjectList from "../window/MissingObjectList";
 import * as Objects from "../utils/Objects";
 import * as Storage from "../persistence/Storage";
 
@@ -15,6 +16,7 @@ import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
 import Dialog from "../utils/Dialog";
 import NumberProperty from "../config/NumberProperty";
+import ObjectIndex from "./ObjectIndex";
 import Template from "../template/Template";
 import TemplateView from "../window/widgets/TemplateView";
 
@@ -106,8 +108,6 @@ const builder = new class extends Builder {
             const step = Configuration.paste.cursorHeight.smallSteps.getValue() ? 8 : 16;
             height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
         }
-        // TODO: filter available
-        // .filter(Template.isAvailable)
         return template.transform(
             settings.mirrored.getValue(),
             rotation,
@@ -180,22 +180,18 @@ export function load(data?: TemplateData): void {
             onLoad: load,
         });
     else {
+        ObjectIndex.reload();
         const template = new Template(data);
-        // TODO: filter available
-        // const available = template.filter(Template.isAvailable);
-        //
-        // if (available.elements.length !== template.elements.length) {
-        //     const action = Configuration.paste.onMissingElement.getValue();
-        //     switch (action) {
-        //         case "error":
-        //             return ui.showError("Can't load template...", "Template includes scenery which is unavailable.");
-        //         case "warning":
-        //             ui.showError("Can't load entire template...", "Template includes scenery which is unavailable.");
-        //     }
-        // }
-        //
-        // addTemplate(available);
-        addTemplate(template);
+        if (!template.isAvailable()) {
+            const action = Configuration.tools.onMissingElement.getValue();
+            switch (action) {
+                case "error":
+                    return ui.showError("Can't load template...", "Template includes scenery which is unavailable.");
+                case "warning":
+                    return MissingObjectList.open(data, () => addTemplate(template));
+            }
+        } else
+            addTemplate(template);
     }
 }
 
@@ -232,6 +228,7 @@ export function copy(cut: boolean = false): void {
 }
 
 export function paste(): void {
+    ObjectIndex.reload();
     builder.activate();
 }
 

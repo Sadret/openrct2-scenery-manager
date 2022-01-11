@@ -16,9 +16,9 @@ import * as Track from "./Track";
 import * as Wall from "./Wall";
 
 interface BaseElement<S extends TileElement, T extends ElementData> {
-    isAvailable(
+    getMissingObjects(
         element: T,
-    ): boolean;
+    ): MissingObject[];
     rotate(
         element: T,
         rotation: number,
@@ -188,7 +188,19 @@ export default class Template {
         return get(element).getRemoveActionData(Coordinates.toWorldCoords(coords), element, flags);
     }
 
+    public static getMissingObjects(element: ElementData): MissingObject[] {
+        return get(element).getMissingObjects(element);
+    }
+
     public static isAvailable(element: ElementData): boolean {
-        return get(element).isAvailable(element);
+        return Template.getMissingObjects(element).length === 0;
+    }
+
+    public isAvailable(): boolean {
+        for (let tile of this.data.tiles)
+            for (let element of tile.elements)
+                if (!Template.isAvailable(element))
+                    return false;
+        return true;
     }
 }

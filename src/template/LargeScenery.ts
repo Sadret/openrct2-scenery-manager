@@ -9,8 +9,8 @@ import * as Directions from "../utils/Directions";
 
 import ObjectIndex from "../core/ObjectIndex";
 
-export function isAvailable(element: LargeSceneryData): boolean {
-    return ObjectIndex.getObject("large_scenery", element.qualifier) !== null;
+export function getMissingObjects(element: LargeSceneryData): MissingObject[] {
+    return ObjectIndex.getObject("large_scenery", element.qualifier) ? [] : [element];
 }
 
 export function rotate(element: LargeSceneryData, rotation: number): LargeSceneryData {

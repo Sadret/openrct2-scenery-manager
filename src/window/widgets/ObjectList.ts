@@ -47,7 +47,7 @@ export default class extends GUI.VBox {
                 width: 256,
                 canSort: true,
             }, {
-                header: "Qualifier",
+                header: "Identifier",
                 width: 256,
                 canSort: true,
             },
@@ -91,7 +91,7 @@ export default class extends GUI.VBox {
                         new GUI.Space(),
                     ] : [],
                     new GUI.Label({
-                        text: "Name / Qualifier:",
+                        text: "Name / Identifier:",
                     }),
                     new GUI.TextBox({
                     }).bindValue(this.searchProp),

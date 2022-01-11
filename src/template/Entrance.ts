@@ -7,8 +7,8 @@
 
 import * as Directions from "../utils/Directions";
 
-export function isAvailable(_element: EntranceData): boolean {
-    return true;
+export function getMissingObjects(_element: EntranceData): MissingObject[] {
+    return [];
 }
 
 export function rotate(element: EntranceData, rotation: number): EntranceData {

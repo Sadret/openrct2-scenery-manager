@@ -7,12 +7,13 @@
 
 import ObjectIndex from "../core/ObjectIndex";
 
-export function isAvailable(element: SurfaceData): boolean {
-    if (ObjectIndex.getObject("terrain_surface", element.surfaceQualifier) !== null)
-        return false;
-    if (ObjectIndex.getObject("terrain_edge", element.edgeQualifier) !== null)
-        return false;
-    return true;
+export function getMissingObjects(element: SurfaceData): MissingObject[] {
+    const result = [] as MissingObject[];
+    if (ObjectIndex.getObject("terrain_surface", element.surfaceQualifier) === null)
+        result.push({ type: "terrain_surface", qualifier: element.surfaceQualifier });
+    if (ObjectIndex.getObject("terrain_edge", element.edgeQualifier) === null)
+        result.push({ type: "terrain_edge", qualifier: element.edgeQualifier });
+    return result;
 }
 
 const bits = [0, 1, 2, 3];
