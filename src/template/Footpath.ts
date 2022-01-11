@@ -9,6 +9,18 @@ import * as Directions from "../utils/Directions";
 
 import ObjectIndex from "../core/ObjectIndex";
 
+export function isAvailable(element: FootpathData): boolean {
+    if (element.qualifier !== null && ObjectIndex.getObject("footpath", element.qualifier) === null)
+        return false;
+    if (element.surfaceQualifier !== null && ObjectIndex.getObject("footpath_surface", element.surfaceQualifier) === null)
+        return false;
+    if (element.railingsQualifier !== null && ObjectIndex.getObject("footpath_railings", element.railingsQualifier) === null)
+        return false;
+    if (element.additionQualifier !== null && ObjectIndex.getObject("footpath_addition", element.additionQualifier) === null)
+        return false;
+    return true;
+}
+
 const bits = [0, 1, 2, 3];
 
 export function rotate(element: FootpathData, rotation: number): FootpathData {

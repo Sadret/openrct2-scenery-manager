@@ -7,6 +7,14 @@
 
 import ObjectIndex from "../core/ObjectIndex";
 
+export function isAvailable(element: SurfaceData): boolean {
+    if (ObjectIndex.getObject("terrain_surface", element.surfaceQualifier) !== null)
+        return false;
+    if (ObjectIndex.getObject("terrain_edge", element.edgeQualifier) !== null)
+        return false;
+    return true;
+}
+
 const bits = [0, 1, 2, 3];
 
 export function rotate(element: SurfaceData, rotation: number): SurfaceData {

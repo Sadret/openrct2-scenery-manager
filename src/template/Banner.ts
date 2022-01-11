@@ -7,6 +7,10 @@
 
 import * as Directions from "../utils/Directions";
 
+export function isAvailable(_element: BannerData): boolean {
+    return true;
+}
+
 export function rotate(element: BannerData, rotation: number): BannerData {
     return {
         ...element,

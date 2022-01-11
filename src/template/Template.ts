@@ -16,6 +16,9 @@ import * as Track from "./Track";
 import * as Wall from "./Wall";
 
 interface BaseElement<S extends TileElement, T extends ElementData> {
+    isAvailable(
+        element: T,
+    ): boolean;
     rotate(
         element: T,
         rotation: number,
@@ -183,5 +186,9 @@ export default class Template {
         flags: number,
     ): RemoveActionData[] {
         return get(element).getRemoveActionData(Coordinates.toWorldCoords(coords), element, flags);
+    }
+
+    public static isAvailable(element: ElementData): boolean {
+        return get(element).isAvailable(element);
     }
 }

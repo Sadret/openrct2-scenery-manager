@@ -22,8 +22,6 @@ import Property from "../../config/Property";
 import ScatterPatternView from "../widgets/ScatterPatternView";
 import Template from "../../template/Template";
 
-const EMPTY_STRING = "(empty)";
-
 const heightOffsetEnabled = new BooleanProperty(false);
 const heightOffset = new NumberProperty(0, 0);
 
@@ -64,7 +62,6 @@ function getSurfaceHeight(surface: SurfaceElement, requiresFlatSurface: boolean)
     }
 }
 
-// TODO: test max size
 const entries = Arrays.create(5, () => new Property<ScatterData | null>(null));
 const empty: NumberProperty = new NumberProperty(100);
 entries.forEach(entry => entry.bind(updateEmpty));
@@ -122,13 +119,18 @@ function provide(coords: CoordsXY): TileData {
     return result;
 }
 
+function activateBrush(): void {
+    Brush.activate(
+        "Scenery Scatter",
+        provide,
+    );
+}
+
 function getLabel(entry: ScatterData | null): string {
     if (entry === null)
-        return EMPTY_STRING;
+        return "(empty)";
     const object = ObjectIndex.getObject(entry.element.type, entry.element.qualifier);
-    if (object === null)
-        return EMPTY_STRING;
-    return `${object.name} (${object.qualifier})`;
+    return `${object === null ? "?" : object.name} (${entry.element.qualifier})`;
 }
 
 function getRandomData(): SmallSceneryData | LargeSceneryData | null {
@@ -162,13 +164,9 @@ function load(): void {
         fileSystem: Storage.libraries.scatterPattern,
         fileView: new ScatterPatternView(),
         onLoad: pattern => {
-            const available = pattern;
-            // TODO: [scatter] check availability
-            // .filter(
-            //     data => Template.isAvailable(data.element)
-            // );
+            const isAvailable = Arrays.find(pattern, data => !Template.isAvailable(data.element)) === null;
 
-            if (available.length !== pattern.length) {
+            if (!isAvailable) {
                 const action = Configuration.tools.onMissingElement.getValue();
                 switch (action) {
                     case "error":
@@ -178,19 +176,24 @@ function load(): void {
                 }
             }
 
-            entries.forEach((entry, idx) => entry.setValue(available[idx]));
+            pattern.forEach((data, idx) => entries[idx].setValue(data));
+
+            activateBrush();
         },
     });
 }
 
-function updateEntryWeight(entry: Property<ScatterData | null>, delta: number): void {
+function updateEntryWeight(entry: Property<ScatterData | null>, value: number, absolute: boolean = false): void {
     const data = entry.getValue();
     if (data === null)
         return;
 
     let weight = data.weight;
     empty.increment(weight);
-    weight += delta;
+    if (absolute)
+        weight = value;
+    else
+        weight += value;
     if (weight < 0)
         weight = 0;
     if (weight > empty.getValue())
@@ -201,14 +204,10 @@ function updateEntryWeight(entry: Property<ScatterData | null>, delta: number): 
     });
 }
 
-export default new GUI.Tab({ image: 5459 }).add(
-    new GUI.TextButton({
-        text: "Activate brush",
-        onClick: () => Brush.activate(
-            "Scenery Scatter",
-            provide,
-        ),
-    }),
+export default new GUI.Tab({
+    image: 5459,
+    onOpen: activateBrush,
+}).add(
     new GUI.GroupBox({
         text: "Options",
     }).add(
@@ -261,6 +260,11 @@ export default new GUI.Tab({ image: 5459 }).add(
                 ).bindText(
                     entry,
                     data => String(data === null ? 0 : data.weight) + "%",
+                ).enableOnClick(
+                    value => {
+                        if (!isNaN(Number(value)))
+                            updateEntryWeight(entry, Number(value), true);
+                    }
                 ),
                 new GUI.TextButton({
                     text: "-10%",
@@ -287,6 +291,7 @@ export default new GUI.Tab({ image: 5459 }).add(
                                     element: data,
                                     weight: 0,
                                 });
+                                activateBrush();
                                 return true;
                             });
                         else
@@ -298,7 +303,7 @@ export default new GUI.Tab({ image: 5459 }).add(
                 ),
             ),
         ),
-        new GUI.HBox([10, 4, 2, 2, 3,]).add(
+        new GUI.HBox([10, 4, 7,]).add(
             new GUI.Label({
                 text: "(empty)",
                 isDisabled: true,
@@ -309,9 +314,10 @@ export default new GUI.Tab({ image: 5459 }).add(
                 empty,
                 value => String(value) + "%",
             ),
-            new GUI.Space(),
-            new GUI.Space(),
-            new GUI.Space(),
+            new GUI.TextButton({
+                text: "Clear all",
+                onClick: () => entries.forEach(entry => entry.setValue(null)),
+            }),
         ),
         new GUI.Space(2),
         new GUI.HBox([7, 7, 7]).add(
@@ -324,8 +330,8 @@ export default new GUI.Tab({ image: 5459 }).add(
                 onClick: load,
             }),
             new GUI.TextButton({
-                text: "Clear all",
-                onClick: () => entries.forEach(entry => entry.setValue(null)),
+                text: "Activate brush",
+                onClick: activateBrush,
             }),
         ),
     ),
