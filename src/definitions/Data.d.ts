@@ -24,22 +24,12 @@ type FootpathData = Omit<FootpathElement,
     "surfaceObject" |
     "railingsObject" |
     "addition"
-    > & ({
-        qualifier: string;
-        surfaceQualifier: null;
-        railingsQualifier: null;
-        additionQualifier: string | null;
-    } | {
-        qualifier: null;
-        surfaceQualifier: string;
-        railingsQualifier: string;
-        additionQualifier: string | null;
-    } | {
-        qualifier: null;
-        surfaceQualifier: null;
-        railingsQualifier: null;
-        additionQualifier: string;
-    });
+    > & {
+    qualifier: string | null;
+    surfaceQualifier: string | null;
+    railingsQualifier: string | null;
+    additionQualifier: string | null;
+};
 
 type TrackData = TrackElement;
 
