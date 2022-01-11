@@ -112,20 +112,39 @@ export default new GUI.Tab({ image: 5465 }).add(
                         Configuration.tools.showGhost,
                     ),
                 ),
-            ),
-        ),
-        new GUI.GroupBox({
-            text: "Filter",
-        }).add(
-            ...Object.keys(Clipboard.settings.filter).map(key =>
-                new GUI.Checkbox({
-                    text: Strings.toDisplayString(key),
-                }).bindValue(
-                    Clipboard.settings.filter[key],
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Label({
+                        text: "Append to end:",
+                    }),
+                    new GUI.TextButton({
+                    }).bindValue(
+                        Configuration.paste.appendToEnd,
+                    ),
+                ),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Label({
+                        text: "Merge surface:",
+                    }),
+                    new GUI.TextButton({
+                    }).bindValue(
+                        Configuration.paste.mergeSurface,
+                    ),
                 ),
             ),
-            // TODO: adjust?
-            new GUI.Space(22), // vfill
+        ),
+        new GUI.VBox().add(
+            new GUI.GroupBox({
+                text: "Filter",
+            }).add(
+                ...Object.keys(Clipboard.settings.filter).map(key =>
+                    new GUI.Checkbox({
+                        text: Strings.toDisplayString(key),
+                    }).bindValue(
+                        Clipboard.settings.filter[key],
+                    ),
+                ),
+            ),
+            // TODO: new GUI.Space(0), // vfill
         ),
     ),
 );

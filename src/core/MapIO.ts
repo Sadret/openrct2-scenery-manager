@@ -100,8 +100,8 @@ export function place(
     mode: PlaceMode,
     isGhost: boolean,
     filter: ElementFilter,
-    append: boolean = false,
-    surfaceMerge: boolean = false,
+    appendToEnd: boolean = false,
+    mergeSurface: boolean = false,
 ): void {
     if (mode === "safe") {
         const flags = isGhost ? 72 : 0;
@@ -121,7 +121,7 @@ export function place(
                     return;
                 if (elementData.type === "footpath") {
                     if ((elementData.qualifier !== null || elementData.surfaceQualifier !== null) && filter("footpath")) {
-                        const element = insertElement(tile, elementData, append) as FootpathElement;
+                        const element = insertElement(tile, elementData, appendToEnd) as FootpathElement;
                         Template.copyBase(elementData, element);
                         Footpath.copyTo(elementData, element, true, filter("footpath_addition"));
                         element.isGhost = isGhost;
@@ -139,10 +139,10 @@ export function place(
                     }
                 } else if (elementData.type === "surface") {
                     if (filter("surface")) {
-                        if (!surfaceMerge && !isGhost)
+                        if (!mergeSurface && !isGhost)
                             // removes all surface elements but ground element
                             clear([tile], "raw", type => type === "surface");
-                        const element = insertElement(tile, elementData, append) as SurfaceElement;
+                        const element = insertElement(tile, elementData, appendToEnd) as SurfaceElement;
                         Template.copyTo(elementData, element);
                         element.isGhost = isGhost;
 
@@ -154,7 +154,7 @@ export function place(
                             tile.removeElement(0);
                     }
                 } else if (filter(elementData.type)) {
-                    const element = insertElement(tile, elementData, append);
+                    const element = insertElement(tile, elementData, appendToEnd);
                     Template.copyTo(elementData, element);
                     element.isGhost = isGhost;
                 }
@@ -162,9 +162,9 @@ export function place(
         });
 }
 
-export function insertElement(tile: Tile, elementData: ElementData, append: boolean): TileElement {
+export function insertElement(tile: Tile, elementData: ElementData, appendToEnd: boolean): TileElement {
     let idx = 0;
-    if (append)
+    if (appendToEnd)
         idx = tile.numElements;
     else
         while (idx < tile.numElements && tile.getElement(idx).baseHeight <= elementData.baseHeight)

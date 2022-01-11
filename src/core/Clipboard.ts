@@ -47,6 +47,12 @@ const builder = new class extends Builder {
     protected getFilter(): ElementFilter {
         return filter;
     }
+    protected doAppendToEnd(): boolean {
+        return Configuration.paste.appendToEnd.getValue();
+    }
+    protected doMergeSurface(): boolean {
+        return Configuration.paste.mergeSurface.getValue();
+    }
 
     protected getTileData(
         coords: CoordsXY,

@@ -75,6 +75,7 @@ const window = new GUI.WindowManager(
                 label,
             ),
         ),
+        new GUI.Separator(),
         new GUI.HBox([1, 1]).add(
             new GUI.Label({
                 text: "Cursor mode:",
@@ -106,6 +107,7 @@ const window = new GUI.WindowManager(
                 Configuration.tools.showGhost,
             ),
         ),
+        new GUI.Separator(),
         new GUI.HBox([1, 1]).add(
             new GUI.Label({
                 text: "Size:",

@@ -32,6 +32,8 @@ const Configuration = {
             flip: new BooleanProperty(false),
             sensitivity: new NumberProperty(4, 0, 10),
         },
+        appendToEnd: new BooleanProperty(false),
+        mergeSurface: new BooleanProperty(false),
     },
     selector: {
         keepOnExit: new BooleanProperty(false),

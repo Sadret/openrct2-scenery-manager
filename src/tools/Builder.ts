@@ -42,6 +42,12 @@ export default abstract class Builder extends Tool {
     protected getFilter(): ElementFilter {
         return () => true;
     }
+    protected doAppendToEnd(): boolean {
+        return false;
+    }
+    protected doMergeSurface(): boolean {
+        return false;
+    }
 
     private removeGhost(): void {
         if (this.tileData !== undefined) {
@@ -64,7 +70,14 @@ export default abstract class Builder extends Tool {
                 if (this.tileData === undefined)
                     return this.cancel();
                 this.placeMode = Configuration.tools.placeMode.getValue();
-                MapIO.place(this.tileData, this.placeMode, isGhost, this.getFilter());
+                MapIO.place(
+                    this.tileData,
+                    this.placeMode,
+                    isGhost,
+                    this.getFilter(),
+                    this.doAppendToEnd(),
+                    this.doMergeSurface(),
+                );
             }
             this.tileSelection = this.getTileSelection(this.coords, this.offset);
             if (this.tileSelection === undefined)
