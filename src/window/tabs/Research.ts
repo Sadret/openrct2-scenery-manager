@@ -22,7 +22,7 @@ export default new GUI.Tab({
     ),
     new GUI.GroupBox({ text: "Known problems" }).add(
         new GUI.Label({ text: "- Copy / paste does not work well on sloped surfaces." }),
-        new GUI.Label({ text: "- Banner text and colour do not copy." }),
+        new GUI.Label({ text: "- Banner object, text and colour do not copy." }),
         new GUI.Label({ text: "- Large scenery does not mirror." }),
         new GUI.Label({ text: "- Scroll position resets when list content changes." }),
         new GUI.Label({ text: "- Queue layouts do not copy correctly." }),

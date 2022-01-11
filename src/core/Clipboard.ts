@@ -7,7 +7,6 @@
 
 import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
-import * as MissingObjectList from "../window/MissingObjectList";
 import * as Objects from "../utils/Objects";
 import * as Storage from "../persistence/Storage";
 
@@ -15,6 +14,7 @@ import BooleanProperty from "../config/BooleanProperty";
 import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
 import Dialog from "../utils/Dialog";
+import MissingObjectList from "../window/MissingObjectList";
 import NumberProperty from "../config/NumberProperty";
 import ObjectIndex from "./ObjectIndex";
 import Template from "../template/Template";
@@ -79,7 +79,7 @@ const builder = new class extends Builder {
             return undefined;
         }
         return this.transform(
-            // TODO: bad
+            // XXX: bad: unwrap
             new Template({
                 tiles: [],
                 mapRange: template.data.mapRange,
@@ -188,7 +188,7 @@ export function load(data?: TemplateData): void {
                 case "error":
                     return ui.showError("Can't load template...", "Template includes scenery which is unavailable.");
                 case "warning":
-                    return MissingObjectList.open(data, () => addTemplate(template));
+                    return new MissingObjectList(data, () => addTemplate(template)).open(true);
             }
         } else
             addTemplate(template);
@@ -210,9 +210,6 @@ export function copy(cut: boolean = false): void {
     const heightOffset = 8 * heights[Math.floor(heights.length / 2)];
 
     let data = MapIO.read(tiles, filter);
-    // TODO: sort
-    // data = MapIO.sort(data);
-    // affects path layouts, path/walls and path/banners
 
     if (cut)
         MapIO.clear(tiles, Configuration.tools.placeMode.getValue(), filter);

@@ -22,7 +22,6 @@ const filterTypes: SceneryFilterType[] = [
 ];
 
 function pickOnMap(group: SceneryFilterGroup, mode: "qualifier" | "railings" | "addition"): void {
-    // TODO: picker
     // new class extends Picker {
     //     protected accept(element: TileElement): boolean {
     //         if (mode === "qualifier") {

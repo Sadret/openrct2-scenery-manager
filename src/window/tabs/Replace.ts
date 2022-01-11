@@ -51,7 +51,6 @@ function replaceValue<T>(value: T, property: Property<T | undefined>): T {
 }
 
 function findAndDelete(replace: boolean): void {
-    // TODO: Replace
     // MapIO.forEachElement(
     //     element => {
     //         if (element.type !== findGroup.type.getValue())

@@ -19,12 +19,12 @@ export function update(load: Task): void {
         return showVersionUnknown(load);
 
     const major = Number(match[1]);
-    // const minor = Number(match[2]);
-    // const patch = Number(match[3]);
+    const minor = Number(match[2]);
+    const patch = Number(match[3]);
 
     if (major < 2)
         return showVersionTooOld(load);
-    if (major > 2)
+    if (major > 2 || minor > 0 || patch > 0)
         return showVersionUnknown(load);
 
     // update to minor / patch

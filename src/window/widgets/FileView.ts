@@ -32,7 +32,6 @@ export default class FileView<T> extends GUI.ListView {
 
     public watch(fs: IFileSystem<T>): void {
         this.openFolder(fs.getRoot());
-        // TODO: only used here. eliminate?
         fs.addObserver(file => {
             if (this.folder === undefined)
                 return;

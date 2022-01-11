@@ -144,7 +144,6 @@ export default new GUI.Tab({ image: 5465 }).add(
                     ),
                 ),
             ),
-            // TODO: new GUI.Space(0), // vfill
         ),
     ),
 );
