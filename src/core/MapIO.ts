@@ -104,12 +104,31 @@ export function place(
 ): void {
     if (mode === "safe") {
         const flags = isGhost ? 72 : 0;
+        // walls
+        if (filter("wall"))
+            templateData.forEach(tileData =>
+                tileData.elements.forEach(element => {
+                    if (element.type === "wall")
+                        Template.getPlaceActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
+                })
+            );
+        // paths
+        if (filter("footpath") || filter("footpath_addition"))
+            templateData.forEach(tileData =>
+                tileData.elements.forEach(element => {
+                    if (element.type === "footpath") {
+                        if (filter("footpath"))
+                            Template.getPlaceActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
+                        if (element.additionQualifier !== null && filter("footpath_addition"))
+                            Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
+                    }
+                })
+            );
+        // remaining
         templateData.forEach(tileData =>
             tileData.elements.forEach(element => {
-                if (filter(element.type))
+                if (element.type !== "wall" && element.type !== "footpath" && filter(element.type))
                     Template.getPlaceActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
-                if (element.type === "footpath" && element.additionQualifier !== null && filter("footpath_addition"))
-                    Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
             })
         );
     } else
