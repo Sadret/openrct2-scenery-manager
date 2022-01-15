@@ -7,25 +7,16 @@
 
 import * as Events from "../../utils/Events";
 import * as MapIO from "../../core/MapIO";
-import * as Replace from "../tabs/Replace";
 import * as Selector from "../../tools/Selector";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
 import Loading from "../widgets/Loading";
-import MainWindow from "../MainWindow";
 import ObjectList from "../widgets/ObjectList";
 import OverlayTab from "../widgets/OverlayTab";
 import SceneryIndex from "../../core/SceneryIndex";
 
-const objectList: ObjectList = new ObjectList(
-    new SceneryIndex(() => { }, []),
-    true,
-    info => {
-        Replace.setElement(info);
-        MainWindow.setActiveTab(Replace.default);
-    },
-);
+const objectList: ObjectList = new ObjectList();
 
 let busy = false;
 let requested = false;
@@ -50,7 +41,7 @@ function refresh(force = false): void {
 function updateProgress(done: boolean, progress: number, index: SceneryIndex): void {
     refreshButton.setText(done ? "Refresh" : `Refreshing ${Math.round(progress * 100)}%`);
     loading.setProgress(progress);
-    objectList.setIndex(index);
+    objectList.setObjects(index.getAllObjects());
     if (done) {
         loading.setIsVisible(false);
         loading.setProgress(undefined);
@@ -83,6 +74,17 @@ export default new OverlayTab({
     width: 768,
     onOpen: () => refresh(true),
 }).add(
+    new GUI.GroupBox({
+        text: "Filter",
+    }).add(
+        new GUI.HBox([1, 3, 1, 1, 2, 1, 2, 3, 1]).add(
+            ...objectList.typeWidgets,
+            new GUI.Space(),
+            ...objectList.usageWidgets,
+            new GUI.Space(),
+            ...objectList.searchWidgets,
+        ),
+    ),
     objectList,
     new GUI.HBox([1, 1, 1,]).add(
         refreshButton,

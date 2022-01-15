@@ -10,94 +10,25 @@ import * as Selector from "../../tools/Selector";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
-import Property from "../../config/Property";
 import SceneryFilterGroup from "../widgets/SceneryFilterGroup";
 
-const findGroup = new SceneryFilterGroup("Find");
-const replaceGroup = new SceneryFilterGroup("Replace with", true);
+const findGroup = new SceneryFilterGroup();
+const replaceGroup = new SceneryFilterGroup(findGroup);
 findGroup.type.bind(type => replaceGroup.type.setValue(type));
-
-export function setElement(object: SceneryObject): void {
-    switch (object.type) {
-        case "footpath":
-        case "footpath_surface":
-            findGroup.type.setValue("footpath");
-            findGroup.qualifier.setValue(object.qualifier);
-            break;
-        case "footpath_railings":
-            findGroup.type.setValue("footpath");
-            findGroup.railings.setValue(object.qualifier);
-            break;
-        case "footpath_addition":
-            findGroup.type.setValue("footpath");
-            findGroup.addition.setValue(object.qualifier);
-            break;
-        default:
-            findGroup.type.setValue(object.type);
-            findGroup.qualifier.setValue(object.qualifier);
-            break;
-    }
-}
 
 const selectionOnlyProp = new BooleanProperty(false);
 
-function eqIfDef<T>(a: T | undefined, b: T | undefined) {
-    return a === undefined || b === undefined || a === b;
-}
-
-function replaceValue<T>(value: T, property: Property<T | undefined>): T {
-    const propValue = property.getValue();
-    return propValue === undefined ? value : propValue;
-}
-
 function findAndDelete(replace: boolean): void {
-    // MapIO.forEachElement(
-    //     element => {
-    //         if (element.type !== findGroup.type.getValue())
-    //             return;
-    // switch (element.type) {
-    //     case "footpath":
-    //         if (!eqIfDef(element.surfaceQualifier, findGroup.qualifier.getValue()))
-    //             return;
-    //         if (!eqIfDef(element.railingsQualifier, findGroup.railings.getValue()))
-    //             return;
-    //         const callbackFp = replace ? ((removed: boolean) => {
-    //             if (removed)
-    //                 MapIO.place([{
-    //                     ...element,
-    //                     surfaceQualifier: replaceValue(element.surfaceQualifier, replaceGroup.qualifier),
-    //                     railingsQualifier: replaceValue(element.railingsQualifier, replaceGroup.railings),
-    //                 }]);
-    //         }) : undefined;
-    //         return MapIO.removeElement(element, false, callbackFp);
-    //     case "wall":
-    //         if (!eqIfDef(element.tertiaryColour, findGroup.tertiaryColour.getValue()))
-    //             return;
-    //     case "small_scenery":
-    //     case "large_scenery":
-    //         if (!eqIfDef(element.qualifier, findGroup.qualifier.getValue()))
-    //             return;
-    //         if (!eqIfDef(element.primaryColour, findGroup.primaryColour.getValue()))
-    //             return;
-    //         if (!eqIfDef(element.secondaryColour, findGroup.secondaryColour.getValue()))
-    //             return;
-    //         const callback = replace ? ((removed: boolean) => {
-    //             if (removed)
-    //                 MapIO.place([{
-    //                     ...element,
-    //                     qualifier: replaceValue(element.qualifier, replaceGroup.qualifier),
-    //                     primaryColour: replaceValue(element.primaryColour, replaceGroup.primaryColour),
-    //                     secondaryColour: replaceValue(element.secondaryColour, replaceGroup.secondaryColour),
-    //                     ...element.type === "wall" ? {
-    //                         tertiaryColour: replaceValue(element.tertiaryColour, replaceGroup.tertiaryColour),
-    //                     } : {},
-    //                 }]);
-    //         }) : undefined;
-    //         return MapIO.removeElement(element, false, callback);
-    // }
-    //     },
-    //     selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined,
-    // );
+    // TODO: delete
+    if (!replace)
+        console.error("not implemeneted yet");
+    MapIO.forEachElement(
+        (_tile, element) => {
+            if (findGroup.match(element))
+                replaceGroup.replace(element);
+        },
+        selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined,
+    );
 }
 
 export default new GUI.Tab({
@@ -105,6 +36,10 @@ export default new GUI.Tab({
         frameBase: 5205,
         frameCount: 16,
         frameDuration: 4,
+    },
+    onOpen: () => {
+        findGroup.reload();
+        replaceGroup.reload();
     },
 }).add(
     findGroup,
@@ -120,7 +55,7 @@ export default new GUI.Tab({
         new GUI.Space(),
         new GUI.Space(),
         new GUI.TextButton({
-            text: "Find and Delete",
+            text: "Search and Delete",
             onClick: () => findAndDelete(false),
         }),
     ),
@@ -137,9 +72,11 @@ export default new GUI.Tab({
         new GUI.Space(),
         new GUI.Space(),
         new GUI.TextButton({
-            text: "Find and Replace",
+            text: "Search and Replace",
             onClick: () => findAndDelete(true),
-        }),
+        }).bindIsDisabled(
+            replaceGroup.error,
+        ),
     ),
     new GUI.HBox(
         [1, 1, 1],

@@ -16,7 +16,7 @@ function toSceneryObject(object: IndexedObject): SceneryObject {
     return element;
 }
 
-class SceneryObjectIndex extends ObjectIndex<SceneryObject>{
+export class SceneryObjectIndex extends ObjectIndex<SceneryObject>{
     constructor(type: SceneryObjectType) {
         super(type, toSceneryObject);
     }
@@ -37,7 +37,7 @@ export default class SceneryIndex {
     private readonly data = {} as { [key in SceneryObjectType]: SceneryObjectIndex };
 
     constructor(
-        callback: (done: boolean, progress: number, index: SceneryIndex) => void,
+        callback: (done: boolean, progress: number, index: SceneryIndex) => void = () => { },
         selection: MapRange | CoordsXY[] | undefined = undefined,
     ) {
         SceneryIndex.types.forEach(type => this.data[type] = new SceneryObjectIndex(type));
@@ -77,8 +77,15 @@ export default class SceneryIndex {
         );
     }
 
-    public getAllObjects(type: SceneryObjectType): SceneryObject[] {
-        return this.data[type].getAll();
+    public getAllObjects(type?: SceneryObjectType): SceneryObject[] {
+        if (type === undefined)
+            return SceneryIndex.types.map(
+                type => this.getAllObjects(type)
+            ).reduce(
+                (acc, val) => acc.concat(val), [] as SceneryObject[]
+            );
+        else
+            return this.data[type].getAll();
     }
 
     public static readonly types: SceneryObjectType[] = [

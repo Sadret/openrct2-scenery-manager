@@ -43,6 +43,6 @@ function matchAll(s: string, pattern: string): string[] {
     return result;
 }
 
-export function toDisplayString(s: string): string {
-    return s.split("_").map(token => token.charAt(0).toUpperCase() + token.slice(1)).join(" ");
+export function toDisplayString(s: string | null): string {
+    return s === null ? "" : s.split("_").map(token => token.charAt(0).toUpperCase() + token.slice(1)).join(" ");
 }

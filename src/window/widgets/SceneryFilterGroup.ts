@@ -5,14 +5,15 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Footpath from "../../template/Footpath";
 import * as Picker from "../../tools/Picker";
 import * as Strings from "../../utils/Strings";
 
 import GUI from "../../gui/GUI";
+import Multiplexer from "../../config/Multiplexer";
 import ObjectChooser from "../ObjectChooser";
 import ObjectIndex from "../../core/ObjectIndex";
 import Property from "../../config/Property";
+import { SceneryObjectIndex } from "../../core/SceneryIndex";
 
 const filterTypes: SceneryFilterType[] = [
     "footpath",
@@ -21,172 +22,353 @@ const filterTypes: SceneryFilterType[] = [
     "wall",
 ];
 
-function pickOnMap(group: SceneryFilterGroup, mode: "qualifier" | "railings" | "addition"): void {
-    // new class extends Picker {
-    //     protected accept(element: TileElement): boolean {
-    //         if (mode === "qualifier") {
-    //             if (group.forceType && element.type !== group.type.getValue()) {
-    //                 ui.showError("Cannot use this element...", "Element's type must match type to replace.");
-    //                 return false;
-    //             }
-    //             switch (element.type) {
-    //                 case "footpath":
-    //                     const e = Footpath.createFromTileData(element, { x: 0, y: 0 });
-    //                     group.type.setValue("footpath");
-    //                     group.qualifier.setValue(e.surfaceQualifier);
-    //                     return true;
-    //                 case "small_scenery":
-    //                 case "large_scenery":
-    //                 case "wall":
-    //                     group.type.setValue(element.type);
-    //                     group.qualifier.setValue(ObjectIndex.getQualifier(element));
-    //                     return true;
-    //                 default:
-    //                     ui.showError("Cannot use this element...", "Element must be footpath, small scenery, large scenery or wall.");
-    //                     return false;
-    //             }
-    //         } else {
-    //             if (element.type !== "footpath") {
-    //                 ui.showError("Cannot use this element...", "Element's type must be footpath.");
-    //                 return false;
-    //             }
-    //             if (mode === "railings") {
-    //                 const e = Footpath.createFromTileData(element, { x: 0, y: 0 });
-    //                 group.railings.setValue(e.railingsQualifier);
-    //                 return true;
-    //             } else {
-    //                 const e = FootpathAddition.createFromTileData(element, { x: 0, y: 0 });
-    //                 if (e === undefined) {
-    //                     ui.showError("Cannot use this element...", "Element has no footpath addition.");
-    //                     return false;
-    //                 }
-    //                 group.addition.setValue(e.qualifier);
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    // }(
-    //     "sm-picker-filter",
-    // ).activate();
-}
+const ANY = {
+    index: -1,
+    qualifier: "< Any >",
+    name: "< Any >",
+} as SceneryObject;
 
-function selectFromList(group: SceneryFilterGroup, mode: "qualifier" | "railings" | "addition"): void {
-    new ObjectChooser(
-        mode === "qualifier" ? group.type.getValue() === "footpath" ? "footpath_surface" : group.type.getValue() : mode === "railings" ? "footpath_railings" : "footpath_addition",
-        info => {
-            if (mode === "qualifier") {
-                if (group.forceType && info.type !== group.type.getValue() && !(group.type.getValue() === "footpath" && info.type === "footpath_surface")) {
-                    ui.showError("Cannot use this element...", "Element's type must match type to replace.");
-                    return false;
+const KEEP = {
+    index: -1,
+    qualifier: "< Keep unchanged >",
+    name: "< Keep unchanged >",
+} as SceneryObject;
+
+const NONE = {
+    index: -1,
+    qualifier: "< None >",
+    name: "< None >",
+} as SceneryObject;
+
+export default class SceneryFilterGroup extends GUI.GroupBox {
+    public readonly type = new Property<SceneryFilterType>("small_scenery");
+    public readonly qualifier = new Property<IndexedObject>(ANY);
+
+    public readonly primaryColour = new Property<number | null>(null);
+    public readonly secondaryColour = new Property<number | null>(null);
+    public readonly tertiaryColour = new Property<number | null>(null);
+
+    public readonly surface = new Property<IndexedObject>(ANY);
+    public readonly railings = new Property<IndexedObject>(ANY);
+    public readonly addition = new Property<IndexedObject>(ANY);
+
+    public readonly error = new Property<boolean>(false);
+    private readonly legacyExists = new Property<boolean>(true);
+
+    private readonly isReplace: boolean;
+    private readonly any: SceneryObject;
+    private readonly none: SceneryObject = NONE;
+
+    public constructor(findGroup?: SceneryFilterGroup) {
+        super({
+            text: findGroup === undefined ? "Search for" : "Replace with",
+        });
+
+        this.isReplace = findGroup !== undefined;
+        this.any = this.isReplace ? KEEP : ANY;
+        this.type.bind(_ => this.reset());
+
+        this.reload();
+
+        this.buildGUI();
+
+        this.qualifier.bind(
+            qualifier => {
+                if (this.type.getValue() !== "footpath")
+                    return;
+                if (qualifier === this.none) {
+                    // qualifier = none => surface & railings != none
+                    this.surface.getValue() === this.none && this.surface.setValue(this.any);
+                    this.railings.getValue() === this.none && this.railings.setValue(this.any);
+                } else if (qualifier === this.any) {
+                    // qualifier = any => surface & railings != specified
+                    this.surface.getValue().index >= 0 && this.surface.setValue(this.any);
+                    this.railings.getValue().index >= 0 && this.railings.setValue(this.any);
+                } else {
+                    // qualifier = specified => surface & railings = none
+                    this.surface.setValue(this.none);
+                    this.railings.setValue(this.none);
                 }
-                switch (info.type) {
-                    case "footpath_surface":
-                        group.type.setValue("footpath");
-                        group.qualifier.setValue(info.qualifier);
-                        return true;
+            }
+        );
+        this.surface.bind(
+            surface => {
+                if (surface === this.none) {
+                    // surface = none => qualifier != none & railings = none
+                    this.qualifier.getValue() === this.none && this.qualifier.setValue(this.any);
+                    this.railings.setValue(this.none);
+                } else if (surface === this.any) {
+                    // surface = any => qualifier != specified & railings != none
+                    this.qualifier.getValue().index >= 0 && this.qualifier.setValue(this.any);
+                    this.railings.getValue() === this.none && this.railings.setValue(this.any);
+                } else {
+                    // surface = specified => qualifier = none & railings != none
+                    this.qualifier.setValue(this.none);
+                    this.railings.getValue() === this.none && this.railings.setValue(this.any);
+                }
+            }
+        );
+        this.railings.bind(
+            railings => {
+                if (railings === this.none) {
+                    // railings = none => qualifier != none & surface = none
+                    this.qualifier.getValue() === this.none && this.qualifier.setValue(this.any);
+                    this.surface.setValue(this.none);
+                } else if (railings === this.any) {
+                    // railings = any => qualifier != specified & surface != none
+                    this.qualifier.getValue().index >= 0 && this.qualifier.setValue(this.any);
+                    this.surface.getValue() === this.none && this.surface.setValue(this.any);
+                } else {
+                    // railings = specified => qualifier = none & surface != none
+                    this.qualifier.setValue(this.none);
+                    this.surface.getValue() === this.none && this.surface.setValue(this.any);
+                }
+            }
+        );
+
+        if (findGroup !== undefined)
+            new Multiplexer([this.type, findGroup.qualifier, this.surface, this.railings]).bind(
+                ([type, findQualifier, surface, railings]) => {
+                    if (type !== "footpath")
+                        return this.error.setValue(false);
+                    if ((surface === this.any) === (railings === this.any))
+                        return this.error.setValue(false);
+                    if (findQualifier === findGroup.none)
+                        return this.error.setValue(false);
+                    return this.error.setValue(true);
+                }
+            );
+    }
+
+    public reload(): void {
+        this.reset();
+        this.legacyExists.setValue(new SceneryObjectIndex("footpath").getAll().length > 0);
+    }
+
+    private reset(): void {
+        ObjectChooser.closeAll();
+
+        this.qualifier.setValue(this.any);
+
+        this.primaryColour.setValue(null);
+        this.secondaryColour.setValue(null);
+        this.tertiaryColour.setValue(null);
+
+        this.surface.setValue(this.any);
+        this.railings.setValue(this.any);
+        this.addition.setValue(this.any);
+    }
+
+    public match(element: TileElement): boolean {
+        if (element.type !== this.type.getValue()) return false;
+        if (!this.matchObject(this.qualifier, element.object)) return false;
+        switch (element.type) {
+            case "footpath":
+                if (!this.matchObject(this.surface, element.surfaceObject)) return false;
+                if (!this.matchObject(this.railings, element.railingsObject)) return false;
+                return true;
+            case "wall":
+                if (!this.matchColour(this.tertiaryColour, element.tertiaryColour)) return false;
+            case "small_scenery":
+            case "large_scenery":
+                if (!this.matchColour(this.primaryColour, element.primaryColour)) return false;
+                if (!this.matchColour(this.secondaryColour, element.secondaryColour)) return false;
+                return true;
+        }
+    }
+
+    private matchObject(property: Property<IndexedObject>, index: number | null): boolean {
+        const object = property.getValue();
+        if (object === this.any)
+            return true;
+        if (object === this.none)
+            return index === null;
+        return object.index === index;
+    }
+
+    private matchColour(property: Property<number | null>, colour: number): boolean {
+        const value = property.getValue();
+        return value === null || value === colour;
+    }
+
+    public replace(element: TileElement): void {
+        if (element.type !== this.type.getValue())
+            return;
+
+        this.replaceObject(this.qualifier, value => element.object = value);
+
+        switch (element.type) {
+            case "footpath":
+                this.replaceObject(this.surface, value => element.surfaceObject = value);
+                this.replaceObject(this.railings, value => element.railingsObject = value);
+                return;
+            case "wall":
+                this.replaceColour("tertiaryColour", element);
+            case "small_scenery":
+            case "large_scenery":
+                this.replaceColour("primaryColour", element);
+                this.replaceColour("secondaryColour", element);
+        }
+    }
+
+    private replaceObject(property: Property<IndexedObject>, callback: (value: number | null) => void): void {
+        const object = property.getValue();
+        if (object === this.any)
+            return;
+        if (object === this.none)
+            callback(null);
+        callback(object.index);
+    }
+
+    private replaceColour<S extends "primaryColour" | "secondaryColour" | "tertiaryColour">(key: S, element: { [key in S]: number }): void {
+        const value = this[key].getValue();
+        if (value !== null)
+            element[key] = value;
+    }
+
+    private getLabel(object: IndexedObject, error = false): string {
+        if (object.index < 0)
+            if (error)
+                return "{RED}< Undefined, please select! >";
+            else
+                return object.name;
+        else
+            return `${object.name} (${object.qualifier})`;
+    }
+
+    private pickOnMap(): void {
+        Picker.activate((element: TileElement) => {
+            switch (element.type) {
+                case "footpath":
+                case "wall":
+                case "small_scenery":
+                case "large_scenery":
+                    break;
+                default:
+                    ui.showError("Cannot use this element...", "Element must be footpath, small scenery, large scenery or wall.");
+                    return false;
+            }
+
+            if (this.isReplace && element.type !== this.type.getValue()) {
+                ui.showError("Cannot use this element...", "Element's type must match type to replace.");
+                return false;
+            }
+
+            this.type.setValue(element.type);
+            this.reset();
+
+            const object = ObjectIndex.getObject(element.type, element.object);
+            object && this.qualifier.setValue(object);
+
+            switch (element.type) {
+                case "footpath":
+                    const surfaceObject = ObjectIndex.getObject("footpath_surface", element.surfaceObject);
+                    surfaceObject && this.surface.setValue(surfaceObject);
+                    const railingsObject = ObjectIndex.getObject("footpath_railings", element.railingsObject);
+                    railingsObject && this.railings.setValue(railingsObject);
+                    if (element.addition === null)
+                        this.addition.setValue(this.none);
+                    else {
+                        const additionObject = ObjectIndex.getObject("footpath_addition", element.addition);
+                        additionObject && this.addition.setValue(additionObject);
+                    }
+                    break;
+                case "wall":
+                    this.tertiaryColour.setValue(element.tertiaryColour);
+                case "small_scenery":
+                case "large_scenery":
+                    this.primaryColour.setValue(element.primaryColour);
+                    this.secondaryColour.setValue(element.secondaryColour);
+                    break;
+            }
+            return true;
+        });
+    }
+
+    private selectFromList(type: SceneryObjectType): void {
+        const objects = [] as SceneryObject[];
+        objects.push(this.any);
+        switch (type) {
+            case "footpath_surface":
+            case "footpath_railings":
+                if (!this.legacyExists.getValue())
+                    break;
+            case "footpath":
+            case "footpath_addition":
+                objects.push(this.none);
+        }
+        new ObjectChooser(
+            type,
+            objects.concat(new SceneryObjectIndex(type).getAll()),
+            object => {
+                switch (type) {
                     case "footpath":
                     case "small_scenery":
                     case "large_scenery":
                     case "wall":
-                        group.type.setValue(info.type);
-                        group.qualifier.setValue(info.qualifier);
+                        this.qualifier.setValue(object);
                         return true;
-                    default: // railings or addition
-                        ui.showError("Cannot use this element...", "Element cannot be footpath railings or footpath addition.");
-                        return false;
+                    case "footpath_surface":
+                        this.surface.setValue(object);
+                        return true;
+                    case "footpath_railings":
+                        this.railings.setValue(object);
+                        return true;
+                    case "footpath_addition":
+                        this.addition.setValue(object);
+                        return true;
                 }
-            } else if (mode === "railings") {
-                if (info.type !== "footpath_railings") {
-                    ui.showError("Cannot use this element...", "Element's must be footpath railings.");
-                    return false;
-                }
-                group.railings.setValue(info.qualifier);
-                return true;
-            } else { // mode === "addition"
-                if (info.type !== "footpath_addition") {
-                    ui.showError("Cannot use this element...", "Element's must be footpath addition.");
-                    return false;
-                }
-                group.addition.setValue(info.qualifier);
-                return true;
             }
-        }
-    ).open(true);
-}
+        ).open(true);
+    }
 
-export default class SceneryFilterGroup extends GUI.GroupBox {
-    public readonly type = new Property<SceneryFilterType>("small_scenery");
-    public readonly qualifier = new Property<string | undefined>(undefined);
-
-    public readonly primaryColour = new Property<number | undefined>(undefined);
-    public readonly secondaryColour = new Property<number | undefined>(undefined);
-    public readonly tertiaryColour = new Property<number | undefined>(undefined);
-
-    public readonly railings = new Property<string | null | undefined>(undefined);
-    public readonly addition = new Property<string | undefined>(undefined);
-
-    public readonly forceType: boolean;
-
-    constructor(title: string, forceType: boolean = false) {
-        super({
-            text: title,
-        });
-        this.forceType = forceType;
-
-        this.type.bind(_ => this.qualifier.setValue(undefined));
-
+    private buildGUI(): void {
         this.add(
             // TYPE
-            new GUI.HBox([1, 1, 1]).add(
-                new GUI.VBox(
-                    undefined,
-                    {
-                        ...GUI.Margin.none,
-                        left: 13,
-                    },
-                ).add(
-                    new GUI.Label({
-                        text: "Type:",
-                    }),
-                ),
-                forceType ? new GUI.Label({
+            new GUI.HBox([2, 3, 1]).add(
+                new GUI.Label({
+                    text: "Type:",
+                }),
+                this.isReplace ? new GUI.Label({
                 }).bindText(
                     this.type,
-                    s => s === undefined ? "" : Strings.toDisplayString(s),
+                    s => s === null ? "" : Strings.toDisplayString(s),
                 ) : new GUI.Dropdown({
                 }).bindValue(
                     this.type,
                     filterTypes,
-                    s => s === undefined ? "" : Strings.toDisplayString(s),
+                    s => s === null ? "" : Strings.toDisplayString(s),
                     ),
-                new GUI.Space(),
+                new GUI.TextButton({
+                    text: "Pick",
+                    onClick: () => this.pickOnMap(),
+                }),
             ),
 
-            // SURFACE OBJECT / OBJECT
-            new GUI.HBox([1, 1, 1]).add(
-                new GUI.Checkbox({
+            // LEGACY OBJECT / OBJECT
+            new GUI.HBox([2, 3, 1]).add(
+                new GUI.Label({
                 }).bindText(
                     this.type,
-                    type => type === "footpath" ? "Surface Object:" : "Object",
-                ).bindValue(
-                    this.qualifier,
-                    isChecked => isChecked ? "" : undefined,
-                    s => s !== undefined,
+                    type => type === "footpath" ? "Legacy Object:" : "Object:",
+                ).bindIsDisabled(
+                    new Multiplexer<[SceneryFilterType, boolean]>([this.type, this.legacyExists]),
+                    ([type, legacyExists]) => type === "footpath" && !legacyExists,
                 ),
                 new GUI.Label({
                 }).bindText(
                     this.qualifier,
-                    s => s === undefined ? "" : s,
+                    s => this.getLabel(s),
+                ).bindIsDisabled(
+                    new Multiplexer<[SceneryFilterType, boolean]>([this.type, this.legacyExists]),
+                    ([type, legacyExists]) => type === "footpath" && !legacyExists,
                 ),
-                new GUI.HBox([1, 1]).add(
-                    new GUI.TextButton({
-                        text: "Pick on Map",
-                        onClick: () => pickOnMap(this, "qualifier"),
-                    }),
-                    new GUI.TextButton({
-                        text: "Select from List",
-                        onClick: () => selectFromList(this, "qualifier"),
-                    }),
+                new GUI.TextButton({
+                    text: "...",
+                    onClick: () => this.selectFromList(this.type.getValue()),
+                }).bindIsDisabled(
+                    new Multiplexer<[SceneryFilterType, boolean]>([this.type, this.legacyExists]),
+                    ([type, legacyExists]) => type === "footpath" && !legacyExists,
                 ),
             ),
 
@@ -195,79 +377,78 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                 // FOOTPATH
                 new GUI.VBox().add(
 
-                    // RAILINGS OBJECT
-                    new GUI.HBox([1, 1, 1]).add(
-                        new GUI.Checkbox({
-                            text: "Railings Object:",
-                        }).bindValue(
-                            this.railings,
-                            isChecked => isChecked ? "" : undefined,
-                            s => s !== undefined,
-                        ).bindIsVisible(
+                    // SURFACE OBJECT
+                    new GUI.HBox([2, 3, 1]).add(
+                        new GUI.Label({
+                            text: "Surface Object:",
+                        }).bindIsVisible(
                             this.type,
                             type => type === "footpath",
                         ),
                         new GUI.Label({
                         }).bindText(
-                            this.railings,
-                            s => s === undefined ? "" : s === null ? "< NONE / LEGACY >" : s,
+                            new Multiplexer<[IndexedObject, boolean]>([this.surface, this.error]),
+                            ([surface, error]) => this.getLabel(surface, error),
                         ).bindIsVisible(
                             this.type,
                             type => type === "footpath",
                         ),
-                        new GUI.HBox([1, 1]).add(
-                            new GUI.TextButton({
-                                text: "Pick on Map",
-                                onClick: () => pickOnMap(this, "railings"),
-                            }).bindIsVisible(
-                                this.type,
-                                type => type === "footpath",
-                            ),
-                            new GUI.TextButton({
-                                text: "Select from List",
-                                onClick: () => selectFromList(this, "railings"),
-                            }).bindIsVisible(
-                                this.type,
-                                type => type === "footpath",
-                            ),
+                        new GUI.TextButton({
+                            text: "...",
+                            onClick: () => this.selectFromList("footpath_surface"),
+                        }).bindIsVisible(
+                            this.type,
+                            type => type === "footpath",
+                        ),
+                    ),
+
+                    // RAILINGS OBJECT
+                    new GUI.HBox([2, 3, 1]).add(
+                        new GUI.Label({
+                            text: "Railings Object:",
+                        }).bindIsVisible(
+                            this.type,
+                            type => type === "footpath",
+                        ),
+                        new GUI.Label({
+                        }).bindText(
+                            new Multiplexer<[IndexedObject, boolean]>([this.railings, this.error]),
+                            ([railings, error]) => this.getLabel(railings, error),
+                        ).bindIsVisible(
+                            this.type,
+                            type => type === "footpath",
+                        ),
+                        new GUI.TextButton({
+                            text: "...",
+                            onClick: () => this.selectFromList("footpath_railings"),
+                        }).bindIsVisible(
+                            this.type,
+                            type => type === "footpath",
                         ),
                     ),
 
                     // ADDITION
-                    new GUI.HBox([1, 1, 1]).add(
-                        new GUI.Checkbox({
+                    new GUI.HBox([2, 3, 1]).add(
+                        new GUI.Label({
                             text: "Addition:",
-                        }).bindValue(
-                            this.addition,
-                            isChecked => isChecked ? "" : undefined,
-                            s => s !== undefined,
-                        ).bindIsVisible(
+                        }).bindIsVisible(
                             this.type,
                             type => type === "footpath",
                         ),
                         new GUI.Label({
                         }).bindText(
                             this.addition,
-                            s => s === undefined ? "" : s,
+                            s => this.getLabel(s),
                         ).bindIsVisible(
                             this.type,
                             type => type === "footpath",
                         ),
-                        new GUI.HBox([1, 1]).add(
-                            new GUI.TextButton({
-                                text: "Pick on Map",
-                                onClick: () => pickOnMap(this, "addition"),
-                            }).bindIsVisible(
-                                this.type,
-                                type => type === "footpath",
-                            ),
-                            new GUI.TextButton({
-                                text: "Select from List",
-                                onClick: () => selectFromList(this, "addition"),
-                            }).bindIsVisible(
-                                this.type,
-                                type => type === "footpath",
-                            ),
+                        new GUI.TextButton({
+                            text: "...",
+                            onClick: () => this.selectFromList("footpath_addition"),
+                        }).bindIsVisible(
+                            this.type,
+                            type => type === "footpath",
                         ),
                     ),
                 ),
@@ -290,6 +471,8 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                         new GUI.ColourPicker({
                         }).bindValue(
                             this.primaryColour,
+                            value => value,
+                            value => value ?? 0,
                         ).bindIsDisabled(
                             this.primaryColour,
                             n => n === undefined,
@@ -320,6 +503,8 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                         new GUI.ColourPicker({
                         }).bindValue(
                             this.secondaryColour,
+                            value => value,
+                            value => value ?? 0,
                         ).bindIsDisabled(
                             this.secondaryColour,
                             n => n === undefined,
@@ -350,6 +535,8 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                         new GUI.ColourPicker({
                         }).bindValue(
                             this.tertiaryColour,
+                            value => value,
+                            value => value ?? 0,
                         ).bindIsDisabled(
                             this.tertiaryColour,
                             n => n === undefined,

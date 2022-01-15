@@ -115,7 +115,7 @@ export default new GUI.Tab({
         text: "Area Selection Tool",
     }).add(
         new GUI.Checkbox({
-            text: "Keep selection when tool is cancelled",
+            text: "Keep selection when tool is finished",
         }).bindValue(
             Configuration.selector.keepOnExit,
         ),
