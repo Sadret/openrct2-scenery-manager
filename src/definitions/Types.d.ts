@@ -26,4 +26,7 @@ type SceneryFilterType =
     "large_scenery" |
     "wall";
 
+// TODO: this is type filter
 type ElementFilter = (type: TileElementType | "footpath_addition") => boolean;
+
+type Selection = MapRange | CoordsXY[] | undefined;

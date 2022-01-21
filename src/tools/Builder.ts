@@ -9,6 +9,7 @@ import * as Coordinates from "../utils/Coordinates";
 import * as MapIO from "../core/MapIO";
 
 import Configuration from "../config/Configuration";
+import MapIterator from "../utils/MapIterator";
 import Tool from "./Tool";
 
 export default abstract class Builder extends Tool {
@@ -24,7 +25,7 @@ export default abstract class Builder extends Tool {
     private coords: CoordsXY | undefined = undefined;
     private offset = Coordinates.NULL;
     private tileData: TileData[] | undefined = undefined;
-    private tileSelection: CoordsXY[] | MapRange | undefined = undefined;
+    private tileSelection: Selection = undefined;
     private placeMode: PlaceMode = "safe";
 
     // drag
@@ -38,7 +39,7 @@ export default abstract class Builder extends Tool {
     protected abstract getTileSelection(
         coords: CoordsXY,
         offset: CoordsXY,
-    ): CoordsXY[] | MapRange | undefined;
+    ): Selection;
     protected getFilter(): ElementFilter {
         return () => true;
     }
@@ -51,8 +52,21 @@ export default abstract class Builder extends Tool {
 
     private removeGhost(): void {
         if (this.tileData !== undefined) {
-            MapIO.clearGhost(this.tileData, this.placeMode);
-            MapIO.setTileSelection([]);
+            new MapIterator(
+                this.tileData,
+            ).map(
+                MapIO.getTile,
+            ).forEach(
+                tile => {
+                    MapIO.read(tile).forEach(element => {
+                        if (element.isGhost)
+                            MapIO.remove(tile, element, this.placeMode, false);
+                        if (element.type === "footpath" && element.addition !== null && element.isAdditionGhost)
+                            MapIO.remove(tile, element, this.placeMode, true);
+                    });
+                },
+            );
+            MapIO.setTileSelection(undefined);
             this.tileData = [];
             this.tileSelection = [];
         }

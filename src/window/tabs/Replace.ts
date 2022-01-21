@@ -10,6 +10,7 @@ import * as Selector from "../../tools/Selector";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
+import MapIterator from "../../utils/MapIterator";
 import SceneryFilterGroup from "../widgets/SceneryFilterGroup";
 
 const findGroup = new SceneryFilterGroup();
@@ -19,15 +20,25 @@ findGroup.type.bind(type => replaceGroup.type.setValue(type));
 const selectionOnlyProp = new BooleanProperty(false);
 
 function findAndDelete(replace: boolean): void {
-    // TODO: delete
-    if (!replace)
-        console.error("not implemeneted yet");
-    MapIO.forEachElement(
-        (_tile, element) => {
-            if (findGroup.match(element))
-                replaceGroup.replace(element);
+    // TODO: safe mode (always delete, but if replace, then place new)
+    new MapIterator(
+        selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined
+    ).forEach(
+        coords => {
+            const tile = MapIO.getTile(coords);
+            tile.elements.forEach(
+                element => {
+                    if (findGroup.match(element))
+                        if (replace)
+                            replaceGroup.replace(element);
+                        else
+                            MapIO.remove(tile, element, "raw");
+                }
+            );
         },
-        selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined,
+        true,
+        // TODO:
+        (_done, _progress) => { },
     );
 }
 

@@ -7,6 +7,7 @@
 
 import * as MapIO from "./MapIO";
 
+import MapIterator from "../utils/MapIterator";
 import ObjectIndex from "./ObjectIndex";
 
 function toSceneryObject(object: IndexedObject): SceneryObject {
@@ -42,38 +43,41 @@ export default class SceneryIndex {
     ) {
         SceneryIndex.types.forEach(type => this.data[type] = new SceneryObjectIndex(type));
 
-        // make sure this method returns before the callback is called
-        context.setTimeout(() =>
-            MapIO.forEachElement((tile, element) => {
-                switch (element.type) {
-                    case "footpath":
-                        if (element.object !== null)
-                            this.data["footpath"].increment(ObjectIndex.getQualifier(
-                                "footpath",
+        new MapIterator(selection).forEach(
+            coords => {
+                const tile = MapIO.getTile(coords);
+                tile.elements.forEach(element => {
+                    switch (element.type) {
+                        case "footpath":
+                            if (element.object !== null)
+                                this.data["footpath"].increment(ObjectIndex.getQualifier(
+                                    "footpath",
+                                    element.object,
+                                ), tile);
+                            else {
+                                this.data["footpath_surface"].increment(ObjectIndex.getQualifier(
+                                    "footpath_surface",
+                                    <number>element.surfaceObject,
+                                ), tile);
+                                this.data["footpath_railings"].increment(ObjectIndex.getQualifier(
+                                    "footpath_railings",
+                                    <number>element.railingsObject,
+                                ), tile);
+                            }
+                            return;
+                        case "small_scenery":
+                        case "wall":
+                        case "large_scenery":
+                            this.data[element.type].increment(ObjectIndex.getQualifier(
+                                element.type,
                                 element.object,
                             ), tile);
-                        else {
-                            this.data["footpath_surface"].increment(ObjectIndex.getQualifier(
-                                "footpath_surface",
-                                <number>element.surfaceObject,
-                            ), tile);
-                            this.data["footpath_railings"].increment(ObjectIndex.getQualifier(
-                                "footpath_railings",
-                                <number>element.railingsObject,
-                            ), tile);
-                        }
-                        return;
-                    case "small_scenery":
-                    case "wall":
-                    case "large_scenery":
-                        this.data[element.type].increment(ObjectIndex.getQualifier(
-                            element.type,
-                            element.object,
-                        ), tile);
-                        return;
-                }
-            }, selection, (done, progress) => callback(done, progress, this)),
-            1,
+                            return;
+                    }
+                });
+            },
+            true,
+            (done, progress) => callback(done, progress, this)
         );
     }
 

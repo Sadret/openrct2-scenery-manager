@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
+import * as Footpath from "../template/Footpath";
 import * as MapIO from "../core/MapIO";
 import * as Objects from "../utils/Objects";
 import * as Storage from "../persistence/Storage";
@@ -14,6 +15,7 @@ import BooleanProperty from "../config/BooleanProperty";
 import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
 import Dialog from "../utils/Dialog";
+import MapIterator from "../utils/MapIterator";
 import MissingObjectList from "../window/MissingObjectList";
 import NumberProperty from "../config/NumberProperty";
 import ObjectIndex from "./ObjectIndex";
@@ -72,7 +74,7 @@ const builder = new class extends Builder {
     protected getTileSelection(
         coords: CoordsXY,
         offset: CoordsXY,
-    ): MapRange | undefined {
+    ): Selection {
         let template = getTemplate();
         if (template === undefined) {
             ui.showError("Can't paste template...", "Clipboard is empty!");
@@ -196,27 +198,51 @@ export function load(data?: TemplateData): void {
 }
 
 export function copy(cut: boolean = false): void {
-    const tiles = MapIO.getTileSelection();
-    if (tiles.length === 0)
+    const selection = MapIO.getTileSelection();
+    if (selection === undefined)
         return ui.showError("Can't copy area...", "Nothing selected!");
 
-    const center = Coordinates.center(tiles);
+    const range = Array.isArray(selection) ? Coordinates.toMapRange(selection) : selection;
+    const center = Coordinates.center(range);
 
-    const heights: number[] = tiles.map(
-        MapIO.getTile
+    const heights: number[] = new MapIterator(selection).map(
+        MapIO.getTile,
     ).map(
         MapIO.getSurfaceHeight
     ).sort();
     const heightOffset = 8 * heights[Math.floor(heights.length / 2)];
 
-    let data = MapIO.read(tiles, filter);
+    const placeMode = Configuration.tools.placeMode.getValue();
+    const data = new MapIterator(selection).map(coords => {
+        const tile = MapIO.getTile(coords);
+        const elements = [] as ElementData[];
+        MapIO.read(tile).forEach(element => {
+            if (element.type === "footpath") {
+                if (filter("footpath") || filter("footpath_addition") && element.addition !== null) {
+                    const data = {} as FootpathData;
+                    Template.copyBase(element, data);
+                    Footpath.copyFrom(element, data, filter("footpath"), filter("footpath_addition"));
+                    elements.push(data);
+                }
+            } else if (filter(element.type))
+                elements.push(Template.copyFrom(element));
 
-    if (cut)
-        MapIO.clear(tiles, Configuration.tools.placeMode.getValue(), filter);
+            if (cut) {
+                if (filter(element.type))
+                    MapIO.remove(tile, element, placeMode, false);
+                if (element.type === "footpath" && filter("footpath_addition"))
+                    MapIO.remove(tile, element, placeMode, true);
+            }
+        });
+        return {
+            ...coords,
+            elements: elements,
+        };
+    });
 
     addTemplate(new Template({
         tiles: data,
-        mapRange: Coordinates.toMapRange(tiles),
+        mapRange: range,
     }).translate({
         x: -center.x,
         y: -center.y,

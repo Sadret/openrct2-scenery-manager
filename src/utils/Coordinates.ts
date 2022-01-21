@@ -101,8 +101,7 @@ export function mirror(coords: CoordsXY, mirrored: boolean = true) {
     };
 }
 
-export function center(tiles: CoordsXY[]): CoordsXY {
-    const range: MapRange = toMapRange(tiles);
+export function center(range: MapRange): CoordsXY {
     return round(scale(add(range.rightBottom, range.leftTop), 0.5));
 }
 

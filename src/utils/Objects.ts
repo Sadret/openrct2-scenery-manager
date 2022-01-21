@@ -8,3 +8,10 @@
 export function values<T>(obj: { [key: string]: T }): T[] {
     return Object.keys(obj).map(key => obj[key]);
 }
+
+export function equals(a: { [key: string]: any }, b: { [key: string]: any }): boolean {
+    for (let key in a)
+        if (a[key] !== b[key])
+            return false;
+    return true;
+}

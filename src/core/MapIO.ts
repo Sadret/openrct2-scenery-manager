@@ -9,9 +9,9 @@ import * as Arrays from "../utils/Arrays";
 import * as Context from "./Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Footpath from "../template/Footpath";
+import * as Objects from "../utils/Objects";
 
 import Template from "../template/Template";
-import TileIterator from "../utils/TileIterator";
 
 /*
  * CONSTANTS
@@ -39,23 +39,30 @@ const GROUND: SurfaceData = {
  * TILE SELECTION
  */
 
-export function getTileSelection(): CoordsXY[] {
-    if (ui.tileSelection.range === null)
-        return ui.tileSelection.tiles.map(Coordinates.toTileCoords);
-    else
-        return Coordinates.toCoords({
+export function getTileSelection(): Selection {
+    if (ui.tileSelection.range !== null)
+        return {
             leftTop: Coordinates.toTileCoords(ui.tileSelection.range.leftTop),
             rightBottom: Coordinates.toTileCoords(ui.tileSelection.range.rightBottom),
-        });
+        };
+    else if (ui.tileSelection.tiles.length === 0)
+        return undefined;
+    else
+        return ui.tileSelection.tiles.map(Coordinates.toTileCoords);
 }
 
-export function setTileSelection(data: CoordsXY[] | MapRange): void {
-    if (Array.isArray(data))
-        ui.tileSelection.tiles = data.map(Coordinates.toWorldCoords);
+export function setTileSelection(selection: Selection): void {
+    ui.tileSelection.tiles = [];
+    ui.tileSelection.range = null;
+
+    if (selection === undefined)
+        return;
+    else if (Array.isArray(selection))
+        ui.tileSelection.tiles = selection.map(Coordinates.toWorldCoords);
     else
         ui.tileSelection.range = {
-            leftTop: Coordinates.toWorldCoords(data.leftTop),
-            rightBottom: Coordinates.toWorldCoords(data.rightBottom),
+            leftTop: Coordinates.toWorldCoords(selection.leftTop),
+            rightBottom: Coordinates.toWorldCoords(selection.rightBottom),
         };
 }
 
@@ -64,34 +71,9 @@ export function setTileSelection(data: CoordsXY[] | MapRange): void {
  */
 
 export function read(
-    coords: CoordsXY,
-    filter: ElementFilter,
-): TileData;
-export function read(
-    coordsList: CoordsXY[],
-    filter: ElementFilter,
-): TileData[];
-export function read(
-    coords: CoordsXY | CoordsXY[],
-    filter: ElementFilter,
-): TileData | TileData[] {
-    if (Array.isArray(coords))
-        return coords.map(c => read(c, filter));
-
-    const elements = [] as ElementData[];
-    getTile(coords).elements.forEach(element => {
-        if (element.type === "footpath") {
-            const data = {} as FootpathData;
-            Template.copyBase(element, data);
-            Footpath.copyFrom(element, data, filter("footpath"), filter("footpath_addition"));
-            elements.push(data);
-        } else if (filter(element.type))
-            elements.push(Template.copyFrom(element));
-    });
-    return {
-        ...coords,
-        elements: elements,
-    }
+    tile: Tile,
+): TileElement[] {
+    return tile.elements.map(Template.copy);
 }
 
 export function place(
@@ -163,7 +145,7 @@ export function place(
                     if (filter("surface") && Template.isAvailable(elementData)) {
                         if (!mergeSurface && !isGhost)
                             // removes all surface elements but ground element
-                            clear([tile], "raw", type => type === "surface");
+                            read(tile).forEach(element => element.type === "surface" && removeElement(tile, element));
                         const element = insertElement(tile, elementData, appendToEnd) as SurfaceElement;
                         Template.copyTo(elementData, element);
                         element.isGhost = isGhost;
@@ -184,7 +166,7 @@ export function place(
         });
 }
 
-export function insertElement(tile: Tile, elementData: ElementData, appendToEnd: boolean): TileElement {
+function insertElement(tile: Tile, elementData: ElementData, appendToEnd: boolean): TileElement {
     let idx = 0;
     if (appendToEnd)
         idx = tile.numElements;
@@ -194,50 +176,47 @@ export function insertElement(tile: Tile, elementData: ElementData, appendToEnd:
     return tile.insertElement(idx);
 }
 
-export function clear(
-    coordsList: CoordsXY[],
+export function remove(
+    tile: Tile,
+    element: TileElement,
     mode: PlaceMode,
-    filter: ElementFilter,
-    ghostsOnly: boolean = false,
+    additionOnly: boolean = false,
 ): void {
     if (mode === "safe")
-        return read(coordsList, filter).forEach(tileData =>
-            tileData.elements.forEach(element => {
-                const flags = element.isGhost ? 72 : 0;
-                if (element.type === "footpath" && element.additionQualifier !== null)
-                    if (filter("footpath_addition") && (!ghostsOnly || element.isAdditionGhost))
-                        Footpath.getRemoveActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
-                if (filter(element.type) && (!ghostsOnly || element.isGhost))
-                    Template.getRemoveActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
-            })
-        );
+        if (element.type === "footpath" && additionOnly)
+            Footpath.getRemoveActionData(
+                Coordinates.toWorldCoords(tile),
+                <FootpathData>Template.copyFrom(element),
+                element.isAdditionGhost ? 72 : 0,
+                true,
+            ).forEach(Context.queryExecuteAction);
+        else
+            Template.getRemoveActionData(
+                tile,
+                Template.copyFrom(element),
+                element.isGhost ? 72 : 0,
+            ).forEach(data =>
+                Context.queryExecuteActionCallback(data)
+            );
     else
-        return coordsList.forEach(coords => {
-            const tile = getTile(coords);
-            for (let idx = 0; idx < tile.numElements;) {
-                const element = tile.getElement(idx);
-                if (element.type === "footpath" && element.addition !== null)
-                    if (filter("footpath_addition") && (!ghostsOnly || element.isAdditionGhost))
-                        element.addition = null;
-                if (filter(element.type) && (!ghostsOnly || element.isGhost))
-                    idx = removeElement(tile, idx);
-                else
-                    idx++;
-            }
-        });
+        removeElement(tile, element, additionOnly);
 }
 
-export function clearGhost(coordsList: CoordsXY[], mode: PlaceMode): void {
-    return clear(
-        coordsList,
-        mode,
-        () => true,
-        true,
-    );
+function removeElement(
+    tile: Tile,
+    element: TileElement,
+    additionOnly: boolean = false,
+): void {
+    for (let idx = 0; idx < tile.numElements; idx++)
+        if (Objects.equals(element, tile.getElement(idx)))
+            return removeIndex(tile, idx, additionOnly);
 }
 
-// returns the index of the element that came after this element before it was deleted
-function removeElement(tile: Tile, idx: number): number {
+function removeIndex(
+    tile: Tile,
+    idx: number,
+    additionOnly: boolean,
+): void {
     const element = tile.getElement(idx);
     if (element.type === "surface") {
         if (tile.elements.reduce((acc, element) => element.type === "surface" ? acc + 1 : acc, 0) === 1) {
@@ -254,42 +233,11 @@ function removeElement(tile: Tile, idx: number): number {
         const ground = tile.insertElement(0) as SurfaceElement;
         Template.copyTo(GROUND, ground);
         idx++;
+    } else if (element.type === "footpath" && additionOnly) {
+        element.addition = null;
+        return;
     }
     tile.removeElement(idx);
-    return idx;
-}
-
-/*
- * ITERATOR / FIND / REPLACE METHODS
- */
-
-export function forEachElement(
-    fun: (tile: Tile, element: TileElement) => void,
-    selection: MapRange | CoordsXY[] | undefined = undefined,
-    callback: (done: boolean, progress: number) => void = () => { },
-): void {
-    _forEachElement(
-        fun,
-        new TileIterator(selection),
-        callback,
-    );
-}
-
-function _forEachElement(
-    fun: (tile: Tile, element: TileElement) => void,
-    iterator: TileIterator,
-    callback: (done: boolean, progress: number) => void = () => { },
-): void {
-    const now = Date.now();
-    while (Date.now() - now < 10) {
-        if (iterator.done())
-            return callback(true, 1);
-
-        const tile = getTile(iterator.next());
-        tile.elements.forEach(element => fun(tile, element));
-    }
-    callback(false, iterator.progress());
-    context.setTimeout(() => _forEachElement(fun, iterator, callback), 1);
 }
 
 /*

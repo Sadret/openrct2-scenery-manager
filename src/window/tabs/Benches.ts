@@ -15,6 +15,7 @@ import GUI from "../../gui/GUI";
 import NumberProperty from "../../config/NumberProperty";
 import ObjectIndex from "../../core/ObjectIndex";
 import Property from "../../config/Property";
+import Template from "../../template/Template";
 
 const EMPTY_STRING = "(empty)";
 
@@ -29,22 +30,30 @@ const dropdowns = entries.map((_, idx) => new GUI.Dropdown({
 ));
 
 function provide(coords: CoordsXY): TileData {
-    const tile = MapIO.read(coords, type => type === "footpath");
-    return ({
-        ...tile,
-        elements: tile.elements.map<FootpathData | undefined>(element => {
-            if (element.type !== "footpath")
-                return undefined;
-            const idx = Coordinates.parity(tile, size.getValue());
-            const entry = entries[idx].getValue();
-            return entry === null ? undefined : {
-                ...element,
-                additionQualifier: entry.qualifier,
-            };
-        }).filter<FootpathData>(
-            (data): data is FootpathData => data !== undefined
-        ),
-    });
+    const idx = Coordinates.parity(coords, size.getValue());
+    const entry = entries[idx].getValue();
+    const elements = [] as FootpathData[];
+
+    if (entry !== null)
+        MapIO.getTile(
+            coords
+        ).elements.forEach(
+            element => {
+                if (element.type === "footpath")
+                    elements.push({
+                        ...Template.copyFrom(element) as FootpathData,
+                        qualifier: null,
+                        surfaceQualifier: null,
+                        railingsQualifier: null,
+                        additionQualifier: entry.qualifier,
+                    });
+            },
+        );
+
+    return {
+        ...coords,
+        elements: elements,
+    };
 }
 
 export default new GUI.Tab({
