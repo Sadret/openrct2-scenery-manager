@@ -6,6 +6,7 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
+import * as Dialogs from "../utils/Dialogs";
 import * as Footpath from "../template/Footpath";
 import * as MapIO from "../core/MapIO";
 import * as Objects from "../utils/Objects";
@@ -14,7 +15,6 @@ import * as Storage from "../persistence/Storage";
 import BooleanProperty from "../config/BooleanProperty";
 import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
-import Dialog from "../utils/Dialog";
 import MapIterator from "../utils/MapIterator";
 import MissingObjectList from "../window/MissingObjectList";
 import NumberProperty from "../config/NumberProperty";
@@ -165,7 +165,7 @@ export function save(): void {
     if (template === undefined)
         return ui.showError("Can't save template...", "Nothing copied!");
 
-    Dialog.showSave<TemplateData>({
+    Dialogs.showSave<TemplateData>({
         title: "Save template",
         fileSystem: Storage.libraries.templates,
         fileView: new TemplateView(),
@@ -175,7 +175,7 @@ export function save(): void {
 
 export function load(data?: TemplateData): void {
     if (data === undefined)
-        Dialog.showLoad<TemplateData>({
+        Dialogs.showLoad<TemplateData>({
             title: "Load template",
             fileSystem: Storage.libraries.templates,
             fileView: new TemplateView(),

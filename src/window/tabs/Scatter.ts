@@ -7,6 +7,7 @@
 
 import * as Arrays from "../../utils/Arrays";
 import * as Brush from "../../tools/Brush";
+import * as Dialogs from "../../utils/Dialogs";
 import * as MapIO from "../../core/MapIO";
 import * as Picker from "../../tools/Picker";
 import * as SmallScenery from "../../template/SmallScenery";
@@ -14,7 +15,6 @@ import * as Storage from "../../persistence/Storage";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import Configuration from "../../config/Configuration";
-import Dialog from "../../utils/Dialog";
 import GUI from "../../gui/GUI";
 import NumberProperty from "../../config/NumberProperty";
 import ObjectIndex from "../../core/ObjectIndex";
@@ -150,7 +150,7 @@ function save(): void {
         (data): data is ScatterData => data !== null
     );
 
-    Dialog.showSave({
+    Dialogs.showSave({
         title: "Save pattern",
         fileSystem: Storage.libraries.scatterPattern,
         fileView: new ScatterPatternView(),
@@ -159,7 +159,7 @@ function save(): void {
 }
 
 function load(): void {
-    Dialog.showLoad({
+    Dialogs.showLoad({
         title: "Load pattern",
         fileSystem: Storage.libraries.scatterPattern,
         fileView: new ScatterPatternView(),

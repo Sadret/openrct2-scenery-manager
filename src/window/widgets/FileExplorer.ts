@@ -5,7 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import Dialog from "../../utils/Dialog";
+import * as Dialogs from "../../utils/Dialogs";
+
 import FileView from "./FileView";
 import GUI from "../../gui/GUI";
 
@@ -77,7 +78,7 @@ export default class FileExplorer<T> extends GUI.VBox {
                         if (file === undefined)
                             return ui.showError("Cannot delete file or folder...", "No file or folder selected!");
                         const type = file.isFile() ? "file" : "folder";
-                        Dialog.showConfirm({
+                        Dialogs.showConfirm({
                             title: `Delete ${type}`,
                             message: [`Do you really want to delete this ${type}?`,],
                             callback: confirmed => {

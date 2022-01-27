@@ -5,9 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Dialogs from "./utils/Dialogs";
 import * as Storage from "./persistence/Storage";
-
-import Dialog from "./utils/Dialog";
 
 export function update(load: Task): void {
     const version = Storage.get<String>("version");
@@ -37,7 +36,7 @@ function setVersion(): void {
 }
 
 function showHotkeyAlert(): void {
-    Dialog.showAlert({
+    Dialogs.showAlert({
         title: "Welcome to Scenery Manager!",
         message: [
             "Scenery Manager supports hotkeys!",
@@ -55,7 +54,7 @@ function showHotkeyAlert(): void {
 }
 
 function showVersionUndefined(load: Task): void {
-    Dialog.showAlert({
+    Dialogs.showAlert({
         title: "Welcome to Scenery Manager!",
         message: [
             "Thank you for using Scenery Manager!",
@@ -78,7 +77,7 @@ function showVersionUndefined(load: Task): void {
 }
 
 function showVersionUnknown(load: Task): void {
-    Dialog.showConfirm({
+    Dialogs.showConfirm({
         title: "Welcome to Scenery Manager!",
         message: [
             "Your clipboard and library contain templates from an unknown",
@@ -102,7 +101,7 @@ function showVersionUnknown(load: Task): void {
 }
 
 function showVersionTooOld(load: Task): void {
-    Dialog.showConfirm({
+    Dialogs.showConfirm({
         title: "Welcome to Scenery Manager!",
         message: [
             "Your library contains templates from a previous version of the",
