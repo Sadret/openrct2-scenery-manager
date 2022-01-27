@@ -5,16 +5,17 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-class Event {
-    private readonly tasks = [] as Task[];
+class Event<T = void> {
+    private readonly observers = [] as Observer<T>[];
 
-    public register(task: Task): void {
-        this.tasks.push(task);
+    public register(observer: Observer<T>): void {
+        this.observers.push(observer);
     };
-    public trigger(): void {
-        this.tasks.forEach(task => task());
+    public trigger(args: T): void {
+        this.observers.forEach(observer => observer(args));
     };
 }
 
 export const startup = new Event();
 export const tileSelection = new Event();
+export const mainWindowOpen = new Event<boolean>();

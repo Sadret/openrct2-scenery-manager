@@ -6,7 +6,6 @@
  *****************************************************************************/
 
 import * as MapIO from "../../core/MapIO";
-import * as Selector from "../../tools/Selector";
 import * as Strings from "../../utils/Strings";
 
 import BooleanProperty from "../../config/BooleanProperty";
@@ -23,15 +22,40 @@ const replaceGroup = new SceneryFilterGroup(findGroup);
 findGroup.type.bind(type => replaceGroup.type.setValue(type));
 
 const selectionOnlyProp = new BooleanProperty(false);
+const inParkOnlyProp = new BooleanProperty(false);
+
+export function find(object: SceneryObject, inParkOnly: boolean): void {
+    switch (object.type) {
+        case "footpath_surface":
+            findGroup.type.setValue("footpath");
+            findGroup.surface.setValue(object);
+            break;
+        case "footpath_railings":
+            findGroup.type.setValue("footpath");
+            findGroup.railings.setValue(object);
+            break;
+        case "footpath_addition":
+            findGroup.type.setValue("footpath");
+            findGroup.addition.setValue(object);
+            break;
+        default:
+            findGroup.type.setValue(object.type);
+            findGroup.qualifier.setValue(object);
+    }
+    inParkOnlyProp.setValue(inParkOnly);
+}
 
 function findAndDelete(replace: boolean): void {
     loading.setIsVisible(true);
     const mode = Configuration.tools.placeMode.getValue();
+    const inParkOnly = inParkOnlyProp.getValue();
     new MapIterator(
         selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined
     ).forEach(
         coords => {
             const tile = MapIO.getTile(coords);
+            if (inParkOnly && !MapIO.hasOwnership(tile))
+                return;
             if (mode === "raw" && replace)
                 tile.elements.forEach(
                     element => findGroup.match(element) && replaceGroup.replace(element)
@@ -116,17 +140,12 @@ export default new OverlayTab({
             replaceGroup.error,
         ),
     ),
-    new GUI.HBox(
-        [1, 1, 1],
-    ).add(
-        new GUI.Checkbox({
-            text: "Selected area only",
-        }).bindValue(selectionOnlyProp),
-        new GUI.TextButton({
-            text: "Select area",
-            onClick: Selector.activate,
-        }),
-    ),
+    new GUI.Checkbox({
+        text: "Selected area only",
+    }).bindValue(selectionOnlyProp),
+    new GUI.Checkbox({
+        text: "In park only",
+    }).bindValue(inParkOnlyProp),
     new GUI.HBox([1, 1]).add(
         new GUI.Label({
             text: "Place mode:",

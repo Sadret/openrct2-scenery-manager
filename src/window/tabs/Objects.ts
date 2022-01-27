@@ -12,11 +12,19 @@ import * as Selector from "../../tools/Selector";
 import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
 import Loading from "../widgets/Loading";
+import ObjectDetails from "../ObjectDetails";
 import ObjectList from "../widgets/ObjectList";
 import OverlayTab from "../widgets/OverlayTab";
 import SceneryIndex from "../../core/SceneryIndex";
 
-const objectList: ObjectList = new ObjectList();
+const objectList: ObjectList = new ObjectList([], object => {
+    const window = new ObjectDetails(object);
+    const main = objectList.getWindow();
+    if (main === undefined)
+        window.open();
+    else
+        window.open(main);
+});
 
 let busy = false;
 let requested = false;
@@ -64,6 +72,8 @@ Events.tileSelection.register(() => {
         refresh();
 });
 
+Events.mainWindowOpen.register(reOpen => reOpen || refresh(true));
+
 export default new OverlayTab({
     overlay: loading,
     image: {
@@ -72,7 +82,6 @@ export default new OverlayTab({
         frameDuration: 4,
     },
     width: 768,
-    onOpen: () => refresh(true),
 }).add(
     new GUI.GroupBox({
         text: "Filter",

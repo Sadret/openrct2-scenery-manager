@@ -5,12 +5,13 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Events from "../utils/Events";
+
 import About from "./tabs/About";
 import Benches from "./tabs/Benches";
 import Configuration from "./tabs/Configuration";
 import CopyPaste from "./tabs/CopyPaste";
 import GUI from "../gui/GUI";
-import ObjectIndex from "../core/ObjectIndex";
 import Objects from "./tabs/Objects";
 import Replace from "./tabs/Replace";
 import Research from "./tabs/Research";
@@ -35,5 +36,5 @@ export default new GUI.WindowManager(
         Research,
         About,
     ],
-    ObjectIndex.reload,
+    reOpen => Events.mainWindowOpen.trigger(reOpen),
 );

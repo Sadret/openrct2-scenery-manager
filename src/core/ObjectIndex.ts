@@ -5,11 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Events from "../utils/Events";
 import * as Objects from "../utils/Objects";
-
-/*
- * OBJECT INDEX
- */
 
 export default class ObjectIndex<T extends IndexedObject = IndexedObject> {
     /*
@@ -111,3 +108,4 @@ export default class ObjectIndex<T extends IndexedObject = IndexedObject> {
         return loadedObject && loadedObject.flags;
     }
 }
+Events.mainWindowOpen.register(ObjectIndex.reload);
