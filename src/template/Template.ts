@@ -204,7 +204,6 @@ export default class Template {
         return true;
     }
 
-    // TODO: implement correctly
     public static copy(element: TileElement): TileElement {
         return Template.copyTo(Template.copyFrom(element), {} as TileElement);
     }

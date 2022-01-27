@@ -80,7 +80,7 @@ type TemplateData = {
  * SCATTER
  */
 
-interface ScatterData {
+type ScatterData = {
     readonly element: SmallSceneryData | LargeSceneryData;
     readonly weight: number;
 }

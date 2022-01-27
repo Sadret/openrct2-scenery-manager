@@ -39,7 +39,7 @@ export const settings = {
     height: new NumberProperty(0),
 };
 
-const filter: ElementFilter = type => settings.filter[type].getValue();
+const filter: TypeFilter = type => settings.filter[type].getValue();
 
 const builder = new class extends Builder {
     constructor() {
@@ -49,7 +49,7 @@ const builder = new class extends Builder {
         this.mode = "up";
     }
 
-    protected getFilter(): ElementFilter {
+    protected getFilter(): TypeFilter {
         return filter;
     }
     protected doAppendToEnd(): boolean {
@@ -81,7 +81,6 @@ const builder = new class extends Builder {
             return undefined;
         }
         return this.transform(
-            // XXX: bad: unwrap
             new Template({
                 tiles: [],
                 mapRange: template.data.mapRange,

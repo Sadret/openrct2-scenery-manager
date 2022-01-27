@@ -40,7 +40,7 @@ export default abstract class Builder extends Tool {
         coords: CoordsXY,
         offset: CoordsXY,
     ): Selection;
-    protected getFilter(): ElementFilter {
+    protected getFilter(): TypeFilter {
         return () => true;
     }
     protected doAppendToEnd(): boolean {
