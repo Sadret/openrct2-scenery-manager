@@ -65,13 +65,13 @@ type ElementData =
  * TEMPLATE DATA
  */
 
-interface TileData {
+type TileData = {
     readonly x: number;
     readonly y: number;
     readonly elements: ElementData[];
 }
 
-interface TemplateData {
+type TemplateData = {
     tiles: TileData[];
     mapRange: MapRange;
 }

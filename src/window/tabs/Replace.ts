@@ -7,11 +7,14 @@
 
 import * as MapIO from "../../core/MapIO";
 import * as Selector from "../../tools/Selector";
+import * as Strings from "../../utils/Strings";
 
 import BooleanProperty from "../../config/BooleanProperty";
+import Configuration from "../../config/Configuration";
 import GUI from "../../gui/GUI";
 import MapIterator from "../../utils/MapIterator";
 import SceneryFilterGroup from "../widgets/SceneryFilterGroup";
+import Template from "../../template/Template";
 
 const findGroup = new SceneryFilterGroup();
 const replaceGroup = new SceneryFilterGroup(findGroup);
@@ -20,21 +23,34 @@ findGroup.type.bind(type => replaceGroup.type.setValue(type));
 const selectionOnlyProp = new BooleanProperty(false);
 
 function findAndDelete(replace: boolean): void {
-    // TODO: safe mode (always delete, but if replace, then place new)
+    const mode = Configuration.tools.placeMode.getValue();
     new MapIterator(
         selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined
     ).forEach(
         coords => {
             const tile = MapIO.getTile(coords);
-            tile.elements.forEach(
-                element => {
-                    if (findGroup.match(element))
-                        if (replace)
-                            replaceGroup.replace(element);
-                        else
-                            MapIO.remove(tile, element, "raw");
-                }
-            );
+            if (mode === "raw" && replace)
+                tile.elements.forEach(
+                    element => findGroup.match(element) && replaceGroup.replace(element)
+                );
+            else {
+                const elements = MapIO.read(tile);
+                elements.forEach(
+                    element => {
+                        if (findGroup.match(element)) {
+                            const callback = replace ? () => {
+                                // safe only
+                                replaceGroup.replace(element);
+                                MapIO.place([{
+                                    ...coords,
+                                    elements: [Template.copyFrom(element)],
+                                }], "safe", false, () => true);
+                            } : undefined;
+                            MapIO.remove(tile, element, mode, undefined, callback);
+                        }
+                    }
+                );
+            }
         },
         true,
         // TODO:
@@ -99,5 +115,16 @@ export default new GUI.Tab({
             text: "Select area",
             onClick: Selector.activate,
         }),
+    ),
+    new GUI.HBox([1, 1]).add(
+        new GUI.Label({
+            text: "Place mode:",
+        }),
+        new GUI.Dropdown({
+        }).bindValue<PlaceMode>(
+            Configuration.tools.placeMode,
+            ["safe", "raw"],
+            Strings.toDisplayString,
+        )
     ),
 );

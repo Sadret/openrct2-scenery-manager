@@ -141,7 +141,8 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
     }
 
     public reload(): void {
-        this.reset();
+        if (this.qualifier.getValue().index >= 0 && !ObjectIndex.isIndexed(this.qualifier.getValue()))
+            this.reset();
         this.legacyExists.setValue(new SceneryObjectIndex("footpath").getAll().length > 0);
     }
 
@@ -322,6 +323,45 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
         ).open(true);
     }
 
+    private getColourBox(
+        label: string,
+        property: Property<number | null>,
+        isVisible: (type: SceneryFilterType) => boolean,
+    ): GUI.Box {
+        const picker = new GUI.ColourPicker({
+            onChange: colour => property.setValue(colour),
+        }).bindIsDisabled(
+            property,
+            n => n === null,
+        ).bindIsVisible(
+            this.type,
+            isVisible,
+        );
+        property.bind(value => value !== null && picker.setColour(value));
+
+        return new GUI.HBox([2, 1, 1, 2]).add(
+            new GUI.Label({
+                text: label,
+            }).bindIsVisible(
+                this.type,
+                isVisible,
+            ),
+            picker,
+            new GUI.TextButton({
+                text: "< Any >",
+                onClick: () =>
+                    property.setValue(property.getValue() === null ? 0 : null)
+                ,
+            }).bindIsPressed(
+                property,
+                colour => colour === null,
+            ).bindIsVisible(
+                this.type,
+                isVisible,
+            ),
+        );
+    }
+
     private buildGUI(): void {
         this.add(
             // TYPE
@@ -457,99 +497,24 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                 new GUI.VBox().add(
 
                     // PRIMARY COLOUR
-                    new GUI.HBox([1, 1, 1]).add(
-                        new GUI.Checkbox({
-                            text: "Primary Colour:",
-                        }).bindValue(
-                            this.primaryColour,
-                            isChecked => isChecked ? 0 : undefined,
-                            n => n !== undefined,
-                        ).bindIsVisible(
-                            this.type,
-                            type => type !== "footpath",
-                        ),
-                        new GUI.ColourPicker({
-                        }).bindValue(
-                            this.primaryColour,
-                            value => value,
-                            value => value ?? 0,
-                        ).bindIsDisabled(
-                            this.primaryColour,
-                            n => n === undefined,
-                        ).bindIsVisible(
-                            this.type,
-                            type => type !== "footpath",
-                        ),
-                        new GUI.TextButton({
-                            text: "Advanced",
-                        }).bindIsVisible(
-                            this.type,
-                            type => type !== "footpath",
-                        ),
+                    this.getColourBox(
+                        "Primary Colour:",
+                        this.primaryColour,
+                        type => type !== "footpath",
                     ),
 
                     // SECONDARY COLOUR
-                    new GUI.HBox([1, 1, 1]).add(
-                        new GUI.Checkbox({
-                            text: "Secondary Colour:",
-                        }).bindValue(
-                            this.secondaryColour,
-                            isChecked => isChecked ? 0 : undefined,
-                            n => n !== undefined,
-                        ).bindIsVisible(
-                            this.type,
-                            type => type !== "footpath",
-                        ),
-                        new GUI.ColourPicker({
-                        }).bindValue(
-                            this.secondaryColour,
-                            value => value,
-                            value => value ?? 0,
-                        ).bindIsDisabled(
-                            this.secondaryColour,
-                            n => n === undefined,
-                        ).bindIsVisible(
-                            this.type,
-                            type => type !== "footpath",
-                        ),
-                        new GUI.TextButton({
-                            text: "Advanced",
-                        }).bindIsVisible(
-                            this.type,
-                            type => type !== "footpath",
-                        ),
+                    this.getColourBox(
+                        "Secondary Colour:",
+                        this.secondaryColour,
+                        type => type !== "footpath",
                     ),
 
                     // TERTIARY COLOUR
-                    new GUI.HBox([1, 1, 1]).add(
-                        new GUI.Checkbox({
-                            text: "Tertiary Colour:",
-                        }).bindValue(
-                            this.tertiaryColour,
-                            isChecked => isChecked ? 0 : undefined,
-                            n => n !== undefined,
-                        ).bindIsVisible(
-                            this.type,
-                            type => type === "wall",
-                        ),
-                        new GUI.ColourPicker({
-                        }).bindValue(
-                            this.tertiaryColour,
-                            value => value,
-                            value => value ?? 0,
-                        ).bindIsDisabled(
-                            this.tertiaryColour,
-                            n => n === undefined,
-                        ).bindIsVisible(
-                            this.type,
-                            type => type === "wall",
-                        ),
-                        new GUI.TextButton({
-                            text: "Advanced",
-                        }).bindIsVisible(
-                            this.type,
-                            type => type === "wall",
-                        ),
+                    this.getColourBox(
+                        "Tertiary Colour:",
+                        this.tertiaryColour,
+                        type => type === "wall",
                     ),
                 ),
             ),

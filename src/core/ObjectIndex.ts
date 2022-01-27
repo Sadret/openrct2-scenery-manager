@@ -65,6 +65,11 @@ export default class ObjectIndex<T extends IndexedObject = IndexedObject> {
         Objects.values(ObjectIndex.indices).forEach(index => index.reload());
     }
 
+    public static isIndexed(object: IndexedObject): boolean {
+        const indexed = ObjectIndex.getObject(object.type, object.qualifier);
+        return indexed !== null && Objects.equals(indexed, object);
+    }
+
     /*
      * GETTER
      */

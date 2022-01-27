@@ -181,6 +181,7 @@ export function remove(
     element: TileElement,
     mode: PlaceMode,
     additionOnly: boolean = false,
+    callback?: Task,
 ): void {
     if (mode === "safe")
         if (element.type === "footpath" && additionOnly)
@@ -189,17 +190,21 @@ export function remove(
                 <FootpathData>Template.copyFrom(element),
                 element.isAdditionGhost ? 72 : 0,
                 true,
-            ).forEach(Context.queryExecuteAction);
+            ).forEach(
+                data => Context.queryExecuteActionCallback(data, callback)
+            );
         else
             Template.getRemoveActionData(
                 tile,
                 Template.copyFrom(element),
                 element.isGhost ? 72 : 0,
-            ).forEach(data =>
-                Context.queryExecuteActionCallback(data)
+            ).forEach(
+                data => Context.queryExecuteActionCallback(data, callback)
             );
-    else
+    else {
         removeElement(tile, element, additionOnly);
+        callback && callback();
+    }
 }
 
 function removeElement(
