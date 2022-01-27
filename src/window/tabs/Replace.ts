@@ -47,7 +47,7 @@ function findAndDelete(replace: boolean): void {
                                 MapIO.place([{
                                     ...coords,
                                     elements: [Template.copyFrom(element)],
-                                }], "safe", false, () => true);
+                                }], "safe", element.isGhost, () => true);
                             } : undefined;
                             MapIO.remove(tile, element, mode, undefined, callback);
                         }
