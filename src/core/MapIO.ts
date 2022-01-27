@@ -80,7 +80,7 @@ export function place(
     templateData: TileData[],
     mode: PlaceMode,
     isGhost: boolean,
-    filter: ElementFilter,
+    filter: ElementFilter = () => true,
     appendToEnd: boolean = false,
     mergeSurface: boolean = false,
 ): void {
