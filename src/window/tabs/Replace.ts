@@ -12,7 +12,9 @@ import * as Strings from "../../utils/Strings";
 import BooleanProperty from "../../config/BooleanProperty";
 import Configuration from "../../config/Configuration";
 import GUI from "../../gui/GUI";
+import Loading from "../widgets/Loading";
 import MapIterator from "../../utils/MapIterator";
+import OverlayTab from "../widgets/OverlayTab";
 import SceneryFilterGroup from "../widgets/SceneryFilterGroup";
 import Template from "../../template/Template";
 
@@ -23,6 +25,7 @@ findGroup.type.bind(type => replaceGroup.type.setValue(type));
 const selectionOnlyProp = new BooleanProperty(false);
 
 function findAndDelete(replace: boolean): void {
+    loading.setIsVisible(true);
     const mode = Configuration.tools.placeMode.getValue();
     new MapIterator(
         selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined
@@ -53,12 +56,20 @@ function findAndDelete(replace: boolean): void {
             }
         },
         true,
-        // TODO:
-        (_done, _progress) => { },
+        (done, progress) => {
+            loading.setProgress(progress);
+            if (done) {
+                loading.setIsVisible(false);
+                loading.setProgress(undefined);
+            }
+        },
     );
 }
 
-export default new GUI.Tab({
+const loading = new Loading(1 << 5);
+
+export default new OverlayTab({
+    overlay: loading,
     image: {
         frameBase: 5205,
         frameCount: 16,

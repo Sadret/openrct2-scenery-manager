@@ -55,7 +55,7 @@ const refreshButton = new GUI.TextButton({
     onClick: refresh,
 });
 
-const loading = new Loading();
+const loading = new Loading(1 << 6);
 
 const selectionOnlyProp = new BooleanProperty(false);
 selectionOnlyProp.bind(refresh);

@@ -9,16 +9,18 @@ import GUI from "../../gui/GUI";
 
 const PARTS = 16;
 const TAU = Math.PI * 2;
-const SCALE = 64;
 const HEADER = "LOADING...";
 
 export default class extends GUI.Custom {
+    private readonly scale: number;
+
     private progress?: number = undefined;
 
-    public constructor() {
+    public constructor(scale: number) {
         super({
             isVisible: false,
         }, 0);
+        this.scale = scale;
     }
 
     public setProgress(progress?: number): void {
@@ -54,23 +56,23 @@ export default class extends GUI.Custom {
         const coords: [number, number][] = [];
         for (let i = 0; i < PARTS; i++) {
             const a = TAU * i / PARTS;
-            const x = Math.cos(t + a) * SCALE;
-            const y = Math.sin(t + a) * SCALE;
+            const x = Math.cos(t + a) * this.scale;
+            const y = Math.sin(t + a) * this.scale;
             coords.push([cx + x, cy + y]);
         }
 
-        const w = SCALE >> 2;
-        const h = 3 * SCALE >> 4;
+        const w = this.scale >> 2;
+        const h = 3 * this.scale >> 4;
 
         g.fill = 131;
-        g.rect(cx - 3 * SCALE - 2, cy - 2 * SCALE - 2, 6 * SCALE + 4, 4 * SCALE + 4);
+        g.rect(cx - 3 * this.scale - 2, cy - 2 * this.scale - 2, 6 * this.scale + 4, 4 * this.scale + 4);
         g.fill = 137;
-        g.rect(cx - 3 * SCALE, cy - 2 * SCALE, 6 * SCALE, 4 * SCALE);
+        g.rect(cx - 3 * this.scale, cy - 2 * this.scale, 6 * this.scale, 4 * this.scale);
 
         g.colour = 8 + 32;
-        g.text(HEADER, cx - g.measureText(HEADER).width / 2, cy - 1.5 * SCALE);
+        g.text(HEADER, cx - g.measureText(HEADER).width / 2, cy - 1.5 * this.scale);
         const FOOTER = this.progress === undefined ? "???" : (Math.round(this.progress * 100) + "%");
-        g.text(FOOTER, cx - g.measureText(FOOTER).width / 2, cy + 1.5 * SCALE);
+        g.text(FOOTER, cx - g.measureText(FOOTER).width / 2, cy + 1.5 * this.scale);
 
         g.fill = 12;
         coords.forEach(xy => g.rect(xy[0] - w / 2, xy[1], w, h));
@@ -85,14 +87,14 @@ export default class extends GUI.Custom {
 
         g.stroke = 10;
         for (let i = -1; i <= 1; i++) {
-            g.line(cx, cy + i, cx - SCALE / 2, cy + 5 / 4 * SCALE + i);
-            g.line(cx, cy + i, cx + SCALE / 2, cy + 5 / 4 * SCALE + i);
+            g.line(cx, cy + i, cx - this.scale / 2, cy + 5 / 4 * this.scale + i);
+            g.line(cx, cy + i, cx + this.scale / 2, cy + 5 / 4 * this.scale + i);
         }
 
         g.stroke = 0;
         g.fill = 12;
-        g.rect(cx - SCALE, cy + 5 / 4 * SCALE - 2, 2 * SCALE, 4);
+        g.rect(cx - this.scale, cy + 5 / 4 * this.scale - 2, 2 * this.scale, 4);
         g.fill = 216;
-        g.rect(cx - SCALE + 1, cy + 5 / 4 * SCALE - 2 + 1, 2 * SCALE - 2, 4 - 2);
+        g.rect(cx - this.scale + 1, cy + 5 / 4 * this.scale - 2 + 1, 2 * this.scale - 2, 4 - 2);
     }
 };
