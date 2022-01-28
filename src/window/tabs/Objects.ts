@@ -27,23 +27,30 @@ const objectList: ObjectList = new ObjectList([], object => {
 });
 
 let busy = false;
-let requested = false;
-function refresh(force = false): void {
-    if (!force && objectList.getWindow() === undefined)
+let requested = true; // refresh once when the tab is first opened
+function refresh(): void {
+    requested = true;
+    if (objectList.getWindow() === undefined)
         return;
-    if (busy) {
-        requested = true;
+    if (busy)
         return;
-    }
     requested = false;
     busy = true;
 
     loading.setIsVisible(true);
     refreshButton.setText("Refreshing...");
 
+    let lastUpdate = Date.now();
     new SceneryIndex(
-        updateProgress,
-        selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined,
+        (done, progress, index) => {
+            // updating the listview may take a lot of time when the index is big
+            // so only update ~4 times a second and once when finished
+            if (done || Date.now() - lastUpdate > 1 << 8) {
+                lastUpdate = Date.now();
+                updateProgress(done, progress, index);
+            }
+        },
+        selectionOnlyProp.getValue() ? (MapIO.getTileSelection() || []) : undefined,
     );
 }
 function updateProgress(done: boolean, progress: number, index: SceneryIndex): void {
@@ -72,8 +79,6 @@ Events.tileSelection.register(() => {
         refresh();
 });
 
-Events.mainWindowOpen.register(reOpen => reOpen || refresh(true));
-
 export default new OverlayTab({
     overlay: loading,
     image: {
@@ -82,6 +87,7 @@ export default new OverlayTab({
         frameDuration: 4,
     },
     width: 768,
+    onOpen: () => requested && refresh(),
 }).add(
     new GUI.GroupBox({
         text: "Filter",
