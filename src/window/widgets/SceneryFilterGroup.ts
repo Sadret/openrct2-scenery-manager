@@ -348,7 +348,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
             ),
             picker,
             new GUI.TextButton({
-                text: "< Any >",
+                text: `< ${this.isReplace ? "Keep" : "Any"} >`,
                 onClick: () =>
                     property.setValue(property.getValue() === null ? 0 : null)
                 ,

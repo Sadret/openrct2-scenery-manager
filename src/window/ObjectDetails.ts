@@ -47,7 +47,7 @@ export default class extends GUI.WindowManager {
                         text: object.qualifier,
                     }),
                 ),
-                new GUI.HBox([1, 2, 1]).add(
+                new GUI.HBox([1, 0.5, 2.5]).add(
                     new GUI.Label({
                         text: "On Map:",
                     }),
@@ -55,11 +55,11 @@ export default class extends GUI.WindowManager {
                         text: String(object.onMap),
                     }),
                     new GUI.TextButton({
-                        text: "Find on map",
+                        text: "Go to:  delete / replace all (on map)",
                         onClick: () => this.find(object, false),
                     }),
                 ),
-                new GUI.HBox([1, 2, 1]).add(
+                new GUI.HBox([1, 0.5, 2.5]).add(
                     new GUI.Label({
                         text: "In Park:",
                     }),
@@ -67,7 +67,7 @@ export default class extends GUI.WindowManager {
                         text: String(object.inPark),
                     }),
                     new GUI.TextButton({
-                        text: "Find in park",
+                        text: "Go to:  delete / replace all (in park)",
                         onClick: () => this.find(object, true),
                     }),
                 ),

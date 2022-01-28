@@ -110,10 +110,10 @@ export default class Template {
                 ...Coordinates.rotate(tile, rotation),
                 elements: tile.elements.map(element => get(element).rotate(element, rotation)),
             })),
-            mapRange: {
-                leftTop: Coordinates.rotate(this.data.mapRange.leftTop, rotation),
-                rightBottom: Coordinates.rotate(this.data.mapRange.rightBottom, rotation),
-            },
+            mapRange: Coordinates.toMapRange([
+                Coordinates.rotate(this.data.mapRange.leftTop, rotation),
+                Coordinates.rotate(this.data.mapRange.rightBottom, rotation),
+            ]),
         });
     }
 
@@ -125,10 +125,10 @@ export default class Template {
                 ...Coordinates.mirror(tile),
                 elements: tile.elements.map(element => get(element).mirror(element)),
             })),
-            mapRange: {
-                leftTop: Coordinates.mirror(this.data.mapRange.leftTop),
-                rightBottom: Coordinates.mirror(this.data.mapRange.rightBottom),
-            },
+            mapRange: Coordinates.toMapRange([
+                Coordinates.mirror(this.data.mapRange.leftTop),
+                Coordinates.mirror(this.data.mapRange.rightBottom),
+            ]),
         });
     }
 
