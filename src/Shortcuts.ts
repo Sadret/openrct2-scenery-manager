@@ -10,6 +10,7 @@ import * as Clipboard from "./core/Clipboard";
 import * as Objects from "./utils/Objects";
 import * as Selector from "./tools/Selector";
 
+import Configuration from "./config/Configuration";
 import MainWindow from "./window/MainWindow";
 import Replace from "./window/tabs/Replace";
 
@@ -171,6 +172,24 @@ export function register() {
         text: "[SM] Open Scenery Manager window",
         bindings: ["W"],
         callback: () => MainWindow.open(),
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.cursorMode",
+        text: "[SM] Toggle cursor mode",
+        bindings: ["CTRL+T", "GUI+T"],
+        callback: () => {
+            const prop = Configuration.tools.cursorMode;
+            prop.setValue(prop.getValue() === "surface" ? "scenery" : "surface");
+        },
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.placeMode",
+        text: "[SM] Toggle place mode",
+        bindings: ["CTRL+P", "GUI+P"],
+        callback: () => {
+            const prop = Configuration.tools.placeMode;
+            prop.setValue(prop.getValue() === "safe" ? "raw" : "safe");
+        },
     });
 
     ui.registerShortcut({
