@@ -82,11 +82,7 @@ export default class SceneryIndex {
                     }
             },
             true,
-            (done, progress) => {
-                if (done)
-                    console.log(Date.now() - now);
-                callback(done, progress, this);
-            }
+            (done, progress) => callback(done, progress, this),
         );
     }
 

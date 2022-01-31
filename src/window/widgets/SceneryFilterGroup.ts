@@ -323,49 +323,6 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
         ).open(true);
     }
 
-    private getColourBox(
-        label: string,
-        property: Property<number | null>,
-        isVisible: (type: SceneryFilterType) => boolean,
-    ): GUI.Box {
-        const picker = new GUI.ColourPicker({
-            onChange: colour => property.setValue(colour),
-        }).bindValue(
-            property,
-            colour => colour,
-            (value, colourPicker) => value === null ? colourPicker.getColour() : value,
-        ).bindIsDisabled(
-            property,
-            n => n === null,
-        ).bindIsVisible(
-            this.type,
-            isVisible,
-        );
-        property.bind(value => value !== null && picker.setColour(value));
-
-        return new GUI.HBox([2, 1, 1, 2]).add(
-            new GUI.Label({
-                text: label,
-            }).bindIsVisible(
-                this.type,
-                isVisible,
-            ),
-            picker,
-            new GUI.TextButton({
-                text: `< ${this.isReplace ? "Keep" : "Any"} >`,
-                onClick: () =>
-                    property.setValue(property.getValue() === null ? 0 : null)
-                ,
-            }).bindIsPressed(
-                property,
-                colour => colour === null,
-            ).bindIsVisible(
-                this.type,
-                isVisible,
-            ),
-        );
-    }
-
     private buildGUI(): void {
         this.add(
             // TYPE

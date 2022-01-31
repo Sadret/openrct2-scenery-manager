@@ -7,6 +7,8 @@
 
 import * as Dialogs from "../../utils/Dialogs";
 import * as MapIO from "../../core/MapIO";
+import * as MapIter from "../../utils/MapIterator";
+import * as Selector from "../../tools/Selector";
 import * as Strings from "../../utils/Strings";
 
 import BooleanProperty from "../../config/BooleanProperty";
@@ -24,6 +26,10 @@ findGroup.type.bind(type => replaceGroup.type.setValue(type));
 
 const selectionOnlyProp = new BooleanProperty(false);
 const inParkOnlyProp = new BooleanProperty(false);
+
+function getTileSelection(): Selection {
+    return selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined;
+}
 
 export function find(object: SceneryObject, inParkOnly: boolean): void {
     switch (object.type) {
@@ -52,7 +58,7 @@ function findAndDelete(replace: boolean): void {
     const inParkOnly = inParkOnlyProp.getValue();
     let count = 0;
     new MapIterator(
-        selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined
+        getTileSelection()
     ).forEach(
         coords => {
             const tile = MapIO.getTile(coords);
@@ -141,6 +147,32 @@ function swapValues(): void {
     findGroup.addition.setValue(addition);
 }
 
+let coordsGenerator = MapIter.coords(undefined);
+selectionOnlyProp.bind(_ => coordsGenerator = MapIter.coords(getTileSelection()));
+
+function jump(): void {
+    while (true) {
+        const result = coordsGenerator.next();
+        if (result.done) {
+            coordsGenerator = MapIter.coords(getTileSelection());
+            return ui.showError("Cannot proceed further...", "Reached end of map!");
+        }
+        const coords = result.value.coords;
+        const tile = MapIO.getTile(coords);
+        if (inParkOnlyProp.getValue() && !MapIO.hasOwnership(tile))
+            continue;
+        for (let element of tile.elements)
+            if (findGroup.match(element)) {
+                ui.mainViewport.scrollTo({
+                    x: tile.x * 32,
+                    y: tile.y * 32,
+                    z: element.baseZ,
+                });
+                return;
+            }
+    }
+}
+
 const loading = new Loading(1 << 5);
 
 export default new OverlayTab({
@@ -157,7 +189,7 @@ export default new OverlayTab({
 }).add(
     findGroup,
     new GUI.HBox(
-        [2, 1],
+        [1.8, 0.2, 1],
         undefined,
         {
             ...GUI.Margin.none,
@@ -165,15 +197,20 @@ export default new OverlayTab({
             right: GUI.Margin.default.right + 2,
         },
     ).add(
+        new GUI.TextButton({
+            text: "Jump to next instance",
+            onClick: jump,
+        }),
         new GUI.Space(),
         new GUI.TextButton({
             text: "Search and Delete",
             onClick: () => findAndDelete(false),
         }),
     ),
+    new GUI.Space(),
     replaceGroup,
     new GUI.HBox(
-        [2, 1],
+        [1.8, 0.2, 1],
         undefined,
         {
             ...GUI.Margin.none,
@@ -182,9 +219,10 @@ export default new OverlayTab({
         },
     ).add(
         new GUI.TextButton({
-            text: "Swap replace values and search values",
+            text: "Swap search values and replace values",
             onClick: () => swapValues(),
         }),
+        new GUI.Space(),
         new GUI.TextButton({
             text: "Search and Replace",
             onClick: () => findAndDelete(true),
@@ -192,21 +230,34 @@ export default new OverlayTab({
             replaceGroup.error,
         ),
     ),
-    new GUI.Checkbox({
-        text: "Selected area only",
-    }).bindValue(selectionOnlyProp),
-    new GUI.Checkbox({
-        text: "In park only",
-    }).bindValue(inParkOnlyProp),
-    new GUI.HBox([1, 1]).add(
-        new GUI.Label({
-            text: "Place mode:",
-        }),
-        new GUI.Dropdown({
-        }).bindValue<PlaceMode>(
-            Configuration.tools.placeMode,
-            ["safe", "raw"],
-            Strings.toDisplayString,
-        )
+    new GUI.Space(),
+    new GUI.GroupBox({
+        text: "Options",
+    }).add(
+        new GUI.HBox([2.5, 1, 2.5]).add(
+            new GUI.Checkbox({
+                text: "Selected area only",
+            }).bindValue(selectionOnlyProp),
+            new GUI.Space(),
+            new GUI.Checkbox({
+                text: "In park only",
+            }).bindValue(inParkOnlyProp),
+        ),
+        new GUI.HBox([2.5, 1, 1.5, 1]).add(
+            new GUI.TextButton({
+                text: "Select area",
+                onClick: Selector.activate,
+            }),
+            new GUI.Space(),
+            new GUI.Label({
+                text: "Place mode:",
+            }),
+            new GUI.Dropdown({
+            }).bindValue<PlaceMode>(
+                Configuration.tools.placeMode,
+                ["safe", "raw"],
+                Strings.toDisplayString,
+            ),
+        ),
     ),
 );
