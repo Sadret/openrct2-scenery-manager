@@ -286,6 +286,8 @@ export default new GUI.Tab({
                                 if (element.type !== "small_scenery" && element.type !== "large_scenery")
                                     return (ui.showError("Cannot use this element...", "Element must be either small scenery or large scenery."), false);
                                 const data = <SmallSceneryData | LargeSceneryData>Template.copyFrom(element);
+                                if (data.type === "large_scenery")
+                                    data.sequence = 0;
                                 entry.setValue({
                                     element: data,
                                     weight: 0,
