@@ -46,6 +46,10 @@ export function copyBase(
     dst.hasCableLift = src.hasCableLift;
 }
 
+export function copy(src: TrackElement, dst: TrackElement): void {
+    copyBase(src, dst);
+}
+
 export function copyFrom(src: TrackElement, dst: TrackData): void {
     copyBase(src, dst);
 }

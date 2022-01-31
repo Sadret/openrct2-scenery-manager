@@ -38,6 +38,10 @@ function copyBase(
     dst.footpathSurfaceObject = src.footpathSurfaceObject;
 }
 
+export function copy(src: EntranceElement, dst: EntranceElement): void {
+    copyBase(src, dst);
+}
+
 export function copyFrom(src: EntranceElement, dst: EntranceData): void {
     copyBase(src, dst);
 }

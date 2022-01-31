@@ -55,6 +55,11 @@ export function copyBase(
     dst.age = src.age;
 }
 
+export function copy(src: SmallSceneryElement, dst: SmallSceneryElement): void {
+    copyBase(src, dst);
+    dst.object = src.object;
+}
+
 export function copyFrom(src: SmallSceneryElement, dst: SmallSceneryData): void {
     copyBase(src, dst);
     dst.qualifier = ObjectIndex.getQualifier("small_scenery", src.object) ?? dst.qualifier;

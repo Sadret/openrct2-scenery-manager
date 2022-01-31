@@ -39,6 +39,11 @@ export function copyBase(
     dst.slope = src.slope;
 }
 
+export function copy(src: WallElement, dst: WallElement): void {
+    copyBase(src, dst);
+    dst.object = src.object;
+}
+
 export function copyFrom(src: WallElement, dst: WallData): void {
     copyBase(src, dst);
     dst.qualifier = ObjectIndex.getQualifier("wall", src.object) ?? dst.qualifier;

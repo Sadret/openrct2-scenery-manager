@@ -73,7 +73,7 @@ export function setTileSelection(selection: Selection): void {
 export function read(
     tile: Tile,
 ): TileElement[] {
-    return tile.elements.map(Template.copy);
+    return tile.elements.map(element => Template.copy(element));
 }
 
 export function place(

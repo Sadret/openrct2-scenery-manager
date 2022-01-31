@@ -45,6 +45,12 @@ export function copyBase(
     // dst.hasConstructionRights = src.hasConstructionRights; // readonly
 }
 
+export function copy(src: SurfaceElement, dst: SurfaceElement): void {
+    copyBase(src, dst);
+    dst.surfaceStyle = src.surfaceStyle;
+    dst.edgeStyle = src.edgeStyle;
+}
+
 export function copyFrom(src: SurfaceElement, dst: SurfaceData): void {
     copyBase(src, dst);
     dst.surfaceQualifier = ObjectIndex.getQualifier("terrain_surface", src.surfaceStyle) ?? dst.surfaceQualifier;

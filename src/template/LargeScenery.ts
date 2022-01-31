@@ -38,6 +38,11 @@ export function copyBase(
     dst.sequence = src.sequence;
 }
 
+export function copy(src: LargeSceneryElement, dst: LargeSceneryElement): void {
+    copyBase(src, dst);
+    dst.object = src.object;
+}
+
 export function copyFrom(src: LargeSceneryElement, dst: LargeSceneryData): void {
     copyBase(src, dst);
     dst.qualifier = ObjectIndex.getQualifier("large_scenery", src.object) ?? dst.qualifier;

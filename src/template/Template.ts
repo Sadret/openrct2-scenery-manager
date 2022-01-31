@@ -26,6 +26,10 @@ interface BaseElement<S extends TileElement, T extends ElementData> {
     mirror(
         element: T,
     ): T;
+    copy(
+        src: S,
+        dst: S,
+    ): void;
     copyFrom(
         src: S,
         dst: T,
@@ -207,7 +211,9 @@ export default class Template {
         return true;
     }
 
-    public static copy(element: TileElement): TileElement {
-        return Template.copyTo(Template.copyFrom(element), {} as TileElement);
+    public static copy(src: TileElement, dst: TileElement = {} as TileElement): TileElement {
+        Template.copyBase(src, dst);
+        get(src).copy(src, dst);
+        return dst;
     }
 }

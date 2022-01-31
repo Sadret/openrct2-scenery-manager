@@ -86,6 +86,14 @@ function copyBase(
     }
 }
 
+export function copy(src: FootpathElement, dst: FootpathElement): void {
+    copyBase(src, dst);
+    dst.object = src.object;
+    dst.surfaceObject = src.surfaceObject;
+    dst.railingsObject = src.railingsObject;
+    dst.addition = src.addition;
+}
+
 export function copyFrom(
     src: FootpathElement,
     dst: FootpathData,

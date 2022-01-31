@@ -33,6 +33,10 @@ export function copyBase(
     dst.bannerIndex = src.bannerIndex;
 }
 
+export function copy(src: BannerElement, dst: BannerElement): void {
+    copyBase(src, dst);
+}
+
 export function copyFrom(src: BannerElement, dst: BannerData): void {
     copyBase(src, dst);
 }
