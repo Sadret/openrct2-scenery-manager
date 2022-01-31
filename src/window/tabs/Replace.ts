@@ -90,6 +90,40 @@ function findAndDelete(replace: boolean): void {
     );
 }
 
+function swapValues(): void {
+    // const type = replaceGroup.type.getValue();
+    // replaceGroup.type.setValue(findGroup.type.getValue());
+    // findGroup.type.setValue(type);
+
+    const qualifier = replaceGroup.qualifier.getValue();
+    replaceGroup.qualifier.setValue(findGroup.qualifier.getValue());
+    findGroup.qualifier.setValue(qualifier);
+
+    const primaryColour = replaceGroup.primaryColour.getValue();
+    replaceGroup.primaryColour.setValue(findGroup.primaryColour.getValue());
+    findGroup.primaryColour.setValue(primaryColour);
+
+    const secondaryColour = replaceGroup.secondaryColour.getValue();
+    replaceGroup.secondaryColour.setValue(findGroup.secondaryColour.getValue());
+    findGroup.secondaryColour.setValue(secondaryColour);
+
+    const tertiaryColour = replaceGroup.tertiaryColour.getValue();
+    replaceGroup.tertiaryColour.setValue(findGroup.tertiaryColour.getValue());
+    findGroup.tertiaryColour.setValue(tertiaryColour);
+
+    const surface = replaceGroup.surface.getValue();
+    replaceGroup.surface.setValue(findGroup.surface.getValue());
+    findGroup.surface.setValue(surface);
+
+    const railings = replaceGroup.railings.getValue();
+    replaceGroup.railings.setValue(findGroup.railings.getValue());
+    findGroup.railings.setValue(railings);
+
+    const addition = replaceGroup.addition.getValue();
+    replaceGroup.addition.setValue(findGroup.addition.getValue());
+    findGroup.addition.setValue(addition);
+}
+
 const loading = new Loading(1 << 5);
 
 export default new OverlayTab({
@@ -106,7 +140,7 @@ export default new OverlayTab({
 }).add(
     findGroup,
     new GUI.HBox(
-        [1, 1, 1],
+        [2, 1],
         undefined,
         {
             ...GUI.Margin.none,
@@ -114,7 +148,6 @@ export default new OverlayTab({
             right: GUI.Margin.default.right + 2,
         },
     ).add(
-        new GUI.Space(),
         new GUI.Space(),
         new GUI.TextButton({
             text: "Search and Delete",
@@ -123,7 +156,7 @@ export default new OverlayTab({
     ),
     replaceGroup,
     new GUI.HBox(
-        [1, 1, 1],
+        [2, 1],
         undefined,
         {
             ...GUI.Margin.none,
@@ -131,8 +164,10 @@ export default new OverlayTab({
             right: GUI.Margin.default.right + 2,
         },
     ).add(
-        new GUI.Space(),
-        new GUI.Space(),
+        new GUI.TextButton({
+            text: "Swap replace values and search values",
+            onClick: () => swapValues(),
+        }),
         new GUI.TextButton({
             text: "Search and Replace",
             onClick: () => findAndDelete(true),
