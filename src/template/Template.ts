@@ -93,6 +93,9 @@ export default class Template {
                     baseZ: element.baseZ + offset.z,
                     clearanceHeight: element.clearanceHeight + offset.z / 8,
                     clearanceZ: element.clearanceZ + offset.z,
+                    ...(element.type === "surface" && element.waterHeight !== 0 ? {
+                        waterHeight: element.waterHeight + offset.z,
+                    } : {}),
                 })),
             })),
             mapRange: {
