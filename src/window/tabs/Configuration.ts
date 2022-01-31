@@ -62,22 +62,21 @@ export default new GUI.Tab({
         text: "Paste Tool",
     }).add(
         new GUI.Checkbox({
-            text: "Enable height offset with mouse cursor",
+            text: "Disable height hotkeys while paste tool is inactive",
         }).bindValue(
-            Configuration.paste.cursorHeight.enabled,
+            Configuration.paste.restrictedHeightHotkeys,
         ),
-        new GUI.HBox([1, 20]).add(
-            new GUI.Space(),
-            new GUI.Checkbox({
-                text: "Enable small step size (only suited for certain small scenery)",
-            }).bindValue(
-                Configuration.paste.cursorHeight.smallSteps,
-            ).bindIsDisabled(
-                Configuration.paste.cursorHeight.enabled,
-                enabled => !enabled,
-            ),
+        new GUI.Checkbox({
+            text: "Enable small step size (only suited for certain small scenery)",
+        }).bindValue(
+            Configuration.paste.smallSteps,
         ),
         new GUI.Space(4),
+        new GUI.Checkbox({
+            text: "Enable height offset with mouse cursor",
+        }).bindValue(
+            Configuration.paste.cursorHeightEnabled,
+        ),
         new GUI.Checkbox({
             text: "Enable rotation with mouse cursor",
         }).bindValue(

@@ -36,8 +36,22 @@ export const settings = {
     } as { [key: string]: BooleanProperty },
     rotation: new NumberProperty(0),
     mirrored: new BooleanProperty(false),
-    height: new NumberProperty(0),
+    height: new class extends NumberProperty {
+        constructor() {
+            super(0);
+        }
+
+        public decrement() {
+            super.decrement(getStepSize());
+        }
+        public increment() {
+            super.increment(getStepSize());
+        }
+    }(),
 };
+
+Configuration.paste.smallSteps.bind(enabled => !enabled && settings.height.setValue(settings.height.getValue() & ~1));
+export const getStepSize = () => Configuration.paste.smallSteps.getValue() ? 1 : 2;
 
 const filter: TypeFilter = type => settings.filter[type].getValue();
 
@@ -105,8 +119,8 @@ const builder = new class extends Builder {
                 rotation -= diff;
         }
         let height = 8 * (MapIO.getSurfaceHeight(MapIO.getTile(coords)) + settings.height.getValue());
-        if (Configuration.paste.cursorHeight.enabled.getValue()) {
-            const step = Configuration.paste.cursorHeight.smallSteps.getValue() ? 8 : 16;
+        if (Configuration.paste.cursorHeightEnabled.getValue()) {
+            const step = getStepSize() * 8;
             height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
         }
         return template.transform(
@@ -281,12 +295,16 @@ export function deleteTemplate(): void {
     builder.build();
 }
 
+function isHotkeyActive(): boolean {
+    return builder.isActive() || !Configuration.paste.restrictedHeightHotkeys.getValue();
+}
+
 export function decreaseHeight(): void {
-    settings.height.decrement();
+    isHotkeyActive() && settings.height.decrement();
 }
 export function resetHeight(): void {
-    settings.height.setValue(0);
+    isHotkeyActive() && settings.height.setValue(0);
 }
 export function increaseHeight(): void {
-    settings.height.increment();
+    isHotkeyActive() && settings.height.increment();
 }

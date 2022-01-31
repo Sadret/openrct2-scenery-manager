@@ -23,10 +23,9 @@ const Configuration = {
         onMissingElement: new Property<Action>("warning"),
     },
     paste: {
-        cursorHeight: {
-            enabled: new BooleanProperty(false),
-            smallSteps: new BooleanProperty(false),
-        },
+        restrictedHeightHotkeys: new BooleanProperty(true),
+        smallSteps: new BooleanProperty(false),
+        cursorHeightEnabled: new BooleanProperty(false),
         cursorRotation: {
             enabled: new BooleanProperty(false),
             flip: new BooleanProperty(false),
