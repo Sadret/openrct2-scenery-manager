@@ -5,6 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Dialogs from "../../utils/Dialogs";
 import * as MapIO from "../../core/MapIO";
 import * as Strings from "../../utils/Strings";
 
@@ -49,6 +50,7 @@ function findAndDelete(replace: boolean): void {
     loading.setIsVisible(true);
     const mode = Configuration.tools.placeMode.getValue();
     const inParkOnly = inParkOnlyProp.getValue();
+    let count = 0;
     new MapIterator(
         selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined
     ).forEach(
@@ -58,21 +60,31 @@ function findAndDelete(replace: boolean): void {
                 return;
             if (mode === "raw" && replace)
                 tile.elements.forEach(
-                    element => findGroup.match(element) && replaceGroup.replace(element)
+                    element => {
+                        if (findGroup.match(element)) {
+                            count++;
+                            replaceGroup.replace(element);
+                        }
+                    },
                 );
             else {
                 const elements = MapIO.read(tile);
                 elements.forEach(
                     element => {
                         if (findGroup.match(element)) {
-                            const callback = replace ? () => {
+                            const callback = (result: GameActionResult) => {
+                                if (result.error)
+                                    return;
+                                count++;
+                                if (!replace)
+                                    return;
                                 // safe only
                                 replaceGroup.replace(element);
                                 MapIO.place([{
                                     ...coords,
                                     elements: [Template.copyFrom(element)],
                                 }], "safe", element.isGhost);
-                            } : undefined;
+                            };
                             MapIO.remove(tile, element, mode, undefined, callback);
                         }
                     }
@@ -85,6 +97,11 @@ function findAndDelete(replace: boolean): void {
             if (done) {
                 loading.setIsVisible(false);
                 loading.setProgress(undefined);
+                Dialogs.showAlert({
+                    title: "Elements replaced",
+                    message: [`${replace ? "Replaced" : "Deleted"} ${count} elements.`],
+                    width: 192,
+                })
             }
         },
     );

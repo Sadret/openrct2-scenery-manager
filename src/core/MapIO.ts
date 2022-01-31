@@ -181,7 +181,7 @@ export function remove(
     element: TileElement,
     mode: PlaceMode,
     additionOnly: boolean = false,
-    callback?: Task,
+    callback?: (result: GameActionResult) => void,
 ): void {
     if (mode === "safe")
         if (element.type === "footpath" && additionOnly)
@@ -203,7 +203,7 @@ export function remove(
             );
     else {
         removeElement(tile, element, additionOnly);
-        callback && callback();
+        callback && callback({ error: 0 });
     }
 }
 

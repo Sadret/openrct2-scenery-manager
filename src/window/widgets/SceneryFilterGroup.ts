@@ -330,7 +330,11 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
     ): GUI.Box {
         const picker = new GUI.ColourPicker({
             onChange: colour => property.setValue(colour),
-        }).bindIsDisabled(
+        }).bindValue(
+            property,
+            colour => colour,
+            (value, colourPicker) => value === null ? colourPicker.getColour() : value,
+        ).bindIsDisabled(
             property,
             n => n === null,
         ).bindIsVisible(
@@ -412,110 +416,138 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                 ),
             ),
 
-            new GUI.MultiBox().add(
-
-                // FOOTPATH
-                new GUI.VBox().add(
-
-                    // SURFACE OBJECT
-                    new GUI.HBox([2, 3, 1]).add(
-                        new GUI.Label({
-                            text: "Surface Object:",
-                        }).bindIsVisible(
-                            this.type,
-                            type => type === "footpath",
-                        ),
-                        new GUI.Label({
-                        }).bindText(
-                            new Multiplexer<[IndexedObject, boolean]>([this.surface, this.error]),
-                            ([surface, error]) => this.getLabel(surface, error),
-                        ).bindIsVisible(
-                            this.type,
-                            type => type === "footpath",
-                        ),
-                        new GUI.TextButton({
-                            text: "...",
-                            onClick: () => this.selectFromList("footpath_surface"),
-                        }).bindIsVisible(
-                            this.type,
-                            type => type === "footpath",
-                        ),
+            // SURFACE OBJECT / PRIMARY COLOUR
+            new GUI.HBox([2, 3, 1]).add(
+                new GUI.Label({
+                }).bindText(
+                    this.type,
+                    type => type === "footpath" ? "Surface Object:" : "Primary Colour:",
+                ),
+                new GUI.MultiBox().add(
+                    new GUI.Label({
+                    }).bindText(
+                        new Multiplexer<[IndexedObject, boolean]>([this.surface, this.error]),
+                        ([surface, error]) => this.getLabel(surface, error),
+                    ).bindIsVisible(
+                        this.type,
+                        type => type === "footpath",
                     ),
-
-                    // RAILINGS OBJECT
-                    new GUI.HBox([2, 3, 1]).add(
-                        new GUI.Label({
-                            text: "Railings Object:",
-                        }).bindIsVisible(
-                            this.type,
-                            type => type === "footpath",
-                        ),
-                        new GUI.Label({
-                        }).bindText(
-                            new Multiplexer<[IndexedObject, boolean]>([this.railings, this.error]),
-                            ([railings, error]) => this.getLabel(railings, error),
-                        ).bindIsVisible(
-                            this.type,
-                            type => type === "footpath",
-                        ),
-                        new GUI.TextButton({
-                            text: "...",
-                            onClick: () => this.selectFromList("footpath_railings"),
-                        }).bindIsVisible(
-                            this.type,
-                            type => type === "footpath",
-                        ),
-                    ),
-
-                    // ADDITION
-                    new GUI.HBox([2, 3, 1]).add(
-                        new GUI.Label({
-                            text: "Addition:",
-                        }).bindIsVisible(
-                            this.type,
-                            type => type === "footpath",
-                        ),
-                        new GUI.Label({
-                        }).bindText(
-                            this.addition,
-                            s => this.getLabel(s),
-                        ).bindIsVisible(
-                            this.type,
-                            type => type === "footpath",
-                        ),
-                        new GUI.TextButton({
-                            text: "...",
-                            onClick: () => this.selectFromList("footpath_addition"),
-                        }).bindIsVisible(
-                            this.type,
-                            type => type === "footpath",
-                        ),
+                    new GUI.ColourPicker({
+                    }).bindValue(
+                        this.primaryColour,
+                        colour => colour,
+                        (value, colourPicker) =>
+                            value === null ? colourPicker.getColour() : value,
+                    ).bindIsDisabled(
+                        this.primaryColour,
+                        n => n === null,
+                    ).bindIsVisible(
+                        this.type,
+                        type => type !== "footpath",
                     ),
                 ),
+                new GUI.TextButton({
+                    onClick: () => this.type.getValue() === "footpath"
+                        ? this.selectFromList("footpath_surface")
+                        : this.primaryColour.setValue(this.primaryColour.getValue() === null ? 0 : null),
+                }).bindText(
+                    this.type,
+                    type => type === "footpath" ? "..." : `< ${this.isReplace ? "Keep" : "Any"} >`,
+                ).bindIsPressed(
+                    new Multiplexer([this.type, this.primaryColour]),
+                    ([type, colour]) => type !== "footpath" && colour === null,
+                ),
+            ),
 
-                // SMALL SCENERY, LARGE SCENERY, WALL
-                new GUI.VBox().add(
-
-                    // PRIMARY COLOUR
-                    this.getColourBox(
-                        "Primary Colour:",
-                        this.primaryColour,
-                        type => type !== "footpath",
+            // RAILINGS OBJECT / SECONDARY COLOUR
+            new GUI.HBox([2, 3, 1]).add(
+                new GUI.Label({
+                }).bindText(
+                    this.type,
+                    type => type === "footpath" ? "Railings Object:" : "Secondary Colour:",
+                ),
+                new GUI.MultiBox().add(
+                    new GUI.Label({
+                    }).bindText(
+                        new Multiplexer<[IndexedObject, boolean]>([this.railings, this.error]),
+                        ([railings, error]) => this.getLabel(railings, error),
+                    ).bindIsVisible(
+                        this.type,
+                        type => type === "footpath",
                     ),
-
-                    // SECONDARY COLOUR
-                    this.getColourBox(
-                        "Secondary Colour:",
+                    new GUI.ColourPicker({
+                    }).bindValue(
                         this.secondaryColour,
+                        colour => colour,
+                        (value, colourPicker) =>
+                            value === null ? colourPicker.getColour() : value,
+                    ).bindIsDisabled(
+                        this.secondaryColour,
+                        n => n === null,
+                    ).bindIsVisible(
+                        this.type,
                         type => type !== "footpath",
                     ),
+                ),
+                new GUI.TextButton({
+                    onClick: () => this.type.getValue() === "footpath"
+                        ? this.selectFromList("footpath_railings")
+                        : this.secondaryColour.setValue(this.secondaryColour.getValue() === null ? 0 : null),
+                }).bindText(
+                    this.type,
+                    type => type === "footpath" ? "..." : `< ${this.isReplace ? "Keep" : "Any"} >`,
+                ).bindIsPressed(
+                    new Multiplexer([this.type, this.secondaryColour]),
+                    ([type, colour]) => type !== "footpath" && colour === null,
+                ),
+            ),
 
-                    // TERTIARY COLOUR
-                    this.getColourBox(
-                        "Tertiary Colour:",
+            // ADDITION OBJECT / TERTIARY COLOUR
+            new GUI.HBox([2, 3, 1]).add(
+                new GUI.Label({
+                }).bindText(
+                    this.type,
+                    type => type === "footpath" ? "Addition:" : "Tertiary Colour:",
+                ).bindIsVisible(
+                    this.type,
+                    type => type === "footpath" || type === "wall",
+                ),
+                new GUI.MultiBox().add(
+                    new GUI.Label({
+                    }).bindText(
+                        new Multiplexer<[IndexedObject, boolean]>([this.addition, this.error]),
+                        ([addition, error]) => this.getLabel(addition, error),
+                    ).bindIsVisible(
+                        this.type,
+                        type => type === "footpath",
+                    ),
+                    new GUI.ColourPicker({
+                    }).bindValue(
                         this.tertiaryColour,
+                        colour => colour,
+                        (value, colourPicker) =>
+                            value === null ? colourPicker.getColour() : value,
+                    ).bindIsDisabled(
+                        this.tertiaryColour,
+                        n => n === null,
+                    ).bindIsVisible(
+                        this.type,
                         type => type === "wall",
                     ),
+                ),
+                new GUI.TextButton({
+                    onClick: () => this.type.getValue() === "footpath"
+                        ? this.selectFromList("footpath_addition")
+                        : this.tertiaryColour.setValue(this.tertiaryColour.getValue() === null ? 0 : null),
+                }).bindText(
+                    this.type,
+                    type => type === "footpath" ? "..." : `< ${this.isReplace ? "Keep" : "Any"} >`,
+                ).bindIsPressed(
+                    new Multiplexer([this.type, this.tertiaryColour]),
+                    ([type, colour]) => type === "wall" && colour === null,
+                ).bindIsVisible(
+                    this.type,
+                    type => type === "footpath" || type === "wall",
                 ),
             ),
         );
