@@ -10,7 +10,7 @@ type CoordsGenerator = Generator<{
     progress: number,
 }, undefined>;
 
-function* coords(selection: MapRange | CoordsXY[] | undefined): CoordsGenerator {
+export function* coords(selection: MapRange | CoordsXY[] | undefined): CoordsGenerator {
     if (Array.isArray(selection))
         for (let idx = 0; idx < selection.length; idx++)
             yield {

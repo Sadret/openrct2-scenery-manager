@@ -43,10 +43,11 @@ export default class SceneryIndex {
     ) {
         SceneryIndex.types.forEach(type => this.data[type] = new SceneryObjectIndex(type));
 
+        const now = Date.now();
         new MapIterator(selection).forEach(
             coords => {
                 const tile = MapIO.getTile(coords);
-                tile.elements.forEach(element => {
+                for (let element of tile.elements)
                     switch (element.type) {
                         case "footpath":
                             if (element.object !== null)
@@ -64,7 +65,12 @@ export default class SceneryIndex {
                                     <number>element.railingsObject,
                                 ), tile);
                             }
-                            return;
+                            if (element.addition !== null)
+                                this.data["footpath_addition"].increment(ObjectIndex.getQualifier(
+                                    "footpath_addition",
+                                    element.addition,
+                                ), tile);
+                            break;
                         case "small_scenery":
                         case "wall":
                         case "large_scenery":
@@ -72,12 +78,15 @@ export default class SceneryIndex {
                                 element.type,
                                 element.object,
                             ), tile);
-                            return;
+                            break;
                     }
-                });
             },
             true,
-            (done, progress) => callback(done, progress, this)
+            (done, progress) => {
+                if (done)
+                    console.log(Date.now() - now);
+                callback(done, progress, this);
+            }
         );
     }
 

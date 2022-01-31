@@ -41,9 +41,11 @@ function getColumns(showDetails: boolean): ListViewColumn[] {
                 header: "On Map",
                 width: 64 - 12, // same size as "In Park"
                 canSort: true,
+                sortOrder: "descending",
             }, {
                 header: "In Park",
                 canSort: true,
+                sortOrder: "descending",
             },
         );
     return columns;
