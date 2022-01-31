@@ -76,8 +76,8 @@ export function getPlaceActionData(
             brakeSpeed: element.brakeBoosterSpeed || 0,
             colour: element.colourScheme || 0,
             trackPlaceFlags:
-                Number(element.isInverted) << 1 |
-                Number(element.hasCableLift) << 2,
+                Number(element.hasChainLift) << 0 |
+                Number(element.isInverted) << 1,
             isFromTrackDesign: false,
             seatRotation: element.seatRotation || 0,
         },
