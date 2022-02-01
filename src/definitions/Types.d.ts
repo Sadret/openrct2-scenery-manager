@@ -29,3 +29,9 @@ type SceneryFilterType =
 type TypeFilter = (type: TileElementType | "footpath_addition") => boolean;
 
 type Selection = MapRange | CoordsXY[] | undefined;
+
+type Bounds = {
+    upper?: number;
+    lower?: number;
+    contained: boolean;
+}

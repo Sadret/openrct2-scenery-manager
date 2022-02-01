@@ -81,8 +81,8 @@ export default class Template {
         this.data = data;
     }
 
-    public transform(mirrored: boolean, rotation: number, offset: CoordsXYZ, filterZ: boolean): Template {
-        return this.mirror(mirrored).rotate(rotation).translate(offset).filterZ(filterZ);
+    public transform(mirrored: boolean, rotation: number, offset: CoordsXYZ, bounds: Bounds): Template {
+        return this.mirror(mirrored).rotate(rotation).translate(offset).filterZ(bounds);
     }
 
     public translate(offset: CoordsXYZ): Template {
@@ -139,14 +139,23 @@ export default class Template {
         });
     }
 
-    public filterZ(filterZ: boolean): Template {
-        return filterZ ? new Template({
+    public filterZ(bounds: Bounds): Template {
+        const lower = bounds.lower ?? 0;
+        const upper = bounds.upper ?? 255;
+
+        let filter: (element: ElementData) => boolean;
+        if (bounds.contained)
+            filter = element => element.baseHeight >= lower && element.clearanceHeight <= upper;
+        else
+            filter = element => (element.clearanceHeight > lower || element.baseHeight >= lower) && (element.baseHeight < upper || element.clearanceHeight <= upper);
+
+        return new Template({
             tiles: this.data.tiles.map(tile => ({
                 ...tile,
-                elements: tile.elements.filter(element => element.baseZ > 0),
+                elements: tile.elements.filter(filter),
             })),
             mapRange: this.data.mapRange,
-        }) : this;
+        });
     }
 
     public static get(element: TileElement | ElementData): BaseElement<TileElement, ElementData> {

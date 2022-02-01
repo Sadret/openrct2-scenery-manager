@@ -144,6 +144,44 @@ export default new GUI.Tab({ image: 5465 }).add(
                     ),
                 ),
             ),
+            new GUI.GroupBox({
+                text: "Vertical Bounds",
+            }).add(
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Checkbox({
+                        text: "Upper:",
+                    }).bindValue(
+                        Clipboard.settings.bounds.upperEnabled,
+                    ),
+                    new GUI.Spinner({
+                    }).bindValue(
+                        Clipboard.settings.bounds.upperValue,
+                    ).bindIsDisabled(
+                        Clipboard.settings.bounds.upperEnabled,
+                        enabled => !enabled,
+                    ),
+                ),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Checkbox({
+                        text: "Lower:",
+                    }).bindValue(
+                        Clipboard.settings.bounds.lowerEnabled,
+                    ),
+                    new GUI.Spinner({
+                    }).bindValue(
+                        Clipboard.settings.bounds.lowerValue,
+                    ).bindIsDisabled(
+                        Clipboard.settings.bounds.lowerEnabled,
+                        enabled => !enabled,
+                    ),
+                ),
+                new GUI.Dropdown({
+                }).bindValue(
+                    Clipboard.settings.bounds.elementContained,
+                    [false, true,],
+                    contained => contained ? "contained elements" : "intersected elements",
+                ),
+            ),
         ),
     ),
 );

@@ -48,6 +48,13 @@ export const settings = {
             super.increment(getStepSize());
         }
     }(),
+    bounds: {
+        upperEnabled: new BooleanProperty(false),
+        upperValue: new NumberProperty(255, 0, 255),
+        lowerEnabled: new BooleanProperty(false),
+        lowerValue: new NumberProperty(0, 0, 255),
+        elementContained: new BooleanProperty(false),
+    },
 };
 
 Configuration.paste.smallSteps.bind(enabled => !enabled && settings.height.setValue(settings.height.getValue() & ~1));
@@ -127,7 +134,11 @@ const builder = new class extends Builder {
             settings.mirrored.getValue(),
             rotation,
             { ...coords, z: height },
-            true,
+            {
+                upper: settings.bounds.upperEnabled.getValue() ? settings.bounds.upperValue.getValue() : undefined,
+                lower: settings.bounds.lowerEnabled.getValue() ? settings.bounds.lowerValue.getValue() : undefined,
+                contained: settings.bounds.elementContained.getValue(),
+            },
         );
     }
 }();

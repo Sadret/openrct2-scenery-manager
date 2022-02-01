@@ -17,68 +17,68 @@ import Replace from "./window/tabs/Replace";
 export function register() {
 
     ui.registerShortcut({
-        id: "scenery-manager.select",
+        id: "scenery-manager.clipboard.select",
         text: "[SM] Select area",
         bindings: ["CTRL+A", "GUI+A"],
         callback: Selector.activate,
     });
     ui.registerShortcut({
-        id: "scenery-manager.copy",
+        id: "scenery-manager.clipboard.copy",
         text: "[SM] Copy area",
         bindings: ["CTRL+C", "GUI+C"],
         callback: Clipboard.copy,
     });
     ui.registerShortcut({
-        id: "scenery-manager.paste",
+        id: "scenery-manager.clipboard.paste",
         text: "[SM] Paste template",
         bindings: ["CTRL+V", "GUI+V"],
         callback: Clipboard.paste,
     });
     ui.registerShortcut({
-        id: "scenery-manager.cut",
+        id: "scenery-manager.clipboard.cut",
         text: "[SM] Cut area",
         bindings: ["CTRL+X", "GUI+X"],
         callback: Clipboard.cut,
     });
     ui.registerShortcut({
-        id: "scenery-manager.save",
+        id: "scenery-manager.clipboard.save",
         text: "[SM] Save template to library",
         bindings: ["SHIFT+S"],
         callback: Clipboard.save,
     });
     ui.registerShortcut({
-        id: "scenery-manager.load",
+        id: "scenery-manager.clipboard.load",
         text: "[SM] Load template from library",
         bindings: ["SHIFT+L"],
         callback: Clipboard.load,
     });
     ui.registerShortcut({
-        id: "scenery-manager.prevTemplate",
+        id: "scenery-manager.clipboard.prevTemplate",
         text: "[SM] Previous template",
         bindings: ["Q"],
         callback: Clipboard.prev,
     });
     ui.registerShortcut({
-        id: "scenery-manager.nextTemplate",
+        id: "scenery-manager.clipboard.nextTemplate",
         text: "[SM] Next template",
         bindings: ["E"],
         callback: Clipboard.next,
     });
     ui.registerShortcut({
-        id: "scenery-manager.deleteTemplate",
+        id: "scenery-manager.clipboard.deleteTemplate",
         text: "[SM] Delete template from clipboard",
         bindings: ["CTRL+D", "GUI+D"],
         callback: Clipboard.deleteTemplate,
     });
 
     ui.registerShortcut({
-        id: "scenery-manager.rotate",
+        id: "scenery-manager.settings.rotate",
         text: "[SM] Rotate template",
         bindings: ["Z"],
         callback: Clipboard.rotate,
     });
     ui.registerShortcut({
-        id: "scenery-manager.mirrored",
+        id: "scenery-manager.settings.mirrored",
         text: "[SM] Mirror template",
         bindings: ["CTRL+M", "GUI+M"],
         callback: Clipboard.mirror,
@@ -100,6 +100,49 @@ export function register() {
         text: "[SM] Increase template height",
         bindings: ["L"],
         callback: Clipboard.increaseHeight,
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.settings.decreaseUpperBound",
+        text: "[SM] Decrease vertical upper bound",
+        bindings: [],
+        callback: () => Clipboard.settings.bounds.upperValue.decrement(),
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.settings.increaseUpperBound",
+        text: "[SM] Increase vertical upper bound",
+        bindings: [],
+        callback: () => Clipboard.settings.bounds.upperValue.increment(),
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.settings.decreaseLowerBound",
+        text: "[SM] Decrease vertical lower bound",
+        bindings: [],
+        callback: () => Clipboard.settings.bounds.lowerValue.decrement(),
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.settings.increaseLowerBound",
+        text: "[SM] Increase vertical lower bound",
+        bindings: [],
+        callback: () => Clipboard.settings.bounds.lowerValue.increment(),
+    });
+
+    ui.registerShortcut({
+        id: "scenery-manager.configuration.cursorMode",
+        text: "[SM] Toggle cursor mode",
+        bindings: ["CTRL+T", "GUI+T"],
+        callback: () => {
+            const prop = Configuration.tools.cursorMode;
+            prop.setValue(prop.getValue() === "surface" ? "scenery" : "surface");
+        },
+    });
+    ui.registerShortcut({
+        id: "scenery-manager.configuration.placeMode",
+        text: "[SM] Toggle place mode",
+        bindings: ["CTRL+P", "GUI+P"],
+        callback: () => {
+            const prop = Configuration.tools.placeMode;
+            prop.setValue(prop.getValue() === "safe" ? "raw" : "safe");
+        },
     });
 
     ui.registerShortcut({
@@ -168,32 +211,13 @@ export function register() {
     });
 
     ui.registerShortcut({
-        id: "scenery-manager.openWindow",
+        id: "scenery-manager.window.openWindow",
         text: "[SM] Open Scenery Manager window",
         bindings: ["W"],
         callback: () => MainWindow.open(),
     });
     ui.registerShortcut({
-        id: "scenery-manager.cursorMode",
-        text: "[SM] Toggle cursor mode",
-        bindings: ["CTRL+T", "GUI+T"],
-        callback: () => {
-            const prop = Configuration.tools.cursorMode;
-            prop.setValue(prop.getValue() === "surface" ? "scenery" : "surface");
-        },
-    });
-    ui.registerShortcut({
-        id: "scenery-manager.placeMode",
-        text: "[SM] Toggle place mode",
-        bindings: ["CTRL+P", "GUI+P"],
-        callback: () => {
-            const prop = Configuration.tools.placeMode;
-            prop.setValue(prop.getValue() === "safe" ? "raw" : "safe");
-        },
-    });
-
-    ui.registerShortcut({
-        id: "scenery-manager.openReplaceTab",
+        id: "scenery-manager.window.openReplaceTab",
         text: "[SM] Open 'Object Replace' tab",
         bindings: ["CTRL+R", "GUI+R"],
         callback: () => {
