@@ -51,6 +51,9 @@ const Configuration = {
         randomiseRotation: new BooleanProperty(true),
         randomiseQuadrant: new BooleanProperty(true),
     },
+    window: {
+        showAdvancedCopyPasteSettings: new BooleanProperty(true),
+    },
 }
 export default Configuration;
 

@@ -158,4 +158,13 @@ export default new GUI.Tab({
             Configuration.brush.showWindow,
         ),
     ),
+    new GUI.GroupBox({
+        text: "Window",
+    }).add(
+        new GUI.Checkbox({
+            text: "Show advanced Copy & Paste settings (requires plug-in restart)",
+        }).bindValue(
+            Configuration.window.showAdvancedCopyPasteSettings,
+        ),
+    ),
 );
