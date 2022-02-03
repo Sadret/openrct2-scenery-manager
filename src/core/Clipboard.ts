@@ -237,6 +237,7 @@ export function copy(cut: boolean = false): void {
     const heightOffset = 8 * heights[Math.floor(heights.length / 2)];
 
     const placeMode = Configuration.tools.placeMode.getValue();
+    const cutSurface = Configuration.cut.cutSurface.getValue();
     const data = new MapIterator(selection).map(coords => {
         const tile = MapIO.getTile(coords);
         const elements = [] as ElementData[];
@@ -252,7 +253,7 @@ export function copy(cut: boolean = false): void {
                 elements.push(Template.copyFrom(element));
 
             if (cut) {
-                if (filter(element.type))
+                if (filter(element.type) && (element.type !== "surface" || cutSurface))
                     MapIO.remove(tile, element, placeMode, false);
                 if (element.type === "footpath" && filter("footpath_addition"))
                     MapIO.remove(tile, element, placeMode, true);

@@ -130,6 +130,15 @@ export default new GUI.Tab({ image: 5465 }).add(
                         Configuration.paste.mergeSurface,
                     ),
                 ),
+                new GUI.HBox([1, 1]).add(
+                    new GUI.Label({
+                        text: "Cut surface:",
+                    }),
+                    new GUI.TextButton({
+                    }).bindValue(
+                        Configuration.cut.cutSurface,
+                    ),
+                ),
             ),
         ),
         new GUI.VBox().add(

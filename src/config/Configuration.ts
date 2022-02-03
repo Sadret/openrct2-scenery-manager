@@ -34,6 +34,9 @@ const Configuration = {
         appendToEnd: new BooleanProperty(false),
         mergeSurface: new BooleanProperty(false),
     },
+    cut: {
+        cutSurface: new BooleanProperty(false),
+    },
     selector: {
         keepOnExit: new BooleanProperty(false),
         showWindow: new BooleanProperty(false),
