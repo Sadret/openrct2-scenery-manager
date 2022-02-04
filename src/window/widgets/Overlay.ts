@@ -21,27 +21,11 @@ export default class extends GUI.Custom {
             isVisible: false,
         }, 0);
         this.scale = scale;
+        this.setOnDraw(g => this.onDraw(g));
     }
 
     public setProgress(progress?: number): void {
         this.progress = progress;
-    }
-
-    public buildOverlay(width: number, height: number, position: CoordsXY): BuildDescriptor {
-        return {
-            width: width,
-            height: height,
-            widgets: [{
-                ...this.args,
-                type: "custom",
-                ...position,
-                y: position.y + 1,
-                width: width,
-                height: height,
-                name: "widget_" + this.id,
-                onDraw: g => this.onDraw(g),
-            }],
-        };
     }
 
     public onDraw(g: GraphicsContext): void {

@@ -7,14 +7,11 @@
 
 import * as Clipboard from "../../core/Clipboard";
 import * as Events from "../../utils/Events";
-import * as Selector from "../../tools/Selector";
 import * as Strings from "../../utils/Strings";
 
 import Configuration from "../../config/Configuration";
 import GUI from "../../gui/GUI";
-
-
-
+import Selector from "../../tools/Selector";
 
 const copyPaste = new GUI.GroupBox({
     text: "Copy & Paste",
@@ -22,7 +19,7 @@ const copyPaste = new GUI.GroupBox({
     new GUI.HBox([1, 1]).add(
         new GUI.TextButton({
             text: "Select",
-            onClick: Selector.activate,
+            onClick: () => Selector.activate(),
         }),
         new GUI.TextButton({
             text: "Copy",

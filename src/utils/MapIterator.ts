@@ -29,7 +29,7 @@ export function* coords(selection: MapRange | CoordsXY[] | undefined): CoordsGen
             for (let y = sy; y < ey; y++)
                 yield {
                     coords: { x: x, y: y },
-                    progress: (y + x * dy) / dx / dy,
+                    progress: (y - sy + (x - sx) * dy) / dx / dy,
                 };
     }
     else
@@ -53,18 +53,22 @@ export default class MapIterator {
         fun: (coords: CoordsXY) => void,
         async: boolean = false,
         callback?: (done: boolean, progress: number) => void,
-    ): void {
+    ): Task {
+        let disposed = false;
         this.map(
             fun,
             async,
             callback,
+            () => disposed,
         );
+        return () => disposed = true;
     }
 
     public map<T>(
         fun: (coords: CoordsXY) => T,
         async: boolean = false,
         callback?: (done: boolean, progress: number) => void,
+        disposed: () => boolean = () => false,
     ): T[] {
         const result = [] as T[];
         const start = () => this.iterate(
@@ -73,6 +77,7 @@ export default class MapIterator {
             result,
             async,
             callback,
+            disposed,
         );
         if (async)
             context.setTimeout(start, 1);
@@ -87,9 +92,13 @@ export default class MapIterator {
         result: T[],
         async: boolean,
         callback: (done: boolean, progress: number) => void = () => { },
+        disposed: () => boolean,
     ): void {
         const now = (async && Date.now()) || 0;
         for (let iteration; !(iteration = generator.next()).done;) {
+            if (disposed())
+                return;
+
             result.push(fun(iteration.value.coords));
 
             if (async && Date.now() - now > 10) {
@@ -100,6 +109,7 @@ export default class MapIterator {
                     result,
                     async,
                     callback,
+                    disposed,
                 ), 1);
                 return;
             }

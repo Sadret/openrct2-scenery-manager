@@ -5,17 +5,14 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Events from "../../utils/Events";
 import * as MapIO from "../../core/MapIO";
-import * as Selector from "../../tools/Selector";
 
-import BooleanProperty from "../../config/BooleanProperty";
 import GUI from "../../gui/GUI";
-import Loading from "../widgets/Loading";
 import ObjectDetails from "../ObjectDetails";
 import ObjectList from "../widgets/ObjectList";
-import OverlayTab from "../widgets/OverlayTab";
+import Overlay from "../widgets/Overlay";
 import SceneryIndex from "../../core/SceneryIndex";
+import Selector from "../../tools/Selector";
 
 const objectList: ObjectList = new ObjectList([], object => {
     const window = new ObjectDetails(object);
@@ -27,18 +24,14 @@ const objectList: ObjectList = new ObjectList([], object => {
 });
 
 let busy = false;
-let requested = true; // refresh once when the tab is first opened
-function refresh(): void {
-    requested = true;
-    if (objectList.getWindow() === undefined)
-        return;
+function refresh(selection: Selection): void {
     if (busy)
         return;
-    requested = false;
     busy = true;
 
-    loading.setIsVisible(true);
-    refreshButton.setText("Refreshing...");
+    overlay.setIsVisible(true);
+    scanMapButton.setIsDisabled(true);
+    scanAreaButton.setIsDisabled(true);
 
     let lastUpdate = Date.now();
     new SceneryIndex(
@@ -47,68 +40,87 @@ function refresh(): void {
             // so only update ~4 times a second and once when finished
             if (done || Date.now() - lastUpdate > 1 << 8) {
                 lastUpdate = Date.now();
-                updateProgress(done, progress, index);
+                updateProgress(selection, done, progress, index);
             }
         },
-        selectionOnlyProp.getValue() ? (MapIO.getTileSelection() || []) : undefined,
+        selection,
     );
 }
-function updateProgress(done: boolean, progress: number, index: SceneryIndex): void {
-    refreshButton.setText(done ? "Refresh" : `Refreshing ${Math.round(progress * 100)}%`);
-    loading.setProgress(progress);
+function updateProgress(selection: Selection, done: boolean, progress: number, index: SceneryIndex): void {
+    let label = "Unknown";
+    if (selection === undefined)
+        label = "Map";
+    else if (!Array.isArray(selection))
+        label = `From: [x: ${selection.leftTop.x}, y: ${selection.leftTop.y}]  To: [x: ${selection.rightBottom.x}, y: ${selection.rightBottom.y}]`;
+    if (!done)
+        label += ` (${Math.floor(progress * 100)}%)`;
+    scanLabel.setText(label);
+
+    if (done) {
+        scanMapButton.setIsDisabled(false);
+        scanAreaButton.setIsDisabled(false);
+    }
+
+    overlay.setProgress(progress);
     objectList.setObjects(index.getAllObjects());
     if (done) {
-        loading.setIsVisible(false);
-        loading.setProgress(undefined);
+        overlay.setIsVisible(false);
+        overlay.setProgress(undefined);
         busy = false;
-        if (requested)
-            refresh();
     }
 }
 
-const refreshButton = new GUI.TextButton({
-    onClick: refresh,
+const scanMapButton = new GUI.TextButton({
+    text: "Scan map",
+    onClick: () => refresh(undefined),
+});
+const scanAreaButton = new GUI.TextButton({
+    text: "Scan area",
+    onClick: () =>
+        Selector.activate(
+            () => {
+                Selector.cancel();
+                refresh(MapIO.getTileSelection());
+            },
+        ),
+});
+const scanLabel = new GUI.Label({
+    text: "Nothing",
 });
 
-const loading = new Loading(1 << 6);
+const overlay = new Overlay(1 << 6);
 
-const selectionOnlyProp = new BooleanProperty(false);
-selectionOnlyProp.bind(refresh);
-Events.tileSelection.register(() => {
-    if (selectionOnlyProp.getValue())
-        refresh();
-});
-
-export default new OverlayTab({
-    overlay: loading,
+export default new GUI.Tab({
     image: {
         frameBase: 5245,
         frameCount: 8,
         frameDuration: 4,
     },
     width: 768,
-    onOpen: () => requested && refresh(),
 }).add(
-    new GUI.GroupBox({
-        text: "Filter",
-    }).add(
-        new GUI.HBox([1, 3, 1, 1, 2, 1, 2, 3, 1]).add(
-            ...objectList.typeWidgets,
-            new GUI.Space(),
-            ...objectList.usageWidgets,
-            new GUI.Space(),
-            ...objectList.searchWidgets,
+    new GUI.OverlayBox(
+        overlay,
+    ).add(
+        new GUI.GroupBox({
+            text: "Filter",
+        }).add(
+            new GUI.HBox([1, 3, 1, 1, 2, 1, 2, 3, 1]).add(
+                ...objectList.typeWidgets,
+                new GUI.Space(),
+                ...objectList.usageWidgets,
+                new GUI.Space(),
+                ...objectList.searchWidgets,
+            ),
         ),
-    ),
-    objectList,
-    new GUI.HBox([1, 1, 1,]).add(
-        refreshButton,
-        new GUI.Checkbox({
-            text: "Selected area only",
-        }).bindValue(selectionOnlyProp),
-        new GUI.TextButton({
-            text: "Select area",
-            onClick: Selector.activate,
-        }),
+        objectList,
+        new GUI.HBox([3, 3, 1, 3, 5]).add(
+            scanMapButton,
+            scanAreaButton,
+            new GUI.Space(),
+            new GUI.Label({
+                text: "Currently scanned:",
+            }),
+            scanLabel,
+        ),
     ),
 );

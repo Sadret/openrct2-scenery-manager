@@ -6,7 +6,6 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
-import * as Events from "../utils/Events";
 import * as MapIO from "../core/MapIO";
 import * as Strings from "../utils/Strings";
 
@@ -20,9 +19,18 @@ const selector = new class extends Tool {
     private end: CoordsXY = Coordinates.NULL;
     private drag: boolean = false;
 
+    private callback?: Task;
+
     public constructor() {
         super("sm-selector");
         this.setCursor("cross_hair");
+    }
+
+    public activate(callback?: Task) {
+        this.callback = callback;
+        super.activate();
+        if (Configuration.selector.showWindow.getValue())
+            open();
     }
 
     public onStart(): void {
@@ -54,7 +62,7 @@ const selector = new class extends Tool {
         _e: ToolEventArgs,
     ): void {
         this.drag = false;
-        Events.tileSelection.trigger();
+        this.callback && this.callback();
     }
     public onFinish(): void {
         if (Configuration.selector.keepOnExit.getValue())
@@ -68,6 +76,7 @@ const selector = new class extends Tool {
         MapIO.setTileSelection(Coordinates.toMapRange([this.start, this.end]));
     }
 }();
+export default selector;
 
 const WIDTH = 192;
 const window = new GUI.WindowManager(
@@ -104,12 +113,6 @@ function open(): void {
         window.open();
     else
         window.open(main, WIDTH);
-}
-
-export function activate(): void {
-    selector.activate();
-    if (Configuration.selector.showWindow.getValue())
-        open();
 }
 
 Configuration.selector.showWindow.bind(showWindow => {

@@ -7,17 +7,16 @@
 
 import * as Dialogs from "../../utils/Dialogs";
 import * as MapIO from "../../core/MapIO";
-import * as MapIter from "../../utils/MapIterator";
-import * as Selector from "../../tools/Selector";
 import * as Strings from "../../utils/Strings";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import Configuration from "../../config/Configuration";
 import GUI from "../../gui/GUI";
-import Loading from "../widgets/Loading";
+import Jumper from "../../utils/Jumper";
 import MapIterator from "../../utils/MapIterator";
-import OverlayTab from "../widgets/OverlayTab";
+import Overlay from "../widgets/Overlay";
 import SceneryFilterGroup from "../widgets/SceneryFilterGroup";
+import Selector from "../../tools/Selector";
 import Template from "../../template/Template";
 
 const findGroup = new SceneryFilterGroup();
@@ -53,7 +52,7 @@ export function find(object: SceneryObject, inParkOnly: boolean): void {
 }
 
 function findAndDelete(replace: boolean): void {
-    loading.setIsVisible(true);
+    overlay.setIsVisible(true);
     const mode = Configuration.tools.placeMode.getValue();
     const inParkOnly = inParkOnlyProp.getValue();
     let count = 0;
@@ -99,10 +98,10 @@ function findAndDelete(replace: boolean): void {
         },
         true,
         (done, progress) => {
-            loading.setProgress(progress);
+            overlay.setProgress(progress);
             if (done) {
-                loading.setIsVisible(false);
-                loading.setProgress(undefined);
+                overlay.setIsVisible(false);
+                overlay.setProgress(undefined);
                 Dialogs.showAlert({
                     title: "Elements replaced",
                     message: [`${replace ? "Replaced" : "Deleted"} ${count} elements.`],
@@ -147,36 +146,9 @@ function swapValues(): void {
     findGroup.addition.setValue(addition);
 }
 
-let coordsGenerator = MapIter.coords(undefined);
-selectionOnlyProp.bind(_ => coordsGenerator = MapIter.coords(getTileSelection()));
+const overlay = new Overlay(3 << 4);
 
-function jump(): void {
-    while (true) {
-        const result = coordsGenerator.next();
-        if (result.done) {
-            coordsGenerator = MapIter.coords(getTileSelection());
-            return ui.showError("Cannot proceed further...", "Reached end of map!");
-        }
-        const coords = result.value.coords;
-        const tile = MapIO.getTile(coords);
-        if (inParkOnlyProp.getValue() && !MapIO.hasOwnership(tile))
-            continue;
-        for (let element of tile.elements)
-            if (findGroup.match(element)) {
-                ui.mainViewport.scrollTo({
-                    x: tile.x * 32,
-                    y: tile.y * 32,
-                    z: element.baseZ,
-                });
-                return;
-            }
-    }
-}
-
-const loading = new Loading(1 << 5);
-
-export default new OverlayTab({
-    overlay: loading,
+export default new GUI.Tab({
     image: {
         frameBase: 5205,
         frameCount: 16,
@@ -187,76 +159,96 @@ export default new OverlayTab({
         replaceGroup.reload();
     },
 }).add(
-    findGroup,
-    new GUI.HBox(
-        [1.8, 0.2, 1],
-        undefined,
-        {
-            ...GUI.Margin.none,
-            left: GUI.Margin.default.left + 2,
-            right: GUI.Margin.default.right + 2,
-        },
+    new GUI.OverlayBox(
+        overlay,
     ).add(
-        new GUI.TextButton({
-            text: "Jump to next instance",
-            onClick: jump,
-        }),
-        new GUI.Space(),
-        new GUI.TextButton({
-            text: "Search and Delete",
-            onClick: () => findAndDelete(false),
-        }),
-    ),
-    new GUI.Space(),
-    replaceGroup,
-    new GUI.HBox(
-        [1.8, 0.2, 1],
-        undefined,
-        {
-            ...GUI.Margin.none,
-            left: GUI.Margin.default.left + 2,
-            right: GUI.Margin.default.right + 2,
-        },
-    ).add(
-        new GUI.TextButton({
-            text: "Swap search values and replace values",
-            onClick: () => swapValues(),
-        }),
-        new GUI.Space(),
-        new GUI.TextButton({
-            text: "Search and Replace",
-            onClick: () => findAndDelete(true),
-        }).bindIsDisabled(
-            replaceGroup.error,
-        ),
-    ),
-    new GUI.Space(),
-    new GUI.GroupBox({
-        text: "Options",
-    }).add(
-        new GUI.HBox([2.5, 1, 2.5]).add(
-            new GUI.Checkbox({
-                text: "Selected area only",
-            }).bindValue(selectionOnlyProp),
+        findGroup,
+        new GUI.HBox(
+            [1.8, 0.2, 1],
+            undefined,
+            {
+                ...GUI.Margin.none,
+                left: GUI.Margin.default.left + 2,
+                right: GUI.Margin.default.right + 2,
+            },
+        ).add(
+            (() => {
+                const button = new GUI.TextButton({});
+
+                const jumper = new Jumper(
+                    element => findGroup.match(element),
+                    inParkOnlyProp,
+                    button,
+                );
+
+                findGroup.type.bind(() => jumper.reset());
+                findGroup.qualifier.bind(() => jumper.reset());
+                findGroup.primaryColour.bind(() => jumper.reset());
+                findGroup.secondaryColour.bind(() => jumper.reset());
+                findGroup.tertiaryColour.bind(() => jumper.reset());
+                findGroup.surface.bind(() => jumper.reset());
+                findGroup.railings.bind(() => jumper.reset());
+                findGroup.addition.bind(() => jumper.reset());
+
+                return button;
+            })(),
             new GUI.Space(),
-            new GUI.Checkbox({
-                text: "In park only",
-            }).bindValue(inParkOnlyProp),
-        ),
-        new GUI.HBox([2.5, 1, 1.5, 1]).add(
             new GUI.TextButton({
-                text: "Select area",
-                onClick: Selector.activate,
+                text: "Search and Delete",
+                onClick: () => findAndDelete(false),
+            }),
+        ),
+        new GUI.Space(),
+        replaceGroup,
+        new GUI.HBox(
+            [1.8, 0.2, 1],
+            undefined,
+            {
+                ...GUI.Margin.none,
+                left: GUI.Margin.default.left + 2,
+                right: GUI.Margin.default.right + 2,
+            },
+        ).add(
+            new GUI.TextButton({
+                text: "Swap search values and replace values",
+                onClick: () => swapValues(),
             }),
             new GUI.Space(),
-            new GUI.Label({
-                text: "Place mode:",
-            }),
-            new GUI.Dropdown({
-            }).bindValue<PlaceMode>(
-                Configuration.tools.placeMode,
-                ["safe", "raw"],
-                Strings.toDisplayString,
+            new GUI.TextButton({
+                text: "Search and Replace",
+                onClick: () => findAndDelete(true),
+            }).bindIsDisabled(
+                replaceGroup.error,
+            ),
+        ),
+        new GUI.Space(),
+        new GUI.GroupBox({
+            text: "Options",
+        }).add(
+            new GUI.HBox([2.5, 1, 2.5]).add(
+                new GUI.Checkbox({
+                    text: "Selected area only",
+                }).bindValue(selectionOnlyProp),
+                new GUI.Space(),
+                new GUI.Checkbox({
+                    text: "In park only",
+                }).bindValue(inParkOnlyProp),
+            ),
+            new GUI.HBox([2.5, 1, 1.5, 1]).add(
+                new GUI.TextButton({
+                    text: "Select area",
+                    onClick: () => Selector.activate(),
+                }),
+                new GUI.Space(),
+                new GUI.Label({
+                    text: "Place mode:",
+                }),
+                new GUI.Dropdown({
+                }).bindValue<PlaceMode>(
+                    Configuration.tools.placeMode,
+                    ["safe", "raw"],
+                    Strings.toDisplayString,
+                ),
             ),
         ),
     ),

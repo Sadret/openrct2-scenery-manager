@@ -39,11 +39,10 @@ export default class SceneryIndex {
 
     constructor(
         callback: (done: boolean, progress: number, index: SceneryIndex) => void = () => { },
-        selection: MapRange | CoordsXY[] | undefined = undefined,
+        selection: Selection = undefined,
     ) {
         SceneryIndex.types.forEach(type => this.data[type] = new SceneryObjectIndex(type));
 
-        const now = Date.now();
         new MapIterator(selection).forEach(
             coords => {
                 const tile = MapIO.getTile(coords);

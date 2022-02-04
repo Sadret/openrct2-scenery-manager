@@ -17,5 +17,4 @@ class Event<T = void> {
 }
 
 export const startup = new Event();
-export const tileSelection = new Event();
 export const mainWindowOpen = new Event<boolean>();

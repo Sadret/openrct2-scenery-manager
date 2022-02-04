@@ -220,7 +220,7 @@ export default class Template {
         return true;
     }
 
-    public static copy(src: TileElement, dst: TileElement = {} as TileElement): TileElement {
+    public static copy<T extends TileElement>(src: T, dst: T = {} as T): T {
         Template.copyBase(src, dst);
         get(src).copy(src, dst);
         return dst;

@@ -8,11 +8,11 @@
 import * as Arrays from "./utils/Arrays";
 import * as Clipboard from "./core/Clipboard";
 import * as Objects from "./utils/Objects";
-import * as Selector from "./tools/Selector";
 
 import Configuration from "./config/Configuration";
 import MainWindow from "./window/MainWindow";
 import Replace from "./window/tabs/Replace";
+import Selector from "./tools/Selector";
 
 export function register() {
 
@@ -20,7 +20,7 @@ export function register() {
         id: "scenery-manager.clipboard.select",
         text: "[SM] Select area",
         bindings: ["CTRL+A", "GUI+A"],
-        callback: Selector.activate,
+        callback: () => Selector.activate(),
     });
     ui.registerShortcut({
         id: "scenery-manager.clipboard.copy",
