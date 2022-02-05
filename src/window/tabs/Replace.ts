@@ -52,6 +52,9 @@ export function find(object: SceneryObject, inParkOnly: boolean): void {
 }
 
 function findAndDelete(replace: boolean): void {
+    if (selectionOnlyProp.getValue() && MapIO.getTileSelection() === undefined)
+        return ui.showError(`Cannot search and ${replace ? "replace" : "delete"}...`, "No area selected.");
+
     overlay.setIsVisible(true);
     const mode = Configuration.tools.placeMode.getValue();
     const inParkOnly = inParkOnlyProp.getValue();
