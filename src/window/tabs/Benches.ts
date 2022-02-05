@@ -102,7 +102,7 @@ export default new GUI.Tab({
         text: "Pattern",
     }).add(
         ...entries.map((entry, idx) =>
-            new GUI.HBox([3, 1, 1,]).add(
+            new GUI.HBox([4, 1, 1,]).add(
                 dropdowns[idx],
                 new GUI.TextButton({
                     text: "Pick",
