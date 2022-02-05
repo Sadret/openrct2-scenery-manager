@@ -153,8 +153,8 @@ const overlay = new Overlay(3 << 4);
 
 export default new GUI.Tab({
     image: {
-        frameBase: 5205,
-        frameCount: 16,
+        frameBase: 5221,
+        frameCount: 8,
         frameDuration: 4,
     },
     onOpen: () => {
