@@ -6,8 +6,8 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
-import * as MapIO from "../core/MapIO";
 import * as Strings from "../utils/Strings";
+import * as UI from "../core/UI";
 
 import Configuration from "../config/Configuration";
 import GUI from "../gui/GUI";
@@ -73,7 +73,7 @@ const selector = new class extends Tool {
     }
 
     public setTileSelection(): void {
-        MapIO.setTileSelection(Coordinates.toMapRange([this.start, this.end]));
+        UI.setTileSelection(Coordinates.toMapRange([this.start, this.end]));
     }
 }();
 export default selector;

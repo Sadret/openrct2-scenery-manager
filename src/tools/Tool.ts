@@ -6,7 +6,7 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
-import * as MapIO from "../core/MapIO";
+import * as UI from "../core/UI";
 
 export default class Tool {
     private readonly id: string;
@@ -32,14 +32,14 @@ export default class Tool {
                 filter: this.filter,
 
                 onStart: () => {
-                    this.selection = MapIO.getTileSelection();
+                    this.selection = UI.getTileSelection();
                     this.onStart();
                 },
                 onDown: e => this.onDown(Tool.toTileCoordsArgs(e)),
                 onMove: e => this.onMove(Tool.toTileCoordsArgs(e)),
                 onUp: e => this.onUp(Tool.toTileCoordsArgs(e)),
                 onFinish: () => {
-                    MapIO.setTileSelection(this.selection);
+                    UI.setTileSelection(this.selection);
                     this.onFinish();
                 },
             });

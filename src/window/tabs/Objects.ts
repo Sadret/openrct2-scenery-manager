@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as MapIO from "../../core/MapIO";
+import * as UI from "../../core/UI";
 
 import GUI from "../../gui/GUI";
 import ObjectDetails from "../ObjectDetails";
@@ -80,7 +80,7 @@ const scanAreaButton = new GUI.TextButton({
         Selector.activate(
             () => {
                 Selector.cancel();
-                refresh(MapIO.getTileSelection());
+                refresh(UI.getTileSelection());
             },
         ),
 });

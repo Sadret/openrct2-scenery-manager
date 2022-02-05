@@ -8,7 +8,7 @@
 import * as Arrays from "../../utils/Arrays";
 import * as Brush from "../../tools/Brush";
 import * as Dialogs from "../../utils/Dialogs";
-import * as MapIO from "../../core/MapIO";
+import * as Map from "../../core/Map";
 import * as Picker from "../../tools/Picker";
 import * as SmallScenery from "../../template/SmallScenery";
 import * as Storage from "../../persistence/Storage";
@@ -88,7 +88,7 @@ function provide(coords: CoordsXY): TileData {
     if (data === null)
         return result;
 
-    const surface = MapIO.getSurface(MapIO.getTile(coords));
+    const surface = Map.getSurface(Map.getTile(coords));
     if (surface === null)
         return result;
 

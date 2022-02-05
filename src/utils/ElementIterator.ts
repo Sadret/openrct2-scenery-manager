@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as  MapIO from "../core/MapIO";
+import * as  Map from "../core/Map";
 
 import MapIterator from "./MapIterator";
 import Template from "../template/Template";
@@ -47,7 +47,7 @@ export default class ElementIterator {
     public start(): void {
         this.disposeCallback = new MapIterator(this.selection).forEach(
             coords => {
-                const tile = MapIO.getTile(coords);
+                const tile = Map.getTile(coords);
                 for (let element of tile.elements)
                     if (this.matcher(element)) {
                         this.list.push([tile, Template.copy(element)]);

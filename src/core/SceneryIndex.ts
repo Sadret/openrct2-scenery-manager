@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as MapIO from "./MapIO";
+import * as Map from "./Map";
 
 import MapIterator from "../utils/MapIterator";
 import ObjectIndex from "./ObjectIndex";
@@ -27,7 +27,7 @@ export class SceneryObjectIndex extends ObjectIndex<SceneryObject>{
             const object = this.get(qualifier);
             if (object !== null) {
                 object.onMap++;
-                if (MapIO.hasOwnership(tile))
+                if (Map.hasOwnership(tile))
                     object.inPark++;
             }
         }
@@ -45,7 +45,7 @@ export default class SceneryIndex {
 
         new MapIterator(selection).forEach(
             coords => {
-                const tile = MapIO.getTile(coords);
+                const tile = Map.getTile(coords);
                 for (let element of tile.elements)
                     switch (element.type) {
                         case "footpath":

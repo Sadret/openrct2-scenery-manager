@@ -6,8 +6,9 @@
  *****************************************************************************/
 
 import * as Dialogs from "../../utils/Dialogs";
-import * as MapIO from "../../core/MapIO";
+import * as Map from "../../core/Map";
 import * as Strings from "../../utils/Strings";
+import * as UI from "../../core/UI";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import Configuration from "../../config/Configuration";
@@ -27,7 +28,7 @@ const selectionOnlyProp = new BooleanProperty(false);
 const inParkOnlyProp = new BooleanProperty(false);
 
 function getTileSelection(): Selection {
-    return selectionOnlyProp.getValue() ? MapIO.getTileSelection() : undefined;
+    return selectionOnlyProp.getValue() ? UI.getTileSelection() : undefined;
 }
 
 export function find(object: SceneryObject, inParkOnly: boolean): void {
@@ -52,7 +53,7 @@ export function find(object: SceneryObject, inParkOnly: boolean): void {
 }
 
 function findAndDelete(replace: boolean): void {
-    if (selectionOnlyProp.getValue() && MapIO.getTileSelection() === undefined)
+    if (selectionOnlyProp.getValue() && UI.getTileSelection() === undefined)
         return ui.showError(`Cannot search and ${replace ? "replace" : "delete"}...`, "No area selected.");
 
     overlay.setIsVisible(true);
@@ -63,8 +64,8 @@ function findAndDelete(replace: boolean): void {
         getTileSelection()
     ).forEach(
         coords => {
-            const tile = MapIO.getTile(coords);
-            if (inParkOnly && !MapIO.hasOwnership(tile))
+            const tile = Map.getTile(coords);
+            if (inParkOnly && !Map.hasOwnership(tile))
                 return;
             if (mode === "raw" && replace)
                 tile.elements.forEach(
@@ -76,7 +77,7 @@ function findAndDelete(replace: boolean): void {
                     },
                 );
             else {
-                const elements = MapIO.read(tile);
+                const elements = Map.read(tile);
                 elements.forEach(
                     element => {
                         if (findGroup.match(element)) {
@@ -88,12 +89,12 @@ function findAndDelete(replace: boolean): void {
                                     return;
                                 // safe only
                                 replaceGroup.replace(element);
-                                MapIO.place([{
+                                Map.place([{
                                     ...coords,
                                     elements: [Template.copyFrom(element)],
                                 }], "safe", element.isGhost);
                             };
-                            MapIO.remove(tile, element, mode, undefined, callback);
+                            Map.remove(tile, element, mode, undefined, callback);
                         }
                     }
                 );

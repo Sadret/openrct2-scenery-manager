@@ -8,7 +8,7 @@
 import * as Arrays from "../../utils/Arrays";
 import * as Brush from "../../tools/Brush";
 import * as Coordinates from "../../utils/Coordinates";
-import * as MapIO from "../../core/MapIO";
+import * as Map from "../../core/Map";
 import * as Picker from "../../tools/Picker";
 
 import GUI from "../../gui/GUI";
@@ -35,7 +35,7 @@ function provide(coords: CoordsXY): TileData {
     const elements = [] as FootpathData[];
 
     if (entry !== null)
-        MapIO.getTile(
+        Map.getTile(
             coords
         ).elements.forEach(
             element => {

@@ -8,9 +8,10 @@
 import * as Coordinates from "../utils/Coordinates";
 import * as Dialogs from "../utils/Dialogs";
 import * as Footpath from "../template/Footpath";
-import * as MapIO from "../core/MapIO";
+import * as Map from "../core/Map";
 import * as Objects from "../utils/Objects";
 import * as Storage from "../persistence/Storage";
+import * as UI from "../core/UI";
 
 import BooleanProperty from "../config/BooleanProperty";
 import Builder from "../tools/Builder";
@@ -125,7 +126,7 @@ const builder = new class extends Builder {
             else
                 rotation -= diff;
         }
-        let height = 8 * (MapIO.getSurfaceHeight(MapIO.getTile(coords)) + settings.height.getValue());
+        let height = 8 * (Map.getSurfaceHeight(Map.getTile(coords)) + settings.height.getValue());
         if (Configuration.paste.cursorHeightEnabled.getValue()) {
             const step = getStepSize() * 8;
             height -= offset.y * 2 ** ui.mainViewport.zoom + step / 2 & ~(step - 1);
@@ -222,7 +223,7 @@ export function load(data?: TemplateData): void {
 }
 
 export function copy(cut: boolean = false): void {
-    const selection = MapIO.getTileSelection();
+    const selection = UI.getTileSelection();
     if (selection === undefined)
         return ui.showError("Can't copy area...", "Nothing selected!");
 
@@ -230,18 +231,18 @@ export function copy(cut: boolean = false): void {
     const center = Coordinates.center(range);
 
     const heights: number[] = new MapIterator(selection).map(
-        MapIO.getTile,
+        Map.getTile,
     ).map(
-        MapIO.getSurfaceHeight
+        Map.getSurfaceHeight
     ).sort();
     const heightOffset = 8 * heights[Math.floor(heights.length / 2)];
 
     const placeMode = Configuration.tools.placeMode.getValue();
     const cutSurface = Configuration.cut.cutSurface.getValue();
     const data = new MapIterator(selection).map(coords => {
-        const tile = MapIO.getTile(coords);
+        const tile = Map.getTile(coords);
         const elements = [] as ElementData[];
-        MapIO.read(tile).forEach(element => {
+        Map.read(tile).forEach(element => {
             if (element.type === "footpath") {
                 if (filter("footpath") || filter("footpath_addition") && element.addition !== null) {
                     const data = {} as FootpathData;
@@ -254,9 +255,9 @@ export function copy(cut: boolean = false): void {
 
             if (cut) {
                 if (filter(element.type) && (element.type !== "surface" || cutSurface))
-                    MapIO.remove(tile, element, placeMode, false);
+                    Map.remove(tile, element, placeMode, false);
                 if (element.type === "footpath" && filter("footpath_addition"))
-                    MapIO.remove(tile, element, placeMode, true);
+                    Map.remove(tile, element, placeMode, true);
             }
         });
         return {

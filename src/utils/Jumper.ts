@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as  MapIO from "../core/MapIO";
+import * as  Map from "../core/Map";
 
 import ElementIterator from "./ElementIterator";
 import GUI from "../gui/GUI";
@@ -46,7 +46,7 @@ export default class Jumper {
                     );
                 } else {
                     const tile = data[0];
-                    if (inParkOnly && !MapIO.hasOwnership(tile))
+                    if (inParkOnly && !Map.hasOwnership(tile))
                         return this.jump();
                     ui.mainViewport.scrollTo({
                         x: tile.x * 32,

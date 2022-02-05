@@ -6,7 +6,8 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
-import * as MapIO from "../core/MapIO";
+import * as Map from "../core/Map";
+import * as UI from "../core/UI";
 
 import Configuration from "../config/Configuration";
 import MapIterator from "../utils/MapIterator";
@@ -55,18 +56,18 @@ export default abstract class Builder extends Tool {
             new MapIterator(
                 this.tileData,
             ).map(
-                MapIO.getTile,
+                Map.getTile,
             ).forEach(
                 tile => {
-                    MapIO.read(tile).forEach(element => {
+                    Map.read(tile).forEach(element => {
                         if (element.isGhost)
-                            MapIO.remove(tile, element, this.placeMode, false);
+                            Map.remove(tile, element, this.placeMode, false);
                         if (element.type === "footpath" && element.addition !== null && element.isAdditionGhost)
-                            MapIO.remove(tile, element, this.placeMode, true);
+                            Map.remove(tile, element, this.placeMode, true);
                     });
                 },
             );
-            MapIO.setTileSelection(undefined);
+            UI.setTileSelection(undefined);
             this.tileData = [];
             this.tileSelection = [];
         }
@@ -84,7 +85,7 @@ export default abstract class Builder extends Tool {
                 if (this.tileData === undefined)
                     return this.cancel();
                 this.placeMode = Configuration.tools.placeMode.getValue();
-                MapIO.place(
+                Map.place(
                     this.tileData,
                     this.placeMode,
                     isGhost,
@@ -96,7 +97,7 @@ export default abstract class Builder extends Tool {
             this.tileSelection = this.getTileSelection(this.coords, this.offset);
             if (this.tileSelection === undefined)
                 return this.cancel();
-            MapIO.setTileSelection(this.tileSelection);
+            UI.setTileSelection(this.tileSelection);
         }
     }
 

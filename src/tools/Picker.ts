@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as MapIO from "../core/MapIO";
+import * as Map from "../core/Map";
 
 import Tool from "./Tool";
 
@@ -22,7 +22,7 @@ const picker = new class extends Tool {
     ): void {
         if (e.mapCoords === undefined || e.tileElementIndex === undefined)
             return;
-        const tile: Tile = MapIO.getTile(e.mapCoords);
+        const tile: Tile = Map.getTile(e.mapCoords);
         const element: TileElement = tile.elements[e.tileElementIndex];
         if (!this.accept || this.accept(element))
             this.cancel();
