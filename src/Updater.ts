@@ -111,14 +111,17 @@ function showVersionTooOld(load: Task): void {
             "these files.",
             "",
             "You can continue, but you will permanently lose your saved",
-            "templates.",
+            "templates. Please make a backup of the 'plugin.store.json' file in",
+            "your OpenRCT2 user directory if you want to keep your templates.",
         ],
         callback: confirmed => {
             if (confirmed) {
+                Storage.purge();
                 showHotkeyAlert();
                 setVersion();
                 load();
             }
         },
+        okText: "Continue loading",
     });
 }

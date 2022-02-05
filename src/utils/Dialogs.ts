@@ -7,7 +7,7 @@
 
 import GUI from "../gui/GUI";
 
-function showDialog(
+export function showDialog(
     title: string,
     message: string[],
     buttons: string[],

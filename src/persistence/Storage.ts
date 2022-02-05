@@ -22,6 +22,11 @@ export function set<S>(key: string, value: S): void {
     context.sharedStorage.set(storagePrefix + key, value);
 }
 
+export function purge(): void {
+    set<{}>("config", {});
+    set<{}>("libraries", {});
+}
+
 interface StorageFolder<T> {
     type: "folder";
     files: { [key: string]: StorageElement<T> };
