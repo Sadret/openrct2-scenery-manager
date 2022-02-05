@@ -202,7 +202,7 @@ Events.startup.register(() => {
                 }).bindValue(
                     Clipboard.settings.bounds.elementContained,
                     [false, true,],
-                    contained => contained ? "contained elements" : "intersected elements",
+                    contained => contained ? "Contained elements" : "Intersected elements",
                 ),
             ),
         );

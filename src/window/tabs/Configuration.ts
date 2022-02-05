@@ -158,13 +158,23 @@ export default new GUI.Tab({
             Configuration.brush.showWindow,
         ),
     ),
+    // new GUI.GroupBox({
+    //     text: "Window",
+    // }).add(
+    //     new GUI.Checkbox({
+    //         text: "Show advanced Copy & Paste settings (requires plug-in restart)",
+    //     }).bindValue(
+    //         Configuration.window.showAdvancedCopyPasteSettings,
+    //     ),
+    // ),
     new GUI.GroupBox({
-        text: "Window",
+        text: "Help",
     }).add(
-        new GUI.Checkbox({
-            text: "Show advanced Copy & Paste settings (requires plug-in restart)",
-        }).bindValue(
-            Configuration.window.showAdvancedCopyPasteSettings,
-        ),
+        new GUI.Label({
+            text: "If you need help to understand what these settings do, please visit:",
+        }),
+        new GUI.Label({
+            text: "https://github.com/Sadret/openrct2-scenery-manager#Settings",
+        }),
     ),
 );

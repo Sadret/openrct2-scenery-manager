@@ -472,8 +472,8 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                 new GUI.MultiBox().add(
                     new GUI.Label({
                     }).bindText(
-                        new Multiplexer<[IndexedObject, boolean]>([this.addition, this.error]),
-                        ([addition, error]) => this.getLabel(addition, error),
+                        this.addition,
+                        s => this.getLabel(s),
                     ).bindIsVisible(
                         this.type,
                         type => type === "footpath",
