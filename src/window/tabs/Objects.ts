@@ -47,7 +47,7 @@ function refresh(selection: Selection): void {
     );
 }
 function updateProgress(selection: Selection, done: boolean, progress: number, index: SceneryIndex): void {
-    let label = "Unknown";
+    let label = "Nothing";
     if (selection === undefined)
         label = "Map";
     else if (!Array.isArray(selection))
@@ -84,11 +84,10 @@ const scanAreaButton = new GUI.TextButton({
             },
         ),
 });
-const scanLabel = new GUI.Label({
-    text: "Nothing",
-});
-
+const scanLabel = new GUI.Label({});
 const overlay = new Overlay(1 << 6);
+
+refresh([]);
 
 export default new GUI.Tab({
     image: {
@@ -113,7 +112,11 @@ export default new GUI.Tab({
             ),
         ),
         objectList,
-        new GUI.HBox([3, 3, 1, 3, 5]).add(
+        new GUI.HBox([2, 2, 2, 1, 3, 5]).add(
+            new GUI.TextButton({
+                text: "Refresh index",
+                onClick: () => refresh([]),
+            }),
             scanMapButton,
             scanAreaButton,
             new GUI.Space(),
