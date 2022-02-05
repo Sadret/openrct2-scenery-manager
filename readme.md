@@ -229,7 +229,7 @@ These settings are persistent through sessions.
 - [safe mode] Queue layouts do not copy correctly.
 - Scroll position resets when list content changes.
 - Large scenery does not mirror.
-- Trackitecture does not work cross-map
+- Trackitecture does not work cross-map.
 
 ## Planned Features
 
