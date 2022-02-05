@@ -249,7 +249,7 @@ If you find any bugs or if you have any ideas for improvements, you can open an 
 
 If you like this plug-in, please leave a star on GitHub.
 
-If you really want to support me, you can [buy me a coffee](#https://www.BuyMeACoffee.com/SadretGaming).
+If you really want to support me, you can [buy me a coffee](https://ko-fi.com/sadret).
 
 ## Copyright and License
 

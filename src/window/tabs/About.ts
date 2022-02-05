@@ -17,7 +17,7 @@ const text = [
         "https://github.com/Sadret/openrct2-scenery-manager",
     ], [
         "If you want to support me, you can buy me a coffee:",
-        "https://www.BuyMeACoffee.com/SadretGaming",
+        "https://ko-fi.com/sadret",
     ], [
         "If you find any bugs or if you have any ideas for",
         "improvements, you can open an issue on GitHub",
