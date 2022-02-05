@@ -6,12 +6,15 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
+import * as MapIO from "../core/MapIO";
 
 export default class Tool {
     private readonly id: string;
 
     private cursor: CursorType | undefined;
     private filter: ToolFilter[] | undefined;
+
+    private selection: Selection = undefined;
 
     public constructor(id: string) {
         this.id = id;
@@ -28,11 +31,17 @@ export default class Tool {
                 cursor: this.cursor,
                 filter: this.filter,
 
-                onStart: () => this.onStart(),
+                onStart: () => {
+                    this.selection = MapIO.getTileSelection();
+                    this.onStart();
+                },
                 onDown: e => this.onDown(Tool.toTileCoordsArgs(e)),
                 onMove: e => this.onMove(Tool.toTileCoordsArgs(e)),
                 onUp: e => this.onUp(Tool.toTileCoordsArgs(e)),
-                onFinish: () => this.onFinish(),
+                onFinish: () => {
+                    MapIO.setTileSelection(this.selection);
+                    this.onFinish();
+                },
             });
     }
 
