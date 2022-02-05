@@ -6,7 +6,7 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
-import * as Dialogs from "../utils/Dialogs";
+import * as FileDialogs from "../window/FileDialogs";
 import * as Footpath from "../template/Footpath";
 import * as Map from "../core/Map";
 import * as Objects from "../utils/Objects";
@@ -190,7 +190,7 @@ export function save(): void {
     if (template === undefined)
         return ui.showError("Can't save template...", "Nothing copied!");
 
-    Dialogs.showSave<TemplateData>({
+    FileDialogs.showSave<TemplateData>({
         title: "Save template",
         fileSystem: Storage.libraries.templates,
         fileView: new TemplateView(),
@@ -200,7 +200,7 @@ export function save(): void {
 
 export function load(data?: TemplateData): void {
     if (data === undefined)
-        Dialogs.showLoad<TemplateData>({
+        FileDialogs.showLoad<TemplateData>({
             title: "Load template",
             fileSystem: Storage.libraries.templates,
             fileView: new TemplateView(),

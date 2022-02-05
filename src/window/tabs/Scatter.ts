@@ -7,7 +7,7 @@
 
 import * as Arrays from "../../utils/Arrays";
 import * as Brush from "../../tools/Brush";
-import * as Dialogs from "../../utils/Dialogs";
+import * as FileDialogs from "../FileDialogs";
 import * as Map from "../../core/Map";
 import * as Picker from "../../tools/Picker";
 import * as SmallScenery from "../../template/SmallScenery";
@@ -150,7 +150,7 @@ function save(): void {
         (data): data is ScatterData => data !== null
     );
 
-    Dialogs.showSave({
+    FileDialogs.showSave({
         title: "Save pattern",
         fileSystem: Storage.libraries.scatterPattern,
         fileView: new ScatterPatternView(),
@@ -159,7 +159,7 @@ function save(): void {
 }
 
 function load(): void {
-    Dialogs.showLoad({
+    FileDialogs.showLoad({
         title: "Load pattern",
         fileSystem: Storage.libraries.scatterPattern,
         fileView: new ScatterPatternView(),
