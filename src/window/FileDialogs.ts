@@ -28,7 +28,6 @@ export function showSave<T>(args: {
     new GUI.WindowManager(
         {
             width: 384,
-            height: 0,
             classification: "scenery-manager.dialog",
             title: args.title,
             colours: [7, 7, 6,], // shades of blue
@@ -54,7 +53,6 @@ export function showLoad<T>(args: {
     new GUI.WindowManager(
         {
             width: 384,
-            height: 0,
             classification: "scenery-manager.dialog",
             title: args.title,
             colours: [7, 7, 6,], // shades of blue

@@ -36,7 +36,6 @@ export default class extends GUI.WindowManager {
         super(
             {
                 width: 384,
-                height: 0,
                 classification: "scenery-manager.object_details",
                 title: "Object Details",
                 colours: [7, 7, 6],

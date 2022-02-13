@@ -27,7 +27,6 @@ export default class ObjectChooser extends GUI.WindowManager {
         super(
             {
                 width: 512,
-                height: 0,
                 classification: classification,
                 title: "Select Object",
                 colours: [7, 7, 6],

@@ -17,7 +17,6 @@ export function showDialog(
     const manager = new GUI.WindowManager(
         {
             width: width,
-            height: 0,
             classification: "scenery-manager.dialog",
             title: title,
             colours: [7, 7, 6,], // shades of blue

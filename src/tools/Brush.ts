@@ -60,7 +60,6 @@ const label = new Property<string>("");
 const window = new GUI.WindowManager(
     {
         width: WIDTH,
-        height: 0,
         classification: "scenery-manager.brush",
         title: "Brush",
         colours: [7, 7, 6,],

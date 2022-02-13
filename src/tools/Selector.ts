@@ -82,7 +82,6 @@ const WIDTH = 192;
 const window = new GUI.WindowManager(
     {
         width: WIDTH,
-        height: 0,
         classification: "scenery-manager.selector",
         title: "Area Selection",
         colours: [7, 7, 6,],
