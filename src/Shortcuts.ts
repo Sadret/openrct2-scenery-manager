@@ -23,6 +23,12 @@ export function register() {
         callback: () => Selector.activate(),
     });
     ui.registerShortcut({
+        id: "scenery-manager.clipboard.selectMulti",
+        text: "[SM] Multi-select area",
+        bindings: ["CTRL+SHIFT+A", "GUI+SHIFT+A"],
+        callback: () => Selector.activate(undefined, true),
+    });
+    ui.registerShortcut({
         id: "scenery-manager.clipboard.copy",
         text: "[SM] Copy area",
         bindings: ["CTRL+C", "GUI+C"],

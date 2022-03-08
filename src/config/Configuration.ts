@@ -39,7 +39,7 @@ const Configuration = {
     },
     selector: {
         keepOnExit: new BooleanProperty(false),
-        showWindow: new BooleanProperty(false),
+        showWindow: new BooleanProperty(true),
     },
     brush: {
         size: new NumberProperty(15, 1),

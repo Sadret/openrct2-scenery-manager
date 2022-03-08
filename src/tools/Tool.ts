@@ -14,7 +14,7 @@ export default class Tool {
     private cursor: CursorType | undefined;
     private filter: ToolFilter[] | undefined;
 
-    private selection: Selection = undefined;
+    protected selection: Selection = undefined;
 
     public constructor(id: string) {
         this.id = id;
@@ -39,7 +39,8 @@ export default class Tool {
                 onMove: e => this.onMove(Tool.toTileCoordsArgs(e)),
                 onUp: e => this.onUp(Tool.toTileCoordsArgs(e)),
                 onFinish: () => {
-                    UI.setTileSelection(this.selection);
+                    if (this.keepTileSelection())
+                        UI.setTileSelection(this.selection);
                     this.onFinish();
                 },
             });
@@ -71,6 +72,10 @@ export default class Tool {
     public setFilter(filter?: ToolFilter[]): void {
         this.filter = filter;
         this.restart();
+    }
+
+    protected keepTileSelection(): boolean {
+        return true;
     }
 
     private static toTileCoordsArgs(e: ToolEventArgs): ToolEventArgs {

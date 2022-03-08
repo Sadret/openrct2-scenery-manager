@@ -19,7 +19,7 @@ export function find<T>(arr: T[], callback: (value: T) => boolean): T | null;
 export function find<T>(arr: T[], callback: (value: T) => boolean): T | null {
     for (let idx = 0; idx < arr.length; idx++)
         if (callback(arr[idx]))
-            return arr[idx];[1].find;
+            return arr[idx];
     return null;
 }
 
@@ -37,9 +37,6 @@ export function create<T>(size: number, fill: (idx: number) => T): T[] {
     return data;
 }
 
-export function includes<T>(arr: T[], value: any): boolean {
-    for (let idx = 0; idx < arr.length; idx++)
-        if (arr[idx] === value)
-            return true;
-    return false;
+export function includes<T>(arr: T[], callback: (value: T) => boolean): boolean {
+    return find(arr, callback) !== null;
 }
