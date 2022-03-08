@@ -110,7 +110,7 @@ function showVersionTooOld(load: Task): void {
             "Unfortunately, this version of Scenery Manager is unable to handle",
             "these files.",
             "",
-            "You can continue, but you will permanently lose your saved",
+            "You can continue, but you will {RED}permanently lose{WINDOW_COLOUR_1} your saved",
             "templates. Please make a backup of the 'plugin.store.json' file in",
             "your OpenRCT2 user directory if you want to keep your templates.",
         ],
