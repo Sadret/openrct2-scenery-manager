@@ -21,7 +21,7 @@ registerPlugin({
     type: "local",
     licence: "GPL-3.0",
     minApiVersion: 42,
-    targetApiVersion: 42,
+    targetApiVersion: 47,
     main: () => {
         if (typeof ui === "undefined")
             return console.log("[scenery-manager] Loading cancelled: game runs in headless mode.");
