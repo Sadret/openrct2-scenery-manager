@@ -73,7 +73,7 @@ type TileData = {
 
 type TemplateData = {
     tiles: TileData[];
-    mapRange: MapRange;
+    selection: Selection;
 }
 
 /*

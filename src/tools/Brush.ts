@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../utils/Coordinates";
+import * as Selections from "../utils/Selections";
 import * as Strings from "../utils/Strings";
 
 import Builder from "../tools/Builder";
@@ -40,18 +40,23 @@ const brush = new class extends Builder {
             this.cancel();
             return [];
         } else
-            return this.getTileSelection(coords, offset).map(this.provider);
+            return Selections.toCoordsList(
+                this.getTileSelection(
+                    coords,
+                    offset,
+                ),
+            ).map(this.provider);
     }
 
     protected getTileSelection(
         coords: CoordsXY,
         _offset: CoordsXY,
-    ): CoordsXY[] {
+    ): Selection {
         const size: number = Configuration.brush.size.getValue();
         const shape: BrushShape = Configuration.brush.shape.getValue();
         return shape === "square"
-            ? Coordinates.square(coords, size)
-            : Coordinates.circle(coords, size);
+            ? Selections.square(coords, size)
+            : Selections.circle(coords, size);
     }
 }();
 

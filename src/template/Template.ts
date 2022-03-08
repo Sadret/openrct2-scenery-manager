@@ -10,6 +10,7 @@ import * as Coordinates from "../utils/Coordinates";
 import * as Entrance from "./Entrance";
 import * as Footpath from "./Footpath";
 import * as LargeScenery from "./LargeScenery";
+import * as Selections from "../utils/Selections";
 import * as SmallScenery from "./SmallScenery";
 import * as Surface from "./Surface";
 import * as Track from "./Track";
@@ -102,10 +103,7 @@ export default class Template {
                     } : {}),
                 })),
             })),
-            mapRange: {
-                leftTop: Coordinates.add(this.data.mapRange.leftTop, offset),
-                rightBottom: Coordinates.add(this.data.mapRange.rightBottom, offset),
-            },
+            selection: Selections.translate(this.data.selection, offset),
         });
     }
 
@@ -117,10 +115,7 @@ export default class Template {
                 ...Coordinates.rotate(tile, rotation),
                 elements: tile.elements.map(element => get(element).rotate(element, rotation)),
             })),
-            mapRange: Coordinates.toMapRange([
-                Coordinates.rotate(this.data.mapRange.leftTop, rotation),
-                Coordinates.rotate(this.data.mapRange.rightBottom, rotation),
-            ]),
+            selection: Selections.rotate(this.data.selection, rotation),
         });
     }
 
@@ -132,10 +127,7 @@ export default class Template {
                 ...Coordinates.mirror(tile),
                 elements: tile.elements.map(element => get(element).mirror(element)),
             })),
-            mapRange: Coordinates.toMapRange([
-                Coordinates.mirror(this.data.mapRange.leftTop),
-                Coordinates.mirror(this.data.mapRange.rightBottom),
-            ]),
+            selection: Selections.mirror(this.data.selection),
         });
     }
 
@@ -154,7 +146,7 @@ export default class Template {
                 ...tile,
                 elements: tile.elements.filter(filter),
             })),
-            mapRange: this.data.mapRange,
+            selection: this.data.selection,
         });
     }
 

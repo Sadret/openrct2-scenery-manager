@@ -5,6 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as Selections from "../../utils/Selections";
+
 import FileView from "./FileView";
 
 export default class extends FileView<TemplateData> {
@@ -29,7 +31,7 @@ export default class extends FileView<TemplateData> {
 
     getItem(file: IFile<TemplateData>): ListViewItem {
         const data = file.getContent();
-        const range = data.mapRange;
+        const range = Selections.toMapRange(data.selection);
         const num: number = data.tiles.reduce((acc, tile) => acc + tile.elements.length, 0);
         return [
             file.getName(),

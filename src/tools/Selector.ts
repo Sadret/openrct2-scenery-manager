@@ -80,7 +80,7 @@ const selector = new class extends Tool {
     }
 
     private calculateTileSelection(): Selection {
-        const range = Coordinates.toMapRange([this.start, this.end]);
+        const range = Selections.toMapRange([this.start, this.end]);
         if (this.multiSelectEnabled.getValue())
             return this.additive
                 ? Selections.add(this.selection, range)

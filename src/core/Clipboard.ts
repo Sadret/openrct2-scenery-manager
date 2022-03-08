@@ -5,11 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../utils/Coordinates";
 import * as FileDialogs from "../window/FileDialogs";
 import * as Footpath from "../template/Footpath";
 import * as Map from "../core/Map";
 import * as Objects from "../utils/Objects";
+import * as Selections from "../utils/Selections";
 import * as Storage from "../persistence/Storage";
 import * as UI from "../core/UI";
 
@@ -105,11 +105,11 @@ const builder = new class extends Builder {
         return this.transform(
             new Template({
                 tiles: [],
-                mapRange: template.data.mapRange,
+                selection: template.data.selection,
             }),
             coords,
             offset,
-        ).data.mapRange;
+        ).data.selection;
     }
 
     private transform(
@@ -227,8 +227,7 @@ export function copy(cut: boolean = false): void {
     if (selection === undefined)
         return ui.showError("Can't copy area...", "Nothing selected!");
 
-    const range = Array.isArray(selection) ? Coordinates.toMapRange(selection) : selection;
-    const center = Coordinates.center(range);
+    const center = Selections.center(selection);
 
     const heights: number[] = new MapIterator(selection).map(
         Map.getTile,
@@ -268,7 +267,7 @@ export function copy(cut: boolean = false): void {
 
     addTemplate(new Template({
         tiles: data,
-        mapRange: range,
+        selection: selection,
     }).translate({
         x: -center.x,
         y: -center.y,
