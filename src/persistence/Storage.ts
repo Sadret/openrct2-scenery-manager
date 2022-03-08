@@ -23,8 +23,7 @@ export function set<S>(key: string, value: S): void {
 }
 
 export function purge(): void {
-    set<{}>("config", {});
-    set<{}>("libraries", {});
+    Object.keys(context.sharedStorage.getAll(namespace)).forEach(key => set<{}>(key, {}));
 }
 
 interface StorageFolder<T> {
