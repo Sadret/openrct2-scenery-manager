@@ -31,7 +31,7 @@ type TypeFilter = (type: TileElementType | "footpath_addition") => boolean;
 type Selection = MapRange | CoordsXY[] | undefined;
 
 type Bounds = {
-    upper?: number;
-    lower?: number;
-    contained: boolean;
+    upper?: number; // defaults to 255
+    lower?: number; // defaults to 0
+    contained?: boolean; // defaults to true
 }

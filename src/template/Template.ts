@@ -83,7 +83,7 @@ export default class Template {
     }
 
     public transform(mirrored: boolean, rotation: number, offset: CoordsXYZ, bounds: Bounds): Template {
-        return this.mirror(mirrored).rotate(rotation).translate(offset).filterZ(bounds);
+        return this.mirror(mirrored).rotate(rotation).filterZ(bounds).translate(offset).filterZ();
     }
 
     public translate(offset: CoordsXYZ): Template {
@@ -131,12 +131,13 @@ export default class Template {
         });
     }
 
-    public filterZ(bounds: Bounds): Template {
+    public filterZ(bounds: Bounds = {}): Template {
         const lower = bounds.lower ?? 0;
         const upper = bounds.upper ?? 255;
+        const contained = bounds.contained ?? true;
 
         let filter: (element: ElementData) => boolean;
-        if (bounds.contained)
+        if (contained)
             filter = element => element.baseHeight >= lower && element.clearanceHeight <= upper;
         else
             filter = element => (element.clearanceHeight > lower || element.baseHeight >= lower) && (element.baseHeight < upper || element.clearanceHeight <= upper);
