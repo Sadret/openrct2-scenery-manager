@@ -19,16 +19,35 @@ export function includes(selection: Selection, coords: CoordsXY): boolean {
         && coords.y <= selection.rightBottom.y;
 }
 
-export function add(a: Selection, b: Selection): CoordsXY[] {
-    const result = toCoordsList(a);
-    return result.concat(
-        toCoordsList(b).filter(coords => !includes(result, coords))
+export function add(a: Selection, b: Selection): Selection {
+    const listA = toCoordsList(a);
+    const listB = toCoordsList(b);
+    if (listA.length === 0)
+        return b;
+    if (listB.length === 0)
+        return a;
+
+    return listA.concat(
+        listB.filter(
+            coords => !includes(listA, coords)
+        )
     );
 }
 
-export function sub(a: Selection, b: Selection): CoordsXY[] {
-    const minus = toCoordsList(b);
-    return toCoordsList(a).filter(coords => !includes(minus, coords));
+export function sub(a: Selection, b: Selection): Selection {
+    const listA = toCoordsList(a);
+    const listB = toCoordsList(b);
+    if (listA.length === 0)
+        return undefined;
+    if (listB.length === 0)
+        return a;
+
+    const result = listA.filter(
+        coords => !includes(listB, coords)
+    );
+    if (result.length === 0)
+        return undefined;
+    return result;
 }
 
 export function toCoordsList(selection: Selection): CoordsXY[] {

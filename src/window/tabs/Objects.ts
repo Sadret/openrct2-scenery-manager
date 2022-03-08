@@ -30,6 +30,7 @@ function refresh(selection: Selection): void {
     busy = true;
 
     overlay.setIsVisible(true);
+    refreshIndexButton.setIsDisabled(true);
     scanMapButton.setIsDisabled(true);
     scanAreaButton.setIsDisabled(true);
 
@@ -50,13 +51,16 @@ function updateProgress(selection: Selection, done: boolean, progress: number, i
     let label = "Nothing";
     if (selection === undefined)
         label = "Map";
-    else if (!Array.isArray(selection))
+    else if (Array.isArray(selection))
+        label = "Custom selection";
+    else
         label = `From: [x: ${selection.leftTop.x}, y: ${selection.leftTop.y}]  To: [x: ${selection.rightBottom.x}, y: ${selection.rightBottom.y}]`;
     if (!done)
         label += ` (${Math.floor(progress * 100)}%)`;
     scanLabel.setText(label);
 
     if (done) {
+        refreshIndexButton.setIsDisabled(false);
         scanMapButton.setIsDisabled(false);
         scanAreaButton.setIsDisabled(false);
     }
@@ -70,19 +74,24 @@ function updateProgress(selection: Selection, done: boolean, progress: number, i
     }
 }
 
+const refreshIndexButton = new GUI.TextButton({
+    text: "Refresh index",
+    onClick: () => refresh([]),
+});
 const scanMapButton = new GUI.TextButton({
     text: "Scan map",
     onClick: () => refresh(undefined),
 });
 const scanAreaButton = new GUI.TextButton({
     text: "Scan area",
-    onClick: () =>
+    onClick: () => {
+        const selection = UI.getTileSelection();
+        if (selection !== undefined)
+            refresh(selection);
         Selector.activate(
-            () => {
-                Selector.cancel();
-                refresh(UI.getTileSelection());
-            },
-        ),
+            () => refresh(UI.getTileSelection()),
+        );
+    },
 });
 const scanLabel = new GUI.Label({});
 const overlay = new Overlay(1 << 6);
@@ -113,10 +122,7 @@ export default new GUI.Tab({
         ),
         objectList,
         new GUI.HBox([2, 2, 2, 1, 3, 5]).add(
-            new GUI.TextButton({
-                text: "Refresh index",
-                onClick: () => refresh([]),
-            }),
+            refreshIndexButton,
             scanMapButton,
             scanAreaButton,
             new GUI.Space(),

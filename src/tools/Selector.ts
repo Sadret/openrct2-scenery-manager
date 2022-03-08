@@ -79,8 +79,8 @@ const selector = new class extends Tool {
         UI.setTileSelection(this.selection);
     }
 
-    private calculateTileSelection(): CoordsXY[] {
-        const range = Coordinates.toCoords(Coordinates.toMapRange([this.start, this.end]));
+    private calculateTileSelection(): Selection {
+        const range = Coordinates.toMapRange([this.start, this.end]);
         if (this.multiSelectEnabled.getValue())
             return this.additive
                 ? Selections.add(this.selection, range)
