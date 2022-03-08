@@ -48,6 +48,7 @@ If you want to change any hotkey, go to the 'Controls and Interface' tab of Open
 #### Copy and Paste
 
 - **Select Area** `[CTRL + A]`: Activates the selection tool. You can now select an area of the map with click and drag (click the left mouse button and hold it down, move the cursor, release the button).\
+If you want to edit an existing selection, press `[CTRL + SHIFT + A]` to enter a multi-selection mode.
 
 - **Copy Area** `[CTRL + C]`: Copies the selected region to the clipboard and switches to paste mode.
 
