@@ -1,7 +1,7 @@
 /*****************************************************************************
  * Copyright (c) 2020-2022 Sadret
  *
- * The OpenRCT2 plug-in "Scenery Manager" is licensed
+ * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
@@ -10,10 +10,10 @@ import GUI from "../../gui/GUI";
 const text = [
     [
         "Copyright (c) 2020-2022 Sadret",
-        "The OpenRCT2 plug-in \"Scenery Manager\" is licensed",
+        "The OpenRCT2 plugin \"Scenery Manager\" is licensed",
         "under the GNU General Public License version 3.",
     ], [
-        "If you like this plug-in, please leave a star on GitHub.",
+        "If you like this plugin, please leave a star on GitHub.",
         "https://github.com/Sadret/openrct2-scenery-manager",
     ], [
         "If you want to support me, you can buy me a coffee:",

@@ -1,7 +1,7 @@
 /*****************************************************************************
  * Copyright (c) 2020-2022 Sadret
  *
- * The OpenRCT2 plug-in "Scenery Manager" is licensed
+ * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
@@ -59,16 +59,16 @@ function showVersionUndefined(load: Task): void {
         message: [
             "Thank you for using Scenery Manager!",
             "",
-            "You can access the plug-in via the map menu in the upper toolbar.",
+            "You can access the plugin via the map menu in the upper toolbar.",
             "",
             "Your scenery templates will be stored in the plugin.store.json file",
             "in your OpenRCT2 user directory.",
             "",
             "Keep in mind that:",
             "- Your data will be irrecoverably lost if that file gets deleted.",
-            "- Any other plug-in could overwrite that file.",
+            "- Any other plugin could overwrite that file.",
             "",
-            "I hope you enjoy this plug-in!",
+            "I hope you enjoy this plugin!",
         ],
         callback: showHotkeyAlert,
     });
@@ -81,7 +81,7 @@ function showVersionUnknown(load: Task): void {
         title: "Welcome to Scenery Manager!",
         message: [
             "Your clipboard and library contain templates from an unknown",
-            "version of the Scenery Manager plug-in.",
+            "version of the Scenery Manager plugin.",
             "",
             "Did you downgrade from a newer version?",
             "",
@@ -105,7 +105,7 @@ function showVersionTooOld(load: Task): void {
         title: "Welcome to Scenery Manager!",
         message: [
             "Your library contains templates from a previous version of the",
-            "Scenery Manager plug-in.",
+            "Scenery Manager plugin.",
             "",
             "Unfortunately, this version of Scenery Manager is unable to handle",
             "these files.",
