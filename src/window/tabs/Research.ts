@@ -16,7 +16,7 @@ export default new GUI.Tab({
     padding: 8,
     margin: GUI.Margin.uniform(8),
 }).add(
-    new GUI.Label({ text: "Version: 2.0.0-b1", }),
+    new GUI.Label({ text: "Version: 2.0.0 (2022-03-18)", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
         new GUI.Label({ text: "- Raw place mode, copy & paste surface / terrain." }),
         new GUI.Label({ text: "- Restrict pasting vertically." }),
