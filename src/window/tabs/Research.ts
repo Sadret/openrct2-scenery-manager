@@ -24,6 +24,7 @@ export default new GUI.Tab({
         new GUI.Label({ text: "- NSF (.park) support." }),
         new GUI.Label({ text: "- Object index, jump to instance of object." }),
         new GUI.Label({ text: "- Search and replace scenery and footpaths." }),
+        new GUI.Label({ text: "- Multi-select area." }),
     ),
     new GUI.GroupBox({ text: "Known problems" }).add(
         new GUI.Label({ text: "- [Safe mode] Copy / paste does not work well on sloped surfaces." }),

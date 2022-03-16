@@ -80,7 +80,7 @@ Options shared with other tools:
 
 - **Show ghost**: See **[Settings](#Settings)**.
 
-Advanced options, mostly relevant for **Raw* place mode:
+Advanced options, mostly relevant for **Raw** place mode:
 
 - **Force order**: Preserves the exact order of all elements on a tile when they were copied. It inserts the elements at the end of the source tile, rather than merging them into existing elements with respect to their height. This is useful only when the order of the elements were changed in the Tile Inspector.
 
