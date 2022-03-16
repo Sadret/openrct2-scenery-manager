@@ -78,6 +78,7 @@ export default new GUI.Tab({
             );
         });
     },
+    onClose: () => Brush.cancel(),
 }).add(
     new GUI.TextButton({
         text: "Activate brush",

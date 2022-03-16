@@ -160,6 +160,10 @@ export function activate(type: string, provider: BrushProvider): void {
         open();
 }
 
+export function cancel(): void {
+    brush.cancel();
+}
+
 Configuration.brush.showWindow.bind(showWindow => {
     if (brush.isActive())
         if (showWindow)
