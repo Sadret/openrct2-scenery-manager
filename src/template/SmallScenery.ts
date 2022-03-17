@@ -25,17 +25,12 @@ export function mirror(element: SmallSceneryData): SmallSceneryData {
     let direction = element.direction;
     let quadrant = element.quadrant;
 
-    if (isDiagonal(element)) {
+    if (!isFullTile(element))
+        quadrant ^= 0x1;
+    if (isDiagonal(element))
         direction ^= 0x1;
-        if (!isFullTile(element))
-            quadrant ^= 0x1;
-    } else {
-        // direction = Directions.mirror(direction);
-        if (direction & 0x1) // same as above
-            direction ^= 0x2;
-        if (!isHalfSpace(element))
-            quadrant ^= 0x1;
-    }
+    else if (direction & 0x1)
+        direction ^= 0x2;
 
     return {
         ...element,
