@@ -117,17 +117,19 @@ export function mirror(selection: Selection): Selection {
         ]);
 }
 
-export function center(selection: Selection): CoordsXY {
+export function center(selection: Selection, round = true): CoordsXY {
     const range = toMapRange(selection);
-    return Coordinates.round(
-        Coordinates.scale(
-            Coordinates.add(
-                range.rightBottom,
-                range.leftTop,
-            ),
-            0.5,
+    const center = Coordinates.scale(
+        Coordinates.add(
+            range.rightBottom,
+            range.leftTop,
         ),
+        0.5,
     );
+    if (round)
+        return Coordinates.round(center);
+    else
+        return center;
 }
 
 export function centered(center: CoordsXY, size: CoordsXY): MapRange {
@@ -143,7 +145,7 @@ export function centered(center: CoordsXY, size: CoordsXY): MapRange {
     };
 }
 
-export function circle(center: CoordsXY, diameter: number): Selection {
+export function circle(center: CoordsXY, diameter: number): CoordsXY[] {
     const start = Coordinates.round(
         Coordinates.sub(
             center,
@@ -168,7 +170,7 @@ export function circle(center: CoordsXY, diameter: number): Selection {
     );
 }
 
-export function square(center: CoordsXY, diameter: number): Selection {
+export function square(center: CoordsXY, diameter: number): MapRange {
     const start = Coordinates.round(
         Coordinates.sub(
             center,

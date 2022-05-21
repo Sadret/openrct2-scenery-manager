@@ -24,6 +24,7 @@ export default new GUI.WindowManager(
         classification: "scenery-manager.main",
         title: "Scenery Manager",
         colours: [7, 7, 6,], // shades of blue
+        onOpen: reOpen => Events.mainWindowOpen.trigger(reOpen),
     }, [
         CopyPaste,
         TemplateLibrary,
@@ -35,5 +36,4 @@ export default new GUI.WindowManager(
         Research,
         About,
     ],
-    reOpen => Events.mainWindowOpen.trigger(reOpen),
 );
