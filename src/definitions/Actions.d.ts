@@ -56,6 +56,7 @@ interface LargeSceneryPlaceArgs extends PlaceActionArgs {
     readonly object: number;
     readonly primaryColour: number;
     readonly secondaryColour: number;
+    readonly tertiaryColour: number;
 }
 
 interface SmallSceneryPlaceArgs extends PlaceActionArgs {

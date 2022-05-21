@@ -34,6 +34,7 @@ export function copyBase(
     dst.direction = src.direction;
     dst.primaryColour = src.primaryColour;
     dst.secondaryColour = src.secondaryColour;
+    dst.tertiaryColour = src.tertiaryColour || 0;
     dst.bannerIndex = src.bannerIndex;
     dst.sequence = src.sequence;
 }
@@ -73,6 +74,7 @@ export function getPlaceActionData(
             z: element.onSurface ? 0 : element.baseZ,
             flags: flags,
             object: object.index,
+            tertiaryColour: element.tertiaryColour || 0,
         },
     }];
 }
