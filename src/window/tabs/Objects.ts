@@ -24,7 +24,7 @@ const objectList: ObjectList = new ObjectList([], object => {
 });
 
 let busy = false;
-function refresh(selection: Selection): void {
+function refresh(selection: Selection | null): void {
     if (busy)
         return;
     busy = true;
@@ -47,9 +47,11 @@ function refresh(selection: Selection): void {
         selection,
     );
 }
-function updateProgress(selection: Selection, done: boolean, progress: number, index: SceneryIndex): void {
-    let label = "Nothing";
-    if (selection === undefined)
+function updateProgress(selection: Selection | null, done: boolean, progress: number, index: SceneryIndex): void {
+    let label: string;
+    if (selection === null)
+        label = "Nothing";
+    else if (selection === undefined)
         label = "Map";
     else if (Array.isArray(selection))
         label = "Custom selection";
@@ -76,7 +78,7 @@ function updateProgress(selection: Selection, done: boolean, progress: number, i
 
 const refreshIndexButton = new GUI.TextButton({
     text: "Refresh index",
-    onClick: () => refresh([]),
+    onClick: () => refresh(null),
 });
 const scanMapButton = new GUI.TextButton({
     text: "Scan map",
@@ -96,7 +98,7 @@ const scanAreaButton = new GUI.TextButton({
 const scanLabel = new GUI.Label({});
 const overlay = new Overlay(1 << 6);
 
-refresh([]);
+refresh(null);
 
 export default new GUI.Tab({
     image: {

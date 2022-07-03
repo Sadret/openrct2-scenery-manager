@@ -39,50 +39,53 @@ export default class SceneryIndex {
 
     constructor(
         callback: (done: boolean, progress: number, index: SceneryIndex) => void = () => { },
-        selection: Selection = undefined,
+        selection: Selection | null,
     ) {
         SceneryIndex.types.forEach(type => this.data[type] = new SceneryObjectIndex(type));
 
-        new MapIterator(selection).forEach(
-            coords => {
-                const tile = Map.getTile(coords);
-                for (let element of tile.elements)
-                    switch (element.type) {
-                        case "footpath":
-                            if (element.object !== null)
-                                this.data["footpath"].increment(ObjectIndex.getQualifier(
-                                    "footpath",
+        if (selection === null)
+            callback(true, 1, this);
+        else
+            new MapIterator(selection).forEach(
+                coords => {
+                    const tile = Map.getTile(coords);
+                    for (let element of tile.elements)
+                        switch (element.type) {
+                            case "footpath":
+                                if (element.object !== null)
+                                    this.data["footpath"].increment(ObjectIndex.getQualifier(
+                                        "footpath",
+                                        element.object,
+                                    ), tile);
+                                else {
+                                    this.data["footpath_surface"].increment(ObjectIndex.getQualifier(
+                                        "footpath_surface",
+                                        <number>element.surfaceObject,
+                                    ), tile);
+                                    this.data["footpath_railings"].increment(ObjectIndex.getQualifier(
+                                        "footpath_railings",
+                                        <number>element.railingsObject,
+                                    ), tile);
+                                }
+                                if (element.addition !== null)
+                                    this.data["footpath_addition"].increment(ObjectIndex.getQualifier(
+                                        "footpath_addition",
+                                        element.addition,
+                                    ), tile);
+                                break;
+                            case "small_scenery":
+                            case "wall":
+                            case "large_scenery":
+                                this.data[element.type].increment(ObjectIndex.getQualifier(
+                                    element.type,
                                     element.object,
                                 ), tile);
-                            else {
-                                this.data["footpath_surface"].increment(ObjectIndex.getQualifier(
-                                    "footpath_surface",
-                                    <number>element.surfaceObject,
-                                ), tile);
-                                this.data["footpath_railings"].increment(ObjectIndex.getQualifier(
-                                    "footpath_railings",
-                                    <number>element.railingsObject,
-                                ), tile);
-                            }
-                            if (element.addition !== null)
-                                this.data["footpath_addition"].increment(ObjectIndex.getQualifier(
-                                    "footpath_addition",
-                                    element.addition,
-                                ), tile);
-                            break;
-                        case "small_scenery":
-                        case "wall":
-                        case "large_scenery":
-                            this.data[element.type].increment(ObjectIndex.getQualifier(
-                                element.type,
-                                element.object,
-                            ), tile);
-                            break;
-                    }
-            },
-            true,
-            (done, progress) => callback(done, progress, this),
-        );
+                                break;
+                        }
+                },
+                true,
+                (done, progress) => callback(done, progress, this),
+            );
     }
 
     public getAllObjects(type?: SceneryObjectType): SceneryObject[] {
