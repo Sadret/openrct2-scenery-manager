@@ -16,8 +16,10 @@ export default new GUI.Tab({
     padding: 8,
     margin: GUI.Margin.uniform(8),
 }).add(
-    new GUI.Label({ text: "Version: 2.0.0 (2022-03-18)", }),
+    new GUI.Label({ text: "Version:  2.0.1  (2022-07-03)", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
+        new GUI.Label({ text: "- Tertiary colours for large scenery." }),
+        new GUI.Space(2),
         new GUI.Label({ text: "- Raw place mode, copy & paste surface / terrain." }),
         new GUI.Label({ text: "- Restrict pasting vertically." }),
         new GUI.Label({ text: "- Height offset in scatter tool." }),
@@ -38,10 +40,10 @@ export default new GUI.Tab({
         new GUI.Label({ text: "- Blueprint placing." }),
         new GUI.Label({ text: "- Localisation (language support)." }),
         new GUI.Label({ text: "- Share your creations online." }),
-        new GUI.Space(0),
+        new GUI.Space(2),
         new GUI.Label({ text: "- (Edit history and undo function.)" }),
         new GUI.Label({ text: "- (Instancing system.)" }),
-        new GUI.Space(0),
+        new GUI.Space(2),
         new GUI.Label({ text: "- Whatever you propose." }),
     ),
     new GUI.VBox().add(

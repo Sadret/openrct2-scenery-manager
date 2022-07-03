@@ -1,4 +1,4 @@
-2.0.1 (2022-05-??)
+2.0.1 (2022-07-03)
 ------------------------------------------------------------------------
 - Feature: Tertiary colours for large scenery.
 - Fix: [#31] Search in object list does not terminate.
