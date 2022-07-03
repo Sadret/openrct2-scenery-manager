@@ -52,9 +52,10 @@ export default class ElementIterator {
                     if (this.matcher(element)) {
                         this.list.push([tile, Template.copy(element)]);
                         if (this.nextCallback !== undefined) {
-                            this.nextCallback(this.list[this.index], this.index++);
+                            const callback = this.nextCallback;
                             this.nextCallback = undefined;
                             this.progressCallback = undefined;
+                            callback(this.list[this.index], this.index++);
                         }
                     }
             },
