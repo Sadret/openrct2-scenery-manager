@@ -3,9 +3,7 @@ import {
 	version
 } from './package.json';
 
-import {
-	terser
-} from "rollup-plugin-terser";
+import terser from '@rollup/plugin-terser';
 import typescript from "@rollup/plugin-typescript";
 
 export default {

@@ -5,14 +5,14 @@
     "author": "Sadret",
     "license": "GPL-3.0",
     "scripts": {
-        "build-develop": "rollup -c rollup.config.develop.js",
-        "build-release": "rollup -c rollup.config.release.js"
+        "build-develop": "rollup -c rollup.config.develop.js --bundleConfigAsCjs",
+        "build-release": "rollup -c rollup.config.release.js --bundleConfigAsCjs"
     },
     "devDependencies": {
-        "@rollup/plugin-typescript": "^8.2.5",
-        "rollup": "^2.55.1",
-        "rollup-plugin-terser": "^7.0.2",
-        "tslib": "^2.3.0",
-        "typescript": "^4.3.5"
+        "typescript": "^4.9.3",
+        "tslib": "^2.4.1",
+        "rollup": "^3.4.0",
+        "@rollup/plugin-typescript": "^9.0.2",
+        "@rollup/plugin-terser": "^0.1.0"
     }
 }
