@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import GUI from "../../gui/GUI";
+import * as GUI from "../../libs/gui/GUI";
 
 const PARTS = 16;
 const TAU = Math.PI * 2;
@@ -18,8 +18,9 @@ export default class extends GUI.Custom {
 
     public constructor(scale: number) {
         super({
+            height: 0,
             isVisible: false,
-        }, 0);
+        });
         this.scale = scale;
         this.setOnDraw(g => this.onDraw(g));
     }

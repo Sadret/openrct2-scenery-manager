@@ -5,7 +5,8 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import GUI from "../gui/GUI";
+import * as GUI from "../libs/gui/GUI";
+
 import Template from "../template/Template";
 
 export default class extends GUI.WindowManager {
@@ -42,6 +43,7 @@ export default class extends GUI.WindowManager {
                     text: "The following objects from this template are missing:"
                 }),
                 new GUI.ListView({
+                    height: 256,
                     showColumnHeaders: true,
                     canSelect: false,
                     columns: [{
@@ -53,8 +55,8 @@ export default class extends GUI.WindowManager {
                         canSort: true,
                     },],
                     items: items,
-                }, 256),
-                new GUI.HBox([1, 1, 1]).add(
+                }),
+                new GUI.Horizontal().add(
                     new GUI.TextButton({
                         text: "Load anyway",
                         onClick: () => {

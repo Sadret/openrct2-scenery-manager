@@ -7,10 +7,11 @@
 
 import * as Clipboard from "../../core/Clipboard";
 import * as Events from "../../utils/Events";
+import * as GUI from "../../libs/gui/GUI";
 import * as Storage from "../../persistence/Storage";
 
+import File from "../../libs/persistence/File";
 import FileExplorer from "../widgets/FileExplorer";
-import GUI from "../../gui/GUI";
 import TemplateView from "../widgets/TemplateView";
 
 export default new GUI.Tab({
@@ -24,10 +25,10 @@ export default new GUI.Tab({
         new class extends TemplateView {
             constructor() {
                 super();
-                Events.startup.register(() => this.watch(Storage.libraries.templates));
+                Events.startup.bind(() => this.watch(Storage.libraries.templates));
             }
 
-            openFile(file: IFile<TemplateData>): void {
+            openFile(file: File<TemplateData>): void {
                 Clipboard.load(file.getContent());
             }
         }(),

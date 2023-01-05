@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import GUI from "../../gui/GUI";
+import * as GUI from "../../libs/gui/GUI";
 
 const text = [
     [
@@ -35,12 +35,18 @@ export default new GUI.Tab({
     padding: 0,
     margin: GUI.Margin.uniform(8),
 }).add(
-    ...text.map(lines => new GUI.VBox(0, GUI.Margin.none).add(
+    ...text.map(lines => new GUI.Vertical({
+        padding: 0,
+        margin: GUI.Margin.none,
+    }).add(
         new GUI.Label({
             text: separator,
             textAlign: "centred",
         }),
-        new GUI.VBox(8, GUI.Margin.uniform(16)).add(
+        new GUI.Vertical({
+            padding: 8,
+            margin: GUI.Margin.uniform(16),
+        }).add(
             ...lines.map(line => new GUI.Label({
                 text: line,
                 textAlign: "centred",

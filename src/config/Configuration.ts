@@ -7,9 +7,9 @@
 
 import * as Storage from "../persistence/Storage";
 
-import BooleanProperty from "./BooleanProperty";
-import NumberProperty from "./NumberProperty";
-import Property from "./Property";
+import BooleanProperty from "../libs/observables/BooleanProperty";
+import NumberProperty from "../libs/observables/NumberProperty";
+import Property from "../libs/observables/Property";
 
 type C = {
     [index: string]: C;

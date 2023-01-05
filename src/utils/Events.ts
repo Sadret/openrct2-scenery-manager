@@ -5,16 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-class Event<T = void> {
-    private readonly observers = [] as Observer<T>[];
-
-    public register(observer: Observer<T>): void {
-        this.observers.push(observer);
-    };
-    public trigger(args: T): void {
-        this.observers.forEach(observer => observer(args));
-    };
-}
+import Event from "../libs/observables/Event";
 
 export const startup = new Event();
-export const mainWindowOpen = new Event<boolean>();
+export const mainWindowOpen = new Event();

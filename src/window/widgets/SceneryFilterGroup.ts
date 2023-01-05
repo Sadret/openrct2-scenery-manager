@@ -5,14 +5,13 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as GUI from "../../libs/gui/GUI";
 import * as Picker from "../../tools/Picker";
 import * as Strings from "../../utils/Strings";
 
-import GUI from "../../gui/GUI";
-import Multiplexer from "../../config/Multiplexer";
 import ObjectChooser from "../ObjectChooser";
 import ObjectIndex from "../../core/ObjectIndex";
-import Property from "../../config/Property";
+import Property from "../../libs/observables/Property";
 import { SceneryObjectIndex } from "../../core/SceneryIndex";
 
 const filterTypes: SceneryFilterType[] = [
@@ -40,7 +39,7 @@ const NONE = {
     name: "< None >",
 } as SceneryObject;
 
-export default class SceneryFilterGroup extends GUI.GroupBox {
+export default class SceneryFilterGroup extends GUI.Group {
     public readonly type = new Property<SceneryFilterType>("small_scenery");
     public readonly qualifier = new Property<IndexedObject>(ANY);
 
@@ -127,7 +126,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
         );
 
         if (findGroup !== undefined)
-            new Multiplexer([this.type, findGroup.qualifier, this.surface, this.railings]).bind(
+            Property.multiplex(this.type, findGroup.qualifier, this.surface, this.railings).bind(
                 ([type, findQualifier, surface, railings]) => {
                     if (type !== "footpath")
                         return this.error.setValue(false);
@@ -326,7 +325,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
     private buildGUI(): void {
         this.add(
             // TYPE
-            new GUI.HBox([2, 3, 1]).add(
+            new GUI.Horizontal({ colspan: [2, 3, 1] }).add(
                 new GUI.Label({
                     text: "Type:",
                 }),
@@ -347,13 +346,13 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
             ),
 
             // LEGACY OBJECT / OBJECT
-            new GUI.HBox([2, 3, 1]).add(
+            new GUI.Horizontal({ colspan: [2, 3, 1] }).add(
                 new GUI.Label({
                 }).bindText(
                     this.type,
                     type => type === "footpath" ? "Legacy Object:" : "Object:",
                 ).bindIsDisabled(
-                    new Multiplexer<[SceneryFilterType, boolean]>([this.type, this.legacyExists]),
+                    Property.multiplex(this.type, this.legacyExists),
                     ([type, legacyExists]) => type === "footpath" && !legacyExists,
                 ),
                 new GUI.Label({
@@ -361,29 +360,29 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     this.qualifier,
                     s => this.getLabel(s),
                 ).bindIsDisabled(
-                    new Multiplexer<[SceneryFilterType, boolean]>([this.type, this.legacyExists]),
+                    Property.multiplex(this.type, this.legacyExists),
                     ([type, legacyExists]) => type === "footpath" && !legacyExists,
                 ),
                 new GUI.TextButton({
                     text: "...",
                     onClick: () => this.selectFromList(this.type.getValue()),
                 }).bindIsDisabled(
-                    new Multiplexer<[SceneryFilterType, boolean]>([this.type, this.legacyExists]),
+                    Property.multiplex(this.type, this.legacyExists),
                     ([type, legacyExists]) => type === "footpath" && !legacyExists,
                 ),
             ),
 
             // SURFACE OBJECT / PRIMARY COLOUR
-            new GUI.HBox([2, 3, 1]).add(
+            new GUI.Horizontal({ colspan: [2, 3, 1] }).add(
                 new GUI.Label({
                 }).bindText(
                     this.type,
                     type => type === "footpath" ? "Surface Object:" : "Primary Colour:",
                 ),
-                new GUI.MultiBox().add(
+                new GUI.Layers().add(
                     new GUI.Label({
                     }).bindText(
-                        new Multiplexer<[IndexedObject, boolean]>([this.surface, this.error]),
+                        Property.multiplex(this.surface, this.error),
                         ([surface, error]) => this.getLabel(surface, error),
                     ).bindIsVisible(
                         this.type,
@@ -411,22 +410,22 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     this.type,
                     type => type === "footpath" ? "..." : `< ${this.isReplace ? "Keep" : "Any"} >`,
                 ).bindIsPressed(
-                    new Multiplexer([this.type, this.primaryColour]),
+                    Property.multiplex(this.type, this.primaryColour),
                     ([type, colour]) => type !== "footpath" && colour === null,
                 ),
             ),
 
             // RAILINGS OBJECT / SECONDARY COLOUR
-            new GUI.HBox([2, 3, 1]).add(
+            new GUI.Horizontal({ colspan: [2, 3, 1] }).add(
                 new GUI.Label({
                 }).bindText(
                     this.type,
                     type => type === "footpath" ? "Railings Object:" : "Secondary Colour:",
                 ),
-                new GUI.MultiBox().add(
+                new GUI.Layers().add(
                     new GUI.Label({
                     }).bindText(
-                        new Multiplexer<[IndexedObject, boolean]>([this.railings, this.error]),
+                        Property.multiplex(this.railings, this.error),
                         ([railings, error]) => this.getLabel(railings, error),
                     ).bindIsVisible(
                         this.type,
@@ -454,13 +453,13 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     this.type,
                     type => type === "footpath" ? "..." : `< ${this.isReplace ? "Keep" : "Any"} >`,
                 ).bindIsPressed(
-                    new Multiplexer([this.type, this.secondaryColour]),
+                    Property.multiplex(this.type, this.secondaryColour),
                     ([type, colour]) => type !== "footpath" && colour === null,
                 ),
             ),
 
             // ADDITION OBJECT / TERTIARY COLOUR
-            new GUI.HBox([2, 3, 1]).add(
+            new GUI.Horizontal({ colspan: [2, 3, 1] }).add(
                 new GUI.Label({
                 }).bindText(
                     this.type,
@@ -469,7 +468,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     this.type,
                     type => type === "footpath" || type === "wall" || type === "large_scenery",
                 ),
-                new GUI.MultiBox().add(
+                new GUI.Layers().add(
                     new GUI.Label({
                     }).bindText(
                         this.addition,
@@ -500,7 +499,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     this.type,
                     type => type === "footpath" ? "..." : `< ${this.isReplace ? "Keep" : "Any"} >`,
                 ).bindIsPressed(
-                    new Multiplexer([this.type, this.tertiaryColour]),
+                    Property.multiplex(this.type, this.tertiaryColour),
                     ([type, colour]) => (type === "wall" || type === "large_scenery") && colour === null,
                 ).bindIsVisible(
                     this.type,

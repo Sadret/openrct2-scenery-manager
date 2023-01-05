@@ -6,12 +6,12 @@
  *****************************************************************************/
 
 import * as Events from "../utils/Events";
+import * as GUI from "../libs/gui/GUI";
 
 import About from "./tabs/About";
 import Benches from "./tabs/Benches";
 import Configuration from "./tabs/Configuration";
 import CopyPaste from "./tabs/CopyPaste";
-import GUI from "../gui/GUI";
 import Objects from "./tabs/Objects";
 import Replace from "./tabs/Replace";
 import Research from "./tabs/Research";
@@ -24,7 +24,7 @@ export default new GUI.WindowManager(
         classification: "scenery-manager.main",
         title: "Scenery Manager",
         colours: [7, 7, 6,], // shades of blue
-        onOpen: reOpen => Events.mainWindowOpen.trigger(reOpen),
+        onOpen: () => Events.mainWindowOpen.trigger(),
     }, [
         CopyPaste,
         TemplateLibrary,

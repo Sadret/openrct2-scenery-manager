@@ -6,13 +6,13 @@
  *****************************************************************************/
 
 import * as Coordinates from "../utils/Coordinates";
+import * as GUI from "../libs/gui/GUI";
 import * as Selections from "../utils/Selections";
 import * as Strings from "../utils/Strings";
 import * as UI from "../core/UI";
 
-import BooleanProperty from "../config/BooleanProperty";
+import BooleanProperty from "../libs/observables/BooleanProperty";
 import Configuration from "../config/Configuration";
-import GUI from "../gui/GUI";
 import MainWindow from "../window/MainWindow";
 import Tool from "./Tool";
 
@@ -108,7 +108,7 @@ const window = new GUI.WindowManager(
         colours: [7, 7, 6,],
         onClose: () => Configuration.selector.showWindow.getValue() && selector.cancel(),
     }, new GUI.Window().add(
-        new GUI.HBox([1, 1]).add(
+        new GUI.Horizontal().add(
             new GUI.Label({
                 text: "CursorMode:",
             }),
@@ -142,7 +142,7 @@ function open(): void {
     if (main === undefined)
         window.open();
     else
-        window.open(main, WIDTH);
+        window.open(main);
 }
 
 Configuration.selector.showWindow.bind(showWindow => {

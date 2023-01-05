@@ -5,14 +5,14 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as GUI from "../libs/gui/GUI";
 import * as Selections from "../utils/Selections";
 import * as Strings from "../utils/Strings";
 
 import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
-import GUI from "../gui/GUI";
 import MainWindow from "../window/MainWindow";
-import Property from "../config/Property";
+import Property from "../libs/observables/Property";
 
 type BrushProvider = (coords: CoordsXY) => TileData;
 
@@ -70,7 +70,7 @@ const window = new GUI.WindowManager(
         colours: [7, 7, 6,],
         onClose: () => Configuration.brush.showWindow.getValue() && brush.cancel(),
     }, new GUI.Window().add(
-        new GUI.HBox([1, 1]).add(
+        new GUI.Horizontal().add(
             new GUI.Label({
                 text: "Current tool:",
             }),
@@ -80,7 +80,7 @@ const window = new GUI.WindowManager(
             ),
         ),
         new GUI.Separator(),
-        new GUI.HBox([1, 1]).add(
+        new GUI.Horizontal().add(
             new GUI.Label({
                 text: "Cursor mode:",
             }),
@@ -91,7 +91,7 @@ const window = new GUI.WindowManager(
                 Strings.toDisplayString,
             ),
         ),
-        new GUI.HBox([1, 1]).add(
+        new GUI.Horizontal().add(
             new GUI.Label({
                 text: "Place mode:",
             }),
@@ -102,7 +102,7 @@ const window = new GUI.WindowManager(
                 Strings.toDisplayString,
             ),
         ),
-        new GUI.HBox([1, 1]).add(
+        new GUI.Horizontal().add(
             new GUI.Label({
                 text: "Show ghost:",
             }),
@@ -112,7 +112,7 @@ const window = new GUI.WindowManager(
             ),
         ),
         new GUI.Separator(),
-        new GUI.HBox([1, 1]).add(
+        new GUI.Horizontal().add(
             new GUI.Label({
                 text: "Size:",
             }),
@@ -121,7 +121,7 @@ const window = new GUI.WindowManager(
                 Configuration.brush.size,
             ),
         ),
-        new GUI.HBox([1, 1]).add(
+        new GUI.Horizontal().add(
             new GUI.Label({
                 text: "Shape:",
             }),
@@ -132,7 +132,7 @@ const window = new GUI.WindowManager(
                 Strings.toDisplayString,
             ),
         ),
-        new GUI.HBox([1, 1]).add(
+        new GUI.Horizontal().add(
             new GUI.Label({
                 text: "Drag to place:",
             }),
@@ -149,7 +149,7 @@ function open(): void {
     if (main === undefined)
         window.open();
     else
-        window.open(main, WIDTH);
+        window.open(main);
 }
 
 export function activate(type: string, provider: BrushProvider): void {

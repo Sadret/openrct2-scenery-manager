@@ -5,10 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as GUI from "../../libs/gui/GUI";
 import * as Strings from "../../utils/Strings";
 
 import Configuration from "../../config/Configuration";
-import GUI from "../../gui/GUI";
 
 export default new GUI.Tab({
     image: {
@@ -17,10 +17,10 @@ export default new GUI.Tab({
         frameDuration: 4,
     },
 }).add(
-    new GUI.GroupBox({
+    new GUI.Group({
         text: "All Tools",
     }).add(
-        new GUI.HBox([16, 5]).add(
+        new GUI.Horizontal({ colspan: [16, 5] }).add(
             new GUI.Label({
                 text: "Cursor mode:",
             }),
@@ -31,7 +31,7 @@ export default new GUI.Tab({
                 Strings.toDisplayString,
             ),
         ),
-        new GUI.HBox([16, 5]).add(
+        new GUI.Horizontal({ colspan: [16, 5] }).add(
             new GUI.Label({
                 text: "Place mode:",
             }),
@@ -47,7 +47,7 @@ export default new GUI.Tab({
         }).bindValue(
             Configuration.tools.showGhost,
         ),
-        new GUI.HBox([16, 5]).add(
+        new GUI.Horizontal({ colspan: [16, 5] }).add(
             new GUI.Label({
                 text: "Behaviour if element unavailable:",
             }),
@@ -58,7 +58,7 @@ export default new GUI.Tab({
                 Strings.toDisplayString,
             ),
         ),
-    ), new GUI.GroupBox({
+    ), new GUI.Group({
         text: "Paste Tool",
     }).add(
         new GUI.Checkbox({
@@ -82,7 +82,7 @@ export default new GUI.Tab({
         }).bindValue(
             Configuration.paste.cursorRotation.enabled,
         ),
-        new GUI.HBox([1, 20]).add(
+        new GUI.Horizontal({ colspan: [1, 20] }).add(
             new GUI.Space(),
             new GUI.Checkbox({
                 text: "Flip rotation direction",
@@ -93,7 +93,7 @@ export default new GUI.Tab({
                 enabled => !enabled,
             ),
         ),
-        new GUI.HBox([1, 15, 5]).add(
+        new GUI.Horizontal({ colspan: [1, 15, 5] }).add(
             new GUI.Space(),
             new GUI.Label({
                 text: "Sensitivity:",
@@ -110,7 +110,7 @@ export default new GUI.Tab({
             ),
         ),
     ),
-    new GUI.GroupBox({
+    new GUI.Group({
         text: "Area Selection Tool",
     }).add(
         new GUI.Checkbox({
@@ -124,10 +124,10 @@ export default new GUI.Tab({
             Configuration.selector.showWindow,
         ),
     ),
-    new GUI.GroupBox({
+    new GUI.Group({
         text: "Brush Tool",
     }).add(
-        new GUI.HBox([16, 5]).add(
+        new GUI.Horizontal({ colspan: [16, 5] }).add(
             new GUI.Label({
                 text: "Size:",
             }),
@@ -136,7 +136,7 @@ export default new GUI.Tab({
                 Configuration.brush.size,
             ),
         ),
-        new GUI.HBox([16, 5]).add(
+        new GUI.Horizontal({ colspan: [16, 5] }).add(
             new GUI.Label({
                 text: "Shape:",
             }),
@@ -158,7 +158,7 @@ export default new GUI.Tab({
             Configuration.brush.showWindow,
         ),
     ),
-    // new GUI.GroupBox({
+    // new GUI.Group({
     //     text: "Window",
     // }).add(
     //     new GUI.Checkbox({
@@ -167,7 +167,7 @@ export default new GUI.Tab({
     //         Configuration.window.showAdvancedCopyPasteSettings,
     //     ),
     // ),
-    new GUI.GroupBox({
+    new GUI.Group({
         text: "Help",
     }).add(
         new GUI.Label({

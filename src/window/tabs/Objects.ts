@@ -5,9 +5,9 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as GUI from "../../libs/gui/GUI";
 import * as UI from "../../core/UI";
 
-import GUI from "../../gui/GUI";
 import ObjectDetails from "../ObjectDetails";
 import ObjectList from "../widgets/ObjectList";
 import Overlay from "../widgets/Overlay";
@@ -108,13 +108,13 @@ export default new GUI.Tab({
     },
     width: 768,
 }).add(
-    new GUI.OverlayBox(
-        overlay,
-    ).add(
-        new GUI.GroupBox({
+    new GUI.Overlay({
+        overlay: overlay,
+    }).add(
+        new GUI.Group({
             text: "Filter",
         }).add(
-            new GUI.HBox([1, 3, 1, 1, 2, 1, 2, 3, 1]).add(
+            new GUI.Horizontal({ colspan: [1, 3, 1, 1, 2, 1, 2, 3, 1] }).add(
                 ...objectList.typeWidgets,
                 new GUI.Space(),
                 ...objectList.usageWidgets,
@@ -123,7 +123,7 @@ export default new GUI.Tab({
             ),
         ),
         objectList,
-        new GUI.HBox([2, 2, 2, 1, 3, 5]).add(
+        new GUI.Horizontal({ colspan: [2, 2, 2, 1, 3, 5] }).add(
             refreshIndexButton,
             scanMapButton,
             scanAreaButton,

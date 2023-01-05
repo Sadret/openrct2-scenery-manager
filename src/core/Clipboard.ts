@@ -13,12 +13,12 @@ import * as Selections from "../utils/Selections";
 import * as Storage from "../persistence/Storage";
 import * as UI from "../core/UI";
 
-import BooleanProperty from "../config/BooleanProperty";
+import BooleanProperty from "../libs/observables/BooleanProperty";
 import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
 import MapIterator from "../utils/MapIterator";
 import MissingObjectList from "../window/MissingObjectList";
-import NumberProperty from "../config/NumberProperty";
+import NumberProperty from "../libs/observables/NumberProperty";
 import ObjectIndex from "./ObjectIndex";
 import Template from "../template/Template";
 import TemplateView from "../window/widgets/TemplateView";

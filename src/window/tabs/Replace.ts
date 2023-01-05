@@ -6,13 +6,13 @@
  *****************************************************************************/
 
 import * as Dialogs from "../../utils/Dialogs";
+import * as GUI from "../../libs/gui/GUI";
 import * as Map from "../../core/Map";
 import * as Strings from "../../utils/Strings";
 import * as UI from "../../core/UI";
 
-import BooleanProperty from "../../config/BooleanProperty";
+import BooleanProperty from "../../libs/observables/BooleanProperty";
 import Configuration from "../../config/Configuration";
-import GUI from "../../gui/GUI";
 import Jumper from "../../utils/Jumper";
 import MapIterator from "../../utils/MapIterator";
 import Overlay from "../widgets/Overlay";
@@ -158,24 +158,23 @@ export default new GUI.Tab({
         frameCount: 8,
         frameDuration: 4,
     },
-    onOpen: () => {
+    onShow: () => {
         findGroup.reload();
         replaceGroup.reload();
     },
 }).add(
-    new GUI.OverlayBox(
-        overlay,
-    ).add(
+    new GUI.Overlay({
+        overlay: overlay,
+    }).add(
         findGroup,
-        new GUI.HBox(
-            [1.8, 0.2, 1],
-            undefined,
-            {
+        new GUI.Horizontal({
+            colspan: [1.8, 0.2, 1],
+            margin: {
                 ...GUI.Margin.none,
                 left: GUI.Margin.default.left + 2,
                 right: GUI.Margin.default.right + 2,
             },
-        ).add(
+        }).add(
             (() => {
                 const button = new GUI.TextButton({});
 
@@ -204,15 +203,14 @@ export default new GUI.Tab({
         ),
         new GUI.Space(),
         replaceGroup,
-        new GUI.HBox(
-            [1.8, 0.2, 1],
-            undefined,
-            {
+        new GUI.Horizontal({
+            colspan: [1.8, 0.2, 1],
+            margin: {
                 ...GUI.Margin.none,
                 left: GUI.Margin.default.left + 2,
                 right: GUI.Margin.default.right + 2,
             },
-        ).add(
+        }).add(
             new GUI.TextButton({
                 text: "Swap search values and replace values",
                 onClick: () => swapValues(),
@@ -226,10 +224,10 @@ export default new GUI.Tab({
             ),
         ),
         new GUI.Space(),
-        new GUI.GroupBox({
+        new GUI.Group({
             text: "Options",
         }).add(
-            new GUI.HBox([2.5, 1, 2.5]).add(
+            new GUI.Horizontal({ colspan: [2.5, 1, 2.5] }).add(
                 new GUI.Checkbox({
                     text: "Selected area only",
                 }).bindValue(selectionOnlyProp),
@@ -238,7 +236,7 @@ export default new GUI.Tab({
                     text: "In park only",
                 }).bindValue(inParkOnlyProp),
             ),
-            new GUI.HBox([2.5, 1, 1.5, 1]).add(
+            new GUI.Horizontal({ colspan: [2.5, 1, 1.5, 1] }).add(
                 new GUI.TextButton({
                     text: "Select area",
                     onClick: () => Selector.activate(),

@@ -5,17 +5,17 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as GUI from "../../libs/gui/GUI";
 import * as Strings from "../../utils/Strings";
 
-import GUI from "../../gui/GUI";
-import Property from "../../config/Property";
+import Property from "../../libs/observables/Property";
 import SceneryIndex from "../../core/SceneryIndex";
 
 type Usage = "all" | "on_map" | "in_park";
 const usages: Usage[] = ["all", "on_map", "in_park"];
 
-function getColumns(showDetails: boolean): ListViewColumn[] {
-    const columns: ListViewColumn[] = [];
+function getColumns(showDetails: boolean): Partial<ListViewColumn>[] {
+    const columns: Partial<ListViewColumn>[] = [];
     if (showDetails)
         columns.push(
             {
@@ -65,7 +65,7 @@ export default class extends GUI.ListView {
             text: "Type:"
         }),
         new GUI.Dropdown({
-        }).bindValue(this.typeProp, [
+        }).bindValue<"all" | SceneryObjectType>(this.typeProp, [
             "all",
             ...SceneryIndex.types,
         ], Strings.toDisplayString),
@@ -95,9 +95,10 @@ export default class extends GUI.ListView {
         showDetails: boolean = true,
     ) {
         super({
+            height: 384,
             showColumnHeaders: true,
             columns: getColumns(showDetails),
-        }, 384);
+        });
 
         this.callback = callback;
         this.showDetails = showDetails;

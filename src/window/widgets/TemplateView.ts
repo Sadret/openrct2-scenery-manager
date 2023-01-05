@@ -7,6 +7,7 @@
 
 import * as Selections from "../../utils/Selections";
 
+import File from "../../libs/persistence/File";
 import FileView from "./FileView";
 
 export default class extends FileView<TemplateData> {
@@ -29,8 +30,16 @@ export default class extends FileView<TemplateData> {
         );
     }
 
-    getItem(file: IFile<TemplateData>): ListViewItem {
+    getItem(file: File<TemplateData>): ListViewItem {
         const data = file.getContent();
+        if (!data)
+            return [
+                file.getName(),
+                "?",
+                "?",
+                "?",
+            ];
+
         const range = Selections.toMapRange(data.selection);
         const num: number = data.tiles.reduce((acc, tile) => acc + tile.elements.length, 0);
         return [

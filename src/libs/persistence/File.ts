@@ -28,10 +28,14 @@ export default class File<T> {
         const parent = this.fs.getParent(this.id);
         return parent === undefined ? undefined : new File(this.fs, parent);
     }
+    public getPath(delimiter: string = "/"): string {
+        const parent = this.getParent();
+        return (parent ? parent.getPath(delimiter) : "") + this.getName() + (this.isFolder() ? delimiter : "");
+    }
     public exists(): boolean { return this.fs.exists(this.id); };
     public isFolder(): boolean { return this.fs.isFolder(this.id); };
     public isFile(): boolean { return this.fs.isFile(this.id); };
-    public getIds(): File<T>[] {
+    public getFiles(): File<T>[] {
         return this.fs.getFiles(this.id).map(id => new File(this.fs, id));
     };
     public getContent(): T | undefined { return this.fs.getContent(this.id); };

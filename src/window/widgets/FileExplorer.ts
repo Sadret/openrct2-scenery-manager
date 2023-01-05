@@ -6,11 +6,12 @@
  *****************************************************************************/
 
 import * as Dialogs from "../../utils/Dialogs";
+import * as GUI from "../../libs/gui/GUI";
 
+import File from "../../libs/persistence/File";
 import FileView from "./FileView";
-import GUI from "../../gui/GUI";
 
-export default class FileExplorer<T> extends GUI.VBox {
+export default class FileExplorer<T> extends GUI.Vertical {
     constructor(
         fileView: FileView<T>,
         allowFileCreation: boolean = false,
@@ -20,7 +21,7 @@ export default class FileExplorer<T> extends GUI.VBox {
         this.add(
             new GUI.Label({}).bindText(fileView.path),
             fileView,
-            new GUI.HBox([1, 1, 1, 1]).add(
+            new GUI.Horizontal().add(
                 new GUI.TextButton({
                     text: "New folder",
                     onClick: () => ui.showTextInput({
@@ -94,5 +95,5 @@ export default class FileExplorer<T> extends GUI.VBox {
     }
 
     public createFile(): T | undefined { return undefined; };
-    public onFileCreation(_file: IFile<T>): void { };
+    public onFileCreation(_file: File<T>): void { };
 };

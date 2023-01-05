@@ -108,4 +108,4 @@ export default class ObjectIndex<T extends IndexedObject = IndexedObject> {
         return loadedObject && loadedObject.flags;
     }
 }
-Events.mainWindowOpen.register(reOpen => reOpen || ObjectIndex.reload());
+Events.mainWindowOpen.bind(() => ObjectIndex.reload());

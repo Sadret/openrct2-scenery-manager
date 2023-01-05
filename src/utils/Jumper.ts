@@ -8,8 +8,8 @@
 import * as  Map from "../core/Map";
 
 import ElementIterator from "./ElementIterator";
-import GUI from "../gui/GUI";
-import Property from "../config/Property";
+import * as GUI from "../libs/gui/GUI";
+import Property from "../libs/observables/Property";
 
 const defaultLabel = "Jump to next instance";
 

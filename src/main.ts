@@ -31,6 +31,7 @@ registerPlugin({
             ui.registerMenuItem("Scenery Manager", () => MainWindow.open());
             Shortcuts.register();
             Events.startup.trigger();
+            MainWindow.invalidate();
         });
     },
 });

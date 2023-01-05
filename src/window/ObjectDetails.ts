@@ -5,11 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as GUI from "../libs/gui/GUI";
 import * as Replace from "./tabs/Replace";
 import * as Strings from "../utils/Strings";
 
-import BooleanProperty from "../config/BooleanProperty";
-import GUI from "../gui/GUI";
+import BooleanProperty from "../libs/observables/BooleanProperty";
 import Jumper from "../utils/Jumper";
 import MainWindow from "./MainWindow";
 
@@ -40,7 +40,7 @@ export default class extends GUI.WindowManager {
                 title: "Object Details",
                 colours: [7, 7, 6],
             }, new GUI.Window().add(
-                new GUI.HBox([1, 3]).add(
+                new GUI.Horizontal({ colspan: [1, 3] }).add(
                     new GUI.Label({
                         text: "Type:",
                     }),
@@ -48,7 +48,7 @@ export default class extends GUI.WindowManager {
                         text: Strings.toDisplayString(object.type),
                     }),
                 ),
-                new GUI.HBox([1, 3]).add(
+                new GUI.Horizontal({ colspan: [1, 3] }).add(
                     new GUI.Label({
                         text: "Name:",
                     }),
@@ -56,7 +56,7 @@ export default class extends GUI.WindowManager {
                         text: object.name,
                     }),
                 ),
-                new GUI.HBox([1, 3]).add(
+                new GUI.Horizontal({ colspan: [1, 3] }).add(
                     new GUI.Label({
                         text: "Identifier:",
                     }),
@@ -65,7 +65,7 @@ export default class extends GUI.WindowManager {
                     }),
                 ),
                 new GUI.Space(4),
-                new GUI.HBox([2, 1, 1]).add(
+                new GUI.Horizontal({ colspan: [2, 1, 1] }).add(
                     new GUI.Label({
                         text: "Go to:  delete / replace all",
                     }),
@@ -91,7 +91,7 @@ export default class extends GUI.WindowManager {
                         button,
                     );
 
-                    return new GUI.HBox([2, 1, 1]).add(
+                    return new GUI.Horizontal({ colspan: [2, 1, 1] }).add(
                         new GUI.Label({
                             text: "Jump to next instance:",
                         }),

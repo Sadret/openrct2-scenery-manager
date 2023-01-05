@@ -9,7 +9,7 @@ import * as Dialogs from "./utils/Dialogs";
 import * as Storage from "./persistence/Storage";
 
 export function update(load: Task): void {
-    const version = Storage.get<String>("version");
+    const version = Storage.get<string>("version");
     if (version === undefined)
         return showVersionUndefined(load);
 
@@ -32,7 +32,7 @@ export function update(load: Task): void {
 }
 
 function setVersion(): void {
-    Storage.set<string>("version", "2.0.0");
+    Storage.set("version", "2.0.0");
 }
 
 function showHotkeyAlert(): void {
@@ -116,7 +116,7 @@ function showVersionTooOld(load: Task): void {
         ],
         callback: confirmed => {
             if (confirmed) {
-                Storage.purge();
+                Storage.purgeAll();
                 showHotkeyAlert();
                 setVersion();
                 load();

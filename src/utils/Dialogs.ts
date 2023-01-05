@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import GUI from "../gui/GUI";
+import * as GUI from "../libs/gui/GUI";
 
 export function showDialog(
     title: string,
@@ -22,10 +22,13 @@ export function showDialog(
             colours: [7, 7, 6,], // shades of blue
         },
         new GUI.Window().add(
-            new GUI.VBox(2, GUI.Margin.uniform(8)).add(
+            new GUI.Vertical({
+                padding: 2,
+                margin: GUI.Margin.uniform(8),
+            }).add(
                 ...message.map(line => new GUI.Label({ text: line, })),
                 new GUI.Space(4),
-                new GUI.HBox(buttons.map(_ => 1)).add(
+                new GUI.Horizontal().add(
                     ...buttons.map(
                         (button, idx) => new GUI.TextButton({
                             text: button,

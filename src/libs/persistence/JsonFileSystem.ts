@@ -18,6 +18,8 @@ function replaceAll(text: string, search: string, replacement: string): string {
 }
 
 function encode(text: string): string {
+    if (text === "")
+        return escape("");
     text = replaceAll(text, escape(""), escape(escape("")));
     text = replaceAll(text, ".", escape("d"));
     text = replaceAll(text, "/", escape("s"));
@@ -25,6 +27,8 @@ function encode(text: string): string {
 }
 
 function decode(text: string): string {
+    if (text === escape(""))
+        return "";
     text = replaceAll(text, escape("s"), "/");
     text = replaceAll(text, escape("d"), ".");
     text = replaceAll(text, escape(escape("")), escape(""));
@@ -33,19 +37,19 @@ function decode(text: string): string {
 
 // storage helper functions
 
-export function has(key: string): boolean {
+function has(key: string): boolean {
     return context.sharedStorage.has(key);
 }
 
-export function get<S>(key: string): S | undefined {
+function get<S>(key: string): S | undefined {
     return context.sharedStorage.get(key);
 }
 
-export function set<S>(key: string, value: S): void {
+function set<S>(key: string, value: S): void {
     context.sharedStorage.set(key, value);
 }
 
-export function purge(namespace: string): void {
+function purge(namespace: string): void {
     Object.keys(context.sharedStorage.getAll(namespace)).forEach(key => set<{}>(key, {}));
 }
 
@@ -104,6 +108,10 @@ export default class JsonFileSystem<T> implements FileSystem<T> {
             if (idx !== -1)
                 this.watchers.splice(idx, 1);
         };
+    }
+
+    public purge(): void {
+        purge(this.namespace);
     }
 
     // file information

@@ -43,6 +43,16 @@ function matchAll(s: string, pattern: string): string[] {
     return result;
 }
 
+export function replaceAll(text: string, search: string, replacement: string): string {
+    return text.split(search).join(replacement);
+}
+
 export function toDisplayString(s: string | null): string {
     return s === null ? "" : s.split("_").map(token => token.charAt(0).toUpperCase() + token.slice(1)).join(" ");
+}
+
+export function escapeColours(s: string): string {
+    s = replaceAll(s, "{", "{{");
+    s = replaceAll(s, "}", "}}");
+    return s;
 }

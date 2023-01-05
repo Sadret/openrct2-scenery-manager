@@ -8,13 +8,13 @@
 import * as Arrays from "../../utils/Arrays";
 import * as Brush from "../../tools/Brush";
 import * as Coordinates from "../../utils/Coordinates";
+import * as GUI from "../../libs/gui/GUI";
 import * as Map from "../../core/Map";
 import * as Picker from "../../tools/Picker";
 
-import GUI from "../../gui/GUI";
-import NumberProperty from "../../config/NumberProperty";
+import NumberProperty from "../../libs/observables/NumberProperty";
 import ObjectIndex from "../../core/ObjectIndex";
-import Property from "../../config/Property";
+import Property from "../../libs/observables/Property";
 import Template from "../../template/Template";
 
 const EMPTY_STRING = "(empty)";
@@ -58,7 +58,7 @@ function provide(coords: CoordsXY): TileData {
 
 export default new GUI.Tab({
     image: 5464,
-    onOpen: () => {
+    onShow: () => {
         const loadedEntries = [null as (IndexedObject | null)].concat(
             ObjectIndex.getAllObjects("footpath_addition")
         );
@@ -78,7 +78,7 @@ export default new GUI.Tab({
             );
         });
     },
-    onClose: () => Brush.cancel(),
+    onHide: () => Brush.cancel(),
 }).add(
     new GUI.TextButton({
         text: "Activate brush",
@@ -87,23 +87,22 @@ export default new GUI.Tab({
             provide,
         ),
     }),
-    new GUI.GroupBox({
+    new GUI.Group({
         text: "Options",
     }).add(
-        new GUI.HBox([3, 2]).add(
+        new GUI.Horizontal({ colspan: [4, 2] }).add(
             new GUI.Label({
                 text: "Pattern size:",
             }),
             new GUI.Spinner({
             }).bindValue(size),
-            new GUI.Space(),
         ),
     ),
-    new GUI.GroupBox({
+    new GUI.Group({
         text: "Pattern",
     }).add(
         ...entries.map((entry, idx) =>
-            new GUI.HBox([4, 1, 1,]).add(
+            new GUI.Horizontal({ colspan: [4, 1, 1] }).add(
                 dropdowns[idx],
                 new GUI.TextButton({
                     text: "Pick",

@@ -5,17 +5,19 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import * as GUI from "../libs/gui/GUI";
+
+import File from "../libs/persistence/File";
 import FileExplorer from "./widgets/FileExplorer";
 import FileView from "./widgets/FileView";
-import GUI from "../gui/GUI";
 
 export function showSave<T>(args: {
     title: string,
-    fileSystem: IFileSystem<T>,
+    fileSystem: FileSystem<T>,
     fileView: FileView<T>,
     fileContent: T,
 }): void {
-    args.fileView.openFile = (file: IFile<T>) => {
+    args.fileView.openFile = (file: File<T>) => {
         args.fileView.getWindow() ?.close();
         file.setContent(args.fileContent);
     };
@@ -40,11 +42,11 @@ export function showSave<T>(args: {
 
 export function showLoad<T>(args: {
     title: string,
-    fileSystem: IFileSystem<T>,
+    fileSystem: FileSystem<T>,
     fileView: FileView<T>,
-    onLoad: (fileContent: T) => void,
+    onLoad: (fileContent: T | undefined) => void,
 }): void {
-    args.fileView.openFile = (file: IFile<T>) => {
+    args.fileView.openFile = (file: File<T>) => {
         args.fileView.getWindow() ?.close();
         args.onLoad(file.getContent());
     };

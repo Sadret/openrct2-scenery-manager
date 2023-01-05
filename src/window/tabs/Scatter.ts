@@ -13,12 +13,12 @@ import * as Picker from "../../tools/Picker";
 import * as SmallScenery from "../../template/SmallScenery";
 import * as Storage from "../../persistence/Storage";
 
-import BooleanProperty from "../../config/BooleanProperty";
+import BooleanProperty from "../../libs/observables/BooleanProperty";
 import Configuration from "../../config/Configuration";
-import GUI from "../../gui/GUI";
-import NumberProperty from "../../config/NumberProperty";
+import * as GUI from "../../libs/gui/GUI";
+import NumberProperty from "../../libs/observables/NumberProperty";
 import ObjectIndex from "../../core/ObjectIndex";
-import Property from "../../config/Property";
+import Property from "../../libs/observables/Property";
 import ScatterPatternView from "../widgets/ScatterPatternView";
 import Template from "../../template/Template";
 
@@ -164,6 +164,9 @@ function load(): void {
         fileSystem: Storage.libraries.scatterPattern,
         fileView: new ScatterPatternView(),
         onLoad: pattern => {
+            if (!pattern)
+                return console.log("[scenery-manager] Cannot load scatter pattern.");
+
             const isAvailable = Arrays.find(pattern, data => !Template.isAvailable(data.element)) === null;
 
             if (!isAvailable) {
@@ -206,13 +209,13 @@ function updateEntryWeight(entry: Property<ScatterData | null>, value: number, a
 
 export default new GUI.Tab({
     image: 5459,
-    onClose: () => Brush.cancel(),
+    onHide: () => Brush.cancel(),
 }).add(
-    new GUI.GroupBox({
+    new GUI.Group({
         text: "Options",
     }).add(
-        new GUI.HBox([2, 3]).add(
-            new GUI.VBox().add(
+        new GUI.Horizontal({ colspan: [2, 3] }).add(
+            new GUI.Vertical().add(
                 new GUI.Checkbox({
                     text: "Randomise rotation",
                 }).bindValue(
@@ -224,8 +227,8 @@ export default new GUI.Tab({
                     Configuration.scatter.randomiseQuadrant,
                 ),
             ),
-            new GUI.VBox().add(
-                new GUI.HBox([1, 1]).add(
+            new GUI.Vertical().add(
+                new GUI.Horizontal().add(
                     new GUI.Checkbox({
                         text: "Height offset:",
                     }).bindValue(
@@ -242,11 +245,11 @@ export default new GUI.Tab({
             ),
         ),
     ),
-    new GUI.GroupBox({
+    new GUI.Group({
         text: "Pattern",
     }).add(
         ...entries.map(entry =>
-            new GUI.HBox([10, 4, 2, 2, 3,]).add(
+            new GUI.Horizontal({ colspan: [10, 4, 2, 2, 3] }).add(
                 new GUI.Label({}).bindText(
                     entry,
                     getLabel,
@@ -305,7 +308,7 @@ export default new GUI.Tab({
                 ),
             ),
         ),
-        new GUI.HBox([10, 4, 7,]).add(
+        new GUI.Horizontal({ colspan: [10, 4, 7] }).add(
             new GUI.Label({
                 text: "(empty)",
                 isDisabled: true,
@@ -322,7 +325,7 @@ export default new GUI.Tab({
             }),
         ),
         new GUI.Space(2),
-        new GUI.HBox([7, 7, 7]).add(
+        new GUI.Horizontal().add(
             new GUI.TextButton({
                 text: "Save",
                 onClick: save,
