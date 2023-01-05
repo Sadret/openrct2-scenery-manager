@@ -73,7 +73,7 @@ function showVersionUndefined(load: Task): void {
         callback: showHotkeyAlert,
     });
     setVersion();
-    return load();
+    load();
 }
 
 function showVersionUnknown(load: Task): void {

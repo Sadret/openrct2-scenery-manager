@@ -34,7 +34,6 @@ export default class extends GUI.WindowManager {
         super(
             {
                 width: 384,
-                classification: "scenery-manager.missing_objects",
                 title: "Missing Objects",
                 colours: [7, 7, 6],
             },

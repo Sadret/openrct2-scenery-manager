@@ -65,7 +65,6 @@ const label = new Property<string>("");
 const window = new GUI.WindowManager(
     {
         width: WIDTH,
-        classification: "scenery-manager.brush",
         title: "Brush",
         colours: [7, 7, 6,],
         onClose: () => Configuration.brush.showWindow.getValue() && brush.cancel(),

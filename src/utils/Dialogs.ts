@@ -14,12 +14,13 @@ export function showDialog(
     callback: (buttonIdx: number) => void = () => { },
     width: number = 384,
 ): void {
-    const manager = new GUI.WindowManager(
+    let clicked = -1;
+    new GUI.WindowManager(
         {
             width: width,
-            classification: "scenery-manager.dialog",
             title: title,
             colours: [7, 7, 6,], // shades of blue
+            onClose: () => callback(clicked),
         },
         new GUI.Window().add(
             new GUI.Vertical({
@@ -30,20 +31,18 @@ export function showDialog(
                 new GUI.Space(4),
                 new GUI.Horizontal().add(
                     ...buttons.map(
-                        (button, idx) => new GUI.TextButton({
-                            text: button,
-                            onClick: () => {
-                                callback(idx);
-                                callback = () => { };
-                                manager.close();
+                        (text, idx) => new GUI.TextButton({
+                            text: text,
+                            onClick: button => {
+                                clicked = idx;
+                                button.getManager() ?.close();
                             },
                         })
                     ),
                 ),
             ),
         ),
-    );
-    manager.open(true);
+    ).open(true);
 }
 
 export function showAlert(args: {

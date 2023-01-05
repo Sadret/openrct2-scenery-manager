@@ -21,7 +21,6 @@ import TemplateLibrary from "./tabs/TemplateLibrary";
 export default new GUI.WindowManager(
     {
         width: 384,
-        classification: "scenery-manager.main",
         title: "Scenery Manager",
         colours: [7, 7, 6,], // shades of blue
         onOpen: () => Events.mainWindowOpen.trigger(),

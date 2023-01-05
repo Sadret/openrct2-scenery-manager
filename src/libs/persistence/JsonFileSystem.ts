@@ -49,10 +49,6 @@ function set<S>(key: string, value: S): void {
     context.sharedStorage.set(key, value);
 }
 
-function purge(namespace: string): void {
-    Object.keys(context.sharedStorage.getAll(namespace)).forEach(key => set<{}>(key, {}));
-}
-
 interface StorageFolder<T> {
     type: "folder";
     files: { [key: string]: StorageElement<T> };
@@ -77,7 +73,7 @@ export default class JsonFileSystem<T> implements FileSystem<T> {
      */
 
     private getKey(file: string): string {
-        return (this.namespace + file).replace(/\./g, ".files.");
+        return this.namespace + file.replace(/\./g, ".files.");
     }
 
     private getData<S extends StorageElement<T>>(file: string): S | undefined {
@@ -111,7 +107,8 @@ export default class JsonFileSystem<T> implements FileSystem<T> {
     }
 
     public purge(): void {
-        purge(this.namespace);
+        set(this.namespace, undefined);
+        this.getRoot();
     }
 
     // file information
@@ -175,6 +172,9 @@ export default class JsonFileSystem<T> implements FileSystem<T> {
         if (this.exists(file))
             return false;
 
+        const parent = this.getParent(file);
+        parent && this.createFolder(parent);
+
         this.setData<StorageFolder<T>>(file, {
             type: "folder",
             files: {},
@@ -185,6 +185,9 @@ export default class JsonFileSystem<T> implements FileSystem<T> {
     public createFile(file: string, content: T): boolean {
         if (this.exists(file))
             return false;
+
+        const parent = this.getParent(file);
+        parent && this.createFolder(parent);
 
         this.setData<StorageFile<T>>(file, {
             type: "file",
