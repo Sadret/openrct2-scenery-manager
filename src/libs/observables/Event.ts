@@ -5,10 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import Property from "./Property";
+import BaseObservable from "./BaseObservable";
 
-export default class BooleanProperty extends Property<boolean>{
-    public flip() {
-        this.setValue(!this.getValue());
-    }
+export default class Event<T=void> extends BaseObservable<T> implements ObservableEvent<T>{
+    public trigger(args: T): void {
+        this.observers.forEach(observer => observer(args));
+    };
 }

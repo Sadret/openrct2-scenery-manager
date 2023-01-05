@@ -5,9 +5,10 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import JsonFileSystem from "../libs/persistence/JsonFileSystem";
+import Property from "./Property";
 
-export const libraries = {
-    templates: new JsonFileSystem<TemplateData>("libraries.templates"),
-    scatterPattern: new JsonFileSystem<ScatterPattern>("libraries.scatterPattern"),
+export default class BooleanProperty extends Property<boolean> implements ObservableBoolean {
+    public flip(): void {
+        this.setValue(!this.getValue());
+    }
 }

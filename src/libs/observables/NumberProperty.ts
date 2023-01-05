@@ -7,16 +7,20 @@
 
 import Property from "./Property";
 
+function get(value: Value<number>): number {
+    return typeof value === "number" ? value : value.getValue();
+}
+
 export default class NumberProperty extends Property<number> implements ObservableNumber {
-    private readonly minimum: number;
-    private readonly maximum: number;
-    private readonly stepSize: number;
+    private readonly minimum: Value<number>;
+    private readonly maximum: Value<number>;
+    private readonly stepSize: Value<number>;
 
     constructor(
         defaultValue: number,
-        minimum: number = Number.NEGATIVE_INFINITY,
-        maximum: number = Number.POSITIVE_INFINITY,
-        stepSize: number = 1,
+        minimum: Value<number> = Number.NEGATIVE_INFINITY,
+        maximum: Value<number> = Number.POSITIVE_INFINITY,
+        stepSize: Value<number> = 1,
     ) {
         super(defaultValue);
         this.minimum = minimum;
@@ -25,13 +29,13 @@ export default class NumberProperty extends Property<number> implements Observab
     }
 
     public setValue(value: number): void {
-        super.setValue(Math.max(this.minimum, Math.min(this.maximum, value)));
+        super.setValue(Math.max(get(this.minimum), Math.min(get(this.maximum), value)));
     }
 
-    public decrement(amount: number = this.stepSize) {
+    public decrement(amount: number = get(this.stepSize)) {
         this.setValue(this.getValue() - amount);
     }
-    public increment(amount: number = this.stepSize) {
+    public increment(amount: number = get(this.stepSize)) {
         this.setValue(this.getValue() + amount);
     }
 }
