@@ -54,6 +54,7 @@ export function place(
     mergeSurface: boolean = false,
 ): void {
     if (mode === "safe") {
+        // TODO: ensure order in async case for all types
         const flags = isGhost ? 72 : 0;
         // walls
         if (filter("wall"))
@@ -69,7 +70,13 @@ export function place(
                 tileData.elements.forEach(element => {
                     if (element.type === "footpath") {
                         if (filter("footpath"))
-                            Template.getPlaceActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
+                            Template.getPlaceActionData(tileData, element, flags).forEach(
+                                data => Context.queryExecuteActionCallback(data, _ => {
+                                    if (element.additionQualifier !== null && filter("footpath_addition"))
+                                        Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
+                                })
+                            );
+                        // duplicate code below
                         if (element.additionQualifier !== null && filter("footpath_addition"))
                             Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
                     }

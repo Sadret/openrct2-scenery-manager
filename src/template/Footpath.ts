@@ -163,7 +163,7 @@ export function getPlaceActionData(
                     ...coords,
                     z: element.baseZ,
                     flags: flags,
-                    object: object.index + 1,
+                    object: object.index,
                 },
             });
     }

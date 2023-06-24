@@ -1,9 +1,10 @@
 {
     "name": "openrct2-scenery-manager",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "description": "OpenRCT2 Scenery Manager Plug-In",
     "author": "Sadret",
     "license": "GPL-3.0",
+    "type": "module",
     "scripts": {
         "build-develop": "rollup -c rollup.config.develop.js",
         "build-release": "rollup -c rollup.config.release.js"

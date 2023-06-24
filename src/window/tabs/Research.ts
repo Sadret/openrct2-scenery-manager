@@ -16,8 +16,9 @@ export default new GUI.Tab({
     padding: 8,
     margin: GUI.Margin.uniform(8),
 }).add(
-    new GUI.Label({ text: "Version:  2.0.1  (2022-07-03)", }),
+    new GUI.Label({ text: "Version:  2.0.2  (2023-06-24)", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
+        new GUI.Label({ text: "- Fix footpath addition place in safe mode." }),
         new GUI.Label({ text: "- Tertiary colours for large scenery." }),
         new GUI.Space(2),
         new GUI.Label({ text: "- Raw place mode, copy & paste surface / terrain." }),

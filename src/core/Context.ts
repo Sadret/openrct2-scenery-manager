@@ -17,5 +17,7 @@ export function queryExecuteActionCallback(data: ActionData<any, any>, callback?
     context.queryAction(data.type, data.args, queryResult => {
         if (!queryResult.error)
             context.executeAction(data.type, data.args, callback);
+        else
+            callback && callback(queryResult);
     });
 }

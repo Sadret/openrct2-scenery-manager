@@ -1,3 +1,8 @@
+2.0.2 (2023-06-24)
+------------------------------------------------------------------------
+- Fix: [#38] Footpath addition object is off by one.
+- Fix: Ensure order of footpath and addition placement.
+
 2.0.1 (2022-07-03)
 ------------------------------------------------------------------------
 - Feature: Tertiary colours for large scenery.
