@@ -1,3 +1,8 @@
+2.0.3 (2023-07-05)
+------------------------------------------------------------------------
+- Fix: [#39] New track elements now copy and mirror properly.
+- Fix: Eighth turns now mirror properly.
+
 2.0.2 (2023-06-24)
 ------------------------------------------------------------------------
 - Fix: [#38] Footpath addition object is off by one.
