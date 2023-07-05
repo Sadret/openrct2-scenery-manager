@@ -162,11 +162,12 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
 
     public match(element: TileElement): boolean {
         if (element.type !== this.type.getValue()) return false;
-        if (!this.matchObject(this.qualifier, element.object)) return false;
+        if (!this.matchObject(this.qualifier, element.type, element.object)) return false;
         switch (element.type) {
             case "footpath":
-                if (!this.matchObject(this.surface, element.surfaceObject)) return false;
-                if (!this.matchObject(this.railings, element.railingsObject)) return false;
+                if (!this.matchObject(this.surface, "footpath_surface", element.surfaceObject)) return false;
+                if (!this.matchObject(this.railings, "footpath_railings", element.railingsObject)) return false;
+                if (!this.matchObject(this.addition, "footpath_addition", element.addition)) return false;
                 return true;
             case "wall":
             case "large_scenery":
@@ -178,13 +179,14 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
         }
     }
 
-    private matchObject(property: Property<IndexedObject>, index: number | null): boolean {
+    private matchObject(property: Property<IndexedObject>, type: ObjectType, objIdx: number | null): boolean {
         const object = property.getValue();
         if (object === this.any)
             return true;
+        const qualifier = ObjectIndex.getQualifier(type, objIdx);
         if (object === this.none)
-            return index === null;
-        return object.index === index;
+            return qualifier === null;
+        return object.qualifier === qualifier;
     }
 
     private matchColour(property: Property<number | null>, colour: number): boolean {

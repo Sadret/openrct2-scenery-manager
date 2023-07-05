@@ -59,7 +59,21 @@ function findAndDelete(replace: boolean): void {
     overlay.setIsVisible(true);
     const mode = Configuration.tools.placeMode.getValue();
     const inParkOnly = inParkOnlyProp.getValue();
-    let count = 0;
+    let pending = 0;
+    let ok = 0;
+    let err = 0;
+    let shouldReport = false;
+    // does not actually report the number of <replaced> elements
+    let report = () => {
+        if (shouldReport)
+            Dialogs.showAlert({
+                title: "Elements replaced",
+                message: [`${replace ? "Replaced" : "Deleted"} ${ok} element${ok === 1 ? "" : "s"} (${err} error${err === 1 ? "" : "s"}).`],
+                width: 192,
+            });
+        shouldReport = false;
+    };
+
     new MapIterator(
         getTileSelection()
     ).forEach(
@@ -67,25 +81,31 @@ function findAndDelete(replace: boolean): void {
             const tile = Map.getTile(coords);
             if (inParkOnly && !Map.hasOwnership(tile))
                 return;
-            if (mode === "raw" && replace)
+            if (mode === "raw" && replace) {
                 tile.elements.forEach(
                     element => {
                         if (findGroup.match(element)) {
-                            count++;
                             replaceGroup.replace(element);
+                            ok++;
                         }
                     },
                 );
-            else {
+                report();
+            } else {
                 const elements = Map.read(tile);
                 elements.forEach(
                     element => {
                         if (findGroup.match(element)) {
+                            pending++;
                             const callback = (result: GameActionResult) => {
+                                pending--;
                                 if (result.error)
-                                    return;
-                                count++;
-                                if (!replace)
+                                    err++;
+                                else
+                                    ok++;
+                                if (shouldReport && pending === 0)
+                                    report();
+                                if (!replace || result.error)
                                     return;
                                 // safe only
                                 replaceGroup.replace(element);
@@ -106,11 +126,9 @@ function findAndDelete(replace: boolean): void {
             if (done) {
                 overlay.setIsVisible(false);
                 overlay.setProgress(undefined);
-                Dialogs.showAlert({
-                    title: "Elements replaced",
-                    message: [`${replace ? "Replaced" : "Deleted"} ${count} elements.`],
-                    width: 192,
-                })
+                shouldReport = true;
+                if (shouldReport && pending === 0)
+                    report();
             }
         },
     );

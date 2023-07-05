@@ -89,11 +89,11 @@ export function getPlaceActionData(
 
 export function getRemoveActionData(
     coords: CoordsXY,
-    element: SmallSceneryData,
+    element: SmallSceneryData | SmallSceneryElement,
     flags: number,
 ): RemoveActionData[] {
-    const object = ObjectIndex.getObject("small_scenery", element.qualifier);
-    if (object === null)
+    const object = getObject(element);
+    if (object === undefined)
         return [];
     return [{
         type: "smallsceneryremove",
@@ -102,9 +102,15 @@ export function getRemoveActionData(
             ...coords,
             z: element.baseZ,
             flags: flags,
-            object: object.index,
+            object: object,
         },
     }];
+}
+
+function getObject(element: SmallSceneryData | SmallSceneryElement): number | undefined {
+    if ("object" in element) return element.object;
+    else return ObjectIndex.getObject("small_scenery", element.qualifier) ?.index;
+
 }
 
 export function setQuadrant(element: SmallSceneryData, quadrant: number): SmallSceneryData {

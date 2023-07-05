@@ -1,3 +1,8 @@
+2.0.4 (2023-07-05)
+------------------------------------------------------------------------
+- Improved: Handling of objects that are loaded twice.
+- Fix: Delete / replace message now displays the correct number of elements.
+
 2.0.3 (2023-07-05)
 ------------------------------------------------------------------------
 - Fix: [#39] New track elements now copy and mirror properly.

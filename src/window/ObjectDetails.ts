@@ -12,6 +12,7 @@ import BooleanProperty from "../config/BooleanProperty";
 import GUI from "../gui/GUI";
 import Jumper from "../utils/Jumper";
 import MainWindow from "./MainWindow";
+import ObjectIndex from "../core/ObjectIndex";
 
 function match(element: TileElement, object: SceneryObject): boolean {
     switch (object.type) {
@@ -19,13 +20,13 @@ function match(element: TileElement, object: SceneryObject): boolean {
         case "small_scenery":
         case "large_scenery":
         case "footpath":
-            return element.type === object.type && element.object === object.index;
+            return element.type === object.type && ObjectIndex.getQualifier(object.type, element.object) === object.qualifier;
         case "footpath_surface":
-            return element.type === "footpath" && element.surfaceObject === object.index;
+            return element.type === "footpath" && ObjectIndex.getQualifier(object.type, element.surfaceObject) === object.qualifier;
         case "footpath_railings":
-            return element.type === "footpath" && element.railingsObject === object.index;
+            return element.type === "footpath" && ObjectIndex.getQualifier(object.type, element.railingsObject) === object.qualifier;
         case "footpath_addition":
-            return element.type === "footpath" && element.addition === object.index;
+            return element.type === "footpath" && ObjectIndex.getQualifier(object.type, element.addition) === object.qualifier;
     }
 }
 

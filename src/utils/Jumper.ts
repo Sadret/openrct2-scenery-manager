@@ -45,13 +45,13 @@ export default class Jumper {
                         "Reached end of map!",
                     );
                 } else {
-                    const tile = data[0];
+                    const [tile, element] = data;
                     if (inParkOnly && !Map.hasOwnership(tile))
                         return this.jump();
                     ui.mainViewport.scrollTo({
                         x: tile.x * 32,
                         y: tile.y * 32,
-                        z: data[1].baseZ,
+                        z: element.baseZ,
                     });
                 }
                 this.button.setText(this.btnLabel);

@@ -9,6 +9,7 @@ import * as Arrays from "../utils/Arrays";
 import * as Context from "./Context";
 import * as Coordinates from "../utils/Coordinates";
 import * as Footpath from "../template/Footpath";
+import * as SmallScenery from "../template/SmallScenery";
 import * as Objects from "../utils/Objects";
 
 import Template from "../template/Template";
@@ -170,13 +171,19 @@ export function remove(
                 data => Context.queryExecuteActionCallback(data, callback)
             );
         else
-            Template.getRemoveActionData(
-                tile,
-                Template.copyFrom(element),
-                element.isGhost ? 72 : 0,
-            ).forEach(
-                data => Context.queryExecuteActionCallback(data, callback)
-            );
+            // workaround to handle objects that are loaded twice: use the correct index
+            (element.type === "small_scenery"
+                ? SmallScenery.getRemoveActionData(
+                    Coordinates.toWorldCoords(tile),
+                    element,
+                    element.isGhost ? 72 : 0,
+                ) : Template.getRemoveActionData(
+                    tile,
+                    Template.copyFrom(element),
+                    element.isGhost ? 72 : 0,
+                )).forEach(
+                    data => Context.queryExecuteActionCallback(data, callback)
+                );
     else {
         removeElement(tile, element, additionOnly);
         callback && callback({ error: 0 });
