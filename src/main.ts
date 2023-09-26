@@ -16,7 +16,7 @@ import MainWindow from "./window/MainWindow";
 
 registerPlugin({
     name: "scenery-manager",
-    version: "2.0.4",
+    version: "2.0.5",
     authors: ["Sadret"],
     type: "local",
     licence: "GPL-3.0",

@@ -65,6 +65,7 @@ interface SmallSceneryPlaceArgs extends PlaceActionArgs {
     readonly quadrant: number;
     readonly primaryColour: number;
     readonly secondaryColour: number;
+    readonly tertiaryColour: number;
 }
 
 interface TrackPlaceArgs extends PlaceActionArgs {

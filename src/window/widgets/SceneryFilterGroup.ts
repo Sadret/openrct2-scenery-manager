@@ -171,10 +171,10 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                 return true;
             case "wall":
             case "large_scenery":
-                if (!this.matchColour(this.tertiaryColour, element.tertiaryColour)) return false;
             case "small_scenery":
                 if (!this.matchColour(this.primaryColour, element.primaryColour)) return false;
                 if (!this.matchColour(this.secondaryColour, element.secondaryColour)) return false;
+                if (!this.matchColour(this.tertiaryColour, element.tertiaryColour)) return false;
                 return true;
         }
     }
@@ -207,10 +207,10 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                 return;
             case "wall":
             case "large_scenery":
-                this.replaceColour("tertiaryColour", element);
             case "small_scenery":
                 this.replaceColour("primaryColour", element);
                 this.replaceColour("secondaryColour", element);
+                this.replaceColour("tertiaryColour", element);
         }
     }
 
@@ -278,10 +278,10 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     break;
                 case "wall":
                 case "large_scenery":
-                    this.tertiaryColour.setValue(element.tertiaryColour);
                 case "small_scenery":
                     this.primaryColour.setValue(element.primaryColour);
                     this.secondaryColour.setValue(element.secondaryColour);
+                    this.tertiaryColour.setValue(element.tertiaryColour);
                     break;
             }
             return true;
@@ -469,7 +469,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     type => type === "footpath" ? "Addition:" : "Tertiary Colour:",
                 ).bindIsVisible(
                     this.type,
-                    type => type === "footpath" || type === "wall" || type === "large_scenery",
+                    type => type === "footpath" || type === "wall" || type === "small_scenery" || type === "large_scenery",
                 ),
                 new GUI.MultiBox().add(
                     new GUI.Label({
@@ -491,7 +491,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                         n => n === null,
                     ).bindIsVisible(
                         this.type,
-                        type => type === "wall" || type === "large_scenery",
+                        type => type === "wall" || type === "small_scenery" || type === "large_scenery",
                     ),
                 ),
                 new GUI.TextButton({
@@ -503,10 +503,10 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     type => type === "footpath" ? "..." : `< ${this.isReplace ? "Keep" : "Any"} >`,
                 ).bindIsPressed(
                     new Multiplexer([this.type, this.tertiaryColour]),
-                    ([type, colour]) => (type === "wall" || type === "large_scenery") && colour === null,
+                    ([type, colour]) => (type === "wall" || type === "small_scenery" || type === "large_scenery") && colour === null,
                 ).bindIsVisible(
                     this.type,
-                    type => type === "footpath" || type === "wall" || type === "large_scenery",
+                    type => type === "footpath" || type === "wall" || type === "small_scenery" || type === "large_scenery",
                 ),
             ),
         );
