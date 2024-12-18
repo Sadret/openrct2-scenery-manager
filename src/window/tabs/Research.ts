@@ -16,8 +16,9 @@ export default new GUI.Tab({
     padding: 8,
     margin: GUI.Margin.uniform(8),
 }).add(
-    new GUI.Label({ text: "Version:  2.0.5  (2023-09-26)", }),
+    new GUI.Label({ text: "Version:  2.0.6  (2024-12-18)", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
+        new GUI.Label({ text: "- Improve pasting of surface." }),
         new GUI.Label({ text: "- Tertiary colours for small scenery." }),
         new GUI.Label({ text: "- Fix problems with object list and search & replace." }),
         new GUI.Label({ text: "- Fix copy & paste for new track elements." }),

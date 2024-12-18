@@ -28,7 +28,7 @@ An OpenRCT2 plug-in to copy and paste scenery, with many more features.
 
 1. Make sure that your OpenRCT2 version is up-to-date. You need at least version `0.4.6` or a recent development version.
 2. Go to the [releases](#https://github.com/Sadret/openrct2-scenery-manager/releases) page and download the file
- - [`scenery-manager-2.0.5.js`](https://github.com/Sadret/openrct2-scenery-manager/releases/download/v2.0.5/openrct2-scenery-manager-2.0.5.js) from [release 2.0.5](https://github.com/Sadret/openrct2-scenery-manager/releases/tag/v2.0.5), if you use `0.4.7` or a recent development version
+ - [`scenery-manager-2.0.6.js`](https://github.com/Sadret/openrct2-scenery-manager/releases/download/v2.0.6/openrct2-scenery-manager-2.0.6.js) from [release 2.0.6](https://github.com/Sadret/openrct2-scenery-manager/releases/tag/v2.0.6), if you use `0.4.7` or a recent development version
  - [`scenery-manager-2.0.4.js`](https://github.com/Sadret/openrct2-scenery-manager/releases/download/v2.0.4/openrct2-scenery-manager-2.0.4.js) from [release 2.0.4](https://github.com/Sadret/openrct2-scenery-manager/releases/tag/v2.0.4), if you use an older version.
 3. Save it in the `plugin` subfolder of your OpenRCT2 user directory.\
 On Windows, this is usually at `C:Users\{User}\Documents\OpenRCT2\plugin`.\

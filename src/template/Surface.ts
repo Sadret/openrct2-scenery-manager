@@ -59,6 +59,7 @@ export function copyFrom(src: SurfaceElement, dst: SurfaceData): void {
 
 export function copyTo(src: SurfaceData, dst: SurfaceElement): void {
     copyBase(src, dst);
+    dst.waterHeight = src.waterHeight > src.baseHeight ? src.waterHeight : 0;
     const surfaceObject = ObjectIndex.getObject("terrain_surface", src.surfaceQualifier);
     const edgeObject = ObjectIndex.getObject("terrain_edge", src.edgeQualifier);
     if (surfaceObject !== null && edgeObject !== null) {

@@ -5,12 +5,12 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Banner from "./Banner";
 import * as Coordinates from "../utils/Coordinates";
+import * as Selections from "../utils/Selections";
+import * as Banner from "./Banner";
 import * as Entrance from "./Entrance";
 import * as Footpath from "./Footpath";
 import * as LargeScenery from "./LargeScenery";
-import * as Selections from "../utils/Selections";
 import * as SmallScenery from "./SmallScenery";
 import * as Surface from "./Surface";
 import * as Track from "./Track";
@@ -83,7 +83,7 @@ export default class Template {
     }
 
     public transform(mirrored: boolean, rotation: number, offset: CoordsXYZ, bounds: Bounds): Template {
-        return this.mirror(mirrored).rotate(rotation).filterZ(bounds).translate(offset).filterZ();
+        return this.mirror(mirrored).rotate(rotation).translate(offset).filterZ(bounds);
     }
 
     public translate(offset: CoordsXYZ): Template {
@@ -98,7 +98,7 @@ export default class Template {
                     baseZ: element.baseZ + offset.z,
                     clearanceHeight: element.clearanceHeight + offset.z / 8,
                     clearanceZ: element.clearanceZ + offset.z,
-                    ...(element.type === "surface" && element.waterHeight !== 0 ? {
+                    ...(element.type === "surface" ? {
                         waterHeight: element.waterHeight + offset.z,
                     } : {}),
                 })),
