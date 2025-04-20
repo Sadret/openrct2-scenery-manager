@@ -5,12 +5,12 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Arrays from "../utils/Arrays";
-import * as Context from "./Context";
-import * as Coordinates from "../utils/Coordinates";
 import * as Footpath from "../template/Footpath";
 import * as SmallScenery from "../template/SmallScenery";
+import * as Arrays from "../utils/Arrays";
+import * as Coordinates from "../utils/Coordinates";
 import * as Objects from "../utils/Objects";
+import * as Context from "./Context";
 
 import Template from "../template/Template";
 
@@ -236,11 +236,6 @@ export function getTile(coords: CoordsXY): Tile {
     return map.getTile(coords.x, coords.y);
 }
 
-export function hasOwnership(tile: Tile): boolean {
-    const surface = getSurface(tile);
-    return surface !== null && surface.hasOwnership;
-}
-
 export function getSurface(tile: Tile): SurfaceElement | null {
     for (let element of tile.elements)
         if (element.type === "surface")
@@ -251,4 +246,15 @@ export function getSurface(tile: Tile): SurfaceElement | null {
 export function getSurfaceHeight(tile: Tile): number {
     const surface = getSurface(tile);
     return surface === null ? 0 : surface.baseHeight;
+}
+
+export function isLocationOwned(tile: Tile, baseHeight: number): boolean {
+    const surface = getSurface(tile);
+    if (!surface)
+        return false;
+    if (surface.hasOwnership)
+        return true;
+    if (surface.hasConstructionRights)
+        return baseHeight < surface.baseHeight || baseHeight >= surface.baseHeight + 3;
+    return false;
 }

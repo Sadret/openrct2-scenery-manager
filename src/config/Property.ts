@@ -5,7 +5,7 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-export default class Property<T> implements Observable<T>{
+export default class Property<T> implements Observable<T> {
     private value: T;
     private readonly observers: Observer<T>[] = [];
 
@@ -24,8 +24,8 @@ export default class Property<T> implements Observable<T>{
         }
     }
 
-    public bind(observer: Observer<T>) {
+    public bind(observer: Observer<T>, immediate: boolean = true): void {
         this.observers.push(observer);
-        observer(this.value);
+        if (immediate) observer(this.value);
     }
 }

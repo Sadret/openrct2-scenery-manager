@@ -5,20 +5,20 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Dialogs from "../../utils/Dialogs";
 import * as Map from "../../core/Map";
-import * as Strings from "../../utils/Strings";
 import * as UI from "../../core/UI";
+import * as Dialogs from "../../utils/Dialogs";
+import * as Strings from "../../utils/Strings";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import Configuration from "../../config/Configuration";
 import GUI from "../../gui/GUI";
+import Template from "../../template/Template";
+import Selector from "../../tools/Selector";
 import Jumper from "../../utils/Jumper";
 import MapIterator from "../../utils/MapIterator";
 import Overlay from "../widgets/Overlay";
 import SceneryFilterGroup from "../widgets/SceneryFilterGroup";
-import Selector from "../../tools/Selector";
-import Template from "../../template/Template";
 
 const findGroup = new SceneryFilterGroup();
 const replaceGroup = new SceneryFilterGroup(findGroup);
@@ -79,11 +79,11 @@ function findAndDelete(replace: boolean): void {
     ).forEach(
         coords => {
             const tile = Map.getTile(coords);
-            if (inParkOnly && !Map.hasOwnership(tile))
-                return;
             if (mode === "raw" && replace) {
                 tile.elements.forEach(
                     element => {
+                        if (inParkOnly && !Map.isLocationOwned(tile, element.baseHeight))
+                            return;
                         if (findGroup.match(element)) {
                             replaceGroup.replace(element);
                             ok++;
@@ -95,6 +95,8 @@ function findAndDelete(replace: boolean): void {
                 const elements = Map.read(tile);
                 elements.forEach(
                     element => {
+                        if (inParkOnly && !Map.isLocationOwned(tile, element.baseHeight))
+                            return;
                         if (findGroup.match(element)) {
                             pending++;
                             const callback = (result: GameActionResult) => {

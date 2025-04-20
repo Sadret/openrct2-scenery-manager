@@ -17,17 +17,17 @@ function toSceneryObject(object: IndexedObject): SceneryObject {
     return element;
 }
 
-export class SceneryObjectIndex extends ObjectIndex<SceneryObject>{
+export class SceneryObjectIndex extends ObjectIndex<SceneryObject> {
     constructor(type: SceneryObjectType) {
         super(type, toSceneryObject);
     }
 
-    public increment(qualifier: string | null, tile: Tile) {
+    public increment(qualifier: string | null, tile: Tile, baseHeight: number) {
         if (qualifier !== null) {
             const object = this.get(qualifier);
             if (object !== null) {
                 object.onMap++;
-                if (Map.hasOwnership(tile))
+                if (Map.isLocationOwned(tile, baseHeight))
                     object.inPark++;
             }
         }
@@ -56,22 +56,22 @@ export default class SceneryIndex {
                                     this.data["footpath"].increment(ObjectIndex.getQualifier(
                                         "footpath",
                                         element.object,
-                                    ), tile);
+                                    ), tile, element.baseHeight);
                                 else {
                                     this.data["footpath_surface"].increment(ObjectIndex.getQualifier(
                                         "footpath_surface",
                                         <number>element.surfaceObject,
-                                    ), tile);
+                                    ), tile, element.baseHeight);
                                     this.data["footpath_railings"].increment(ObjectIndex.getQualifier(
                                         "footpath_railings",
                                         <number>element.railingsObject,
-                                    ), tile);
+                                    ), tile, element.baseHeight);
                                 }
                                 if (element.addition !== null)
                                     this.data["footpath_addition"].increment(ObjectIndex.getQualifier(
                                         "footpath_addition",
                                         element.addition,
-                                    ), tile);
+                                    ), tile, element.baseHeight);
                                 break;
                             case "small_scenery":
                             case "wall":
@@ -79,7 +79,7 @@ export default class SceneryIndex {
                                 this.data[element.type].increment(ObjectIndex.getQualifier(
                                     element.type,
                                     element.object,
-                                ), tile);
+                                ), tile, element.baseHeight);
                                 break;
                         }
                 },

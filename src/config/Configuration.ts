@@ -61,7 +61,7 @@ export function load(obj: C = Configuration, path: string = "config"): void {
     if (isProperty(obj)) {
         if (Storage.has(path))
             obj.setValue(Storage.get<any>(path));
-        obj.bind(value => Storage.set<any>(path, value));
+        obj.bind(value => Storage.set<any>(path, value), false);
     } else
         for (let key in obj)
             load(obj[key], path + "." + key);
@@ -76,7 +76,7 @@ function isObjLiteral(_obj: object) {
     return (typeof _obj !== 'object' || _obj === null ?
         false :
         (
-            (function() {
+            (function () {
                 while (!false) {
                     if (Object.getPrototypeOf(_test = Object.getPrototypeOf(_test)) === null) {
                         break;

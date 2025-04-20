@@ -5,11 +5,11 @@
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as  Map from "../core/Map";
+import * as Map from "../core/Map";
 
-import ElementIterator from "./ElementIterator";
-import GUI from "../gui/GUI";
 import Property from "../config/Property";
+import GUI from "../gui/GUI";
+import ElementIterator from "./ElementIterator";
 
 const defaultLabel = "Jump to next instance";
 
@@ -46,7 +46,7 @@ export default class Jumper {
                     );
                 } else {
                     const [tile, element] = data;
-                    if (inParkOnly && !Map.hasOwnership(tile))
+                    if (inParkOnly && !Map.isLocationOwned(tile, element.baseHeight))
                         return this.jump();
                     ui.mainViewport.scrollTo({
                         x: tile.x * 32,
