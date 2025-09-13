@@ -8,12 +8,14 @@
 import * as Picker from "../../tools/Picker";
 import * as Strings from "../../utils/Strings";
 
-import GUI from "../../gui/GUI";
 import Multiplexer from "../../config/Multiplexer";
-import ObjectChooser from "../ObjectChooser";
-import ObjectIndex from "../../core/ObjectIndex";
 import Property from "../../config/Property";
+import ObjectIndex from "../../core/ObjectIndex";
 import { SceneryObjectIndex } from "../../core/SceneryIndex";
+import GUI from "../../gui/GUI";
+import ObjectChooser from "../ObjectChooser";
+
+type ColourType = number | "keep" | "random";
 
 const filterTypes: SceneryFilterType[] = [
     "footpath",
@@ -44,9 +46,9 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
     public readonly type = new Property<SceneryFilterType>("small_scenery");
     public readonly qualifier = new Property<IndexedObject>(ANY);
 
-    public readonly primaryColour = new Property<number | null>(null);
-    public readonly secondaryColour = new Property<number | null>(null);
-    public readonly tertiaryColour = new Property<number | null>(null);
+    public readonly primaryColour = new Property<ColourType>("keep");
+    public readonly secondaryColour = new Property<ColourType>("keep");
+    public readonly tertiaryColour = new Property<ColourType>("keep");
 
     public readonly surface = new Property<IndexedObject>(ANY);
     public readonly railings = new Property<IndexedObject>(ANY);
@@ -151,9 +153,9 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
 
         this.qualifier.setValue(this.any);
 
-        this.primaryColour.setValue(null);
-        this.secondaryColour.setValue(null);
-        this.tertiaryColour.setValue(null);
+        this.primaryColour.setValue("keep");
+        this.secondaryColour.setValue("keep");
+        this.tertiaryColour.setValue("keep");
 
         this.surface.setValue(this.any);
         this.railings.setValue(this.any);
@@ -189,9 +191,9 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
         return object.qualifier === qualifier;
     }
 
-    private matchColour(property: Property<number | null>, colour: number): boolean {
+    private matchColour(property: Property<number | "keep" | "random">, colour: number): boolean {
         const value = property.getValue();
-        return value === null || value === colour;
+        return value === "keep" || value === colour;
     }
 
     public replace(element: TileElement): void {
@@ -225,8 +227,8 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
 
     private replaceColour<S extends "primaryColour" | "secondaryColour" | "tertiaryColour">(key: S, element: { [key in S]: number }): void {
         const value = this[key].getValue();
-        if (value !== null)
-            element[key] = value;
+        if (value === "keep") return;
+        element[key] = value === "random" ? Math.floor(Math.random() * 54) : value;
     }
 
     private getLabel(object: IndexedObject, error = false): string {
@@ -341,7 +343,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     this.type,
                     filterTypes,
                     s => s === null ? "" : Strings.toDisplayString(s),
-                    ),
+                ),
                 new GUI.TextButton({
                     text: "Pick",
                     onClick: () => this.pickOnMap(),
@@ -395,26 +397,42 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     }).bindValue(
                         this.primaryColour,
                         colour => colour,
-                        (value, colourPicker) =>
-                            value === null ? colourPicker.getColour() : value,
+                        (value, colourPicker) => typeof value === "number" ? value : colourPicker.getColour(),
                     ).bindIsDisabled(
                         this.primaryColour,
-                        n => n === null,
+                        n => typeof n !== "number",
                     ).bindIsVisible(
                         this.type,
                         type => type !== "footpath",
                     ),
                 ),
-                new GUI.TextButton({
-                    onClick: () => this.type.getValue() === "footpath"
-                        ? this.selectFromList("footpath_surface")
-                        : this.primaryColour.setValue(this.primaryColour.getValue() === null ? 0 : null),
-                }).bindText(
-                    this.type,
-                    type => type === "footpath" ? "..." : `< ${this.isReplace ? "Keep" : "Any"} >`,
-                ).bindIsPressed(
-                    new Multiplexer([this.type, this.primaryColour]),
-                    ([type, colour]) => type !== "footpath" && colour === null,
+                new GUI.MultiBox().add(
+                    new GUI.TextButton({
+                        text: "...",
+                        onClick: () => this.selectFromList("footpath_surface"),
+                    }).bindIsVisible(
+                        this.type,
+                        type => type === "footpath",
+                    ),
+                    (this.isReplace ? new GUI.Dropdown({
+                        items: ["Choose", "Keep", "Random"],
+                        onChange: index => this.primaryColour.setValue(index === 0 ? 0 : index === 1 ? "keep" : "random"),
+                    }).bindSelectedIndex(
+                        this.primaryColour,
+                        colour => colour === "keep" ? 1 : colour === "random" ? 2 : 0,
+                    ).bindIsVisible<SceneryFilterType>(
+                        this.type,
+                        type => type !== "footpath",
+                    ) : new GUI.TextButton({
+                        text: "< Any >",
+                        onClick: () => this.primaryColour.setValue(typeof this.primaryColour.getValue() === "number" ? "keep" : 0),
+                    }).bindIsPressed(
+                        this.primaryColour,
+                        colour => colour === "keep",
+                    ).bindIsVisible<SceneryFilterType>(
+                        this.type,
+                        type => type !== "footpath",
+                    )),
                 ),
             ),
 
@@ -438,26 +456,42 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     }).bindValue(
                         this.secondaryColour,
                         colour => colour,
-                        (value, colourPicker) =>
-                            value === null ? colourPicker.getColour() : value,
+                        (value, colourPicker) => typeof value === "number" ? value : colourPicker.getColour(),
                     ).bindIsDisabled(
                         this.secondaryColour,
-                        n => n === null,
+                        n => typeof n !== "number",
                     ).bindIsVisible(
                         this.type,
                         type => type !== "footpath",
                     ),
                 ),
-                new GUI.TextButton({
-                    onClick: () => this.type.getValue() === "footpath"
-                        ? this.selectFromList("footpath_railings")
-                        : this.secondaryColour.setValue(this.secondaryColour.getValue() === null ? 0 : null),
-                }).bindText(
-                    this.type,
-                    type => type === "footpath" ? "..." : `< ${this.isReplace ? "Keep" : "Any"} >`,
-                ).bindIsPressed(
-                    new Multiplexer([this.type, this.secondaryColour]),
-                    ([type, colour]) => type !== "footpath" && colour === null,
+                new GUI.MultiBox().add(
+                    new GUI.TextButton({
+                        text: "...",
+                        onClick: () => this.selectFromList("footpath_railings"),
+                    }).bindIsVisible(
+                        this.type,
+                        type => type === "footpath",
+                    ),
+                    (this.isReplace ? new GUI.Dropdown({
+                        items: ["Choose", "Keep", "Random"],
+                        onChange: index => this.secondaryColour.setValue(index === 0 ? 0 : index === 1 ? "keep" : "random"),
+                    }).bindSelectedIndex(
+                        this.secondaryColour,
+                        colour => colour === "keep" ? 1 : colour === "random" ? 2 : 0,
+                    ).bindIsVisible<SceneryFilterType>(
+                        this.type,
+                        type => type !== "footpath",
+                    ) : new GUI.TextButton({
+                        text: "< Any >",
+                        onClick: () => this.secondaryColour.setValue(typeof this.secondaryColour.getValue() === "number" ? "keep" : 0),
+                    }).bindIsPressed(
+                        this.secondaryColour,
+                        colour => colour === "keep",
+                    ).bindIsVisible<SceneryFilterType>(
+                        this.type,
+                        type => type !== "footpath",
+                    )),
                 ),
             ),
 
@@ -484,29 +518,42 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
                     }).bindValue(
                         this.tertiaryColour,
                         colour => colour,
-                        (value, colourPicker) =>
-                            value === null ? colourPicker.getColour() : value,
+                        (value, colourPicker) => typeof value === "number" ? value : colourPicker.getColour(),
                     ).bindIsDisabled(
                         this.tertiaryColour,
-                        n => n === null,
+                        n => typeof n !== "number",
                     ).bindIsVisible(
                         this.type,
                         type => type === "wall" || type === "small_scenery" || type === "large_scenery",
                     ),
                 ),
-                new GUI.TextButton({
-                    onClick: () => this.type.getValue() === "footpath"
-                        ? this.selectFromList("footpath_addition")
-                        : this.tertiaryColour.setValue(this.tertiaryColour.getValue() === null ? 0 : null),
-                }).bindText(
-                    this.type,
-                    type => type === "footpath" ? "..." : `< ${this.isReplace ? "Keep" : "Any"} >`,
-                ).bindIsPressed(
-                    new Multiplexer([this.type, this.tertiaryColour]),
-                    ([type, colour]) => (type === "wall" || type === "small_scenery" || type === "large_scenery") && colour === null,
-                ).bindIsVisible(
-                    this.type,
-                    type => type === "footpath" || type === "wall" || type === "small_scenery" || type === "large_scenery",
+                new GUI.MultiBox().add(
+                    new GUI.TextButton({
+                        text: "...",
+                        onClick: () => this.selectFromList("footpath_addition"),
+                    }).bindIsVisible(
+                        this.type,
+                        type => type === "footpath",
+                    ),
+                    (this.isReplace ? new GUI.Dropdown({
+                        items: ["Choose", "Keep", "Random"],
+                        onChange: index => this.tertiaryColour.setValue(index === 0 ? 0 : index === 1 ? "keep" : "random"),
+                    }).bindSelectedIndex(
+                        this.tertiaryColour,
+                        colour => colour === "keep" ? 1 : colour === "random" ? 2 : 0,
+                    ).bindIsVisible<SceneryFilterType>(
+                        this.type,
+                        type => type !== "footpath",
+                    ) : new GUI.TextButton({
+                        text: "< Any >",
+                        onClick: () => this.tertiaryColour.setValue(typeof this.tertiaryColour.getValue() === "number" ? "keep" : 0),
+                    }).bindIsPressed(
+                        this.tertiaryColour,
+                        colour => colour === "keep",
+                    ).bindIsVisible<SceneryFilterType>(
+                        this.type,
+                        type => type === "wall" || type === "small_scenery" || type === "large_scenery",
+                    )),
                 ),
             ),
         );
