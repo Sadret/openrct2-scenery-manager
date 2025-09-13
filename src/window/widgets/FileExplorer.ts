@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -7,8 +7,8 @@
 
 import * as Dialogs from "../../utils/Dialogs";
 
-import FileView from "./FileView";
 import GUI from "../../gui/GUI";
+import FileView from "./FileView";
 
 export default class FileExplorer<T> extends GUI.VBox {
     constructor(
@@ -27,7 +27,7 @@ export default class FileExplorer<T> extends GUI.VBox {
                         title: "New folder",
                         description: "Enter a name for the new folder:",
                         callback: name => {
-                            const folder = fileView.getFolder() ?.addFolder(name);
+                            const folder = fileView.getFolder()?.addFolder(name);
                             if (folder === undefined)
                                 return ui.showError("Cannot create new folder...", "File or folder with this name already exists!");
                         },
@@ -44,7 +44,7 @@ export default class FileExplorer<T> extends GUI.VBox {
                             title: "New file",
                             description: "Enter a name for the new file:",
                             callback: name => {
-                                const file = fileView.getFolder() ?.addFile(name, content);
+                                const file = fileView.getFolder()?.addFile(name, content);
                                 if (file === undefined)
                                     return ui.showError("Cannot create new file...", "File or folder with this name already exists!");
                                 this.onFileCreation(file);

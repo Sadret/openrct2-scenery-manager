@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -20,8 +20,8 @@ export function rotate(element: TrackData, rotation: number): TrackData {
 
 export function mirror(element: TrackData): TrackData {
     const trackSegment = context.getTrackSegment(element.trackType);
-    const directionOffset = Number(Boolean(trackSegment ?.beginDirection || 0));
-    const mirroredTrackType = (trackSegment ?.mirrorSegment) || element.trackType;
+    const directionOffset = Number(Boolean(trackSegment?.beginDirection || 0));
+    const mirroredTrackType = (trackSegment?.mirrorSegment) || element.trackType;
 
     return {
         ...element,
@@ -69,7 +69,7 @@ export function getPlaceActionData(
     if (element.sequence !== 0)
         return [];
 
-    const zOffset = context.getTrackSegment(element.trackType) ?.elements[0].z || 0;
+    const zOffset = context.getTrackSegment(element.trackType)?.elements[0].z || 0;
 
     return [{
         type: "trackplace",

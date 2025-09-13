@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -14,7 +14,7 @@ type SurfaceData = Omit<SurfaceElement,
     "edgeStyle" |
     "hasOwnership" |
     "hasConstructionRights"
-    > & {
+> & {
     surfaceQualifier: string;
     edgeQualifier: string;
 };
@@ -24,7 +24,7 @@ type FootpathData = Omit<FootpathElement,
     "surfaceObject" |
     "railingsObject" |
     "addition"
-    > & {
+> & {
     qualifier: string | null;
     surfaceQualifier: string | null;
     railingsQualifier: string | null;

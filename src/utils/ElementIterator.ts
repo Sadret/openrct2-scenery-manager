@@ -1,14 +1,14 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as  Map from "../core/Map";
+import * as Map from "../core/Map";
 
-import MapIterator from "./MapIterator";
 import Template from "../template/Template";
+import MapIterator from "./MapIterator";
 
 type NextCallback = (data: [Tile, TileElement] | undefined, index: number) => void;
 type ProgressCallback = (done: boolean, progress: number) => void;

@@ -1,18 +1,18 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Arrays from "./utils/Arrays";
 import * as Clipboard from "./core/Clipboard";
+import * as Arrays from "./utils/Arrays";
 import * as Objects from "./utils/Objects";
 
 import Configuration from "./config/Configuration";
+import Selector from "./tools/Selector";
 import MainWindow from "./window/MainWindow";
 import Replace from "./window/tabs/Replace";
-import Selector from "./tools/Selector";
 
 export function register() {
 

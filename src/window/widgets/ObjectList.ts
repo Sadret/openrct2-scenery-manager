@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -7,9 +7,9 @@
 
 import * as Strings from "../../utils/Strings";
 
-import GUI from "../../gui/GUI";
 import Property from "../../config/Property";
 import SceneryIndex from "../../core/SceneryIndex";
+import GUI from "../../gui/GUI";
 
 type Usage = "all" | "on_map" | "in_park";
 const usages: Usage[] = ["all", "on_map", "in_park"];
@@ -30,10 +30,10 @@ function getColumns(showDetails: boolean): ListViewColumn[] {
             width: 256,
             canSort: true,
         }, {
-            header: "Identifier",
-            width: 256,
-            canSort: true,
-        }
+        header: "Identifier",
+        width: 256,
+        canSort: true,
+    }
     );
     if (showDetails)
         columns.push(
@@ -43,10 +43,10 @@ function getColumns(showDetails: boolean): ListViewColumn[] {
                 canSort: true,
                 sortOrder: "descending",
             }, {
-                header: "In Park",
-                canSort: true,
-                sortOrder: "descending",
-            },
+            header: "In Park",
+            canSort: true,
+            sortOrder: "descending",
+        },
         );
     return columns;
 }

@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -7,12 +7,12 @@
 
 import * as UI from "../../core/UI";
 
+import SceneryIndex from "../../core/SceneryIndex";
 import GUI from "../../gui/GUI";
+import Selector from "../../tools/Selector";
 import ObjectDetails from "../ObjectDetails";
 import ObjectList from "../widgets/ObjectList";
 import Overlay from "../widgets/Overlay";
-import SceneryIndex from "../../core/SceneryIndex";
-import Selector from "../../tools/Selector";
 
 const objectList: ObjectList = new ObjectList([], object => {
     const window = new ObjectDetails(object);

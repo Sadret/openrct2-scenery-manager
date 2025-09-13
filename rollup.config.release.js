@@ -3,10 +3,10 @@ import {
 	version
 } from './package.json';
 
+import typescript from "@rollup/plugin-typescript";
 import {
 	terser
 } from "rollup-plugin-terser";
-import typescript from "@rollup/plugin-typescript";
 
 export default {
 	input: "./src/main.ts",
@@ -18,7 +18,7 @@ export default {
 		typescript(),
 		terser({
 			format: {
-				preamble: "// Copyright (c) 2022 Sadret",
+				preamble: "// Copyright (c) 2025 Sadret",
 			},
 		}),
 	],

@@ -1,11 +1,11 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-export default class Multiplexer<T extends any[]> implements Observable<T>{
+export default class Multiplexer<T extends any[]> implements Observable<T> {
     private readonly observables: { [P in keyof T]: Observable<T[P]> };
 
     public constructor(observables: { [P in keyof T]: Observable<T[P]> }) {

@@ -1,12 +1,12 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Coordinates from "../utils/Coordinates";
 import * as UI from "../core/UI";
+import * as Coordinates from "../utils/Coordinates";
 
 export default class Tool {
     private readonly id: string;
@@ -48,7 +48,7 @@ export default class Tool {
 
     public cancel(): void {
         if (this.isActive())
-            ui.tool ?.cancel();
+            ui.tool?.cancel();
     }
 
     public restart(): void {

@@ -1,12 +1,12 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Dialogs from "./utils/Dialogs";
 import * as Storage from "./persistence/Storage";
+import * as Dialogs from "./utils/Dialogs";
 
 export function update(load: Task): void {
     const version = Storage.get<String>("version");

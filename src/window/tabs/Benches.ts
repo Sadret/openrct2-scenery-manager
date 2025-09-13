@@ -1,20 +1,20 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Arrays from "../../utils/Arrays";
-import * as Brush from "../../tools/Brush";
-import * as Coordinates from "../../utils/Coordinates";
 import * as Map from "../../core/Map";
+import * as Brush from "../../tools/Brush";
 import * as Picker from "../../tools/Picker";
+import * as Arrays from "../../utils/Arrays";
+import * as Coordinates from "../../utils/Coordinates";
 
-import GUI from "../../gui/GUI";
 import NumberProperty from "../../config/NumberProperty";
-import ObjectIndex from "../../core/ObjectIndex";
 import Property from "../../config/Property";
+import ObjectIndex from "../../core/ObjectIndex";
+import GUI from "../../gui/GUI";
 import Template from "../../template/Template";
 
 const EMPTY_STRING = "(empty)";

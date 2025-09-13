@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -16,8 +16,9 @@ export default new GUI.Tab({
     padding: 8,
     margin: GUI.Margin.uniform(8),
 }).add(
-    new GUI.Label({ text: "Version:  2.0.7  (2024-04-20)", }),
+    new GUI.Label({ text: "Version:  2.0.8  (2025-09-13)", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
+        new GUI.Label({ text: "- Add option to replace with random colours." }),
         new GUI.Label({ text: "- Correctly count scenery in construction rights area." }),
         new GUI.Label({ text: "- Removed lag during loading of scenario." }),
         new GUI.Label({ text: "- Improve pasting of surface." }),
@@ -26,14 +27,6 @@ export default new GUI.Tab({
         new GUI.Label({ text: "- Fix copy & paste for new track elements." }),
         new GUI.Label({ text: "- Fix footpath addition place in safe mode." }),
         new GUI.Label({ text: "- Tertiary colours for large scenery." }),
-        new GUI.Space(2),
-        new GUI.Label({ text: "- Raw place mode, copy & paste surface / terrain." }),
-        new GUI.Label({ text: "- Restrict pasting vertically." }),
-        new GUI.Label({ text: "- Height offset in scatter tool." }),
-        new GUI.Label({ text: "- NSF (.park) support." }),
-        new GUI.Label({ text: "- Object index, jump to instance of object." }),
-        new GUI.Label({ text: "- Search and replace scenery and footpaths." }),
-        new GUI.Label({ text: "- Multi-select area." }),
     ),
     new GUI.GroupBox({ text: "Known problems" }).add(
         new GUI.Label({ text: "- [Safe mode] Copy / paste does not work well on sloped surfaces." }),

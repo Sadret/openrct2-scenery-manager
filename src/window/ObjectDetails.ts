@@ -1,18 +1,18 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Replace from "./tabs/Replace";
 import * as Strings from "../utils/Strings";
+import * as Replace from "./tabs/Replace";
 
 import BooleanProperty from "../config/BooleanProperty";
+import ObjectIndex from "../core/ObjectIndex";
 import GUI from "../gui/GUI";
 import Jumper from "../utils/Jumper";
 import MainWindow from "./MainWindow";
-import ObjectIndex from "../core/ObjectIndex";
 
 function match(element: TileElement, object: SceneryObject): boolean {
     switch (object.type) {

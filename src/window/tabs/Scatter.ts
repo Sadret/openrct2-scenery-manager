@@ -1,26 +1,26 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as Arrays from "../../utils/Arrays";
-import * as Brush from "../../tools/Brush";
-import * as FileDialogs from "../FileDialogs";
 import * as Map from "../../core/Map";
-import * as Picker from "../../tools/Picker";
-import * as SmallScenery from "../../template/SmallScenery";
 import * as Storage from "../../persistence/Storage";
+import * as SmallScenery from "../../template/SmallScenery";
+import * as Brush from "../../tools/Brush";
+import * as Picker from "../../tools/Picker";
+import * as Arrays from "../../utils/Arrays";
+import * as FileDialogs from "../FileDialogs";
 
 import BooleanProperty from "../../config/BooleanProperty";
 import Configuration from "../../config/Configuration";
-import GUI from "../../gui/GUI";
 import NumberProperty from "../../config/NumberProperty";
-import ObjectIndex from "../../core/ObjectIndex";
 import Property from "../../config/Property";
-import ScatterPatternView from "../widgets/ScatterPatternView";
+import ObjectIndex from "../../core/ObjectIndex";
+import GUI from "../../gui/GUI";
 import Template from "../../template/Template";
+import ScatterPatternView from "../widgets/ScatterPatternView";
 
 const heightOffsetEnabled = new BooleanProperty(false);
 const heightOffset = new NumberProperty(0, 0);

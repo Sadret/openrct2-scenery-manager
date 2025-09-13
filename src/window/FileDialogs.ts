@@ -1,13 +1,13 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
+import GUI from "../gui/GUI";
 import FileExplorer from "./widgets/FileExplorer";
 import FileView from "./widgets/FileView";
-import GUI from "../gui/GUI";
 
 export function showSave<T>(args: {
     title: string,
@@ -16,14 +16,14 @@ export function showSave<T>(args: {
     fileContent: T,
 }): void {
     args.fileView.openFile = (file: IFile<T>) => {
-        args.fileView.getWindow() ?.close();
+        args.fileView.getWindow()?.close();
         file.setContent(args.fileContent);
     };
     args.fileView.watch(args.fileSystem);
 
     const fileExplorer = new FileExplorer<T>(args.fileView, true);
     fileExplorer.createFile = () => args.fileContent;
-    fileExplorer.onFileCreation = () => fileExplorer.getWindow() ?.close();
+    fileExplorer.onFileCreation = () => fileExplorer.getWindow()?.close();
 
     new GUI.WindowManager(
         {
@@ -45,7 +45,7 @@ export function showLoad<T>(args: {
     onLoad: (fileContent: T) => void,
 }): void {
     args.fileView.openFile = (file: IFile<T>) => {
-        args.fileView.getWindow() ?.close();
+        args.fileView.getWindow()?.close();
         args.onLoad(file.getContent());
     };
     args.fileView.watch(args.fileSystem);

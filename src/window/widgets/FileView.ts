@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -8,9 +8,9 @@
 import * as Arrays from "../../utils/Arrays";
 import * as Strings from "../../utils/Strings";
 
-import File from "../../persistence/File";
-import GUI from "../../gui/GUI";
 import Property from "../../config/Property";
+import GUI from "../../gui/GUI";
+import File from "../../persistence/File";
 
 export default class FileView<T> extends GUI.ListView {
     private folder: IFile<T> | undefined = undefined;
@@ -57,14 +57,14 @@ export default class FileView<T> extends GUI.ListView {
     }
 
     public getSelectedFile(): IFile<T> | undefined {
-        const idx = this.args.selectedCell ?.row;
+        const idx = this.args.selectedCell?.row;
         if (idx === undefined)
             return undefined;
         return idx === undefined ? undefined : this.files[idx];
     }
 
     private onClick(row: number): void {
-        if (row === this.args.selectedCell ?.row) {
+        if (row === this.args.selectedCell?.row) {
             const file = this.getSelectedFile();
             if (file === undefined)
                 return;

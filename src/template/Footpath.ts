@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -115,12 +115,12 @@ export function copyTo(
 ): void {
     copyBase(src, dst, footpath, addition);
     if (footpath) {
-        dst.object = ObjectIndex.getObject("footpath", src.qualifier) ?.index ?? null;
-        dst.surfaceObject = ObjectIndex.getObject("footpath_surface", src.surfaceQualifier) ?.index ?? null;
-        dst.railingsObject = ObjectIndex.getObject("footpath_railings", src.railingsQualifier) ?.index ?? null;
+        dst.object = ObjectIndex.getObject("footpath", src.qualifier)?.index ?? null;
+        dst.surfaceObject = ObjectIndex.getObject("footpath_surface", src.surfaceQualifier)?.index ?? null;
+        dst.railingsObject = ObjectIndex.getObject("footpath_railings", src.railingsQualifier)?.index ?? null;
     }
     if (addition)
-        dst.addition = ObjectIndex.getObject("footpath_addition", src.additionQualifier) ?.index ?? null;
+        dst.addition = ObjectIndex.getObject("footpath_addition", src.additionQualifier)?.index ?? null;
 }
 
 export function getPlaceActionData(
@@ -145,7 +145,7 @@ export function getPlaceActionData(
                     z: element.baseZ,
                     flags: flags,
                     object: object.index,
-                    railingsObject: ObjectIndex.getObject("footpath_railings", element.railingsQualifier) ?.index ?? 0,
+                    railingsObject: ObjectIndex.getObject("footpath_railings", element.railingsQualifier)?.index ?? 0,
                     direction: 0xFF,
                     slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
                     constructFlags: Number(element.isQueue) + (Number(isLegacy) << 1),

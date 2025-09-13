@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -8,11 +8,11 @@
 import * as Selections from "../utils/Selections";
 import * as Strings from "../utils/Strings";
 
-import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
-import GUI from "../gui/GUI";
-import MainWindow from "../window/MainWindow";
 import Property from "../config/Property";
+import GUI from "../gui/GUI";
+import Builder from "../tools/Builder";
+import MainWindow from "../window/MainWindow";
 
 type BrushProvider = (coords: CoordsXY) => TileData;
 

@@ -1,27 +1,27 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
  *****************************************************************************/
 
-import * as FileDialogs from "../window/FileDialogs";
-import * as Footpath from "../template/Footpath";
 import * as Map from "../core/Map";
+import * as UI from "../core/UI";
+import * as Storage from "../persistence/Storage";
+import * as Footpath from "../template/Footpath";
 import * as Objects from "../utils/Objects";
 import * as Selections from "../utils/Selections";
-import * as Storage from "../persistence/Storage";
-import * as UI from "../core/UI";
+import * as FileDialogs from "../window/FileDialogs";
 
 import BooleanProperty from "../config/BooleanProperty";
-import Builder from "../tools/Builder";
 import Configuration from "../config/Configuration";
+import NumberProperty from "../config/NumberProperty";
+import Template from "../template/Template";
+import Builder from "../tools/Builder";
 import MapIterator from "../utils/MapIterator";
 import MissingObjectList from "../window/MissingObjectList";
-import NumberProperty from "../config/NumberProperty";
-import ObjectIndex from "./ObjectIndex";
-import Template from "../template/Template";
 import TemplateView from "../window/widgets/TemplateView";
+import ObjectIndex from "./ObjectIndex";
 
 export const settings = {
     filter: {

@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -111,7 +111,7 @@ export function getRemoveActionData(
 
 function getObject(element: SmallSceneryData | SmallSceneryElement): number | undefined {
     if ("object" in element) return element.object;
-    else return ObjectIndex.getObject("small_scenery", element.qualifier) ?.index;
+    else return ObjectIndex.getObject("small_scenery", element.qualifier)?.index;
 
 }
 

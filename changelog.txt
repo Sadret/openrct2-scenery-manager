@@ -1,3 +1,7 @@
+2.0.8 (2025-09-13)
+------------------------------------------------------------------------
+- Feature: Add option to replace with random colours.
+
 2.0.7 (2025-04-20)
 ------------------------------------------------------------------------
 - Improved: Removed noticeable lag during loading of scenario.

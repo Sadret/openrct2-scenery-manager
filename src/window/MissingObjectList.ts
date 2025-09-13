@@ -1,5 +1,5 @@
 /*****************************************************************************
- * Copyright (c) 2020-2022 Sadret
+ * Copyright (c) 2020-2025 Sadret
  *
  * The OpenRCT2 plugin "Scenery Manager" is licensed
  * under the GNU General Public License version 3.
@@ -17,7 +17,7 @@ export default class extends GUI.WindowManager {
         templateData.tiles.forEach(tileData =>
             tileData.elements.forEach(element =>
                 Template.getMissingObjects(element).forEach(object => {
-                    set[object.type] ||= { };
+                    set[object.type] ||= {};
                     set[object.type][object.qualifier] = true;
                 })
             )
