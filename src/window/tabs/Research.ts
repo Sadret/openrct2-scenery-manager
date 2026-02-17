@@ -16,8 +16,10 @@ export default new GUI.Tab({
     padding: 8,
     margin: GUI.Margin.uniform(8),
 }).add(
-    new GUI.Label({ text: "Version:  2.0.8  (2025-09-13)", }),
+    new GUI.Label({ text: "Version:  2.0.9  (2026-02-17)", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
+        new GUI.Label({ text: "- Search/replace now replaces footpath additions." }),
+        new GUI.Label({ text: "- Adjust footpath placing to new API." }),
         new GUI.Label({ text: "- Add option to replace with random colours." }),
         new GUI.Label({ text: "- Correctly count scenery in construction rights area." }),
         new GUI.Label({ text: "- Removed lag during loading of scenario." }),

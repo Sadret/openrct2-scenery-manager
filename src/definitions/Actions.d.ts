@@ -43,7 +43,8 @@ interface FootpathPlaceArgs extends PlaceActionArgs {
     readonly direction: 0xFF;
     readonly object: number;
     readonly railingsObject: number;
-    readonly slope: number;
+    readonly slopeDirection: number;
+    readonly slopeType: number;
     readonly constructFlags: number;
 }
 

@@ -147,7 +147,9 @@ export function getPlaceActionData(
                     object: object.index,
                     railingsObject: ObjectIndex.getObject("footpath_railings", element.railingsQualifier)?.index ?? 0,
                     direction: 0xFF,
-                    slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4),
+                    slopeDirection: element.slopeDirection === null ? 0 : element.slopeDirection,
+                    slopeType: element.slopeDirection === null ? 0 : 1,
+                    slope: element.slopeDirection === null ? 0 : (element.slopeDirection | 0x4), // pre v0.4.28 compatibility
                     constructFlags: Number(element.isQueue) + (Number(isLegacy) << 1),
                 },
             });

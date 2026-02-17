@@ -1,3 +1,8 @@
+2.0.9 (20256-02-17)
+------------------------------------------------------------------------
+- Fix: [#45] Search/replace now replaces footpath additions.
+- Fix: [#53] Adjust footpath place args to changes in API.
+
 2.0.8 (2025-09-13)
 ------------------------------------------------------------------------
 - Feature: Add option to replace with random colours.

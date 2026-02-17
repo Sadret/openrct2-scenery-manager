@@ -206,6 +206,7 @@ export default class SceneryFilterGroup extends GUI.GroupBox {
             case "footpath":
                 this.replaceObject(this.surface, value => element.surfaceObject = value);
                 this.replaceObject(this.railings, value => element.railingsObject = value);
+                this.replaceObject(this.addition, value => element.addition = value);
                 return;
             case "wall":
             case "large_scenery":
