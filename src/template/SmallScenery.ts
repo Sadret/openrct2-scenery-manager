@@ -14,16 +14,19 @@ export function getMissingObjects(element: SmallSceneryData): MissingObject[] {
 }
 
 export function rotate(element: SmallSceneryData, rotation: number): SmallSceneryData {
+    rotation %= 4;
     return {
         ...element,
         direction: Directions.rotate(element.direction, rotation),
         quadrant: isFullTile(element) ? element.quadrant : Directions.rotate(element.quadrant, rotation),
+        occupiedQuadrants: ((element.occupiedQuadrants << rotation) | (element.occupiedQuadrants >>> (4 - rotation))) & 0b1111,
     };
 }
 
 export function mirror(element: SmallSceneryData): SmallSceneryData {
     let direction = element.direction;
     let quadrant = element.quadrant;
+    let occupiedQuadrants = element.occupiedQuadrants;
 
     if (!isFullTile(element))
         quadrant ^= 0x1;
@@ -32,10 +35,13 @@ export function mirror(element: SmallSceneryData): SmallSceneryData {
     else if (direction & 0x1)
         direction ^= 0x2;
 
+    occupiedQuadrants = ((occupiedQuadrants & 0b1010) >> 1) | ((occupiedQuadrants & 0b0101) << 1);
+
     return {
         ...element,
         direction: direction as Direction,
         quadrant: quadrant,
+        occupiedQuadrants: occupiedQuadrants,
     };
 }
 

@@ -1,5 +1,6 @@
 2.0.9 (20256-02-17)
 ------------------------------------------------------------------------
+- Fix: [#44] Correctly set occupied quadrants in raw mode.
 - Fix: [#45] Search/replace now replaces footpath additions.
 - Fix: [#53] Adjust footpath place args to changes in API.
 

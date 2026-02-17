@@ -18,6 +18,7 @@ export default new GUI.Tab({
 }).add(
     new GUI.Label({ text: "Version:  2.0.9  (2026-02-17)", }),
     new GUI.GroupBox({ text: "Latest changes" }).add(
+        new GUI.Label({ text: "- Correctly set occupied quadrants in raw mode." }),
         new GUI.Label({ text: "- Search/replace now replaces footpath additions." }),
         new GUI.Label({ text: "- Adjust footpath placing to new API." }),
         new GUI.Label({ text: "- Add option to replace with random colours." }),
