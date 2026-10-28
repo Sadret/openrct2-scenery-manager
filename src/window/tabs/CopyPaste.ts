@@ -102,6 +102,15 @@ const options = new GUI.GroupBox({
             Strings.toDisplayString,
         )
     ),
+    new GUI.HBox([1, 1]).add(
+        new GUI.Label({
+            text: "Confirm paste:",
+        }),
+        new GUI.TextButton({
+        }).bindValue(
+            Configuration.paste.confirm,
+        ),
+    ),
 );
 Events.startup.register(() => {
     if (Configuration.window.showAdvancedCopyPasteSettings.getValue())

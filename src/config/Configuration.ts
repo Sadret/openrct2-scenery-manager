@@ -33,6 +33,7 @@ const Configuration = {
         },
         appendToEnd: new BooleanProperty(false),
         mergeSurface: new BooleanProperty(false),
+        confirm: new BooleanProperty(false),
     },
     cut: {
         cutSurface: new BooleanProperty(false),

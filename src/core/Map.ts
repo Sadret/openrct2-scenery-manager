@@ -11,6 +11,7 @@ import * as Arrays from "../utils/Arrays";
 import * as Coordinates from "../utils/Coordinates";
 import * as Objects from "../utils/Objects";
 import * as Context from "./Context";
+import * as Rides from "./Rides";
 
 import Template from "../template/Template";
 
@@ -46,6 +47,108 @@ export function read(
     return tile.elements.map(element => Template.copy(element));
 }
 
+function placeSafe(
+    templateData: TileData[],
+    flags: number,
+    filter: TypeFilter,
+): void {
+    // walls
+    if (filter("wall"))
+        templateData.forEach(tileData =>
+            tileData.elements.forEach(element => {
+                if (element.type === "wall")
+                    Template.getPlaceActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
+            })
+        );
+    // paths
+    if (filter("footpath") || filter("footpath_addition"))
+        templateData.forEach(tileData =>
+            tileData.elements.forEach(element => {
+                if (element.type === "footpath") {
+                    if (filter("footpath"))
+                        Template.getPlaceActionData(tileData, element, flags).forEach(
+                            data => Context.queryExecuteActionCallback(data, _ => {
+                                if (element.additionQualifier !== null && filter("footpath_addition"))
+                                    Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
+                            })
+                        );
+                    // duplicate code below
+                    if (element.additionQualifier !== null && filter("footpath_addition"))
+                        Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
+                }
+            })
+        );
+    // remaining
+    templateData.forEach(tileData =>
+        tileData.elements.forEach(element => {
+            if (element.type !== "wall" && element.type !== "footpath" && filter(element.type))
+                Template.getPlaceActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
+        })
+    );
+}
+
+function getPlaceActions(
+    templateData: TileData[],
+    filter: TypeFilter,
+    flags: number,
+    test: (element: ElementData) => boolean,
+): PlaceActionData[] {
+    const actions = [] as PlaceActionData[];
+    templateData.forEach(tileData =>
+        tileData.elements.forEach(element => {
+            if (test(element) && filter(element.type))
+                actions.push(...Template.getPlaceActionData(tileData, element, flags));
+        })
+    );
+    return actions;
+}
+
+function queryExecuteAll(actions: PlaceActionData[], callback: () => void): void {
+    let pending = actions.length;
+    if (pending === 0)
+        return callback();
+    actions.forEach(data => Context.queryExecuteActionCallback(data, () => --pending === 0 && callback()));
+}
+
+/*
+ * Real pastes wait for each step, so that paths connect to the entrances placed before them
+ * and entrances find their track. Ghosts keep the faster unordered placement.
+ */
+function placeSafeInOrder(
+    templateData: TileData[],
+    flags: number,
+    filter: TypeFilter,
+): void {
+    getPlaceActions(templateData, filter, flags, element => element.type === "wall").forEach(Context.queryExecuteAction);
+    queryExecuteAll(getPlaceActions(templateData, filter, flags, element => element.type === "track"), () =>
+        queryExecuteAll(getPlaceActions(templateData, filter, flags, element => element.type === "entrance"), () => {
+            const placeRest = () => getPlaceActions(templateData, filter, flags, element =>
+                ["wall", "footpath", "track", "entrance"].indexOf(element.type) === -1
+            ).forEach(Context.queryExecuteAction);
+            const paths = [] as { data: PlaceActionData, tileData: TileData, element: FootpathData }[];
+            templateData.forEach(tileData =>
+                tileData.elements.forEach(element => {
+                    if (element.type !== "footpath")
+                        return;
+                    const pathActions = filter("footpath") ? Template.getPlaceActionData(tileData, element, flags) : [];
+                    pathActions.forEach(data => paths.push({ data: data, tileData: tileData, element: element }));
+                    if (pathActions.length === 0 && element.additionQualifier !== null && filter("footpath_addition"))
+                        Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
+                })
+            );
+            let pending = paths.length;
+            if (pending === 0)
+                return placeRest();
+            paths.forEach(path => Context.queryExecuteActionCallback(path.data, () => {
+                if (path.element.additionQualifier !== null && filter("footpath_addition"))
+                    Footpath.getPlaceActionData(Coordinates.toWorldCoords(path.tileData), path.element, flags, true).forEach(Context.queryExecuteAction);
+                if (--pending === 0)
+                    placeRest();
+            }));
+        })
+    );
+}
+
 export function place(
     templateData: TileData[],
     mode: PlaceMode,
@@ -55,41 +158,11 @@ export function place(
     mergeSurface: boolean = false,
 ): void {
     if (mode === "safe") {
-        // TODO: ensure order in async case for all types
         const flags = isGhost ? 72 : 0;
-        // walls
-        if (filter("wall"))
-            templateData.forEach(tileData =>
-                tileData.elements.forEach(element => {
-                    if (element.type === "wall")
-                        Template.getPlaceActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
-                })
-            );
-        // paths
-        if (filter("footpath") || filter("footpath_addition"))
-            templateData.forEach(tileData =>
-                tileData.elements.forEach(element => {
-                    if (element.type === "footpath") {
-                        if (filter("footpath"))
-                            Template.getPlaceActionData(tileData, element, flags).forEach(
-                                data => Context.queryExecuteActionCallback(data, _ => {
-                                    if (element.additionQualifier !== null && filter("footpath_addition"))
-                                        Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
-                                })
-                            );
-                        // duplicate code below
-                        if (element.additionQualifier !== null && filter("footpath_addition"))
-                            Footpath.getPlaceActionData(Coordinates.toWorldCoords(tileData), element, flags, true).forEach(Context.queryExecuteAction);
-                    }
-                })
-            );
-        // remaining
-        templateData.forEach(tileData =>
-            tileData.elements.forEach(element => {
-                if (element.type !== "wall" && element.type !== "footpath" && filter(element.type))
-                    Template.getPlaceActionData(tileData, element, flags).forEach(Context.queryExecuteAction);
-            })
-        );
+        if (isGhost)
+            placeSafe(templateData, flags, filter);
+        else
+            Rides.remap(templateData, filter, data => placeSafeInOrder(data, flags, filter));
     } else
         templateData.forEach(tileData => {
             const tile = getTile(tileData);
